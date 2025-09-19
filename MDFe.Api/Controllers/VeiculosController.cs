@@ -79,7 +79,7 @@ namespace MDFeApi.Controllers
                     Ano = veiculoDto.Ano,
                     Cor = veiculoDto.Cor,
                     Combustivel = veiculoDto.Combustivel,
-                    Tara = veiculoDto.Tara ?? 0,
+                    Tara = veiculoDto.Tara,
                     CapacidadeKg = veiculoDto.CapacidadeKg,
                     TipoRodado = veiculoDto.TipoRodado,
                     TipoCarroceria = veiculoDto.TipoCarroceria,
@@ -127,7 +127,7 @@ namespace MDFeApi.Controllers
                 veiculo.Ano = veiculoDto.Ano;
                 veiculo.Cor = veiculoDto.Cor;
                 veiculo.Combustivel = veiculoDto.Combustivel;
-                veiculo.Tara = veiculoDto.Tara ?? 0;
+                veiculo.Tara = veiculoDto.Tara;
                 veiculo.CapacidadeKg = veiculoDto.CapacidadeKg;
                 veiculo.TipoRodado = veiculoDto.TipoRodado;
                 veiculo.TipoCarroceria = veiculoDto.TipoCarroceria;

@@ -1,24 +1,47 @@
 using System.ComponentModel.DataAnnotations;
+using MDFeApi.Attributes;
 
 namespace MDFeApi.DTOs
 {
     public class CondutorCreateDto
     {
-        [Required]
-        [MaxLength(200)]
+        [Required(ErrorMessage = "Nome é obrigatório")]
+        [MaxLength(200, ErrorMessage = "Nome deve ter no máximo 200 caracteres")]
+        [MinLength(2, ErrorMessage = "Nome deve ter pelo menos 2 caracteres")]
         public string Nome { get; set; } = string.Empty;
-        
-        [Required]
-        [MaxLength(11)]
+
+        [Required(ErrorMessage = "CPF é obrigatório")]
+        [MaxLength(11, ErrorMessage = "CPF deve ter no máximo 11 caracteres")]
+        [Cpf(ErrorMessage = "CPF deve ser válido")]
         public string Cpf { get; set; } = string.Empty;
-        
-        [MaxLength(20)]
+
+        [MaxLength(20, ErrorMessage = "Telefone deve ter no máximo 20 caracteres")]
+        [Phone(ErrorMessage = "Formato de telefone inválido")]
         public string? Telefone { get; set; }
     }
 
     public class CondutorUpdateDto : CondutorCreateDto
     {
         // Mesmas propriedades que CondutorCreateDto
+    }
+
+    public class CondutorResponseDto
+    {
+        public int Id { get; set; }
+        public string Nome { get; set; } = string.Empty;
+        public string Cpf { get; set; } = string.Empty;
+        public string? Telefone { get; set; }
+        public bool Ativo { get; set; }
+        public DateTime DataCriacao { get; set; }
+    }
+
+    public class CondutorListDto
+    {
+        public int Id { get; set; }
+        public string Nome { get; set; } = string.Empty;
+        public string Cpf { get; set; } = string.Empty;
+        public string? Telefone { get; set; }
+        public bool Ativo { get; set; }
     }
 
     public class CondutorSimpleDto
@@ -28,7 +51,7 @@ namespace MDFeApi.DTOs
         public string Nome { get; set; } = "";
 
         [Required(ErrorMessage = "CPF do condutor é obrigatório")]
-        [RegularExpression(@"^\d{11}$", ErrorMessage = "CPF deve conter exatamente 11 dígitos")]
+        [Cpf(ErrorMessage = "CPF deve ser válido")]
         public string Cpf { get; set; } = "";
 
         [Phone(ErrorMessage = "Formato de telefone inválido")]

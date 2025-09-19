@@ -1,4 +1,5 @@
 import { MDFeData, RespostaACBr } from '../types/mdfe';
+import { ErrorMessageHelper } from '../utils/errorMessages';
 
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://localhost:5001/api';
 
@@ -19,10 +20,17 @@ class MDFeService {
       const data = await response.json();
 
       if (!response.ok) {
+        const errorMessage = data.mensagem ||
+                           ErrorMessageHelper.getApiErrorMessage({
+                             ...data,
+                             status: response.status
+                           });
+
         return {
           sucesso: false,
-          mensagem: data.mensagem || 'Erro na requisição',
-          codigoErro: data.codigoErro || response.status.toString()
+          mensagem: errorMessage,
+          codigoErro: data.codigoErro || response.status.toString(),
+          detalhesValidacao: data.errors || undefined
         };
       }
 
@@ -32,9 +40,13 @@ class MDFeService {
         dados: data.dados || data
       };
     } catch (error) {
+      const errorMessage = error instanceof Error ?
+        error.message :
+        ErrorMessageHelper.getGenericErrorMessage('NETWORK_ERROR');
+
       return {
         sucesso: false,
-        mensagem: error instanceof Error ? error.message : 'Erro de comunicação com a API',
+        mensagem: errorMessage,
         codigoErro: 'NETWORK_ERROR'
       };
     }
@@ -136,6 +148,94 @@ class MDFeService {
 
   async obterStatus(): Promise<RespostaACBr> {
     return this.request('/mdfe/status', {
+      method: 'GET'
+    });
+  }
+
+  // ===== NOVOS MÉTODOS PARA COMPATIBILIDADE COM O WIZARD =====
+
+  /**
+   * Criar MDFe usando o wizard inteligente
+   * Suporte a auto-preenchimento e cálculos automáticos
+   */
+  async criarMDFeWizard(mdfeData: MDFeData): Promise<RespostaACBr> {
+    return this.request('/mdfe/wizard', {
+      method: 'POST',
+      body: JSON.stringify(mdfeData)
+    });
+  }
+
+  /**
+   * Atualizar MDFe usando o wizard
+   */
+  async atualizarMDFeWizard(id: number, mdfeData: MDFeData): Promise<RespostaACBr> {
+    return this.request(`/mdfe/wizard/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(mdfeData)
+    });
+  }
+
+  /**
+   * Obter MDFe no formato do wizard
+   */
+  async obterMDFeWizard(id: number): Promise<RespostaACBr> {
+    return this.request(`/mdfe/wizard/${id}`, {
+      method: 'GET'
+    });
+  }
+
+  /**
+   * Salvar rascunho do MDFe (compatível com wizard)
+   */
+  async salvarRascunhoWizard(mdfeData: Partial<MDFeData>): Promise<RespostaACBr> {
+    return this.request('/mdfe/salvar-rascunho', {
+      method: 'POST',
+      body: JSON.stringify(mdfeData)
+    });
+  }
+
+  /**
+   * Listar MDFes com paginação
+   */
+  async listarMDFes(params?: {
+    emitenteId?: number;
+    pagina?: number;
+    tamanhoPagina?: number;
+  }): Promise<RespostaACBr> {
+    const searchParams = new URLSearchParams();
+
+    if (params?.emitenteId) {
+      searchParams.append('emitenteId', params.emitenteId.toString());
+    }
+    if (params?.pagina) {
+      searchParams.append('pagina', params.pagina.toString());
+    }
+    if (params?.tamanhoPagina) {
+      searchParams.append('tamanhoPagina', params.tamanhoPagina.toString());
+    }
+
+    const queryString = searchParams.toString();
+    const url = queryString ? `/mdfe?${queryString}` : '/mdfe';
+
+    return this.request(url, {
+      method: 'GET'
+    });
+  }
+
+  /**
+   * Obter próximo número do MDFe
+   */
+  async obterProximoNumero(emitenteCnpj?: string): Promise<RespostaACBr> {
+    const searchParams = new URLSearchParams();
+
+    if (emitenteCnpj) {
+      searchParams.append('emitenteCnpj', emitenteCnpj);
+    }
+
+    const queryString = searchParams.toString();
+    const url = queryString ? `/mdfe/proximo-numero?${queryString}` : '/mdfe/proximo-numero';
+
+    return this.request(url, {
       method: 'GET'
     });
   }

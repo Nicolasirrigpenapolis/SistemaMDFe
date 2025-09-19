@@ -1,13 +1,16 @@
 using System.ComponentModel.DataAnnotations;
+using MDFeApi.Attributes;
 
 namespace MDFeApi.DTOs
 {
     public class EmitenteCreateDto
     {
         [MaxLength(14, ErrorMessage = "CNPJ deve ter no máximo 14 caracteres")]
+        [Cnpj(ErrorMessage = "CNPJ deve ser válido")]
         public string? Cnpj { get; set; }
 
         [MaxLength(11, ErrorMessage = "CPF deve ter no máximo 11 caracteres")]
+        [Cpf(ErrorMessage = "CPF deve ser válido")]
         public string? Cpf { get; set; }
 
         [MaxLength(20, ErrorMessage = "IE deve ter no máximo 20 caracteres")]

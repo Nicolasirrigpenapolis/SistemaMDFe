@@ -1,4 +1,5 @@
 import { RespostaACBr } from '../types/mdfe';
+import { ErrorMessageHelper } from '../utils/errorMessages';
 
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://localhost:5001/api';
 
@@ -26,10 +27,17 @@ class EntitiesService {
       const data = await response.json();
 
       if (!response.ok) {
+        const errorMessage = data.message ||
+                           ErrorMessageHelper.getApiErrorMessage({
+                             ...data,
+                             status: response.status
+                           });
+
         return {
           sucesso: false,
-          mensagem: data.message || 'Erro na requisição',
-          codigoErro: data.errorCode || response.status.toString()
+          mensagem: errorMessage,
+          codigoErro: data.errorCode || response.status.toString(),
+          detalhesValidacao: data.errors || undefined
         };
       }
 
@@ -39,9 +47,13 @@ class EntitiesService {
         dados: data.data || data
       };
     } catch (error) {
+      const errorMessage = error instanceof Error ?
+        error.message :
+        ErrorMessageHelper.getGenericErrorMessage('NETWORK_ERROR');
+
       return {
         sucesso: false,
-        mensagem: error instanceof Error ? error.message : 'Erro de comunicação com a API',
+        mensagem: errorMessage,
         codigoErro: 'NETWORK_ERROR'
       };
     }

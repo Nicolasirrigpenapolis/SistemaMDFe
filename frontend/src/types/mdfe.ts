@@ -259,6 +259,7 @@ export interface RespostaACBr {
   mensagem: string;
   dados?: any;
   codigoErro?: string;
+  detalhesValidacao?: Record<string, string[]>;
 }
 
 export interface ReciboConciliacaoData {
