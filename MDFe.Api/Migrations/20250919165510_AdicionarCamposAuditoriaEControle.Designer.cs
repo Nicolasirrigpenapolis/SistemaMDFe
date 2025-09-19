@@ -4,6 +4,7 @@ using MDFeApi.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace MDFeApi.Migrations
 {
     [DbContext(typeof(MDFeContext))]
-    partial class MDFeContextModelSnapshot : ModelSnapshot
+    [Migration("20250919165510_AdicionarCamposAuditoriaEControle")]
+    partial class AdicionarCamposAuditoriaEControle
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

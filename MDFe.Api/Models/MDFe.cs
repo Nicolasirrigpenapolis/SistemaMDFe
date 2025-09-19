@@ -388,6 +388,23 @@ namespace MDFeApi.Models
         public string MunicipioFim { get; set; } = string.Empty;
         public decimal? PesoBrutoTotal { get; set; }
 
+        // === AUDITORIA E CONTROLE ===
+        [MaxLength(200)]
+        public string? UsuarioCriacao { get; set; }
+
+        [MaxLength(200)]
+        public string? UsuarioUltimaAlteracao { get; set; }
+
+        [MaxLength(100)]
+        public string? VersaoSistema { get; set; } = "1.0.0";
+
+        [MaxLength(500)]
+        public string? ObservacoesInternas { get; set; }
+
+        // === BACKUP DOS DADOS ORIGINAIS ===
+        [Column(TypeName = "nvarchar(max)")]
+        public string? DadosOriginaisJson { get; set; } // Backup dos dados originais dos cadastros
+
         // Propriedades computadas
         [NotMapped]
         public bool Ativo { get; set; } = true;

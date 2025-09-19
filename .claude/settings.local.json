@@ -48,7 +48,8 @@
       "WebFetch(domain:dfe-portal.svrs.rs.gov.br)",
       "Bash(find:*)",
       "Bash(sed:*)",
-      "Bash(start \"MDFe Frontend\" npm start)"
+      "Bash(start \"MDFe Frontend\" npm start)",
+      "Bash(git push:*)"
     ],
     "deny": []
   }
