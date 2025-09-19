@@ -185,6 +185,292 @@ namespace MDFeApi.Controllers
         }
 
         /// <summary>
+        /// Testa a geração de XML usando ACBr
+        /// </summary>
+        [HttpPost("testar-xml")]
+        public async Task<IActionResult> TestarGeracaoXML([FromBody] TestarXMLRequest request)
+        {
+            try
+            {
+                var mdfe = await _context.MDFes
+                    .Include(m => m.Emitente)
+                    .Include(m => m.Condutor)
+                    .Include(m => m.Veiculo)
+                    .FirstOrDefaultAsync(m => m.Id == request.MDFeId);
+
+                if (mdfe == null)
+                    return NotFound(new { message = "MDFe não encontrado" });
+
+                // Testar a geração de XML usando o serviço ACBr
+                var xmlGerado = await _acbrService.GerarMDFeAsync(request.MDFeId);
+
+                return Ok(new
+                {
+                    MDFeId = request.MDFeId,
+                    DataTeste = DateTime.Now,
+                    XMLGerado = !string.IsNullOrEmpty(xmlGerado),
+                    TamanhoXML = xmlGerado?.Length ?? 0,
+                    ConteudoXML = request.IncluirXML ? xmlGerado : "[XML gerado - use incluirXML=true para ver o conteúdo]",
+                    Sucesso = !string.IsNullOrEmpty(xmlGerado),
+                    ErroDetalhes = string.IsNullOrEmpty(xmlGerado) ? "XML não foi gerado" : null
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erro ao testar geração de XML para MDFe {MDFeId}", request.MDFeId);
+                return Ok(new
+                {
+                    MDFeId = request.MDFeId,
+                    DataTeste = DateTime.Now,
+                    XMLGerado = false,
+                    Sucesso = false,
+                    ErroDetalhes = ex.Message
+                });
+            }
+        }
+
+        /// <summary>
+        /// Testa a assinatura digital do MDFe
+        /// </summary>
+        [HttpPost("testar-assinatura")]
+        public async Task<IActionResult> TestarAssinatura()
+        {
+            try
+            {
+                var sucesso = await _acbrService.AssinarAsync();
+
+                return Ok(new
+                {
+                    DataTeste = DateTime.Now,
+                    AssinaturaRealizada = sucesso,
+                    Sucesso = sucesso,
+                    ErroDetalhes = sucesso ? null : "Falha na assinatura digital"
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erro ao testar assinatura digital");
+                return Ok(new
+                {
+                    DataTeste = DateTime.Now,
+                    AssinaturaRealizada = false,
+                    Sucesso = false,
+                    ErroDetalhes = ex.Message
+                });
+            }
+        }
+
+        /// <summary>
+        /// Testa a validação do MDFe
+        /// </summary>
+        [HttpPost("testar-validacao")]
+        public async Task<IActionResult> TestarValidacao()
+        {
+            try
+            {
+                var resultado = await _acbrService.ValidarAsync();
+
+                return Ok(new
+                {
+                    DataTeste = DateTime.Now,
+                    ValidacaoRealizada = resultado != null,
+                    ResultadoValidacao = resultado,
+                    Sucesso = resultado != null,
+                    ErroDetalhes = resultado == null ? "Validação falhou" : null
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erro ao testar validação");
+                return Ok(new
+                {
+                    DataTeste = DateTime.Now,
+                    ValidacaoRealizada = false,
+                    Sucesso = false,
+                    ErroDetalhes = ex.Message
+                });
+            }
+        }
+
+        /// <summary>
+        /// Testa o envio para SEFAZ
+        /// </summary>
+        [HttpPost("testar-envio")]
+        public async Task<IActionResult> TestarEnvio([FromBody] TestarEnvioRequest request)
+        {
+            try
+            {
+                var resultado = await _acbrService.EnviarAsync(request.Sincrono, request.NumeroLote, false, false);
+
+                return Ok(new
+                {
+                    DataTeste = DateTime.Now,
+                    NumeroLote = request.NumeroLote,
+                    Sincrono = request.Sincrono,
+                    EnvioRealizado = resultado != null,
+                    ResultadoEnvio = resultado,
+                    Sucesso = resultado != null,
+                    ErroDetalhes = resultado == null ? "Envio falhou" : null
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erro ao testar envio para SEFAZ");
+                return Ok(new
+                {
+                    DataTeste = DateTime.Now,
+                    NumeroLote = request.NumeroLote,
+                    Sincrono = request.Sincrono,
+                    EnvioRealizado = false,
+                    Sucesso = false,
+                    ErroDetalhes = ex.Message
+                });
+            }
+        }
+
+        /// <summary>
+        /// Testa a geração de PDF do MDFe
+        /// </summary>
+        [HttpPost("testar-pdf")]
+        public async Task<IActionResult> TestarGeracaoPDF([FromBody] TestarPDFRequest request)
+        {
+            try
+            {
+                var mdfe = await _context.MDFes.FindAsync(request.MDFeId);
+                if (mdfe == null)
+                    return NotFound(new { message = "MDFe não encontrado" });
+
+                var resultadoPdf = await _acbrService.SalvarPDFAsync();
+                var pdfGerado = resultadoPdf != null;
+
+                return Ok(new
+                {
+                    MDFeId = request.MDFeId,
+                    DataTeste = DateTime.Now,
+                    PDFGerado = pdfGerado,
+                    ResultadoPDF = resultadoPdf,
+                    Sucesso = pdfGerado,
+                    ErroDetalhes = pdfGerado ? null : "PDF não foi gerado"
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erro ao testar geração de PDF para MDFe {MDFeId}", request.MDFeId);
+                return Ok(new
+                {
+                    MDFeId = request.MDFeId,
+                    DataTeste = DateTime.Now,
+                    PDFGerado = false,
+                    Sucesso = false,
+                    ErroDetalhes = ex.Message
+                });
+            }
+        }
+
+        /// <summary>
+        /// Executa uma bateria completa de testes das funcionalidades ACBr
+        /// </summary>
+        [HttpPost("teste-completo")]
+        public async Task<IActionResult> TesteCompleto([FromBody] TesteCompletoRequest request)
+        {
+            var resultados = new Dictionary<string, object>();
+
+            try
+            {
+                var mdfe = await _context.MDFes
+                    .Include(m => m.Emitente)
+                    .Include(m => m.Condutor)
+                    .Include(m => m.Veiculo)
+                    .FirstOrDefaultAsync(m => m.Id == request.MDFeId);
+
+                if (mdfe == null)
+                {
+                    return NotFound(new { message = "MDFe não encontrado" });
+                }
+
+                resultados["iniciado"] = DateTime.Now;
+                resultados["mdfeId"] = request.MDFeId;
+
+                // 1. Teste de inicialização
+                try
+                {
+                    await _acbrService.InicializarAsync();
+                    resultados["inicializacao"] = new { sucesso = true, erro = (string)null };
+                }
+                catch (Exception ex)
+                {
+                    resultados["inicializacao"] = new { sucesso = false, erro = ex.Message };
+                }
+
+                // 2. Teste de geração XML
+                try
+                {
+                    var xml = await _acbrService.GerarMDFeAsync(request.MDFeId);
+                    resultados["geracaoXML"] = new { sucesso = !string.IsNullOrEmpty(xml), tamanho = xml?.Length ?? 0, erro = (string)null };
+                }
+                catch (Exception ex)
+                {
+                    resultados["geracaoXML"] = new { sucesso = false, erro = ex.Message };
+                }
+
+                // 3. Teste de validação
+                try
+                {
+                    var validacao = await _acbrService.ValidarAsync();
+                    resultados["validacao"] = new { sucesso = validacao != null, resultado = validacao, erro = (string)null };
+                }
+                catch (Exception ex)
+                {
+                    resultados["validacao"] = new { sucesso = false, erro = ex.Message };
+                }
+
+                // 4. Teste de assinatura
+                try
+                {
+                    var assinatura = await _acbrService.AssinarAsync();
+                    resultados["assinatura"] = new { sucesso = assinatura, erro = (string)null };
+                }
+                catch (Exception ex)
+                {
+                    resultados["assinatura"] = new { sucesso = false, erro = ex.Message };
+                }
+
+                // 5. Teste de certificado
+                try
+                {
+                    var certificado = await _acbrService.ValidarCertificadoAsync();
+                    resultados["certificado"] = new { sucesso = certificado, erro = (string)null };
+                }
+                catch (Exception ex)
+                {
+                    resultados["certificado"] = new { sucesso = false, erro = ex.Message };
+                }
+
+                resultados["finalizado"] = DateTime.Now;
+
+                var sucessos = resultados.Values.OfType<object>()
+                    .Where(r => r.GetType().GetProperty("sucesso")?.GetValue(r) is bool sucesso && sucesso)
+                    .Count();
+
+                resultados["resumo"] = new
+                {
+                    totalTestes = 5,
+                    sucessos = sucessos,
+                    falhas = 5 - sucessos,
+                    percentualSucesso = (sucessos / 5.0) * 100
+                };
+
+                return Ok(resultados);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erro no teste completo");
+                resultados["erro_geral"] = ex.Message;
+                return StatusCode(500, resultados);
+            }
+        }
+
+        /// <summary>
         /// Testa a geração de um INI de exemplo
         /// </summary>
         [HttpPost("testar-ini")]
@@ -313,6 +599,28 @@ namespace MDFeApi.Controllers
     }
 
     public class TestarINIRequest
+    {
+        public int MDFeId { get; set; }
+    }
+
+    public class TestarXMLRequest
+    {
+        public int MDFeId { get; set; }
+        public bool IncluirXML { get; set; } = false;
+    }
+
+    public class TestarEnvioRequest
+    {
+        public bool Sincrono { get; set; } = true;
+        public int NumeroLote { get; set; } = 1;
+    }
+
+    public class TestarPDFRequest
+    {
+        public int MDFeId { get; set; }
+    }
+
+    public class TesteCompletoRequest
     {
         public int MDFeId { get; set; }
     }

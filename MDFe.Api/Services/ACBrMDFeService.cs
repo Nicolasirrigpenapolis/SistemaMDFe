@@ -113,22 +113,19 @@ namespace MDFeApi.Services
 
         public async Task<string> GerarMDFeAsync(int mdfeId)
         {
-            var mdfe = await _context.MDFes.Include(m => m.Emitente).FirstOrDefaultAsync(m => m.Id == mdfeId);
+            var mdfe = await _context.MDFes
+                .Include(m => m.Emitente)
+                .Include(m => m.Veiculo)
+                .Include(m => m.Condutor)
+                .Include(m => m.MunicipioCarregamento)
+                .FirstOrDefaultAsync(m => m.Id == mdfeId);
+
             if (mdfe == null) throw new ArgumentException("MDFe não encontrado");
 
             await ConfigurarCertificadoDoEmitenteAsync(mdfe.EmitenteId);
 
-            // Criar MDFeData temporário baseado no MDFe
-            var mdfeData = new Controllers.MDFeData
-            {
-                ide = new Controllers.IdeData
-                {
-                    serie = mdfe.Serie.ToString(),
-                    nMDF = mdfe.Numero.ToString(),
-                    mod = "58"
-                }
-            };
-            var iniPath = await GerarArquivoINIAsync(mdfeData);
+            // Usar os dados reais do MDFe e cadastros vinculados para gerar INI completo
+            var iniPath = await GerarINICompletoAsync(mdfe);
             await CarregarINIAsync(iniPath);
             await AssinarAsync();
             var xmlAssinado = await ObterXMLAsync(0);
@@ -139,6 +136,118 @@ namespace MDFeApi.Services
             await _context.SaveChangesAsync();
 
             return xmlAssinado;
+        }
+
+        /// <summary>
+        /// Gera arquivo INI completo usando todos os dados dos cadastros vinculados
+        /// </summary>
+        private async Task<string> GerarINICompletoAsync(Models.MDFe mdfe)
+        {
+            return await Task.Run(() =>
+            {
+                try
+                {
+                    var tempPath = Path.GetTempPath();
+                    var iniFileName = $"MDFe_{mdfe.Id}_{DateTime.Now:yyyyMMddHHmmss}.ini";
+                    var iniFilePath = Path.Combine(tempPath, iniFileName);
+
+                    var ini = new StringBuilder();
+
+                    // [ide] - Identificação do documento
+                    ini.AppendLine("[ide]");
+                    ini.AppendLine($"cUF=35"); // SP - pode ser configurável
+                    ini.AppendLine($"tpAmb={mdfe.Emitente.AmbienteSefaz}");
+                    ini.AppendLine($"tpEmit={mdfe.TipoTransportador}");
+                    ini.AppendLine($"tpTransp=1"); // ETC
+                    ini.AppendLine($"mod=58");
+                    ini.AppendLine($"serie={mdfe.Serie}");
+                    ini.AppendLine($"nMDF={mdfe.NumeroMdfe}");
+                    ini.AppendLine($"cMDF={DateTime.Now.Ticks.ToString().Substring(0, 8)}");
+                    ini.AppendLine($"cDV=0");
+                    ini.AppendLine($"modal={mdfe.Modal}");
+                    ini.AppendLine($"dhEmi={mdfe.DataEmissao:yyyy-MM-ddTHH:mm:sszzz}");
+                    ini.AppendLine($"tpEmis=1");
+                    ini.AppendLine($"procEmi=0");
+                    ini.AppendLine($"verProc=1.0.0");
+                    ini.AppendLine($"UFIni={mdfe.UfInicio}");
+                    ini.AppendLine($"UFFim={mdfe.UfFim}");
+                    if (mdfe.DataInicioViagem.HasValue)
+                        ini.AppendLine($"dhIniViagem={mdfe.DataInicioViagem:yyyy-MM-ddTHH:mm:sszzz}");
+                    ini.AppendLine();
+
+                    // [emit] - Emitente
+                    ini.AppendLine("[emit]");
+                    ini.AppendLine($"CNPJCPF={mdfe.Emitente.Cnpj?.Replace(".", "").Replace("/", "").Replace("-", "")}");
+                    ini.AppendLine($"IE={mdfe.Emitente.Ie}");
+                    ini.AppendLine($"xNome={mdfe.Emitente.RazaoSocial}");
+                    ini.AppendLine($"xFant={mdfe.Emitente.NomeFantasia ?? mdfe.Emitente.RazaoSocial}");
+                    ini.AppendLine($"xLgr={mdfe.Emitente.Endereco}");
+                    ini.AppendLine($"nro={mdfe.Emitente.Numero ?? "S/N"}");
+                    if (!string.IsNullOrEmpty(mdfe.Emitente.Complemento))
+                        ini.AppendLine($"xCpl={mdfe.Emitente.Complemento}");
+                    ini.AppendLine($"xBairro={mdfe.Emitente.Bairro}");
+                    ini.AppendLine($"cMun={mdfe.Emitente.CodMunicipio}");
+                    ini.AppendLine($"xMun={mdfe.Emitente.Municipio}");
+                    ini.AppendLine($"CEP={mdfe.Emitente.Cep?.Replace("-", "")}");
+                    ini.AppendLine($"UF={mdfe.Emitente.Uf}");
+                    if (!string.IsNullOrEmpty(mdfe.Emitente.Telefone))
+                        ini.AppendLine($"fone={mdfe.Emitente.Telefone}");
+                    if (!string.IsNullOrEmpty(mdfe.Emitente.Email))
+                        ini.AppendLine($"email={mdfe.Emitente.Email}");
+                    ini.AppendLine();
+
+                    // [veicTracao] - Veículo de tração
+                    ini.AppendLine("[veicTracao]");
+                    ini.AppendLine("cInt=001");
+                    ini.AppendLine($"placa={mdfe.Veiculo.Placa}");
+                    if (!string.IsNullOrEmpty(mdfe.Veiculo.Renavam))
+                        ini.AppendLine($"RENAVAM={mdfe.Veiculo.Renavam}");
+                    ini.AppendLine($"tara={mdfe.Veiculo.Tara}");
+                    if (mdfe.Veiculo.CapacidadeKg.HasValue)
+                        ini.AppendLine($"capKG={mdfe.Veiculo.CapacidadeKg}");
+                    ini.AppendLine($"tpRod={mdfe.Veiculo.TipoRodado}");
+                    ini.AppendLine($"tpCar={mdfe.Veiculo.TipoCarroceria}");
+                    ini.AppendLine($"UF={mdfe.Veiculo.Uf}");
+                    ini.AppendLine();
+
+                    // [condutor001] - Condutor principal
+                    ini.AppendLine("[condutor001]");
+                    ini.AppendLine($"xNome={mdfe.Condutor.Nome}");
+                    ini.AppendLine($"CPF={mdfe.Condutor.Cpf?.Replace(".", "").Replace("-", "")}");
+                    ini.AppendLine();
+
+                    // [infMunCarrega001] - Município de carregamento
+                    if (mdfe.MunicipioCarregamento != null)
+                    {
+                        ini.AppendLine("[infMunCarrega001]");
+                        ini.AppendLine($"cMunCarrega={mdfe.MunicipioCarregamento.Codigo}");
+                        ini.AppendLine($"xMunCarrega={mdfe.MunicipioCarregamento.Nome}");
+                        ini.AppendLine();
+                    }
+
+                    // [tot] - Totais
+                    ini.AppendLine("[tot]");
+                    ini.AppendLine($"qCTe=0"); // Será preenchido se houver CTes vinculados
+                    ini.AppendLine($"qNFe=0"); // Será preenchido se houver NFes vinculados
+                    ini.AppendLine($"qMDFe=1");
+                    if (mdfe.ValorCarga.HasValue)
+                        ini.AppendLine($"vCarga={mdfe.ValorCarga:F2}".Replace(",", "."));
+                    ini.AppendLine($"cUnid=01"); // KG
+                    if (mdfe.QuantidadeCarga.HasValue)
+                        ini.AppendLine($"qCarga={mdfe.QuantidadeCarga:F3}".Replace(",", "."));
+                    ini.AppendLine();
+
+                    File.WriteAllText(iniFilePath, ini.ToString(), Encoding.UTF8);
+
+                    _logger.LogInformation("Arquivo INI completo gerado: {FilePath}", iniFilePath);
+                    return iniFilePath;
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Erro ao gerar arquivo INI completo");
+                    throw new InvalidOperationException("Erro ao gerar arquivo INI completo: " + ex.Message, ex);
+                }
+            });
         }
 
         public async Task<string> TransmitirMDFeAsync(int mdfeId)

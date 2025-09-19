@@ -49,7 +49,8 @@
       "Bash(find:*)",
       "Bash(sed:*)",
       "Bash(start \"MDFe Frontend\" npm start)",
-      "Bash(git push:*)"
+      "Bash(git push:*)",
+      "Bash(git add:*)"
     ],
     "deny": []
   }
