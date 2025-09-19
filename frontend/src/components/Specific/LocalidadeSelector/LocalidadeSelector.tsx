@@ -71,7 +71,7 @@ export const LocalidadeSelector: React.FC<LocalidadeSelectorProps> = ({
       })
       .catch(err => {
         setErro('Erro ao carregar estados');
-        console.erro('Erro ao carregar estados:', err);
+        console.error('Erro ao carregar estados:', err);
       })
       .finally(() => {
         setCarregandoEstados(false);
@@ -105,7 +105,7 @@ export const LocalidadeSelector: React.FC<LocalidadeSelectorProps> = ({
         .catch(err => {
           setErro('Erro ao carregar municípios');
           setMunicipios([]);
-          console.erro('Erro ao carregar municípios:', err);
+          console.error('Erro ao carregar municípios:', err);
         })
         .finally(() => {
           setCarregandoMunicipios(false);
@@ -152,7 +152,7 @@ export const LocalidadeSelector: React.FC<LocalidadeSelectorProps> = ({
       </Box>
 
       {erro && (
-        <Alert severity="erro" sx={{ mb: 2 }}>
+        <Alert severity="error" sx={{ mb: 2 }}>
           {erro}
         </Alert>
       )}

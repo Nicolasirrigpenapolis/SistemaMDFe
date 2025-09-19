@@ -176,7 +176,7 @@ export function ListarEmitentes() {
 
   const emitentesFiltrados = emitentes.filter(emitente =>
     emitente.razaoSocial.toLowerCase().includes(filtro.toLowerCase()) ||
-    emitente.cnpj.includes(filtro)
+    (emitente.cnpj && emitente.cnpj.includes(filtro))
   );
 
   // Renderizar modal inline

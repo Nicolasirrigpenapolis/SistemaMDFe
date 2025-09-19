@@ -1024,9 +1024,9 @@ namespace MDFeApi.Controllers
                 {
                     var municipioDto = new MDFeMunicipioDescargaDTO
                     {
-                        MunicipioId = municipio.Id,
-                        NomeMunicipio = municipio.Nome ?? string.Empty,
-                        DocumentosCte = ctes.Where(c => c.MunicipioDescargaId == municipio.Id)
+                        MunicipioId = municipio?.Id ?? 0,
+                        NomeMunicipio = municipio?.Nome ?? string.Empty,
+                        DocumentosCte = ctes.Where(c => c.MunicipioDescargaId == municipio?.Id)
                             .Select(c => new MDFeCteDTO
                             {
                                 Id = c.Id,
@@ -1035,7 +1035,7 @@ namespace MDFeApi.Controllers
                                 IndicadorReentrega = c.IndicadorReentrega,
                                 IndicadorPrestacaoParcial = c.IndicadorPrestacaoParcial
                             }).ToList(),
-                        DocumentosNfe = nfes.Where(n => n.MunicipioDescargaId == municipio.Id)
+                        DocumentosNfe = nfes.Where(n => n.MunicipioDescargaId == municipio?.Id)
                             .Select(n => new MDFeNfeDTO
                             {
                                 Id = n.Id,
@@ -1045,7 +1045,7 @@ namespace MDFeApi.Controllers
                                 PinSuframa = n.PinSuframa,
                                 DataPrevistaEntrega = n.DataPrevistaEntrega
                             }).ToList(),
-                        DocumentosMdfeTransp = mdfeTransps.Where(m => m.MunicipioDescargaId == municipio.Id)
+                        DocumentosMdfeTransp = mdfeTransps.Where(m => m.MunicipioDescargaId == municipio?.Id)
                             .Select(m => new MDFeMdfeTranspDTO
                             {
                                 Id = m.Id,

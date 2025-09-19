@@ -91,11 +91,9 @@ export function FormularioMDFe() {
   const carregarDadosIniciais = async () => {
     setCarregando(true);
     try {
-      // Carregar emitentes
-      const resultadoEmitentes = await emitenteService.listar();
-      if (resultadoEmitentes.sucesso) {
-        setEmitentes(resultadoEmitentes.dados || []);
-      }
+      // TODO: Carregar emitentes - será implementado na próxima etapa
+      // const resultadoEmitentes = await entitiesService.obterEmitentes();
+      // setEmitentes(resultadoEmitentes || []);
     } finally {
       setCarregando(false);
     }
@@ -113,14 +111,16 @@ export function FormularioMDFe() {
     }
   };
 
+  // TODO: Implementar atualização de campos - será refinado na próxima etapa
   const atualizarCampo = (secao: string, campo: string, valor: any) => {
-    setDados(prev => ({
-      ...prev,
-      [secao]: {
-        ...prev[secao as keyof typeof prev],
-        [campo]: valor
-      }
-    }));
+    // setDados(prev => ({
+    //   ...prev,
+    //   [secao]: {
+    //     ...prev[secao as keyof typeof prev],
+    //     [campo]: valor
+    //   }
+    // }));
+    console.log('Atualizando campo:', secao, campo, valor);
   };
 
   const toggleCampoOpcional = (campo: keyof typeof mostrarCamposOpcionais) => {
@@ -130,17 +130,9 @@ export function FormularioMDFe() {
     }));
   };
 
+  // TODO: Implementar atualização de campos aninhados - será refinado na próxima etapa
   const atualizarCampoAninhado = (secao: string, subsecao: string, campo: string, valor: any) => {
-    setDados(prev => ({
-      ...prev,
-      [secao]: {
-        ...prev[secao as keyof typeof prev],
-        [subsecao]: {
-          ...(prev[secao as keyof typeof prev] as any)?.[subsecao],
-          [campo]: valor
-        }
-      }
-    }));
+    console.log('Atualizando campo aninhado:', secao, subsecao, campo, valor);
   };
 
   const proximoStep = () => {

@@ -1,4 +1,4 @@
-import { ACBrResponse } from '../types/mdfe';
+import { RespostaACBr } from '../types/mdfe';
 
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://localhost:5001/api';
 
@@ -13,7 +13,7 @@ class EntitiesService {
   private async request(
     endpoint: string, 
     options: RequestInit = {}
-  ): Promise<ACBrResponse> {
+  ): Promise<RespostaACBr> {
     try {
       const response = await fetch(`${API_BASE_URL}${endpoint}`, {
         headers: {
@@ -27,22 +27,22 @@ class EntitiesService {
 
       if (!response.ok) {
         return {
-          success: false,
-          message: data.message || 'Erro na requisição',
-          errorCode: data.errorCode || response.status.toString()
+          sucesso: false,
+          mensagem: data.message || 'Erro na requisição',
+          codigoErro: data.errorCode || response.status.toString()
         };
       }
 
       return {
-        success: true,
-        message: data.message || 'Operação realizada com sucesso',
-        data: data.data || data
+        sucesso: true,
+        mensagem: data.message || 'Operação realizada com sucesso',
+        dados: data.data || data
       };
     } catch (error) {
       return {
-        success: false,
-        message: error instanceof Error ? error.message : 'Erro de comunicação com a API',
-        errorCode: 'NETWORK_ERROR'
+        sucesso: false,
+        mensagem: error instanceof Error ? error.message : 'Erro de comunicação com a API',
+        codigoErro: 'NETWORK_ERROR'
       };
     }
   }
@@ -50,11 +50,11 @@ class EntitiesService {
   // Emitentes
   async obterEmitentes(): Promise<EntityOption[]> {
     const response = await this.request('/empresas/emitentes');
-    if (!response.success || !response.data) {
+    if (!response.sucesso || !response.dados) {
       return [];
     }
 
-    return response.data.map((emitente: any) => ({
+    return response.dados.map((emitente: any) => ({
       id: emitente.id,
       label: emitente.razaoSocial || emitente.nomeFantasia,
       description: `${emitente.cnpj} - ${emitente.endereco?.cidade || ''}`,
@@ -80,11 +80,11 @@ class EntitiesService {
   // Condutores
   async obterCondutores(): Promise<EntityOption[]> {
     const response = await this.request('/condutores');
-    if (!response.success || !response.data) {
+    if (!response.sucesso || !response.dados) {
       return [];
     }
 
-    return response.data.map((condutor: any) => ({
+    return response.dados.map((condutor: any) => ({
       id: condutor.id,
       label: condutor.nome,
       description: `CPF: ${condutor.cpf}`,
@@ -98,11 +98,11 @@ class EntitiesService {
   // Veículos
   async obterVeiculos(): Promise<EntityOption[]> {
     const response = await this.request('/veiculos');
-    if (!response.success || !response.data) {
+    if (!response.sucesso || !response.dados) {
       return [];
     }
 
-    return response.data.map((veiculo: any) => ({
+    return response.dados.map((veiculo: any) => ({
       id: veiculo.id,
       label: `${veiculo.placa} - ${veiculo.marca} ${veiculo.modelo}`,
       description: `RENAVAM: ${veiculo.renavam} - Ano: ${veiculo.ano}`,
@@ -125,11 +125,11 @@ class EntitiesService {
   // Destinatários/Remetentes (pessoas jurídicas que não são emitentes)
   async obterDestinatarios(): Promise<EntityOption[]> {
     const response = await this.request('/empresas?tipo=destinatario');
-    if (!response.success || !response.data) {
+    if (!response.sucesso || !response.dados) {
       return [];
     }
 
-    return response.data.map((destinatario: any) => ({
+    return response.dados.map((destinatario: any) => ({
       id: destinatario.id,
       label: destinatario.razaoSocial || destinatario.nomeFantasia,
       description: `${destinatario.cnpj} - ${destinatario.endereco?.cidade || ''}`,
@@ -155,11 +155,11 @@ class EntitiesService {
   // Seguradoras
   async obterSeguradoras(): Promise<EntityOption[]> {
     const response = await this.request('/seguradoras');
-    if (!response.success || !response.data) {
+    if (!response.sucesso || !response.dados) {
       // Fallback para sugestões se não houver dados
       const sugestoes = await this.request('/seguradoras/sugestoes');
-      if (sugestoes.success && sugestoes.data) {
-        return sugestoes.data.map((seguradora: any) => ({
+      if (sugestoes.sucesso && sugestoes.dados) {
+        return sugestoes.dados.map((seguradora: any) => ({
           id: seguradora.id,
           label: seguradora.nome,
           description: `CNPJ: ${seguradora.cnpj}`,
@@ -172,7 +172,7 @@ class EntitiesService {
       return [];
     }
 
-    return response.data.map((seguradora: any) => ({
+    return response.dados.map((seguradora: any) => ({
       id: seguradora.id,
       label: seguradora.nome,
       description: `CNPJ: ${seguradora.cnpj}`,

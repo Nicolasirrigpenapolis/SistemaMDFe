@@ -82,7 +82,7 @@ export const MDFeForm: React.FC<MDFeFormProps> = ({ onSuccess }) => {
         emitenteId: formData.emitenteId,
         condutorId: formData.condutorId,
         veiculoId: formData.veiculoId,
-        ufIni: formData.ufIni,
+        ufInicio: formData.ufIni,
         ufFim: formData.ufFim,
         municipioCarregamento: formData.municipioCarregamento,
         municipioDescarregamento: formData.municipioDescarregamento,
@@ -95,7 +95,7 @@ export const MDFeForm: React.FC<MDFeFormProps> = ({ onSuccess }) => {
         setSucesso('MDFe gerado com sucesso!');
         setTimeout(() => onSuccess(), 2000);
       } else {
-        setErro(`Erro: ${response.message}`);
+        setErro(`Erro: ${response.mensagem}`);
       }
     } catch (err) {
       setErro('Erro ao gerar MDFe. Tente novamente.');
