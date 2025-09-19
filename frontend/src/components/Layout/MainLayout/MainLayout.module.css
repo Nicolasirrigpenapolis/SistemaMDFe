@@ -1,0 +1,35 @@
+.mainLayout {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  background-color: #f8fafc;
+}
+
+.content {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+.main {
+  flex: 1;
+  overflow-y: auto;
+  transition: margin-left 0.3s ease;
+  margin-left: 280px;
+  padding: 1.5rem;
+  margin-top: 60px;
+}
+
+.main.sidebarFechada {
+  margin-left: 60px;
+}
+
+@media (max-width: 768px) {
+  .main {
+    margin-left: 0;
+  }
+
+  .main.sidebarFechada {
+    margin-left: 0;
+  }
+}

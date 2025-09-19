@@ -1,0 +1,34 @@
+import React from 'react';
+import styles from './Header.module.css';
+
+interface HeaderProps {
+  onToggleSidebar: () => void;
+  sidebarAberta: boolean;
+}
+
+export function Header({ onToggleSidebar, sidebarAberta }: HeaderProps) {
+  return (
+    <header className={styles.header}>
+      <div className={styles.headerLeft}>
+        <button
+          className={styles.menuToggle}
+          onClick={onToggleSidebar}
+          aria-label="Toggle menu"
+        >
+          {sidebarAberta ? '☰' : '☰'}
+        </button>
+        <h1 className={styles.title}>MDFe System</h1>
+      </div>
+
+      <div className={styles.headerRight}>
+        <div className={styles.userInfo}>
+          <span className={styles.userName}>Sistema MDFe</span>
+          <span className={styles.userRole}>Administrador</span>
+        </div>
+        <button className={styles.logoutBtn}>
+          Sair
+        </button>
+      </div>
+    </header>
+  );
+}

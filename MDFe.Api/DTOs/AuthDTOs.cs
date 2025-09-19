@@ -1,0 +1,30 @@
+namespace MDFeApi.DTOs
+{
+    public class LoginRequest
+    {
+        public string Email { get; set; } = string.Empty;
+        public string Password { get; set; } = string.Empty;
+    }
+
+    public class RegisterRequest
+    {
+        public string Nome { get; set; } = string.Empty;
+        public string Email { get; set; } = string.Empty;
+        public string Password { get; set; } = string.Empty;
+        public string? Telefone { get; set; }
+    }
+
+    public class LoginResponse
+    {
+        public string Token { get; set; } = string.Empty;
+        public UserInfo User { get; set; } = null!;
+    }
+
+    public class UserInfo
+    {
+        public int Id { get; set; }
+        public string Nome { get; set; } = string.Empty;
+        public string Email { get; set; } = string.Empty;
+        public string? Telefone { get; set; }
+    }
+}
