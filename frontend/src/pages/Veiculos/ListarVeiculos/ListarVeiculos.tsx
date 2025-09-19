@@ -436,7 +436,7 @@ export function ListarVeiculos() {
     <div className={styles.container}>
       <div className={styles.header}>
         <h1>Veículos</h1>
-        <button className={styles.btnNovo} onClick={abrirModalNovo}>
+        <button className="btn btn-primary" onClick={abrirModalNovo}>
           Novo Veículo
         </button>
       </div>

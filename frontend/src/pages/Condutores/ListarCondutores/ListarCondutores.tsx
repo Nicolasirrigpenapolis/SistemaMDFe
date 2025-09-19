@@ -113,22 +113,24 @@ export function ListarCondutores() {
     if (!modalAberto) return null;
 
     return (
-      <div className={styles.modalOverlay}>
-        <div className={styles.modal}>
-          <div className={styles.modalHeader}>
-            <h2>{condutorEdicao ? 'Editar Condutor' : 'Novo Condutor'}</h2>
-            <button className={styles.closeBtn} onClick={fecharModal}>×</button>
+      <div className="modal-overlay">
+        <div className="modal">
+          <div className="modal-header">
+            <h2 className="modal-title">{condutorEdicao ? 'Editar Condutor' : 'Novo Condutor'}</h2>
+            <button className="modal-close" onClick={fecharModal}>×</button>
           </div>
 
-          <form onSubmit={salvarCondutor} className={styles.modalForm}>
-            <div className={styles.modalSection}>
+          <form onSubmit={salvarCondutor}>
+            <div className="modal-body">
+              <div className={styles.modalSection}>
               <h3>Dados do Condutor</h3>
 
               <div className={styles.modalRow}>
                 <div className={styles.modalField}>
-                  <label>Nome Completo *</label>
+                  <label className="label label-required">Nome Completo</label>
                   <input
                     type="text"
+                    className="input"
                     value={dadosModal.nome}
                     onChange={(e) => setDadosModal({ ...dadosModal, nome: e.target.value })}
                     placeholder="Nome completo do condutor"
@@ -138,9 +140,10 @@ export function ListarCondutores() {
                 </div>
 
                 <div className={styles.modalField}>
-                  <label>CPF *</label>
+                  <label className="label label-required">CPF</label>
                   <input
                     type="text"
+                    className="input"
                     value={dadosModal.cpf}
                     onChange={(e) => setDadosModal({ ...dadosModal, cpf: e.target.value })}
                     placeholder="00000000000"
@@ -152,9 +155,10 @@ export function ListarCondutores() {
 
               <div className={styles.modalRow}>
                 <div className={styles.modalField}>
-                  <label>Telefone</label>
+                  <label className="label">Telefone</label>
                   <input
                     type="text"
+                    className="input"
                     value={dadosModal.telefone || ''}
                     onChange={(e) => setDadosModal({ ...dadosModal, telefone: e.target.value })}
                     placeholder="Telefone do condutor"
@@ -163,8 +167,9 @@ export function ListarCondutores() {
                 </div>
 
                 <div className={styles.modalField}>
-                  <label>Status</label>
+                  <label className="label">Status</label>
                   <select
+                    className="input"
                     value={dadosModal.ativo ? 'true' : 'false'}
                     onChange={(e) => setDadosModal({ ...dadosModal, ativo: e.target.value === 'true' })}
                   >
@@ -174,12 +179,13 @@ export function ListarCondutores() {
                 </div>
               </div>
             </div>
+            </div>
 
-            <div className={styles.modalActions}>
-              <button type="button" onClick={fecharModal} className={styles.btnCancel}>
+            <div className="modal-footer">
+              <button type="button" onClick={fecharModal} className="btn btn-secondary">
                 Cancelar
               </button>
-              <button type="submit" className={styles.btnSave}>
+              <button type="submit" className="btn btn-primary">
                 {condutorEdicao ? 'Atualizar' : 'Salvar'}
               </button>
             </div>
@@ -201,7 +207,7 @@ export function ListarCondutores() {
     <div className={styles.container}>
       <div className={styles.header}>
         <h1>Condutores</h1>
-        <button className={styles.btnNovo} onClick={abrirModalNovo}>
+        <button className="btn btn-primary" onClick={abrirModalNovo}>
           Novo Condutor
         </button>
       </div>
@@ -212,7 +218,7 @@ export function ListarCondutores() {
           placeholder="Buscar por nome ou CPF..."
           value={filtro}
           onChange={(e) => setFiltro(e.target.value)}
-          className={styles.searchInput}
+          className="input"
         />
       </div>
 
@@ -242,19 +248,19 @@ export function ListarCondutores() {
                   {condutor.telefone || '-'}
                 </div>
                 <div>
-                  <span className={`${styles.status} ${condutor.ativo ? styles.ativo : styles.inativo}`}>
+                  <span className={`badge ${condutor.ativo ? 'badge-success' : 'badge-danger'}`}>
                     {condutor.ativo ? 'Ativo' : 'Inativo'}
                   </span>
                 </div>
                 <div className={styles.actions}>
                   <button
-                    className={styles.btnEdit}
+                    className="btn btn-sm btn-secondary"
                     onClick={() => abrirModalEdicao(condutor)}
                   >
                     Editar
                   </button>
                   <button
-                    className={styles.btnDelete}
+                    className="btn btn-sm btn-danger"
                     onClick={() => condutor.id && excluirCondutor(condutor.id)}
                   >
                     Excluir

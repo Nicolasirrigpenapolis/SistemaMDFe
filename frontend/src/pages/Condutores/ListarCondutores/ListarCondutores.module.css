@@ -1,77 +1,73 @@
+/* Página de Condutores - Usando Design System */
+
 .container {
-  padding: 2rem;
+  padding: var(--space-6);
+  background-color: var(--color-background);
+  min-height: 100vh;
 }
 
+/* Header */
 .header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 2rem;
+  margin-bottom: var(--space-8);
 }
 
 .header h1 {
-  color: var(--color-primary);
+  color: var(--color-text-primary);
   font-size: 1.875rem;
   font-weight: 600;
   margin: 0;
 }
 
 .btnNovo {
-  background: var(--color-primary);
-  color: white;
-  border: none;
-  border-radius: var(--border-radius);
-  padding: 0.75rem 1.5rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background-color 0.2s;
+  /* Usa as classes do design system */
 }
 
-.btnNovo:hover {
-  background: var(--color-primary-hover);
-}
-
+/* Filtros */
 .filters {
-  margin-bottom: 2rem;
+  margin-bottom: var(--space-6);
 }
 
 .searchInput {
-  width: 100%;
-  max-width: 400px;
-  padding: 0.75rem;
-  border: 1px solid var(--color-border);
-  border-radius: var(--border-radius);
-  font-size: 0.875rem;
+  /* Usa as classes do design system */
 }
 
-.searchInput:focus {
-  outline: none;
-  border-color: var(--color-primary);
-  box-shadow: 0 0 0 3px rgba(25, 118, 210, 0.1);
-}
-
-.list {
-  background: var(--color-surface);
-  border-radius: var(--border-radius);
-  box-shadow: var(--shadow-sm);
-  overflow: hidden;
-}
-
+/* Estados de carregamento */
 .loading {
   text-align: center;
-  padding: 3rem;
-  color: #64748b;
+  padding: var(--space-10);
+  color: var(--color-text-secondary);
+  background-color: var(--color-surface);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
 }
 
+/* Estado vazio */
 .emptyState {
   text-align: center;
-  padding: 3rem;
-  color: #64748b;
+  padding: var(--space-10);
+  color: var(--color-text-secondary);
+  background-color: var(--color-surface);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
 }
 
 .emptyState h3 {
-  margin-bottom: 0.5rem;
-  color: #374151;
+  margin-bottom: var(--space-2);
+  color: var(--color-text-primary);
+  font-size: 1.125rem;
+  font-weight: 600;
+}
+
+/* Lista/Tabela */
+.list {
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
 }
 
 .table {
@@ -81,143 +77,67 @@
 
 .tableHeader {
   display: grid;
-  grid-template-columns: 2fr 1.5fr 1.5fr 1fr 100px 120px;
-  gap: 1rem;
-  padding: 1rem;
-  background: #f8fafc;
+  grid-template-columns: 2fr 1.5fr 1.5fr 1fr 120px;
+  gap: var(--space-4);
+  padding: var(--space-4);
+  background-color: var(--color-surface-hover);
   border-bottom: 1px solid var(--color-border);
   font-weight: 600;
-  color: #374151;
+  color: var(--color-text-primary);
   font-size: 0.875rem;
 }
 
 .tableRow {
   display: grid;
-  grid-template-columns: 2fr 1.5fr 1.5fr 1fr 100px 120px;
-  gap: 1rem;
-  padding: 1rem;
+  grid-template-columns: 2fr 1.5fr 1.5fr 1fr 120px;
+  gap: var(--space-4);
+  padding: var(--space-4);
   border-bottom: 1px solid var(--color-border);
   align-items: center;
+  transition: background-color var(--transition-fast);
 }
 
 .tableRow:hover {
-  background: #f8fafc;
+  background-color: var(--color-surface-hover);
 }
 
 .tableRow:last-child {
   border-bottom: none;
 }
 
-.subtext {
-  font-size: 0.75rem;
-  color: #64748b;
-  margin-top: 0.25rem;
-}
-
-.status {
-  padding: 0.25rem 0.5rem;
-  border-radius: 4px;
-  font-size: 0.75rem;
-  font-weight: 500;
-}
-
-.status.ativo {
-  background: #dcfce7;
-  color: #166534;
-}
-
-.status.inativo {
-  background: #fee2e2;
-  color: #dc2626;
-}
-
+/* Ações da tabela */
 .actions {
   display: flex;
-  gap: 0.5rem;
-}
-
-.btnEdit, .btnDelete {
-  padding: 0.5rem 0.75rem;
-  border: none;
-  border-radius: 4px;
-  font-size: 0.75rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s;
+  gap: var(--space-2);
 }
 
 .btnEdit {
-  background: #dbeafe;
-  color: #1976d2;
-}
-
-.btnEdit:hover {
-  background: #bfdbfe;
+  /* Usa as classes do design system: btn btn-sm btn-secondary */
 }
 
 .btnDelete {
-  background: #fee2e2;
-  color: #dc2626;
+  /* Usa as classes do design system: btn btn-sm btn-danger */
 }
 
-.btnDelete:hover {
-  background: #fecaca;
-}
-
-/* Modal Styles */
+/* Modal - Usar classes do design system */
 .modalOverlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-  backdrop-filter: blur(4px);
+  /* modal-overlay */
 }
 
 .modal {
-  background: white;
-  border-radius: var(--border-radius);
-  box-shadow: var(--shadow-lg);
-  max-width: 800px;
-  width: 90%;
-  max-height: 90vh;
-  overflow-y: auto;
+  /* modal */
 }
 
 .modalHeader {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 1.5rem;
-  border-bottom: 1px solid var(--color-border);
+  /* Usa as classes do design system */
 }
 
 .modalHeader h2 {
-  margin: 0;
-  color: var(--color-primary);
-  font-size: 1.25rem;
-  font-weight: 600;
+  /* modal-title */
 }
 
 .closeBtn {
-  background: none;
-  border: none;
-  font-size: 1.5rem;
-  cursor: pointer;
-  color: #64748b;
-  padding: 0.25rem;
-  border-radius: 4px;
-  transition: all 0.2s;
-}
-
-.closeBtn:hover {
-  background: #f1f5f9;
-  color: #374151;
+  /* modal-close */
 }
 
 .modalForm {
@@ -226,7 +146,7 @@
 }
 
 .modalSection {
-  padding: 1.5rem;
+  padding: var(--space-6);
   border-bottom: 1px solid var(--color-border);
 }
 
@@ -235,16 +155,16 @@
 }
 
 .modalSection h3 {
-  margin: 0 0 1rem 0;
+  margin: 0 0 var(--space-4) 0;
   font-size: 1rem;
   font-weight: 600;
-  color: #374151;
+  color: var(--color-text-primary);
 }
 
 .modalRow {
   display: flex;
-  gap: 1rem;
-  margin-bottom: 1rem;
+  gap: var(--space-4);
+  margin-bottom: var(--space-4);
 }
 
 .modalRow:last-child {
@@ -265,76 +185,56 @@
 
 .modalField label,
 .modalFieldSmall label {
-  margin-bottom: 0.5rem;
-  font-weight: 500;
-  color: #374151;
-  font-size: 0.875rem;
+  /* label */
 }
 
 .modalField input,
 .modalField select,
 .modalFieldSmall input,
 .modalFieldSmall select {
-  padding: 0.75rem;
-  border: 1px solid var(--color-border);
-  border-radius: var(--border-radius);
-  font-size: 0.875rem;
-  transition: border-color 0.2s;
-}
-
-.modalField input:focus,
-.modalField select:focus,
-.modalFieldSmall input:focus,
-.modalFieldSmall select:focus {
-  outline: none;
-  border-color: var(--color-primary);
-  box-shadow: 0 0 0 3px rgba(25, 118, 210, 0.1);
+  /* input */
 }
 
 .modalActions {
-  padding: 1.5rem;
-  background: #f8fafc;
-  display: flex;
-  justify-content: flex-end;
-  gap: 1rem;
-  border-top: 1px solid var(--color-border);
+  /* modal-footer */
 }
 
 .btnCancel {
-  padding: 0.75rem 1.5rem;
-  background: white;
-  color: #64748b;
-  border: 1px solid var(--color-border);
-  border-radius: var(--border-radius);
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.btnCancel:hover {
-  background: #f1f5f9;
-  border-color: #cbd5e1;
+  /* btn btn-secondary */
 }
 
 .btnSave {
-  padding: 0.75rem 1.5rem;
-  background: var(--color-primary);
-  color: white;
-  border: none;
-  border-radius: var(--border-radius);
-  font-weight: 500;
-  cursor: pointer;
-  transition: background-color 0.2s;
+  /* btn btn-primary */
 }
 
-.btnSave:hover {
-  background: var(--color-primary-hover);
+/* Status badges */
+.status {
+  /* badge */
 }
 
+.status.ativo {
+  /* badge-success */
+}
+
+.status.inativo {
+  /* badge-danger */
+}
+
+/* Responsividade */
 @media (max-width: 768px) {
+  .container {
+    padding: var(--space-4);
+  }
+
+  .header {
+    flex-direction: column;
+    gap: var(--space-4);
+    align-items: stretch;
+  }
+
   .modal {
     width: 95%;
-    margin: 1rem;
+    margin: var(--space-4);
   }
 
   .modalRow {
@@ -349,26 +249,24 @@
     flex-direction: column;
   }
 
-  .tableHeader,
-  .tableRow {
-    grid-template-columns: 1fr;
-    gap: 0.5rem;
-  }
-
   .tableHeader {
     display: none;
   }
 
   .tableRow {
     display: block;
-    padding: 1rem;
+    padding: var(--space-4);
   }
 
   .tableRow > div {
-    margin-bottom: 0.5rem;
+    margin-bottom: var(--space-2);
   }
 
   .tableRow > div:last-child {
     margin-bottom: 0;
+  }
+
+  .actions {
+    justify-content: flex-start;
   }
 }

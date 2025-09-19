@@ -1,4 +1,5 @@
 import React from 'react';
+import { ThemeToggle } from '../../UI/Common/ThemeToggle';
 import styles from './Header.module.css';
 
 interface HeaderProps {
@@ -21,6 +22,7 @@ export function Header({ onToggleSidebar, sidebarAberta }: HeaderProps) {
       </div>
 
       <div className={styles.headerRight}>
+        <ThemeToggle />
         <div className={styles.userInfo}>
           <span className={styles.userName}>Sistema MDFe</span>
           <span className={styles.userRole}>Administrador</span>
