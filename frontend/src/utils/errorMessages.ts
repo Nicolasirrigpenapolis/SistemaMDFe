@@ -54,7 +54,6 @@ export class ErrorMessageHelper {
     'valorCarga': 'Valor da Carga',
     'quantidadeCarga': 'Quantidade da Carga',
     'serie': 'Série',
-    'numero': 'Número',
     'modal': 'Modal',
     'tpTransp': 'Tipo de Transportador',
 

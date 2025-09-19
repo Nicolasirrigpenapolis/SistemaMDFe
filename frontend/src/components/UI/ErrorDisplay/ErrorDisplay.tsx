@@ -1,5 +1,6 @@
 import React from 'react';
 import { ErrorMessageHelper } from '../../../utils/errorMessages';
+import Icon from '../Icon';
 import './ErrorDisplay.css';
 
 interface ErrorDisplayProps {
@@ -63,7 +64,7 @@ export const ErrorDisplay: React.FC<ErrorDisplayProps> = ({
       )}
 
       <div className="error-display__icon">
-        ⚠️
+        <Icon name="exclamation-triangle" color="#dc3545" />
       </div>
 
       <div className="error-display__content">
@@ -140,7 +141,9 @@ export const ToastError: React.FC<ToastErrorProps> = ({
   return (
     <div className="toast-error">
       <div className="toast-error__content">
-        <span className="toast-error__icon">⚠️</span>
+        <span className="toast-error__icon">
+          <Icon name="exclamation-triangle" color="#dc3545" />
+        </span>
         <span className="toast-error__message">{message}</span>
         <button
           className="toast-error__close"

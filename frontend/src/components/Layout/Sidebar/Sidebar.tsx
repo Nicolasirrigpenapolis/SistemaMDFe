@@ -1,5 +1,6 @@
 import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import Icon from '../../UI/Icon';
 import styles from './Sidebar.module.css';
 
 interface SidebarProps {
@@ -22,49 +23,49 @@ export function Sidebar({ aberta }: SidebarProps) {
       id: 'dashboard',
       path: '/dashboard',
       label: 'Dashboard',
-      icon: '📊'
+      icon: 'chart-bar'
     },
     {
       id: 'mdfes',
       path: '/mdfes',
       label: 'MDFes',
-      icon: '📋'
+      icon: 'file-alt'
     },
     {
       id: 'emitentes',
       path: '/emitentes',
       label: 'Emitentes',
-      icon: '🏢'
+      icon: 'building'
     },
     {
       id: 'veiculos',
       path: '/veiculos',
       label: 'Veículos',
-      icon: '🚛'
+      icon: 'truck'
     },
     {
       id: 'condutores',
       path: '/condutores',
       label: 'Condutores',
-      icon: '👤'
+      icon: 'user'
     },
     {
       id: 'contratantes',
       path: '/contratantes',
       label: 'Contratantes',
-      icon: '🤝'
+      icon: 'handshake'
     },
     {
       id: 'seguradoras',
       path: '/seguradoras',
       label: 'Seguradoras',
-      icon: '🛡️'
+      icon: 'shield-alt'
     },
     {
       id: 'municipios',
       path: '/municipios',
       label: 'Municípios',
-      icon: '🌍'
+      icon: 'map-marker-alt'
     }
   ];
 
@@ -85,7 +86,7 @@ export function Sidebar({ aberta }: SidebarProps) {
                   title={!aberta ? item.label : undefined}
                 >
                   <span className={styles.navIcon}>
-                    {item.icon}
+                    <Icon name={item.icon} />
                   </span>
                   <span className={styles.navLabel}>
                     {item.label}

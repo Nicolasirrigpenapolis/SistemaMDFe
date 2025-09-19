@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { MDFeData } from '../../../types/mdfe';
 import { entitiesService, EntityOption } from '../../../services/entitiesService';
+import Icon from '../Icon';
 
 interface MDFeWizardProps {
   dados: Partial<MDFeData>;
@@ -510,7 +511,7 @@ export function MDFeWizard({ dados, onDadosChange, onSalvar, onCancelar, salvand
                     fontSize: '1.25rem',
                     color: section.completed ? 'var(--color-success)' : 'var(--color-text-secondary)'
                   }}>
-                    {section.completed ? '✓' : index + 1}
+                    {section.completed ? <Icon name="check" color="var(--color-success)" /> : index + 1}
                   </span>
                   <div>
                     <div style={{ fontWeight: '500', color: 'var(--color-text-primary)' }}>
@@ -533,7 +534,10 @@ export function MDFeWizard({ dados, onDadosChange, onSalvar, onCancelar, salvand
           <div className="card-header">
             <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
               <span style={{ fontSize: '1.5rem' }}>
-                {sections.find(s => s.id === currentSection)?.completed ? '✓' : '📝'}
+                {sections.find(s => s.id === currentSection)?.completed ?
+                  <Icon name="check" color="var(--color-success)" /> :
+                  <Icon name="edit" color="var(--color-primary)" />
+                }
               </span>
               <div>
                 <h3 style={{ margin: 0, fontSize: '1.25rem' }}>

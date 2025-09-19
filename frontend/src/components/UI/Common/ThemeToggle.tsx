@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import Icon from '../Icon';
 
 export function ThemeToggle() {
   const [theme, setTheme] = useState<'light' | 'dark'>('light');
@@ -32,7 +33,7 @@ export function ThemeToggle() {
         fontSize: '1rem'
       }}
     >
-      {theme === 'light' ? '🌙' : '☀️'}
+      <Icon name={theme === 'light' ? 'moon' : 'sun'} />
     </button>
   );
 }

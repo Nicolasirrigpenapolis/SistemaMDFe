@@ -1,5 +1,6 @@
 import React from 'react';
 import { ThemeToggle } from '../../UI/Common/ThemeToggle';
+import Icon from '../../UI/Icon';
 import styles from './Header.module.css';
 
 interface HeaderProps {
@@ -16,7 +17,7 @@ export function Header({ onToggleSidebar, sidebarAberta }: HeaderProps) {
           onClick={onToggleSidebar}
           aria-label="Toggle menu"
         >
-          {sidebarAberta ? '☰' : '☰'}
+          <Icon name="bars" />
         </button>
         <h1 className={styles.title}>MDFe System</h1>
       </div>
