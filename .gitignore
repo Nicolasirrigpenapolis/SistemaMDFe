@@ -28,6 +28,19 @@ artifacts/
 
 # Environment files
 .env
+.env.local
+.env.production
+.env.development
+
+# Configuration files with sensitive data
+appsettings.Local.json
+appsettings.*.Local.json
+**/appsettings.Local.json
+**/appsettings.*.Local.json
+
+# User secrets
+secrets.json
+user-secrets.json
 
 # Node.js
 node_modules/

@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { mdfeService } from '../../../services/mdfeService';
+import { entitiesService } from '../../../services/entitiesService';
 import { MDFeData } from '../../../types/mdfe';
 import { MDFeWizard } from '../../../components/UI/Forms/MDFeWizard';
+import { ErrorDisplay } from '../../../components/UI/ErrorDisplay/ErrorDisplay';
 import styles from './FormularioMDFe.module.css';
 
 export function FormularioMDFe() {
@@ -10,6 +12,7 @@ export function FormularioMDFe() {
   const { id } = useParams();
   const [salvando, setSalvando] = useState(false);
   const [carregando, setCarregando] = useState(false);
+  const [erro, setErro] = useState<string>('');
 
   const [dados, setDados] = useState<Partial<MDFeData>>({
     ide: {
@@ -73,9 +76,15 @@ export function FormularioMDFe() {
   const carregarDadosIniciais = async () => {
     setCarregando(true);
     try {
-      // TODO: Carregar emitentes - será implementado na próxima etapa
-      // const resultadoEmitentes = await entitiesService.obterEmitentes();
-      // setEmitentes(resultadoEmitentes || []);
+      // Carregar entidades necessárias para o formulário
+      const resultadoEmitentes = await entitiesService.obterEmitentes();
+      if (resultadoEmitentes && resultadoEmitentes.length > 0) {
+        // Dados carregados com sucesso
+        console.log(`${resultadoEmitentes.length} emitentes carregados`);
+      }
+    } catch (error) {
+      console.error('Erro ao carregar dados iniciais:', error);
+      setErro('Erro ao carregar dados necessários para o formulário');
     } finally {
       setCarregando(false);
     }
@@ -89,10 +98,11 @@ export function FormularioMDFe() {
         setDados(resultado.dados);
       } else {
         console.error('Erro ao carregar MDFe:', resultado.mensagem);
-        // TODO: Mostrar mensagem de erro para o usuário
+        setErro(`Erro ao carregar MDFe: ${resultado.mensagem}`);
       }
     } catch (error) {
       console.error('Erro inesperado ao carregar MDFe:', error);
+      setErro('Erro inesperado ao carregar MDFe. Tente novamente.');
     } finally {
       setCarregando(false);
     }
@@ -135,10 +145,11 @@ export function FormularioMDFe() {
         navigate('/mdfes');
       } else {
         console.error('Erro ao salvar MDFe:', resultado.mensagem);
-        // TODO: Mostrar mensagem de erro para o usuário
+        setErro(`Erro ao salvar MDFe: ${resultado.mensagem}`);
       }
     } catch (error) {
       console.error('Erro inesperado ao salvar MDFe:', error);
+      setErro('Erro inesperado ao salvar MDFe. Tente novamente.');
     } finally {
       setSalvando(false);
     }
@@ -160,6 +171,14 @@ export function FormularioMDFe() {
 
   return (
     <div className={styles.formularioMdfe}>
+      {erro && (
+        <ErrorDisplay
+          error={erro}
+          type="block"
+          onClose={() => setErro('')}
+        />
+      )}
+
       <MDFeWizard
         dados={dados}
         onDadosChange={setDados}
