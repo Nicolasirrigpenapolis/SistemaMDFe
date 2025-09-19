@@ -10,7 +10,7 @@ using MDFeApi.Utils;
 namespace MDFeApi.Controllers
 {
     [ApiController]
-    [Route("api/emitentes")]
+    [Route("api/[controller]")]
     // [Authorize] // Temporariamente removido para testes
     public class EmitentesController : ControllerBase
     {
@@ -340,7 +340,7 @@ namespace MDFeApi.Controllers
 
         // ##### METHODS MOVED FROM EMITENTESCONTROLLER #####
 
-        [HttpGet("emitentes")]
+        [HttpGet("listar")]
         public async Task<ActionResult<IEnumerable<EmitenteListDto>>> ListarEmitentes()
         {
             try

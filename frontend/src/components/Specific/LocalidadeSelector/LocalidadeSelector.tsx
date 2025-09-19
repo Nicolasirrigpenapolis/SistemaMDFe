@@ -53,7 +53,7 @@ export const LocalidadeSelector: React.FC<LocalidadeSelectorProps> = ({
     setCarregandoEstados(true);
     setErro(null);
 
-    fetch('https://localhost:5001/api/municipios')
+    fetch('/api/Municipios')
       .then(res => {
         if (!res.ok) {
           throw new Error('Erro ao carregar estados');
@@ -84,7 +84,7 @@ export const LocalidadeSelector: React.FC<LocalidadeSelectorProps> = ({
       setCarregandoMunicipios(true);
       setErro(null);
 
-      fetch(`https://localhost:5001/api/municipios?uf=${ufValue}`)
+      fetch(`/api/Municipios?uf=${ufValue}`)
         .then(res => {
           if (!res.ok) {
             throw new Error('Erro ao carregar municípios');

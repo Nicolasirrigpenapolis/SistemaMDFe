@@ -33,7 +33,7 @@ export function ListarMDFe() {
   const carregarMDFes = async () => {
     try {
       setCarregando(false);
-      const response = await fetch('/api/mdfe');
+      const response = await fetch('/api/MDFe');
 
       if (response.ok) {
         const data = await response.json();
