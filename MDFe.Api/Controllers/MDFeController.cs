@@ -16,14 +16,16 @@ namespace MDFeApi.Controllers
         private readonly MDFeContext _context;
         private readonly IMDFeService _mdfeService;
         private readonly IACBrMDFeService _acbrService;
+        private readonly MDFeServiceCompleto _mdfeServiceCompleto;
         private readonly IConfiguration _configuration;
         private readonly ILogger<MDFeController> _logger;
 
-        public MDFeController(MDFeContext context, IMDFeService mdfeService, IACBrMDFeService acbrService, IConfiguration configuration, ILogger<MDFeController> logger)
+        public MDFeController(MDFeContext context, IMDFeService mdfeService, IACBrMDFeService acbrService, MDFeServiceCompleto mdfeServiceCompleto, IConfiguration configuration, ILogger<MDFeController> logger)
         {
             _context = context;
             _mdfeService = mdfeService;
             _acbrService = acbrService;
+            _mdfeServiceCompleto = mdfeServiceCompleto;
             _configuration = configuration;
             _logger = logger;
         }
@@ -269,12 +271,18 @@ namespace MDFeApi.Controllers
                     return BadRequest(new { message = "MDFe só pode ser gerado quando estiver em rascunho" });
                 }
 
-                string xml = await _acbrService.GerarMDFeAsync(id);
+                // Usar o serviço completo que implementa o fluxo completo
+                string xml = await _mdfeServiceCompleto.GerarMDFeCompletoAsync(id);
 
-                return Ok(new { xml = xml, message = "MDFe gerado e assinado com sucesso" });
+                return Ok(new {
+                    xml = xml,
+                    message = "MDFe gerado, assinado e validado com sucesso",
+                    chaveAcesso = mdfe.ChaveAcesso
+                });
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex, "Erro ao gerar MDFe completo {MDFeId}", id);
                 return StatusCode(500, new { message = "Erro ao gerar MDFe", error = ex.Message });
             }
         }
@@ -300,12 +308,19 @@ namespace MDFeApi.Controllers
                     return BadRequest(new { message = "MDFe já foi transmitido" });
                 }
 
-                string retorno = await _acbrService.TransmitirMDFeAsync(id);
+                // Usar serviço completo com processamento automático do retorno
+                string retorno = await _mdfeServiceCompleto.TransmitirMDFeAsync(id);
 
-                return Ok(new { retorno = retorno, message = "MDFe transmitido com sucesso" });
+                return Ok(new {
+                    retorno = retorno,
+                    message = "MDFe transmitido com sucesso",
+                    numeroRecibo = mdfe.NumeroRecibo,
+                    status = mdfe.StatusSefaz
+                });
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex, "Erro ao transmitir MDFe {MDFeId}", id);
                 return StatusCode(500, new { message = "Erro ao transmitir MDFe", error = ex.Message });
             }
         }
@@ -372,12 +387,17 @@ namespace MDFeApi.Controllers
                     return BadRequest(new { message = "Justificativa deve ter no mínimo 15 caracteres" });
                 }
 
-                string retorno = await _acbrService.CancelarMDFeAsync(id, request.Justificativa);
+                // Usar serviço completo que atualiza automaticamente o status no banco
+                string retorno = await _mdfeServiceCompleto.CancelarMDFeAsync(id, request.Justificativa);
 
-                return Ok(new { retorno = retorno, message = "MDFe cancelado com sucesso" });
+                return Ok(new {
+                    retorno = retorno,
+                    message = "MDFe cancelado com sucesso"
+                });
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex, "Erro ao cancelar MDFe {MDFeId}", id);
                 return StatusCode(500, new { message = "Erro ao cancelar MDFe", error = ex.Message });
             }
         }
@@ -392,14 +412,28 @@ namespace MDFeApi.Controllers
                     return BadRequest(new { message = "Município de descarga é obrigatório" });
                 }
 
-                string dataEncerramentoStr = request.DataEncerramento.ToString("yyyy-MM-ddTHH:mm:ss-03:00");
-                
-                string retorno = await _acbrService.EncerrarMDFeAsync(id, request.MunicipioDescarga, dataEncerramentoStr);
+                // Buscar município por nome
+                var municipio = await _context.Municipios
+                    .FirstOrDefaultAsync(m => m.Nome.ToUpper() == request.MunicipioDescarga.ToUpper() && m.Ativo);
 
-                return Ok(new { retorno = retorno, message = "MDFe encerrado com sucesso" });
+                if (municipio == null)
+                {
+                    return BadRequest(new { message = $"Município '{request.MunicipioDescarga}' não encontrado" });
+                }
+
+                // Usar serviço completo que processa automaticamente o retorno
+                string retorno = await _mdfeServiceCompleto.EncerrarMDFeAsync(id, municipio.Id, request.DataEncerramento);
+
+                return Ok(new {
+                    retorno = retorno,
+                    message = "MDFe encerrado com sucesso",
+                    municipio = municipio.Nome,
+                    dataEncerramento = request.DataEncerramento
+                });
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex, "Erro ao encerrar MDFe {MDFeId}", id);
                 return StatusCode(500, new { message = "Erro ao encerrar MDFe", error = ex.Message });
             }
         }

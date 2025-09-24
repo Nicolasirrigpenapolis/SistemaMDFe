@@ -20,11 +20,11 @@ namespace MDFeApi.Services
         public string CertificadoSenha { get; set; } = string.Empty;
         public string CertificadoNumeroSerie { get; set; } = string.Empty;
 
-        // Arquivos
-        public string PathLogs { get; set; } = string.Empty;
-        public string PathSchemas { get; set; } = string.Empty;
-        public string PathSalvar { get; set; } = string.Empty;
-        public string IniServicos { get; set; } = string.Empty;
+        // Arquivos - Padrões conforme MDFe_Package
+        public string PathLogs { get; set; } = "logs";
+        public string PathSchemas { get; set; } = "Schemas\\MDFe";
+        public string PathSalvar { get; set; } = "MDFe";
+        public string IniServicos { get; set; } = "ACBrMDFeServicos.ini";
 
         public static ACBrMDFeConfiguration FromConfiguration(IConfiguration configuration)
         {

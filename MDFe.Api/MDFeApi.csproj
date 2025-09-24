@@ -4,6 +4,8 @@
     <TargetFramework>net8.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <Platforms>x64</Platforms>
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
   </PropertyGroup>
 
   <ItemGroup>
@@ -24,122 +26,22 @@
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
   </ItemGroup>
 
-  <!-- Copiar DLLs e dependências do ACBr para a pasta de saída -->
+  <!-- Copiar DLLs ACBr x64 MultiThread Cdecl (recomendado para ASP.NET) -->
   <ItemGroup>
-    <Content Include="../ACBrLibMDFe-Windows-1.2.2.337/Windows/MT/Cdecl/ACBrMDFe64.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="../ACBrLibMDFe-Windows-1.2.2.337/dep/OpenSSL/*.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="../ACBrLibMDFe-Windows-1.2.2.337/dep/LibXml2/*.dll">
+    <Content Include="../MDFe_Package/Binaries/x64/MT_Cdecl/*.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
 
-  <!-- Copiar arquivos de configuração e schemas -->
+  <!-- Copiar arquivos de configuração e schemas do MDFe_Package -->
   <ItemGroup>
-    <Content Include="../ACBrLibMDFe-Windows-1.2.2.337/dep/ACBrMDFeServicos.ini">
+    <Content Include="../MDFe_Package/Config/*.ini">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      <TargetPath>ACBrLibMDFe-Windows-1.2.2.337/dep/ACBrMDFeServicos.ini</TargetPath>
     </Content>
-    <Content Include="../ACBrLibMDFe-Windows-1.2.2.337/dep/Schemas/MDFe/*.*">
+    <Content Include="../MDFe_Package/Schemas/MDFe/*.xsd">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      <TargetPath>ACBrLibMDFe-Windows-1.2.2.337/dep/Schemas/MDFe/%(Filename)%(Extension)</TargetPath>
+      <TargetPath>Schemas/MDFe/%(Filename)%(Extension)</TargetPath>
     </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="XSD\" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Update="..\ACBrLibMDFe-Windows-1.2.2.337\dep\Schemas\MDFe\consMDFeNaoEncTiposBasico_v1.00.xsd" Link="XSD\consMDFeNaoEncTiposBasico_v1.00.xsd" />
-    <Content Update="..\ACBrLibMDFe-Windows-1.2.2.337\dep\Schemas\MDFe\consMDFeNaoEncTiposBasico_v3.00.xsd" Link="XSD\consMDFeNaoEncTiposBasico_v3.00.xsd" />
-    <Content Update="..\ACBrLibMDFe-Windows-1.2.2.337\dep\Schemas\MDFe\consMDFeNaoEnc_v1.00.xsd" Link="XSD\consMDFeNaoEnc_v1.00.xsd" />
-    <Content Update="..\ACBrLibMDFe-Windows-1.2.2.337\dep\Schemas\MDFe\consMDFeNaoEnc_v3.00.xsd" Link="XSD\consMDFeNaoEnc_v3.00.xsd" />
-    <Content Update="..\ACBrLibMDFe-Windows-1.2.2.337\dep\Schemas\MDFe\consReciMDFeTiposBasico_v1.00.xsd" Link="XSD\consReciMDFeTiposBasico_v1.00.xsd" />
-    <Content Update="..\ACBrLibMDFe-Windows-1.2.2.337\dep\Schemas\MDFe\consReciMDFeTiposBasico_v3.00.xsd" Link="XSD\consReciMDFeTiposBasico_v3.00.xsd" />
-    <Content Update="..\ACBrLibMDFe-Windows-1.2.2.337\dep\Schemas\MDFe\consReciMDFe_v1.00.xsd" Link="XSD\consReciMDFe_v1.00.xsd" />
-    <Content Update="..\ACBrLibMDFe-Windows-1.2.2.337\dep\Schemas\MDFe\consReciMDFe_v3.00.xsd" Link="XSD\consReciMDFe_v3.00.xsd" />
-    <Content Update="..\ACBrLibMDFe-Windows-1.2.2.337\dep\Schemas\MDFe\consSitMDFeTiposBasico_v1.00.xsd" Link="XSD\consSitMDFeTiposBasico_v1.00.xsd" />
-    <Content Update="..\ACBrLibMDFe-Windows-1.2.2.337\dep\Schemas\MDFe\consSitMDFeTiposBasico_v3.00.xsd" Link="XSD\consSitMDFeTiposBasico_v3.00.xsd" />
-    <Content Update="..\ACBrLibMDFe-Windows-1.2.2.337\dep\Schemas\MDFe\consSitMDFe_v1.00.xsd" Link="XSD\consSitMDFe_v1.00.xsd" />
-    <Content Update="..\ACBrLibMDFe-Windows-1.2.2.337\dep\Schemas\MDFe\consSitMDFe_v3.00.xsd" Link="XSD\consSitMDFe_v3.00.xsd" />
-    <Content Update="..\ACBrLibMDFe-Windows-1.2.2.337\dep\Schemas\MDFe\consStatServMDFe_v1.00.xsd" Link="XSD\consStatServMDFe_v1.00.xsd" />
-    <Content Update="..\ACBrLibMDFe-Windows-1.2.2.337\dep\Schemas\MDFe\consStatServMDFe_v3.00.xsd" Link="XSD\consStatServMDFe_v3.00.xsd" />
-    <Content Update="..\ACBrLibMDFe-Windows-1.2.2.337\dep\Schemas\MDFe\consStatServTiposBasico_v1.00.xsd" Link="XSD\consStatServTiposBasico_v1.00.xsd" />
-    <Content Update="..\ACBrLibMDFe-Windows-1.2.2.337\dep\Schemas\MDFe\consStatServTiposBasico_v3.00.xsd" Link="XSD\consStatServTiposBasico_v3.00.xsd" />
-    <Content Update="..\ACBrLibMDFe-Windows-1.2.2.337\dep\Schemas\MDFe\distDFeInt_v1.00.xsd" Link="XSD\distDFeInt_v1.00.xsd" />
-    <Content Update="..\ACBrLibMDFe-Windows-1.2.2.337\dep\Schemas\MDFe\distMDFe_v1.00.xsd" Link="XSD\distMDFe_v1.00.xsd" />
-    <Content Update="..\ACBrLibMDFe-Windows-1.2.2.337\dep\Schemas\MDFe\distMDFe_v3.00.xsd" Link="XSD\distMDFe_v3.00.xsd" />
-    <Content Update="..\ACBrLibMDFe-Windows-1.2.2.337\dep\Schemas\MDFe\enviMDFe_v1.00.xsd" Link="XSD\enviMDFe_v1.00.xsd" />
-    <Content Update="..\ACBrLibMDFe-Windows-1.2.2.337\dep\Schemas\MDFe\enviMDFe_v3.00.xsd" Link="XSD\enviMDFe_v3.00.xsd" />
-    <Content Update="..\ACBrLibMDFe-Windows-1.2.2.337\dep\Schemas\MDFe\evAlteracaoPagtoServMDFe_v3.00.xsd" Link="XSD\evAlteracaoPagtoServMDFe_v3.00.xsd" />
-    <Content Update="..\ACBrLibMDFe-Windows-1.2.2.337\dep\Schemas\MDFe\evCancMDFe_v1.00.xsd" Link="XSD\evCancMDFe_v1.00.xsd" />
-    <Content Update="..\ACBrLibMDFe-Windows-1.2.2.337\dep\Schemas\MDFe\evCancMDFe_v3.00.xsd" Link="XSD\evCancMDFe_v3.00.xsd" />
-    <Content Update="..\ACBrLibMDFe-Windows-1.2.2.337\dep\Schemas\MDFe\evConfirmaServMDFe_v3.00.xsd" Link="XSD\evConfirmaServMDFe_v3.00.xsd" />
-    <Content Update="..\ACBrLibMDFe-Windows-1.2.2.337\dep\Schemas\MDFe\evEncMDFe_v1.00.xsd" Link="XSD\evEncMDFe_v1.00.xsd" />
-    <Content Update="..\ACBrLibMDFe-Windows-1.2.2.337\dep\Schemas\MDFe\evEncMDFe_v3.00.xsd" Link="XSD\evEncMDFe_v3.00.xsd" />
-    <Content Update="..\ACBrLibMDFe-Windows-1.2.2.337\dep\Schemas\MDFe\eventoMDFeTiposBasico_v1.00.xsd" Link="XSD\eventoMDFeTiposBasico_v1.00.xsd" />
-    <Content Update="..\ACBrLibMDFe-Windows-1.2.2.337\dep\Schemas\MDFe\eventoMDFeTiposBasico_v3.00.xsd" Link="XSD\eventoMDFeTiposBasico_v3.00.xsd" />
-    <Content Update="..\ACBrLibMDFe-Windows-1.2.2.337\dep\Schemas\MDFe\eventoMDFe_v1.00.xsd" Link="XSD\eventoMDFe_v1.00.xsd" />
-    <Content Update="..\ACBrLibMDFe-Windows-1.2.2.337\dep\Schemas\MDFe\eventoMDFe_v3.00.xsd" Link="XSD\eventoMDFe_v3.00.xsd" />
-    <Content Update="..\ACBrLibMDFe-Windows-1.2.2.337\dep\Schemas\MDFe\evIncCondutorMDFe_v1.00.xsd" Link="XSD\evIncCondutorMDFe_v1.00.xsd" />
-    <Content Update="..\ACBrLibMDFe-Windows-1.2.2.337\dep\Schemas\MDFe\evIncCondutorMDFe_v3.00.xsd" Link="XSD\evIncCondutorMDFe_v3.00.xsd" />
-    <Content Update="..\ACBrLibMDFe-Windows-1.2.2.337\dep\Schemas\MDFe\evInclusaoDFeMDFe_v3.00.xsd" Link="XSD\evInclusaoDFeMDFe_v3.00.xsd" />
-    <Content Update="..\ACBrLibMDFe-Windows-1.2.2.337\dep\Schemas\MDFe\evPagtoOperMDFe_v3.00.xsd" Link="XSD\evPagtoOperMDFe_v3.00.xsd" />
-    <Content Update="..\ACBrLibMDFe-Windows-1.2.2.337\dep\Schemas\MDFe\leiauteDistMDFe_v1.00.xsd" Link="XSD\leiauteDistMDFe_v1.00.xsd" />
-    <Content Update="..\ACBrLibMDFe-Windows-1.2.2.337\dep\Schemas\MDFe\leiauteDistMDFe_v3.00.xsd" Link="XSD\leiauteDistMDFe_v3.00.xsd" />
-    <Content Update="..\ACBrLibMDFe-Windows-1.2.2.337\dep\Schemas\MDFe\leiauteManCadTranspMDFe_v1.00.xsd" Link="XSD\leiauteManCadTranspMDFe_v1.00.xsd" />
-    <Content Update="..\ACBrLibMDFe-Windows-1.2.2.337\dep\Schemas\MDFe\mdfeConsultaDFeTiposBasico_v1.00.xsd" Link="XSD\mdfeConsultaDFeTiposBasico_v1.00.xsd" />
-    <Content Update="..\ACBrLibMDFe-Windows-1.2.2.337\dep\Schemas\MDFe\mdfeConsultaDFeTiposBasico_v3.00.xsd" Link="XSD\mdfeConsultaDFeTiposBasico_v3.00.xsd" />
-    <Content Update="..\ACBrLibMDFe-Windows-1.2.2.337\dep\Schemas\MDFe\mdfeConsultaDFe_v1.00.xsd" Link="XSD\mdfeConsultaDFe_v1.00.xsd" />
-    <Content Update="..\ACBrLibMDFe-Windows-1.2.2.337\dep\Schemas\MDFe\mdfeConsultaDFe_v3.00.xsd" Link="XSD\mdfeConsultaDFe_v3.00.xsd" />
-    <Content Update="..\ACBrLibMDFe-Windows-1.2.2.337\dep\Schemas\MDFe\mdfeConsultaPorPlacaTiposBasico_v3.00.xsd" Link="XSD\mdfeConsultaPorPlacaTiposBasico_v3.00.xsd" />
-    <Content Update="..\ACBrLibMDFe-Windows-1.2.2.337\dep\Schemas\MDFe\mdfeConsultaPorPlaca_v3.00.xsd" Link="XSD\mdfeConsultaPorPlaca_v3.00.xsd" />
-    <Content Update="..\ACBrLibMDFe-Windows-1.2.2.337\dep\Schemas\MDFe\mdfeManCadFrota_v1.00.xsd" Link="XSD\mdfeManCadFrota_v1.00.xsd" />
-    <Content Update="..\ACBrLibMDFe-Windows-1.2.2.337\dep\Schemas\MDFe\mdfeManCadTransp_v1.00.xsd" Link="XSD\mdfeManCadTransp_v1.00.xsd" />
-    <Content Update="..\ACBrLibMDFe-Windows-1.2.2.337\dep\Schemas\MDFe\mdfeModalAereo_v1.00.xsd" Link="XSD\mdfeModalAereo_v1.00.xsd" />
-    <Content Update="..\ACBrLibMDFe-Windows-1.2.2.337\dep\Schemas\MDFe\mdfeModalAereo_v3.00.xsd" Link="XSD\mdfeModalAereo_v3.00.xsd" />
-    <Content Update="..\ACBrLibMDFe-Windows-1.2.2.337\dep\Schemas\MDFe\mdfeModalAquaviario_v1.00.xsd" Link="XSD\mdfeModalAquaviario_v1.00.xsd" />
-    <Content Update="..\ACBrLibMDFe-Windows-1.2.2.337\dep\Schemas\MDFe\mdfeModalAquaviario_v3.00.xsd" Link="XSD\mdfeModalAquaviario_v3.00.xsd" />
-    <Content Update="..\ACBrLibMDFe-Windows-1.2.2.337\dep\Schemas\MDFe\mdfeModalFerroviario_v1.00.xsd" Link="XSD\mdfeModalFerroviario_v1.00.xsd" />
-    <Content Update="..\ACBrLibMDFe-Windows-1.2.2.337\dep\Schemas\MDFe\mdfeModalFerroviario_v3.00.xsd" Link="XSD\mdfeModalFerroviario_v3.00.xsd" />
-    <Content Update="..\ACBrLibMDFe-Windows-1.2.2.337\dep\Schemas\MDFe\mdfeModalRodoviario_v1.00.xsd" Link="XSD\mdfeModalRodoviario_v1.00.xsd" />
-    <Content Update="..\ACBrLibMDFe-Windows-1.2.2.337\dep\Schemas\MDFe\mdfeModalRodoviario_v3.00.xsd" Link="XSD\mdfeModalRodoviario_v3.00.xsd" />
-    <Content Update="..\ACBrLibMDFe-Windows-1.2.2.337\dep\Schemas\MDFe\mdfeTiposBasico_v1.00.xsd" Link="XSD\mdfeTiposBasico_v1.00.xsd" />
-    <Content Update="..\ACBrLibMDFe-Windows-1.2.2.337\dep\Schemas\MDFe\mdfeTiposBasico_v3.00.xsd" Link="XSD\mdfeTiposBasico_v3.00.xsd" />
-    <Content Update="..\ACBrLibMDFe-Windows-1.2.2.337\dep\Schemas\MDFe\mdfe_v1.00.xsd" Link="XSD\mdfe_v1.00.xsd" />
-    <Content Update="..\ACBrLibMDFe-Windows-1.2.2.337\dep\Schemas\MDFe\mdfe_v3.00.xsd" Link="XSD\mdfe_v3.00.xsd" />
-    <Content Update="..\ACBrLibMDFe-Windows-1.2.2.337\dep\Schemas\MDFe\procEventoMDFe_v1.00.xsd" Link="XSD\procEventoMDFe_v1.00.xsd" />
-    <Content Update="..\ACBrLibMDFe-Windows-1.2.2.337\dep\Schemas\MDFe\procEventoMDFe_v3.00.xsd" Link="XSD\procEventoMDFe_v3.00.xsd" />
-    <Content Update="..\ACBrLibMDFe-Windows-1.2.2.337\dep\Schemas\MDFe\procMDFe_v1.00.xsd" Link="XSD\procMDFe_v1.00.xsd" />
-    <Content Update="..\ACBrLibMDFe-Windows-1.2.2.337\dep\Schemas\MDFe\procMDFe_v3.00.xsd" Link="XSD\procMDFe_v3.00.xsd" />
-    <Content Update="..\ACBrLibMDFe-Windows-1.2.2.337\dep\Schemas\MDFe\retConsMDFeNaoEnc_v1.00.xsd" Link="XSD\retConsMDFeNaoEnc_v1.00.xsd" />
-    <Content Update="..\ACBrLibMDFe-Windows-1.2.2.337\dep\Schemas\MDFe\retConsMDFeNaoEnc_v3.00.xsd" Link="XSD\retConsMDFeNaoEnc_v3.00.xsd" />
-    <Content Update="..\ACBrLibMDFe-Windows-1.2.2.337\dep\Schemas\MDFe\retConsReciMDFe_v1.00.xsd" Link="XSD\retConsReciMDFe_v1.00.xsd" />
-    <Content Update="..\ACBrLibMDFe-Windows-1.2.2.337\dep\Schemas\MDFe\retConsReciMDFe_v3.00.xsd" Link="XSD\retConsReciMDFe_v3.00.xsd" />
-    <Content Update="..\ACBrLibMDFe-Windows-1.2.2.337\dep\Schemas\MDFe\retConsSitMDFe_v1.00.xsd" Link="XSD\retConsSitMDFe_v1.00.xsd" />
-    <Content Update="..\ACBrLibMDFe-Windows-1.2.2.337\dep\Schemas\MDFe\retConsSitMDFe_v3.00.xsd" Link="XSD\retConsSitMDFe_v3.00.xsd" />
-    <Content Update="..\ACBrLibMDFe-Windows-1.2.2.337\dep\Schemas\MDFe\retConsStatServMDFe_v1.00.xsd" Link="XSD\retConsStatServMDFe_v1.00.xsd" />
-    <Content Update="..\ACBrLibMDFe-Windows-1.2.2.337\dep\Schemas\MDFe\retConsStatServMDFe_v3.00.xsd" Link="XSD\retConsStatServMDFe_v3.00.xsd" />
-    <Content Update="..\ACBrLibMDFe-Windows-1.2.2.337\dep\Schemas\MDFe\retDistDFeInt_v1.00.xsd" Link="XSD\retDistDFeInt_v1.00.xsd" />
-    <Content Update="..\ACBrLibMDFe-Windows-1.2.2.337\dep\Schemas\MDFe\retDistMDFe_v1.00.xsd" Link="XSD\retDistMDFe_v1.00.xsd" />
-    <Content Update="..\ACBrLibMDFe-Windows-1.2.2.337\dep\Schemas\MDFe\retDistMDFe_v3.00.xsd" Link="XSD\retDistMDFe_v3.00.xsd" />
-    <Content Update="..\ACBrLibMDFe-Windows-1.2.2.337\dep\Schemas\MDFe\retEnviMDFe_v1.00.xsd" Link="XSD\retEnviMDFe_v1.00.xsd" />
-    <Content Update="..\ACBrLibMDFe-Windows-1.2.2.337\dep\Schemas\MDFe\retEnviMDFe_v3.00.xsd" Link="XSD\retEnviMDFe_v3.00.xsd" />
-    <Content Update="..\ACBrLibMDFe-Windows-1.2.2.337\dep\Schemas\MDFe\retEventoMDFe_v1.00.xsd" Link="XSD\retEventoMDFe_v1.00.xsd" />
-    <Content Update="..\ACBrLibMDFe-Windows-1.2.2.337\dep\Schemas\MDFe\retEventoMDFe_v3.00.xsd" Link="XSD\retEventoMDFe_v3.00.xsd" />
-    <Content Update="..\ACBrLibMDFe-Windows-1.2.2.337\dep\Schemas\MDFe\retMDFeConsultaDFe_v1.00.xsd" Link="XSD\retMDFeConsultaDFe_v1.00.xsd" />
-    <Content Update="..\ACBrLibMDFe-Windows-1.2.2.337\dep\Schemas\MDFe\retMDFeConsultaDFe_v3.00.xsd" Link="XSD\retMDFeConsultaDFe_v3.00.xsd" />
-    <Content Update="..\ACBrLibMDFe-Windows-1.2.2.337\dep\Schemas\MDFe\retMDFeConsultaPorPlaca_v3.00.xsd" Link="XSD\retMDFeConsultaPorPlaca_v3.00.xsd" />
-    <Content Update="..\ACBrLibMDFe-Windows-1.2.2.337\dep\Schemas\MDFe\retMdfeManCadFrota_v1.00.xsd" Link="XSD\retMdfeManCadFrota_v1.00.xsd" />
-    <Content Update="..\ACBrLibMDFe-Windows-1.2.2.337\dep\Schemas\MDFe\retMdfeManCadTransp_v1.00.xsd" Link="XSD\retMdfeManCadTransp_v1.00.xsd" />
-    <Content Update="..\ACBrLibMDFe-Windows-1.2.2.337\dep\Schemas\MDFe\retMDFe_v3.00.xsd" Link="XSD\retMDFe_v3.00.xsd" />
-    <Content Update="..\ACBrLibMDFe-Windows-1.2.2.337\dep\Schemas\MDFe\tiposDistDFe_v1.00.xsd" Link="XSD\tiposDistDFe_v1.00.xsd" />
-    <Content Update="..\ACBrLibMDFe-Windows-1.2.2.337\dep\Schemas\MDFe\tiposGeralMDFe_v1.00-OPENSSL.xsd" Link="XSD\tiposGeralMDFe_v1.00-OPENSSL.xsd" />
-    <Content Update="..\ACBrLibMDFe-Windows-1.2.2.337\dep\Schemas\MDFe\tiposGeralMDFe_v1.00.xsd" Link="XSD\tiposGeralMDFe_v1.00.xsd" />
-    <Content Update="..\ACBrLibMDFe-Windows-1.2.2.337\dep\Schemas\MDFe\tiposGeralMDFe_v3.00.xsd" Link="XSD\tiposGeralMDFe_v3.00.xsd" />
-    <Content Update="..\ACBrLibMDFe-Windows-1.2.2.337\dep\Schemas\MDFe\xmldsig-core-schema_v1.01.xsd" Link="XSD\xmldsig-core-schema_v1.01.xsd" />
   </ItemGroup>
 
 </Project>

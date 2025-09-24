@@ -61,8 +61,10 @@ builder.Services.AddAuthentication(options =>
 // Register application services
 builder.Services.AddScoped<IMDFeService, MDFeService>();
 builder.Services.AddScoped<IACBrMDFeService, ACBrMDFeService>();
+builder.Services.AddScoped<MDFeServiceCompleto>();
 builder.Services.AddScoped<ICertificadoService, CertificadoService>();
 builder.Services.AddScoped<IIBGEService, IBGEService>();
+builder.Services.AddScoped<ISefazMappingService, SefazMappingService>();
 
 // Register HttpClient for IBGE service
 builder.Services.AddHttpClient<IBGEService>();
