@@ -1,0 +1,40 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Platforms>x64</Platforms>
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- DLLs ACBrLibMDFe x64 MultiThread Cdecl (recomendado para ASP.NET) -->
+    <Content Include="..\Binaries\x64\MT_Cdecl\*.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <Link>%(Filename)%(Extension)</Link>
+    </Content>
+
+    <!-- Arquivos de configuração INI -->
+    <Content Include="..\Config\*.ini">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <Link>%(Filename)%(Extension)</Link>
+    </Content>
+
+    <!-- Schemas XSD para validação -->
+    <Content Include="..\Schemas\**\*.xsd">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Criar pastas necessárias -->
+    <None Include="appsettings.json" />
+    <None Include="appsettings.Development.json" />
+  </ItemGroup>
+
+</Project>

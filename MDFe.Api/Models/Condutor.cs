@@ -14,8 +14,6 @@ namespace MDFeApi.Models
         [MaxLength(11)]
         public string Cpf { get; set; } = string.Empty;
 
-        [MaxLength(20)]
-        public string? Telefone { get; set; }
 
         public bool Ativo { get; set; } = true;
 

@@ -6,6 +6,8 @@ using MDFeApi.Models;
 using MDFeApi.DTOs;
 using MDFeApi.Services;
 using MDFeApi.Utils;
+using MDFeApi.Helpers;
+using MDFeApi.Extensions;
 
 namespace MDFeApi.Controllers
 {
@@ -30,25 +32,47 @@ namespace MDFeApi.Controllers
 
 
         [HttpGet]
-        public async Task<ActionResult<PagedResult<EmitenteResponseDto>>> GetEmitentes([FromQuery] int page = 1, [FromQuery] int pageSize = 10, [FromQuery] string? cnpj = null)
+        public async Task<ActionResult<PaginationResult<EmitenteResponseDto>>> GetEmitentes([FromQuery] PaginationRequest request)
         {
-            var query = _context.Emitentes
-                .AsQueryable();
-
-            // Filtrar por CNPJ se fornecido
-            if (!string.IsNullOrWhiteSpace(cnpj))
+            try
             {
-                var cnpjLimpo = DocumentUtils.LimparCnpj(cnpj);
-                query = query.Where(e => e.Cnpj == cnpjLimpo);
-            }
+                var query = _context.Emitentes
+                    .Where(e => e.Ativo)
+                    .AsQueryable();
 
-            var totalCount = await query.CountAsync();
+                // Filtrar por busca se fornecido
+                if (!string.IsNullOrWhiteSpace(request.Search))
+                {
+                    var searchTerm = request.Search.ToLower();
+                    query = query.Where(e =>
+                        e.RazaoSocial.ToLower().Contains(searchTerm) ||
+                        (e.Cnpj != null && e.Cnpj.Contains(searchTerm)) ||
+                        (e.NomeFantasia != null && e.NomeFantasia.ToLower().Contains(searchTerm)) ||
+                        (e.Cpf != null && e.Cpf.Contains(searchTerm))
+                    );
+                }
 
-            var items = await query
-                .OrderBy(e => e.RazaoSocial)
-                .Skip((page - 1) * pageSize)
-                .Take(pageSize)
-                .Select(e => new EmitenteResponseDto
+                // Aplicar ordenação
+                switch (request.SortBy?.ToLower())
+                {
+                    case "cnpj":
+                        query = request.SortDirection?.ToLower() == "desc" ?
+                            query.OrderByDescending(e => e.Cnpj) :
+                            query.OrderBy(e => e.Cnpj);
+                        break;
+                    case "datacriacao":
+                        query = request.SortDirection?.ToLower() == "desc" ?
+                            query.OrderByDescending(e => e.DataCriacao) :
+                            query.OrderBy(e => e.DataCriacao);
+                        break;
+                    default:
+                        query = request.SortDirection?.ToLower() == "desc" ?
+                            query.OrderByDescending(e => e.RazaoSocial) :
+                            query.OrderBy(e => e.RazaoSocial);
+                        break;
+                }
+
+                var queryProjected = query.Select(e => new EmitenteResponseDto
                 {
                     Id = e.Id,
                     Cnpj = e.Cnpj,
@@ -64,36 +88,31 @@ namespace MDFeApi.Controllers
                     Municipio = e.Municipio,
                     Cep = e.Cep,
                     Uf = e.Uf,
-                    Telefone = e.Telefone,
-                    Email = e.Email,
                     Ativo = e.Ativo,
                     TipoEmitente = e.TipoEmitente,
-                    DescricaoEmitente = e.DescricaoEmitente,
                     CaminhoArquivoCertificado = e.CaminhoArquivoCertificado,
                     Rntrc = e.Rntrc,
                     DataCriacao = e.DataCriacao
-                })
-                .ToListAsync();
+                });
 
-            var pagedResult = new PagedResult<EmitenteResponseDto>
+                var result = await queryProjected.ToPaginatedListAsync(request);
+                return Ok(result);
+            }
+            catch (Exception ex)
             {
-                Items = items,
-                TotalCount = totalCount,
-                Page = page,
-                PageSize = pageSize
-            };
-
-            return Ok(pagedResult);
+                _logger.LogError(ex, "Erro ao obter emitentes paginados");
+                return StatusCode(500, new { message = "Erro interno do servidor", error = ex.Message });
+            }
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<EmitenteResponseDto>> GetEmitente(int id)
+        public async Task<ActionResult<ApiResponse<EmitenteResponseDto>>> GetEmitente(int id)
         {
             var emitente = await _context.Emitentes.FindAsync(id);
 
             if (emitente == null || !emitente.Ativo)
             {
-                return NotFound();
+                return NotFound(ApiResponseHelper.NotFound("Emitente não encontrado"));
             }
 
             var responseDto = new EmitenteResponseDto
@@ -112,17 +131,15 @@ namespace MDFeApi.Controllers
                 Municipio = emitente.Municipio,
                 Cep = emitente.Cep,
                 Uf = emitente.Uf,
-                Telefone = emitente.Telefone,
-                Email = emitente.Email,
                 Ativo = emitente.Ativo,
                 TipoEmitente = emitente.TipoEmitente,
-                DescricaoEmitente = emitente.DescricaoEmitente,
                 CaminhoArquivoCertificado = emitente.CaminhoArquivoCertificado,
                 Rntrc = emitente.Rntrc,
                 DataCriacao = emitente.DataCriacao
             };
 
-            return Ok(responseDto);
+            var response = ApiResponseHelper.Success(responseDto, "Emitente obtido com sucesso");
+            return Ok(response);
         }
 
         [HttpPost]
@@ -168,11 +185,8 @@ namespace MDFeApi.Controllers
                     Municipio = emitenteDto.Municipio,
                     Cep = emitenteDto.Cep,
                     Uf = emitenteDto.Uf,
-                    Telefone = string.IsNullOrWhiteSpace(emitenteDto.Telefone) ? null : emitenteDto.Telefone,
-                    Email = string.IsNullOrWhiteSpace(emitenteDto.Email) ? null : emitenteDto.Email,
                     Ativo = true,
                     TipoEmitente = emitenteDto.TipoEmitente,
-                    DescricaoEmitente = string.IsNullOrWhiteSpace(emitenteDto.DescricaoEmitente) ? null : emitenteDto.DescricaoEmitente,
                     CaminhoArquivoCertificado = string.IsNullOrWhiteSpace(emitenteDto.CaminhoArquivoCertificado) ? null : emitenteDto.CaminhoArquivoCertificado,
                     SenhaCertificado = string.IsNullOrWhiteSpace(emitenteDto.SenhaCertificado) ? null : emitenteDto.SenhaCertificado,
                     Rntrc = string.IsNullOrWhiteSpace(emitenteDto.Rntrc) ? null : emitenteDto.Rntrc,
@@ -200,11 +214,8 @@ namespace MDFeApi.Controllers
                     Municipio = emitente.Municipio,
                     Cep = emitente.Cep,
                     Uf = emitente.Uf,
-                    Telefone = emitente.Telefone,
-                    Email = emitente.Email,
                     Ativo = emitente.Ativo,
                     TipoEmitente = emitente.TipoEmitente,
-                    DescricaoEmitente = emitente.DescricaoEmitente,
                     CaminhoArquivoCertificado = emitente.CaminhoArquivoCertificado,
                     Rntrc = emitente.Rntrc,
                     DataCriacao = emitente.DataCriacao
@@ -272,10 +283,7 @@ namespace MDFeApi.Controllers
                 emitente.Municipio = emitenteDto.Municipio;
                 emitente.Cep = emitenteDto.Cep;
                 emitente.Uf = emitenteDto.Uf;
-                emitente.Telefone = string.IsNullOrWhiteSpace(emitenteDto.Telefone) ? null : emitenteDto.Telefone;
-                emitente.Email = string.IsNullOrWhiteSpace(emitenteDto.Email) ? null : emitenteDto.Email;
                 emitente.TipoEmitente = emitenteDto.TipoEmitente;
-                emitente.DescricaoEmitente = string.IsNullOrWhiteSpace(emitenteDto.DescricaoEmitente) ? null : emitenteDto.DescricaoEmitente;
                 
                 if (!string.IsNullOrWhiteSpace(emitenteDto.CaminhoArquivoCertificado))
                     emitente.CaminhoArquivoCertificado = emitenteDto.CaminhoArquivoCertificado;
@@ -354,7 +362,6 @@ namespace MDFeApi.Controllers
                         Cnpj = e.Cnpj,
                         Cpf = e.Cpf,
                         TipoEmitente = e.TipoEmitente,
-                        DescricaoEmitente = e.DescricaoEmitente,
                         TemCertificado = !string.IsNullOrEmpty(e.CaminhoArquivoCertificado),
                         AmbienteSefaz = e.AmbienteSefaz,
                         Uf = e.Uf
@@ -387,7 +394,6 @@ namespace MDFeApi.Controllers
                     Cnpj = "12345678000199",
                     Cpf = "",
                     TipoEmitente = tipoEmitente,
-                    DescricaoEmitente = "Descrição do emitente",
                     TemCertificado = true,
                     AmbienteSefaz = "Homologação",
                     Uf = "SP"

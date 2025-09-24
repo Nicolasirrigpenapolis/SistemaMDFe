@@ -272,38 +272,42 @@ export interface EmitenteCadastrado {
   cnpj?: string;
   cpf?: string;
   ie?: string;
-  razaoSocial: string;
-  nomeFantasia?: string;
-  endereco?: string;
-  numero?: string;
-  complemento?: string;
-  bairro?: string;
-  codigoMunicipio?: number;
-  municipio?: string;
-  cep?: string;
-  uf: string;
-  telefone?: string;
-  email?: string;
-  ativo: boolean;
-  tipoEmitente: string;
-  descricaoEmitente?: string;
-  caminhoArquivoCertificado?: string;
-  rntrc?: string;
+  razaoSocial: string; // Mapeado do backend RazaoSocial
+  nomeFantasia?: string; // Mapeado do backend NomeFantasia
+  endereco?: string; // Mapeado do backend Endereco
+  numero?: string; // Mapeado do backend Numero
+  complemento?: string; // Mapeado do backend Complemento
+  bairro?: string; // Mapeado do backend Bairro
+  codigoMunicipio?: number; // Mapeado do backend CodMunicipio
+  municipio?: string; // Mapeado do backend Municipio
+  cep?: string; // Mapeado do backend Cep
+  uf: string; // Mapeado do backend Uf
+  telefone?: string; // Mapeado do backend Telefone
+  email?: string; // Mapeado do backend Email
+  ativo: boolean; // Mapeado do backend Ativo
+  tipoEmitente: string; // Mapeado do backend TipoEmitente
+  descricaoEmitente?: string; // Mapeado do backend DescricaoEmitente
+  caminhoArquivoCertificado?: string; // Mapeado do backend CaminhoArquivoCertificado
+  rntrc?: string; // Mapeado do backend Rntrc
 }
 
 export interface VeiculoCadastrado {
   id: number;
-  placa: string;
-  renavam?: string;
-  tara: number;
-  capacidadeKg: number;
-  capacidadeM3?: number;
-  tipoPropriedade?: string;
-  tipoVeiculo?: string;
-  tipoRodado?: string;
-  tipoCarroceria?: string;
-  uf: string;
-  ativo: boolean;
+  placa: string; // Mapeado do backend Placa
+  renavam?: string; // Mapeado do backend Renavam
+  marca?: string; // Mapeado do backend Marca
+  modelo?: string; // Mapeado do backend Modelo
+  ano?: number; // Mapeado do backend Ano
+  cor?: string; // Mapeado do backend Cor
+  combustivel?: string; // Mapeado do backend Combustivel
+  tara: number; // Mapeado do backend Tara
+  capacidadeKg: number; // Mapeado do backend CapacidadeKg
+  capacidadeM3?: number; // Mapeado do backend CapacidadeM3
+  tipoRodado?: string; // Mapeado do backend TipoRodado
+  tipoCarroceria?: string; // Mapeado do backend TipoCarroceria
+  uf: string; // Mapeado do backend Uf
+  rntrc?: string; // Mapeado do backend Rntrc
+  ativo: boolean; // Mapeado do backend Ativo
 }
 
 // Propriedades específicas para os documentos

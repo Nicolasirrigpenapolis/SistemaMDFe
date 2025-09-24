@@ -11,12 +11,10 @@ namespace MDFeApi.Models
         [MaxLength(8)]
         public string Placa { get; set; } = string.Empty;
 
-        [MaxLength(11)]
-        public string? Renavam { get; set; }
-
         public int Tara { get; set; }
 
         public int? CapacidadeKg { get; set; }
+
 
         [Required]
         [MaxLength(50)]
@@ -49,13 +47,6 @@ namespace MDFeApi.Models
         [Required]
         public int Ano { get; set; }
 
-        [Required]
-        [MaxLength(50)]
-        public string Cor { get; set; } = string.Empty;
-
-        [Required]
-        [MaxLength(50)]
-        public string Combustivel { get; set; } = string.Empty;
         
         [NotMapped]
         public int? TaraKg => Tara;

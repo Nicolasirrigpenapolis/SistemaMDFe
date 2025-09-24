@@ -24,7 +24,7 @@ namespace MDFeApi.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<PagedResult<Municipio>>> GetMunicipios([FromQuery] string? uf = null, [FromQuery] int page = 1, [FromQuery] int pageSize = 10)
+        public async Task<ActionResult<ResultadoPaginado<Municipio>>> GetMunicipios([FromQuery] string? uf = null, [FromQuery] int pagina = 1, [FromQuery] int tamanhoPagina = 10)
         {
             var query = _context.Municipios.Where(m => m.Ativo).AsQueryable();
 
@@ -33,23 +33,23 @@ namespace MDFeApi.Controllers
                 query = query.Where(m => m.Uf == uf);
             }
 
-            var totalCount = await query.CountAsync();
+            var totalItens = await query.CountAsync();
 
-            var items = await query
+            var itens = await query
                 .OrderBy(m => m.Nome)
-                .Skip((page - 1) * pageSize)
-                .Take(pageSize)
+                .Skip((pagina - 1) * tamanhoPagina)
+                .Take(tamanhoPagina)
                 .ToListAsync();
 
-            var pagedResult = new PagedResult<Municipio>
+            var resultadoPaginado = new ResultadoPaginado<Municipio>
             {
-                Items = items,
-                TotalCount = totalCount,
-                Page = page,
-                PageSize = pageSize
+                Itens = itens,
+                TotalItens = totalItens,
+                Pagina = pagina,
+                TamanhoPagina = tamanhoPagina
             };
 
-            return Ok(pagedResult);
+            return Ok(resultadoPaginado);
         }
 
         [HttpGet("{id}")]

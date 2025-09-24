@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styles from './Dashboard.module.css';
+import { entitiesService } from '../../services/entitiesService';
+import { mdfeService } from '../../services/mdfeService';
+import { localidadeService } from '../../services/localidadeService';
 
 interface DashboardStats {
   totalMDFes: number;
@@ -44,7 +47,7 @@ export function Dashboard() {
     totalMunicipios: 0,
   });
   const [recentMDFes, setRecentMDFes] = useState<RecentMDFe[]>([]);
-  const [carregando, setCarregando] = useState(true);
+  const [carregando, setCarregando] = useState(false);
 
   useEffect(() => {
     carregarDadosDashboard();
@@ -53,9 +56,8 @@ export function Dashboard() {
   const carregarDadosDashboard = async () => {
     try {
       setCarregando(true);
-      const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://localhost:5001/api';
 
-      // Carregar dados em paralelo
+      // Carregar dados em paralelo usando services
       const [
         emitentesRes,
         veiculosRes,
@@ -65,62 +67,57 @@ export function Dashboard() {
         municipiosRes,
         mdfesRes
       ] = await Promise.allSettled([
-        fetch(`${API_BASE_URL}/emitentes`),
-        fetch(`${API_BASE_URL}/veiculos`),
-        fetch(`${API_BASE_URL}/condutores`),
-        fetch(`${API_BASE_URL}/contratantes`),
-        fetch(`${API_BASE_URL}/seguradoras`),
-        fetch(`${API_BASE_URL}/municipios`),
-        fetch(`${API_BASE_URL}/mdfe`)
+        entitiesService.obterEmitentes(),
+        entitiesService.obterVeiculos(),
+        entitiesService.obterCondutores(),
+        entitiesService.obterDestinatarios(), // Contratantes
+        entitiesService.obterSeguradoras(),
+        fetch('https://localhost:5001/api/municipios?tamanhoPagina=1&pagina=1').then(res => res.json()),
+        mdfeService.listarMDFes({ tamanhoPagina: 1000 })
       ]);
 
       // Processar emitentes
-      let emitentes = [];
-      if (emitentesRes.status === 'fulfilled' && emitentesRes.value.ok) {
-        const data = await emitentesRes.value.json();
-        emitentes = Array.isArray(data) ? data : (data?.items || data?.data || []);
+      let emitentes: any[] = [];
+      if (emitentesRes.status === 'fulfilled') {
+        emitentes = emitentesRes.value || [];
       }
 
       // Processar veículos
-      let veiculos = [];
-      if (veiculosRes.status === 'fulfilled' && veiculosRes.value.ok) {
-        const data = await veiculosRes.value.json();
-        veiculos = Array.isArray(data) ? data : (data?.items || data?.data || []);
+      let veiculos: any[] = [];
+      if (veiculosRes.status === 'fulfilled') {
+        veiculos = veiculosRes.value || [];
       }
 
       // Processar condutores
-      let condutores = [];
-      if (condutoresRes.status === 'fulfilled' && condutoresRes.value.ok) {
-        const data = await condutoresRes.value.json();
-        condutores = Array.isArray(data) ? data : (data?.items || data?.data || []);
+      let condutores: any[] = [];
+      if (condutoresRes.status === 'fulfilled') {
+        condutores = condutoresRes.value || [];
       }
 
       // Processar contratantes
-      let contratantes = [];
-      if (contratantesRes.status === 'fulfilled' && contratantesRes.value.ok) {
-        const data = await contratantesRes.value.json();
-        contratantes = Array.isArray(data) ? data : (data?.items || data?.data || []);
+      let contratantes: any[] = [];
+      if (contratantesRes.status === 'fulfilled') {
+        contratantes = contratantesRes.value || [];
       }
 
       // Processar seguradoras
-      let seguradoras = [];
-      if (seguradorasRes.status === 'fulfilled' && seguradorasRes.value.ok) {
-        const data = await seguradorasRes.value.json();
-        seguradoras = Array.isArray(data) ? data : (data?.items || data?.data || []);
+      let seguradoras: any[] = [];
+      if (seguradorasRes.status === 'fulfilled') {
+        seguradoras = seguradorasRes.value || [];
       }
 
       // Processar municípios
-      let municipios = [];
-      if (municipiosRes.status === 'fulfilled' && municipiosRes.value.ok) {
-        const data = await municipiosRes.value.json();
-        municipios = Array.isArray(data) ? data : (data?.items || data?.data || []);
+      let totalMunicipios = 0;
+      if (municipiosRes.status === 'fulfilled') {
+        const municipiosData = municipiosRes.value;
+        totalMunicipios = municipiosData?.totalItens || 0;
       }
 
       // Processar MDFes
-      let mdfes = [];
-      if (mdfesRes.status === 'fulfilled' && mdfesRes.value.ok) {
-        const data = await mdfesRes.value.json();
-        mdfes = Array.isArray(data) ? data : (data?.items || data?.data || []);
+      let mdfes: any[] = [];
+      if (mdfesRes.status === 'fulfilled' && mdfesRes.value.sucesso && mdfesRes.value.dados) {
+        const dados = mdfesRes.value.dados;
+        mdfes = dados.Itens || dados.Items || dados.itens || dados.items || dados || [];
       }
 
       // Calcular estatísticas
@@ -136,7 +133,7 @@ export function Dashboard() {
         emitentesAtivos: emitentes.filter((e: any) => e.ativo).length,
         totalContratantes: contratantes.length,
         totalSeguradoras: seguradoras.length,
-        totalMunicipios: municipios.length,
+        totalMunicipios: totalMunicipios, // Total real de municípios da API
       });
 
       // Definir MDFes recentes (últimos 5)
@@ -188,27 +185,30 @@ export function Dashboard() {
     });
   };
 
+
   if (carregando) {
     return (
-      <div className="mdfe-list-container">
-        <div className="loading-container">
-          <div className="loading-spinner"></div>
-          <p>Carregando dashboard...</p>
+      <div className={styles.dashboardContainer}>
+        <div className={styles.loading}>
+          <div className={styles.loadingSpinner}></div>
+          <p>Carregando dados do dashboard...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="mdfe-list-container">
+    <div className={styles.dashboardContainer}>
       {/* Header */}
-      <div className="mdfe-list-header">
-        <div className="header-content">
-          <div className="title-section">
-            <i className="fas fa-tachometer-alt title-icon" style={{fontSize: '32px'}}></i>
-            <div>
-              <h1>Dashboard</h1>
-              <p>Visão geral do sistema MDF-e</p>
+      <div className={styles.header}>
+        <div className={styles.headerContent}>
+          <div className={styles.titleSection}>
+            <div className={styles.iconWrapper}>
+              <i className="fas fa-chart-pie"></i>
+            </div>
+            <div className={styles.titleContent}>
+              <h1 className={styles.title}>Dashboard</h1>
+              <p className={styles.subtitle}>Visão geral completa do sistema MDF-e</p>
             </div>
           </div>
 
@@ -216,149 +216,147 @@ export function Dashboard() {
             className={styles.btnNovo}
             onClick={() => navigate('/mdfes/novo')}
           >
-            <i className="fas fa-plus" style={{fontSize: '20px'}}></i>
-            <span>Novo MDF-e</span>
-            <i className="fas fa-chevron-right" style={{fontSize: '16px'}}></i>
+            <i className="fas fa-plus"></i>
+            <span>Emitir MDF-e</span>
           </button>
         </div>
+      </div>
 
-        {/* Dashboard Stats */}
-        <div className="dashboard-stats">
-          {/* MDFes */}
-          <div className="stat-card" onClick={() => handleNavigate('mdfes')}>
-            <div className="stat-icon">
-              <i className="fas fa-file-alt" style={{fontSize: '18px'}}></i>
+      {/* Main Stats */}
+      <div className={styles.statsGrid}>
+        <div className={styles.statCard} onClick={() => handleNavigate('mdfes')}>
+          <div className={styles.statHeader}>
+            <div className={styles.statIcon}>
+              <i className="fas fa-file-alt"></i>
             </div>
-            <div className="stat-content">
-              <div className="stat-number">{stats.totalMDFes}</div>
-              <div className="stat-label">Total MDF-es</div>
+            <div className={styles.statTrend}>
+              <i className="fas fa-arrow-up"></i>
             </div>
           </div>
+          <div className={styles.statContent}>
+            <div className={styles.statNumber}>{stats.totalMDFes}</div>
+            <div className={styles.statLabel}>Total MDF-es</div>
+          </div>
+        </div>
 
-          <div className="stat-card">
-            <div className="stat-icon stat-success">
-              <i className="fas fa-check-circle" style={{fontSize: '18px'}}></i>
+        <div className={styles.statCard}>
+          <div className={styles.statHeader}>
+            <div className={`${styles.statIcon} ${styles.success}`}>
+              <i className="fas fa-check-circle"></i>
             </div>
-            <div className="stat-content">
-              <div className="stat-number">{stats.mdfesAutorizados}</div>
-              <div className="stat-label">Autorizados</div>
+            <div className={styles.statTrend}>
+              <i className="fas fa-arrow-up"></i>
             </div>
           </div>
+          <div className={styles.statContent}>
+            <div className={styles.statNumber}>{stats.mdfesAutorizados}</div>
+            <div className={styles.statLabel}>Autorizados</div>
+          </div>
+        </div>
 
-          <div className="stat-card">
-            <div className="stat-icon stat-warning">
-              <i className="fas fa-clock" style={{fontSize: '18px'}}></i>
+        <div className={styles.statCard}>
+          <div className={styles.statHeader}>
+            <div className={`${styles.statIcon} ${styles.warning}`}>
+              <i className="fas fa-clock"></i>
             </div>
-            <div className="stat-content">
-              <div className="stat-number">{stats.mdfesPendentes}</div>
-              <div className="stat-label">Pendentes</div>
+            <div className={styles.statTrend}>
+              <i className="fas fa-minus"></i>
             </div>
           </div>
+          <div className={styles.statContent}>
+            <div className={styles.statNumber}>{stats.mdfesPendentes}</div>
+            <div className={styles.statLabel}>Pendentes</div>
+          </div>
+        </div>
 
-          {/* Emitentes */}
-          <div className="stat-card" onClick={() => handleNavigate('emitentes')}>
-            <div className="stat-icon">
-              <i className="fas fa-building" style={{fontSize: '18px'}}></i>
-            </div>
-            <div className="stat-content">
-              <div className="stat-number">{stats.totalEmitentes}</div>
-              <div className="stat-label">Emitentes</div>
+        <div className={styles.statCard} onClick={() => handleNavigate('emitentes')}>
+          <div className={styles.statHeader}>
+            <div className={styles.statIcon}>
+              <i className="fas fa-building"></i>
             </div>
           </div>
+          <div className={styles.statContent}>
+            <div className={styles.statNumber}>{stats.totalEmitentes}</div>
+            <div className={styles.statLabel}>Emitentes</div>
+          </div>
+        </div>
 
-          {/* Veículos */}
-          <div className="stat-card" onClick={() => handleNavigate('veiculos')}>
-            <div className="stat-icon">
-              <i className="fas fa-truck" style={{fontSize: '18px'}}></i>
-            </div>
-            <div className="stat-content">
-              <div className="stat-number">{stats.totalVeiculos}</div>
-              <div className="stat-label">Veículos</div>
+        <div className={styles.statCard} onClick={() => handleNavigate('veiculos')}>
+          <div className={styles.statHeader}>
+            <div className={styles.statIcon}>
+              <i className="fas fa-truck"></i>
             </div>
           </div>
+          <div className={styles.statContent}>
+            <div className={styles.statNumber}>{stats.totalVeiculos}</div>
+            <div className={styles.statLabel}>Veículos</div>
+          </div>
+        </div>
 
-          {/* Condutores */}
-          <div className="stat-card" onClick={() => handleNavigate('condutores')}>
-            <div className="stat-icon">
-              <i className="fas fa-id-card" style={{fontSize: '18px'}}></i>
+        <div className={styles.statCard} onClick={() => handleNavigate('condutores')}>
+          <div className={styles.statHeader}>
+            <div className={styles.statIcon}>
+              <i className="fas fa-users"></i>
             </div>
-            <div className="stat-content">
-              <div className="stat-number">{stats.totalCondutores}</div>
-              <div className="stat-label">Condutores</div>
-            </div>
+          </div>
+          <div className={styles.statContent}>
+            <div className={styles.statNumber}>{stats.totalCondutores}</div>
+            <div className={styles.statLabel}>Condutores</div>
           </div>
         </div>
       </div>
 
-      {/* Conteúdo */}
-      <div className="mdfe-list-content">
-        <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '2rem' }}>
-          {/* Últimos MDFes */}
-          <div style={{
-            background: 'rgba(255, 255, 255, 0.7)',
-            backdropFilter: 'blur(10px)',
-            borderRadius: '20px',
-            padding: '1.5rem',
-            border: '1px solid rgba(229, 231, 235, 0.8)',
-            boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
-          }}>
-            <h3 style={{ marginBottom: '1.5rem', color: '#1f2937', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <i className="fas fa-history" style={{fontSize: '20px'}}></i>
-              Últimos MDF-es
-            </h3>
+      {/* Main Content */}
+      <div className={styles.mainContent}>
+        <div className={styles.contentGrid}>
+          {/* Recent MDFes */}
+          <div className={styles.recentMDFes}>
+            <div className={styles.cardHeader}>
+              <div className={styles.cardTitle}>
+                <i className="fas fa-history"></i>
+                <span>Atividade Recente</span>
+              </div>
+              <button
+                className={styles.viewAllBtn}
+                onClick={() => handleNavigate('mdfes')}
+              >
+                Ver todos
+                <i className="fas fa-arrow-right"></i>
+              </button>
+            </div>
 
             {recentMDFes.length === 0 ? (
-              <div style={{ textAlign: 'center', padding: '2rem', color: '#6b7280' }}>
-                <i className="fas fa-file-alt" style={{fontSize: '48px', marginBottom: '1rem', opacity: 0.5}}></i>
-                <p>Nenhum MDF-e emitido ainda</p>
+              <div className={styles.emptyState}>
+                <div className={styles.emptyIcon}>
+                  <i className="fas fa-file-alt"></i>
+                </div>
+                <h3>Nenhum MDF-e emitido</h3>
+                <p>Comece emitindo seu primeiro manifesto eletrônico</p>
                 <button
+                  className={styles.primaryBtn}
                   onClick={() => handleNavigate('mdfe-editor')}
-                  style={{
-                    background: '#3b82f6',
-                    color: 'white',
-                    border: 'none',
-                    borderRadius: '8px',
-                    padding: '0.5rem 1rem',
-                    cursor: 'pointer',
-                    marginTop: '1rem'
-                  }}
                 >
-                  Criar primeiro MDF-e
+                  <i className="fas fa-plus"></i>
+                  Emitir primeiro MDF-e
                 </button>
               </div>
             ) : (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              <div className={styles.mdfList}>
                 {recentMDFes.map((mdfe) => {
                   const statusConfig = getStatusConfig(mdfe.status);
                   return (
-                    <div key={mdfe.id} style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      padding: '1rem',
-                      background: 'rgba(255, 255, 255, 0.5)',
-                      borderRadius: '12px',
-                      border: '1px solid rgba(229, 231, 235, 0.6)'
-                    }}>
-                      <div style={{ flex: 1 }}>
-                        <div style={{ fontWeight: '600', marginBottom: '0.25rem' }}>
-                          MDF-e Nº {mdfe.numero} - Série {mdfe.serie}
+                    <div key={mdfe.id} className={styles.mdfItem}>
+                      <div className={styles.mdfInfo}>
+                        <div className={styles.mdfNumber}>
+                          MDF-e Nº {mdfe.numero}/{mdfe.serie}
                         </div>
-                        <div style={{ fontSize: '0.875rem', color: '#6b7280' }}>
-                          {mdfe.emitenteNome} • {formatDate(mdfe.dataEmissao)}
-                          {mdfe.valorCarga && ` • ${formatCurrency(mdfe.valorCarga)}`}
+                        <div className={styles.mdfDetails}>
+                          <span>{mdfe.emitenteNome}</span>
+                          <span>{formatDate(mdfe.dataEmissao)}</span>
+                          {mdfe.valorCarga && <span>{formatCurrency(mdfe.valorCarga)}</span>}
                         </div>
                       </div>
-                      <div style={{
-                        padding: '0.25rem 0.75rem',
-                        borderRadius: '6px',
-                        fontSize: '0.75rem',
-                        fontWeight: '500',
-                        backgroundColor: statusConfig.bgColor,
-                        color: statusConfig.textColor,
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '0.25rem'
-                      }}>
+                      <div className={`${styles.statusBadge} ${styles[statusConfig.color]}`}>
                         <i className={statusConfig.icon}></i>
                         {mdfe.status}
                       </div>
@@ -369,121 +367,97 @@ export function Dashboard() {
             )}
           </div>
 
-          {/* Ações Rápidas */}
-          <div style={{
-            background: 'rgba(255, 255, 255, 0.7)',
-            backdropFilter: 'blur(10px)',
-            borderRadius: '20px',
-            padding: '1.5rem',
-            border: '1px solid rgba(229, 231, 235, 0.8)',
-            boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
-          }}>
-            <h3 style={{ marginBottom: '1.5rem', color: '#1f2937', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <i className="fas fa-bolt" style={{fontSize: '20px'}}></i>
-              Ações Rápidas
-            </h3>
+          {/* Quick Actions & System Info */}
+          <div className={styles.sidebar}>
+            {/* Quick Actions */}
+            <div className={styles.quickActions}>
+              <div className={styles.cardHeader}>
+                <div className={styles.cardTitle}>
+                  <i className="fas fa-bolt"></i>
+                  <span>Ações Rápidas</span>
+                </div>
+              </div>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-              <button
-                onClick={() => handleNavigate('mdfe-editor')}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '0.75rem',
-                  padding: '0.875rem 1rem',
-                  background: '#3b82f6',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '10px',
-                  cursor: 'pointer',
-                  transition: 'all 0.2s',
-                  fontWeight: '500'
-                }}
-                onMouseOver={(e) => e.currentTarget.style.background = '#2563eb'}
-                onMouseOut={(e) => e.currentTarget.style.background = '#3b82f6'}
-              >
-                <i className="fas fa-plus"></i>
-                Novo MDF-e
-              </button>
+              <div className={styles.actionsList}>
+                <button
+                  className={styles.actionBtn}
+                  onClick={() => handleNavigate('mdfe-editor')}
+                >
+                  <div className={styles.actionIcon}>
+                    <i className="fas fa-plus"></i>
+                  </div>
+                  <div className={styles.actionContent}>
+                    <span className={styles.actionTitle}>Novo MDF-e</span>
+                    <span className={styles.actionDesc}>Emitir manifesto</span>
+                  </div>
+                  <i className="fas fa-chevron-right"></i>
+                </button>
 
-              <button
-                onClick={() => handleNavigate('veiculos')}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '0.75rem',
-                  padding: '0.875rem 1rem',
-                  background: 'rgba(255, 255, 255, 0.8)',
-                  color: '#374151',
-                  border: '1px solid rgba(229, 231, 235, 0.8)',
-                  borderRadius: '10px',
-                  cursor: 'pointer',
-                  transition: 'all 0.2s',
-                  fontWeight: '500'
-                }}
-              >
-                <i className="fas fa-truck"></i>
-                Gerenciar Veículos
-              </button>
+                <button
+                  className={styles.actionBtn}
+                  onClick={() => handleNavigate('veiculos')}
+                >
+                  <div className={styles.actionIcon}>
+                    <i className="fas fa-truck"></i>
+                  </div>
+                  <div className={styles.actionContent}>
+                    <span className={styles.actionTitle}>Veículos</span>
+                    <span className={styles.actionDesc}>Gerenciar frota</span>
+                  </div>
+                  <i className="fas fa-chevron-right"></i>
+                </button>
 
-              <button
-                onClick={() => handleNavigate('condutores')}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '0.75rem',
-                  padding: '0.875rem 1rem',
-                  background: 'rgba(255, 255, 255, 0.8)',
-                  color: '#374151',
-                  border: '1px solid rgba(229, 231, 235, 0.8)',
-                  borderRadius: '10px',
-                  cursor: 'pointer',
-                  transition: 'all 0.2s',
-                  fontWeight: '500'
-                }}
-              >
-                <i className="fas fa-id-card"></i>
-                Gerenciar Condutores
-              </button>
+                <button
+                  className={styles.actionBtn}
+                  onClick={() => handleNavigate('condutores')}
+                >
+                  <div className={styles.actionIcon}>
+                    <i className="fas fa-users"></i>
+                  </div>
+                  <div className={styles.actionContent}>
+                    <span className={styles.actionTitle}>Condutores</span>
+                    <span className={styles.actionDesc}>Motoristas</span>
+                  </div>
+                  <i className="fas fa-chevron-right"></i>
+                </button>
 
-              <button
-                onClick={() => handleNavigate('emitentes')}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '0.75rem',
-                  padding: '0.875rem 1rem',
-                  background: 'rgba(255, 255, 255, 0.8)',
-                  color: '#374151',
-                  border: '1px solid rgba(229, 231, 235, 0.8)',
-                  borderRadius: '10px',
-                  cursor: 'pointer',
-                  transition: 'all 0.2s',
-                  fontWeight: '500'
-                }}
-              >
-                <i className="fas fa-building"></i>
-                Gerenciar Emitentes
-              </button>
+                <button
+                  className={styles.actionBtn}
+                  onClick={() => handleNavigate('emitentes')}
+                >
+                  <div className={styles.actionIcon}>
+                    <i className="fas fa-building"></i>
+                  </div>
+                  <div className={styles.actionContent}>
+                    <span className={styles.actionTitle}>Emitentes</span>
+                    <span className={styles.actionDesc}>Empresas</span>
+                  </div>
+                  <i className="fas fa-chevron-right"></i>
+                </button>
+              </div>
             </div>
 
-            {/* Estatísticas complementares */}
-            <div style={{ marginTop: '2rem', paddingTop: '1rem', borderTop: '1px solid rgba(229, 231, 235, 0.6)' }}>
-              <h4 style={{ marginBottom: '1rem', color: '#6b7280', fontSize: '0.875rem', fontWeight: '600', textTransform: 'uppercase' }}>
-                Resumo do Sistema
-              </h4>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', fontSize: '0.875rem', color: '#6b7280' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                  <span>Contratantes:</span>
-                  <span style={{ fontWeight: '600' }}>{stats.totalContratantes}</span>
+            {/* System Summary */}
+            <div className={styles.systemSummary}>
+              <div className={styles.cardHeader}>
+                <div className={styles.cardTitle}>
+                  <i className="fas fa-chart-bar"></i>
+                  <span>Resumo</span>
                 </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                  <span>Seguradoras:</span>
-                  <span style={{ fontWeight: '600' }}>{stats.totalSeguradoras}</span>
+              </div>
+
+              <div className={styles.summaryList}>
+                <div className={styles.summaryItem}>
+                  <span>Contratantes</span>
+                  <span className={styles.summaryValue}>{stats.totalContratantes}</span>
                 </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                  <span>Municípios:</span>
-                  <span style={{ fontWeight: '600' }}>{stats.totalMunicipios}</span>
+                <div className={styles.summaryItem}>
+                  <span>Seguradoras</span>
+                  <span className={styles.summaryValue}>{stats.totalSeguradoras}</span>
+                </div>
+                <div className={styles.summaryItem}>
+                  <span>Municípios</span>
+                  <span className={styles.summaryValue}>{stats.totalMunicipios}</span>
                 </div>
               </div>
             </div>

@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using MDFeApi.Data;
 using MDFeApi.Models;
 using MDFeApi.DTOs;
+using MDFeApi.Extensions;
 
 namespace MDFeApi.Controllers
 {
@@ -18,30 +19,83 @@ namespace MDFeApi.Controllers
             _context = context;
         }
 
-        [HttpGet]
-        public async Task<ActionResult<ResultadoPaginado<Condutor>>> GetCondutores([FromQuery] int pagina = 1, [FromQuery] int tamanhoPagina = 10)
+        [HttpGet("test")]
+        public async Task<ActionResult> TestConnection()
         {
-            var query = _context.Condutores
-                .Where(c => c.Ativo)
-                .AsQueryable();
-
-            var totalItens = await query.CountAsync();
-
-            var itens = await query
-                .OrderBy(c => c.Nome)
-                .Skip((pagina - 1) * tamanhoPagina)
-                .Take(tamanhoPagina)
-                .ToListAsync();
-
-            var resultadoPaginado = new ResultadoPaginado<Condutor>
+            try
             {
-                Itens = itens,
-                TotalItens = totalItens,
-                Pagina = pagina,
-                TamanhoPagina = tamanhoPagina
-            };
+                var count = await _context.Condutores.CountAsync();
+                return Ok(new { success = true, message = $"Conexão OK. {count} condutores encontrados." });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { success = false, message = "Erro de conexão", error = ex.Message });
+            }
+        }
 
-            return Ok(resultadoPaginado);
+        [HttpGet]
+        public async Task<ActionResult> GetCondutores([FromQuery] PaginationRequest request)
+        {
+            try
+            {
+                var query = _context.Condutores
+                    .Where(c => c.Ativo)
+                    .AsQueryable();
+
+                // Filtrar por busca se fornecido
+                if (!string.IsNullOrWhiteSpace(request.Search))
+                {
+                    var searchTerm = request.Search.ToLower();
+                    query = query.Where(c =>
+                        c.Nome.ToLower().Contains(searchTerm) ||
+                        (c.Cpf != null && c.Cpf.Contains(searchTerm))
+                    );
+                }
+
+                // Aplicar ordenação
+                switch (request.SortBy?.ToLower())
+                {
+                    case "cpf":
+                        query = request.SortDirection?.ToLower() == "desc" ?
+                            query.OrderByDescending(c => c.Cpf) :
+                            query.OrderBy(c => c.Cpf);
+                        break;
+                    case "datacriacao":
+                        query = request.SortDirection?.ToLower() == "desc" ?
+                            query.OrderByDescending(c => c.DataCriacao) :
+                            query.OrderBy(c => c.DataCriacao);
+                        break;
+                    default:
+                        query = request.SortDirection?.ToLower() == "desc" ?
+                            query.OrderByDescending(c => c.Nome) :
+                            query.OrderBy(c => c.Nome);
+                        break;
+                }
+
+                // Implementação simples da paginação
+                var totalItems = await query.CountAsync();
+                var items = await query
+                    .Skip((request.Page - 1) * request.PageSize)
+                    .Take(request.PageSize)
+                    .ToListAsync();
+
+                var result = new
+                {
+                    items = items,
+                    totalItems = totalItems,
+                    totalPages = (int)Math.Ceiling((double)totalItems / request.PageSize),
+                    currentPage = request.Page,
+                    pageSize = request.PageSize,
+                    hasNextPage = request.Page * request.PageSize < totalItems,
+                    hasPreviousPage = request.Page > 1
+                };
+
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Erro ao obter condutores", error = ex.Message });
+            }
         }
 
         [HttpGet("{id}")]
@@ -82,7 +136,6 @@ namespace MDFeApi.Controllers
                 {
                     Nome = condutorDto.Nome,
                     Cpf = condutorDto.Cpf,
-                    Telefone = string.IsNullOrWhiteSpace(condutorDto.Telefone) ? null : condutorDto.Telefone,
                     Ativo = true
                 };
 
@@ -121,7 +174,6 @@ namespace MDFeApi.Controllers
 
                 condutor.Nome = condutorDto.Nome;
                 condutor.Cpf = condutorDto.Cpf;
-                condutor.Telefone = string.IsNullOrWhiteSpace(condutorDto.Telefone) ? null : condutorDto.Telefone;
 
                 await _context.SaveChangesAsync();
 

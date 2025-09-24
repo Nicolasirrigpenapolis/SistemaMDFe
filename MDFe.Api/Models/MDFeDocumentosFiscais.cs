@@ -167,23 +167,6 @@ namespace MDFeApi.Models
         public virtual ICollection<MDFeProdutoPerigoso> ProdutosPerigosos { get; set; } = new List<MDFeProdutoPerigoso>();
     }
 
-    // Lacres rodoviários do MDFe
-    public class MDFeLacreRodoviario
-    {
-        public int Id { get; set; }
-
-        [Required]
-        public int MDFeId { get; set; }
-        public virtual MDFe MDFe { get; set; } = null!;
-
-        [Required]
-        [MaxLength(60)]
-        public string NumeroLacre { get; set; } = string.Empty;
-
-        public DateTime DataCriacao { get; set; } = DateTime.Now;
-
-        public int Ordem { get; set; }
-    }
 
     // Contratante específico para MDFe (classe complementar)
     public class MDFeContratante
@@ -241,42 +224,6 @@ namespace MDFeApi.Models
         public DateTime DataCriacao { get; set; } = DateTime.Now;
     }
 
-    // Unidades de Transporte
-    public class MDFeUnidadeTransporte
-    {
-        public int Id { get; set; }
-
-        [Required]
-        public int MDFeId { get; set; }
-        public virtual MDFe MDFe { get; set; } = null!;
-
-        // Relacionamentos com documentos fiscais
-        public int? MDFeCteId { get; set; }
-        public virtual MDFeCte? MDFeCte { get; set; }
-
-        public int? MDFeNfeId { get; set; }
-        public virtual MDFeNfe? MDFeNfe { get; set; }
-
-        public int? MDFeMdfeTranspId { get; set; }
-        public virtual MDFeMdfeTransp? MDFeMdfeTransp { get; set; }
-
-        [Required]
-        [MaxLength(1)]
-        public string TipoUnidadeTransporte { get; set; } = string.Empty; // 1=Rodotrem, 2=Caminhão, etc.
-
-        [Required]
-        [MaxLength(20)]
-        public string IdentificacaoUnidadeTransporte { get; set; } = string.Empty;
-
-        [Column(TypeName = "decimal(18,3)")]
-        public decimal? QuantidadeRateada { get; set; }
-
-        public DateTime DataCriacao { get; set; } = DateTime.Now;
-
-        // Relacionamentos
-        public virtual ICollection<MDFeUnidadeCarga> UnidadesCarga { get; set; } = new List<MDFeUnidadeCarga>();
-        public virtual ICollection<MDFeLacreUnidadeTransporte> Lacres { get; set; } = new List<MDFeLacreUnidadeTransporte>();
-    }
 
     // Unidades de Carga
     public class MDFeUnidadeCarga
@@ -336,74 +283,7 @@ namespace MDFeApi.Models
         public DateTime DataCriacao { get; set; } = DateTime.Now;
     }
 
-    // Produtos Perigosos
-    public class MDFeProdutoPerigoso
-    {
-        public int Id { get; set; }
 
-        [Required]
-        public int MDFeId { get; set; }
-        public virtual MDFe MDFe { get; set; } = null!;
-
-        // Relacionamentos com documentos fiscais
-        public int? MDFeCteId { get; set; }
-        public virtual MDFeCte? MDFeCte { get; set; }
-
-        public int? MDFeNfeId { get; set; }
-        public virtual MDFeNfe? MDFeNfe { get; set; }
-
-        public int? MDFeMdfeTranspId { get; set; }
-        public virtual MDFeMdfeTransp? MDFeMdfeTransp { get; set; }
-
-        [Required]
-        [MaxLength(4)]
-        public string NumeroONU { get; set; } = string.Empty;
-
-        [MaxLength(150)]
-        public string? NomeApropriado { get; set; }
-
-        [MaxLength(40)]
-        public string? ClasseRisco { get; set; }
-
-        [MaxLength(6)]
-        public string? GrupoEmbalagem { get; set; }
-
-        [Required]
-        [MaxLength(20)]
-        public string QuantidadeTotalProduto { get; set; } = string.Empty;
-
-        [MaxLength(60)]
-        public string? QuantidadeVolumoTipo { get; set; }
-
-        public DateTime DataCriacao { get; set; } = DateTime.Now;
-    }
-
-    // Entregas Parciais
-    public class MDFeEntregaParcial
-    {
-        public int Id { get; set; }
-
-        [Required]
-        public int MDFeId { get; set; }
-        public virtual MDFe MDFe { get; set; } = null!;
-
-        // Relacionamentos com documentos fiscais (CT-e ou NF-e)
-        public int? MDFeCteId { get; set; }
-        public virtual MDFeCte? MDFeCte { get; set; }
-
-        public int? MDFeNfeId { get; set; }
-        public virtual MDFeNfe? MDFeNfe { get; set; }
-
-        [Required]
-        [Column(TypeName = "decimal(11,4)")]
-        public decimal QuantidadeTotal { get; set; }
-
-        [Required]
-        [Column(TypeName = "decimal(11,4)")]
-        public decimal QuantidadeParcial { get; set; }
-
-        public DateTime DataCriacao { get; set; } = DateTime.Now;
-    }
 
     // NFes de Prestação Parcial (relacionadas a CTes)
     public class MDFeNfePrestacaoParcial

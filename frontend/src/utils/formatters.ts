@@ -38,7 +38,13 @@ export const formatCEP = (value: string): string => {
 };
 
 export const formatPlaca = (value: string): string => {
-  return value.toUpperCase().replace(/[^A-Z0-9]/g, '');
+  const cleanValue = value.toUpperCase().replace(/[^A-Z0-9]/g, '');
+
+  if (cleanValue.length <= 3) {
+    return cleanValue;
+  }
+
+  return cleanValue.replace(/([A-Z]{3})(\d{4})/, '$1-$2');
 };
 
 export const formatChaveAcesso = (value: string): string => {
@@ -76,6 +82,10 @@ export const cleanNumericString = (value: string): string => {
 
 export const cleanDecimalString = (value: string): string => {
   return value.replace(/[^\d.,]/g, '').replace(',', '.');
+};
+
+export const cleanPlaca = (value: string): string => {
+  return value.toUpperCase().replace(/[^A-Z0-9]/g, '');
 };
 
 export const validateCNPJ = (cnpj: string): boolean => {
@@ -149,4 +159,46 @@ export const validateCPF = (cpf: string): boolean => {
 export const validateChaveAcesso = (chave: string): boolean => {
   const cleanChave = chave.replace(/\D/g, '');
   return cleanChave.length === 44;
+};
+
+// Função helper para aplicar máscara enquanto o usuário digita
+export const applyMask = (value: string, type: 'cpf' | 'cnpj' | 'cep' | 'telefone' | 'ie'): string => {
+  const cleanValue = cleanNumericString(value);
+
+  switch (type) {
+    case 'cpf':
+      return formatCPF(cleanValue);
+    case 'cnpj':
+      return formatCNPJ(cleanValue);
+    case 'cep':
+      return formatCEP(cleanValue);
+    case 'ie':
+      return formatIE(cleanValue);
+    case 'telefone':
+      // Formato telefone: (XX) XXXXX-XXXX
+      return cleanValue
+        .replace(/(\d{2})(\d)/, '($1) $2')
+        .replace(/(\d{5})(\d{4})$/, '$1-$2');
+    default:
+      return value;
+  }
+};
+
+// Função para detectar automaticamente o tipo de campo e aplicar máscara
+export const autoMask = (value: string, fieldName: string): string => {
+  const lowerFieldName = fieldName.toLowerCase();
+
+  if (lowerFieldName.includes('cpf')) {
+    return applyMask(value, 'cpf');
+  } else if (lowerFieldName.includes('cnpj')) {
+    return applyMask(value, 'cnpj');
+  } else if (lowerFieldName.includes('cep')) {
+    return applyMask(value, 'cep');
+  } else if (lowerFieldName.includes('telefone') || lowerFieldName.includes('phone')) {
+    return applyMask(value, 'telefone');
+  } else if (lowerFieldName.includes('ie') || lowerFieldName.includes('inscricao')) {
+    return applyMask(value, 'ie');
+  }
+
+  return value;
 };

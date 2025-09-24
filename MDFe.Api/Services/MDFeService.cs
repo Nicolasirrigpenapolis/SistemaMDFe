@@ -25,16 +25,19 @@ namespace MDFeApi.Services
             {
                 mdfe.NumeroMdfe = await GetNextNumberAsync(mdfe.EmitenteId, 1);
             }
-            
+
             // Fixar série em 1
             mdfe.Serie = 1;
-            
+
             // Definir data/hora de emissão automaticamente se não informada
             if (mdfe.DataEmissao == DateTime.MinValue)
             {
                 mdfe.DataEmissao = DateTime.Now;
             }
-            
+
+            // 🔒 SNAPSHOT FISCAL: Capturar dados dos cadastros no momento da criação
+            await PreencherSnapshotFiscalAsync(mdfe);
+
             mdfe.DataCriacao = DateTime.Now;
             mdfe.StatusSefaz = "RASCUNHO";
             mdfe.Ativo = true;
@@ -43,6 +46,99 @@ namespace MDFeApi.Services
             await _context.SaveChangesAsync();
 
             return mdfe;
+        }
+
+        /// <summary>
+        /// Preenche automaticamente os campos de snapshot fiscal com dados atuais dos cadastros
+        /// </summary>
+        private async Task PreencherSnapshotFiscalAsync(MDFe mdfe)
+        {
+            // Snapshot do Emitente
+            var emitente = await _context.Emitentes.FindAsync(mdfe.EmitenteId);
+            if (emitente != null)
+            {
+                mdfe.EmitenteCnpj = emitente.Cnpj ?? string.Empty;
+                mdfe.EmitenteCpf = emitente.Cpf;
+                mdfe.EmitenteIe = emitente.Ie;
+                mdfe.EmitenteRazaoSocial = emitente.RazaoSocial;
+                mdfe.EmitenteNomeFantasia = emitente.NomeFantasia;
+                mdfe.EmitenteEndereco = emitente.Endereco;
+                mdfe.EmitenteNumero = emitente.Numero;
+                mdfe.EmitenteComplemento = emitente.Complemento;
+                mdfe.EmitenteBairro = emitente.Bairro;
+                mdfe.EmitenteCodMunicipio = emitente.CodMunicipio;
+                mdfe.EmitenteMunicipio = emitente.Municipio;
+                mdfe.EmitenteCep = emitente.Cep;
+                mdfe.EmitenteUf = emitente.Uf;
+                mdfe.EmitenteTipoEmitente = emitente.TipoEmitente;
+                mdfe.EmitenteRntrc = emitente.Rntrc;
+
+                // ✅ CAMPOS ADICIONAIS PARA XML/INI
+                mdfe.Rntrc = emitente.Rntrc; // RNTRC principal do MDFe
+            }
+
+            // Snapshot do Condutor
+            var condutor = await _context.Condutores.FindAsync(mdfe.CondutorId);
+            if (condutor != null)
+            {
+                mdfe.CondutorNome = condutor.Nome;
+                mdfe.CondutorCpf = condutor.Cpf;
+            }
+
+            // Snapshot do Veículo
+            var veiculo = await _context.Veiculos.FindAsync(mdfe.VeiculoId);
+            if (veiculo != null)
+            {
+                mdfe.VeiculoPlaca = veiculo.Placa;
+                mdfe.VeiculoTara = veiculo.Tara;
+                mdfe.VeiculoCapacidadeKg = veiculo.CapacidadeKg;
+                // mdfe.VeiculoCapacidadeM3 = veiculo.CapacidadeM3; // Campo ainda não existe no model MDFe
+                mdfe.VeiculoTipoRodado = veiculo.TipoRodado;
+                mdfe.VeiculoTipoCarroceria = veiculo.TipoCarroceria;
+                mdfe.VeiculoUf = veiculo.Uf;
+                mdfe.VeiculoMarca = veiculo.Marca;
+                mdfe.VeiculoModelo = veiculo.Modelo;
+                mdfe.VeiculoAno = veiculo.Ano;
+            }
+
+            // Snapshot do Contratante (se informado)
+            if (mdfe.ContratanteId.HasValue)
+            {
+                var contratante = await _context.Contratantes.FindAsync(mdfe.ContratanteId.Value);
+                if (contratante != null)
+                {
+                    mdfe.ContratanteCnpj = contratante.Cnpj;
+                    mdfe.ContratanteCpf = contratante.Cpf;
+                    mdfe.ContratanteRazaoSocial = contratante.RazaoSocial;
+                    mdfe.ContratanteNomeFantasia = contratante.NomeFantasia;
+                    mdfe.ContratanteIe = contratante.Ie; // ✅ CAMPO ADICIONADO
+                    mdfe.ContratanteEndereco = contratante.Endereco;
+                    mdfe.ContratanteNumero = contratante.Numero;
+                    mdfe.ContratanteComplemento = contratante.Complemento;
+                    mdfe.ContratanteBairro = contratante.Bairro;
+                    mdfe.ContratanteCodMunicipio = contratante.CodMunicipio;
+                    mdfe.ContratanteMunicipio = contratante.Municipio;
+                    mdfe.ContratanteCep = contratante.Cep;
+                    mdfe.ContratanteUf = contratante.Uf;
+                }
+            }
+
+            // Snapshot da Seguradora (se informado)
+            if (mdfe.SeguradoraId.HasValue)
+            {
+                var seguradora = await _context.Seguradoras.FindAsync(mdfe.SeguradoraId.Value);
+                if (seguradora != null)
+                {
+                    mdfe.SeguradoraCnpj = seguradora.Cnpj;
+                    mdfe.SeguradoraRazaoSocial = seguradora.RazaoSocial;
+                    mdfe.SeguradoraNomeFantasia = seguradora.NomeFantasia; // ✅ CAMPO ADICIONADO
+
+                    // ✅ CAMPOS ADICIONAIS:
+                    mdfe.NumeroApoliceSeguro = seguradora.Apolice;
+                }
+            }
+
+            _logger.LogInformation($"Snapshot fiscal criado para MDFe {mdfe.NumeroMdfe}");
         }
 
         public async Task<MDFe?> GetMDFeByIdAsync(int id)
@@ -68,6 +164,22 @@ namespace MDFeApi.Services
 
         public async Task<MDFe> UpdateMDFeAsync(MDFe mdfe)
         {
+            // ❌ PROTEÇÃO FISCAL: MDFe transmitido é IMUTÁVEL
+            var mdfeExistente = await _context.MDFes.FindAsync(mdfe.Id);
+            if (mdfeExistente == null)
+            {
+                throw new InvalidOperationException("MDFe não encontrado.");
+            }
+
+            if (mdfeExistente.Transmitido ||
+                mdfeExistente.StatusSefaz != "RASCUNHO")
+            {
+                throw new InvalidOperationException(
+                    "MDFe transmitido não pode ser alterado. Documento fiscal é imutável por exigência da SEFAZ."
+                );
+            }
+
+            // ✅ Permitir alteração apenas se RASCUNHO
             mdfe.DataUltimaAlteracao = DateTime.Now;
             _context.Entry(mdfe).State = EntityState.Modified;
             await _context.SaveChangesAsync();
@@ -80,6 +192,15 @@ namespace MDFeApi.Services
             if (mdfe == null || !mdfe.Ativo)
                 return false;
 
+            // ❌ PROTEÇÃO FISCAL: MDFe transmitido NÃO pode ser excluído
+            if (mdfe.Transmitido || mdfe.StatusSefaz != "RASCUNHO")
+            {
+                throw new InvalidOperationException(
+                    "MDFe transmitido não pode ser excluído. Use cancelamento via SEFAZ."
+                );
+            }
+
+            // ✅ Permitir exclusão apenas se RASCUNHO
             mdfe.Ativo = false;
             mdfe.DataUltimaAlteracao = DateTime.Now;
             await _context.SaveChangesAsync();

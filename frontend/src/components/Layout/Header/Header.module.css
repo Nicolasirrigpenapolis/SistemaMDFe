@@ -1,80 +1,430 @@
+/* Header Principal */
 .header {
-  height: 60px;
+  height: 70px;
   background: white;
-  border-bottom: 1px solid #e2e8f0;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  border-bottom: 1px solid rgba(229, 231, 235, 0.8);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 1rem;
+  padding: 0 2rem;
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   z-index: 1000;
+  backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
 }
 
+:global(body.dark) .header {
+  background: rgba(15, 23, 42, 0.9);
+  border-bottom: 1px solid rgba(51, 65, 85, 0.5);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+/* Lado Esquerdo */
 .headerLeft {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.menuToggle {
+  background: linear-gradient(135deg, #f8fafc, #f1f5f9);
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: 0.875rem;
+  border-radius: 16px;
+  transition: all 0.3s ease;
+  color: #1e40af;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+  position: relative;
+  font-weight: 600;
+}
+
+.menuToggle:hover {
+  background: linear-gradient(135deg, #3b82f6, #2563eb);
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(59, 130, 246, 0.3);
+}
+
+.menuToggle:active {
+  transform: translateY(0);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
+}
+
+/* Modo escuro para o menu toggle */
+:global(body.dark) .menuToggle {
+  background: linear-gradient(135deg, #334155, #475569);
+  color: #e2e8f0;
+}
+
+:global(body.dark) .menuToggle:hover {
+  background: linear-gradient(135deg, #3b82f6, #2563eb);
+  color: white;
+}
+
+/* Logo Section */
+.logoSection {
   display: flex;
   align-items: center;
   gap: 1rem;
 }
 
-.menuToggle {
-  background: none;
-  border: none;
-  font-size: 1.25rem;
-  cursor: pointer;
-  padding: 0.5rem;
-  border-radius: 4px;
-  transition: background-color 0.2s;
+.logoIcon {
+  width: 48px;
+  height: 48px;
+  background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 20px;
+  box-shadow: 0 4px 16px rgba(59, 130, 246, 0.3);
 }
 
-.menuToggle:hover {
-  background-color: #f1f5f9;
+.logoText {
+  display: flex;
+  flex-direction: column;
 }
 
 .title {
   margin: 0;
-  font-size: 1.25rem;
-  font-weight: 600;
-  color: #1e293b;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1f2937;
+  line-height: 1.2;
+  transition: color 0.3s ease;
 }
 
+:global(body.dark) .title {
+  color: #f1f5f9;
+}
+
+.subtitle {
+  font-size: 0.75rem;
+  color: #6b7280;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  transition: color 0.3s ease;
+}
+
+:global(body.dark) .subtitle {
+  color: #94a3b8;
+}
+
+/* Lado Direito */
 .headerRight {
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: 1.5rem;
+}
+
+/* Ações Rápidas */
+.quickActions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.quickActionBtn {
+  position: relative;
+  width: 40px;
+  height: 40px;
+  background: none;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  color: #6b7280;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.875rem;
+}
+
+.quickActionBtn:hover {
+  background: rgba(59, 130, 246, 0.1);
+  color: #3b82f6;
+  transform: translateY(-1px);
+}
+
+.notificationBadge {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  background: #ef4444;
+  color: white;
+  border-radius: 50%;
+  width: 18px;
+  height: 18px;
+  font-size: 0.65rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid white;
+}
+
+/* Divisor */
+.divider {
+  width: 1px;
+  height: 24px;
+  background: rgba(229, 231, 235, 0.8);
+}
+
+/* Seção do Usuário */
+.userSection {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem;
+  border-radius: 12px;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+/* Theme Toggle dentro da user section */
+.userSection :global(.theme-toggle) {
+  width: 40px !important;
+  height: 40px !important;
+  border-radius: 10px !important;
+  background: linear-gradient(135deg, #f3f4f6, #e5e7eb) !important;
+  border: 2px solid rgba(229, 231, 235, 0.5) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  color: #6b7280 !important;
+  font-size: 0.875rem !important;
+}
+
+.userSection :global(.theme-toggle):hover {
+  background: linear-gradient(135deg, #e5e7eb, #d1d5db) !important;
+  transform: translateY(-1px) !important;
+}
+
+.userSection:hover {
+  background: rgba(248, 250, 252, 0.8);
+}
+
+.userAvatar {
+  width: 40px;
+  height: 40px;
+  background: linear-gradient(135deg, #f3f4f6, #e5e7eb);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #6b7280;
+  font-size: 0.875rem;
+  border: 2px solid rgba(229, 231, 235, 0.5);
 }
 
 .userInfo {
   display: flex;
   flex-direction: column;
-  align-items: flex-end;
+  align-items: flex-start;
   font-size: 0.875rem;
 }
 
 .userName {
-  color: #1e293b;
-  font-weight: 500;
+  color: #1f2937;
+  font-weight: 600;
+  line-height: 1.2;
+  transition: color 0.3s ease;
+}
+
+:global(body.dark) .userName {
+  color: #f1f5f9;
 }
 
 .userRole {
-  color: #64748b;
+  color: #6b7280;
   font-size: 0.75rem;
+  font-weight: 500;
+  transition: color 0.3s ease;
 }
 
+:global(body.dark) .userRole {
+  color: #94a3b8;
+}
+
+.userDropdown {
+  background: none;
+  border: none;
+  color: #9ca3af;
+  cursor: pointer;
+  padding: 0.25rem;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.userDropdown:hover {
+  color: #6b7280;
+}
+
+/* Botão de Logout */
 .logoutBtn {
-  padding: 0.5rem 1rem;
-  background-color: #ef4444;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.25rem;
+  background: linear-gradient(135deg, #ef4444, #dc2626);
   color: white;
   border: none;
-  border-radius: 4px;
+  border-radius: 12px;
   cursor: pointer;
   font-size: 0.875rem;
-  transition: background-color 0.2s;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 16px rgba(239, 68, 68, 0.3);
 }
 
 .logoutBtn:hover {
-  background-color: #dc2626;
+  background: linear-gradient(135deg, #dc2626, #b91c1c);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(239, 68, 68, 0.4);
+}
+
+.logoutBtn i {
+  font-size: 0.875rem;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+  .header {
+    padding: 0 1rem;
+    height: 64px;
+  }
+
+  .logoText {
+    display: none;
+  }
+
+  .logoIcon {
+    width: 40px;
+    height: 40px;
+    font-size: 16px;
+  }
+
+  .quickActions {
+    display: none;
+  }
+
+  .divider {
+    display: none;
+  }
+
+  .userInfo {
+    display: none;
+  }
+
+  .userSection {
+    padding: 0.25rem;
+  }
+
+  .logoutBtn span {
+    display: none;
+  }
+
+  .logoutBtn {
+    padding: 0.75rem;
+    width: 40px;
+    height: 40px;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .header {
+    padding: 0 0.75rem;
+  }
+
+  .headerLeft {
+    gap: 0.75rem;
+  }
+
+  .headerRight {
+    gap: 0.75rem;
+  }
+
+  .title {
+    font-size: 1.25rem;
+  }
+
+  .userSection:hover {
+    background: none;
+  }
+}
+
+/* Animações */
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.header {
+  animation: slideDown 0.3s ease-out;
+}
+
+/* Estados de hover mais suaves */
+.quickActionBtn,
+.userDropdown {
+  position: relative;
+  overflow: hidden;
+}
+
+.quickActionBtn::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  background: rgba(59, 130, 246, 0.1);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  transition: width 0.3s ease, height 0.3s ease;
+}
+
+.quickActionBtn:hover::before {
+  width: 100%;
+  height: 100%;
+}
+
+/* Efeito de glass morphism sutil */
+.header::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(10px);
+  z-index: -1;
+  transition: background 0.3s ease;
+}
+
+:global(body.dark) .header::before {
+  background: rgba(15, 23, 42, 0.9);
 }

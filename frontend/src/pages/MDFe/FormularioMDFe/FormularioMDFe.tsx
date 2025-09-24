@@ -11,7 +11,6 @@ export function FormularioMDFe() {
   const navigate = useNavigate();
   const { id } = useParams();
   const [salvando, setSalvando] = useState(false);
-  const [carregando, setCarregando] = useState(false);
   const [erro, setErro] = useState<string>('');
 
   const [dados, setDados] = useState<Partial<MDFeData>>({
@@ -74,7 +73,6 @@ export function FormularioMDFe() {
   }, [id]);
 
   const carregarDadosIniciais = async () => {
-    setCarregando(true);
     try {
       // Carregar entidades necessárias para o formulário
       const resultadoEmitentes = await entitiesService.obterEmitentes();
@@ -85,13 +83,10 @@ export function FormularioMDFe() {
     } catch (error) {
       console.error('Erro ao carregar dados iniciais:', error);
       setErro('Erro ao carregar dados necessários para o formulário');
-    } finally {
-      setCarregando(false);
     }
   };
 
   const carregarMDFe = async (mdfeId: string) => {
-    setCarregando(true);
     try {
       const resultado = await mdfeService.obterMDFeWizard(parseInt(mdfeId));
       if (resultado.sucesso) {
@@ -103,8 +98,6 @@ export function FormularioMDFe() {
     } catch (error) {
       console.error('Erro inesperado ao carregar MDFe:', error);
       setErro('Erro inesperado ao carregar MDFe. Tente novamente.');
-    } finally {
-      setCarregando(false);
     }
   };
 
@@ -131,14 +124,27 @@ export function FormularioMDFe() {
   const salvar = async () => {
     setSalvando(true);
     try {
+      // Definir data/hora de emissão automaticamente no momento do salvamento
+      const agora = new Date();
+      const dataHoraEmissao = agora.toISOString().slice(0, 16); // Formato: YYYY-MM-DDTHH:mm
+
+      const dadosParaSalvar = {
+        ...dados,
+        ide: {
+          ...dados.ide,
+          dhEmi: dataHoraEmissao,
+          dhIniViagem: dataHoraEmissao // Data de início da viagem = data de emissão
+        }
+      } as MDFeData;
+
       let resultado;
 
       if (id) {
         // Atualizar MDFe existente
-        resultado = await mdfeService.atualizarMDFeWizard(parseInt(id), dados as MDFeData);
+        resultado = await mdfeService.atualizarMDFeWizard(parseInt(id), dadosParaSalvar);
       } else {
         // Criar novo MDFe
-        resultado = await mdfeService.criarMDFeWizard(dados as MDFeData);
+        resultado = await mdfeService.criarMDFeWizard(dadosParaSalvar);
       }
 
       if (resultado.sucesso) {
@@ -160,23 +166,18 @@ export function FormularioMDFe() {
   };
 
 
-  if (carregando) {
-    return (
-      <div className={styles.loading}>
-        <div className={styles.spinner}></div>
-        <p>Carregando formulário...</p>
-      </div>
-    );
-  }
 
   return (
     <div className={styles.formularioMdfe}>
+
       {erro && (
-        <ErrorDisplay
-          error={erro}
-          type="block"
-          onClose={() => setErro('')}
-        />
+        <div className={styles.errorContainer}>
+          <ErrorDisplay
+            error={erro}
+            type="block"
+            onClose={() => setErro('')}
+          />
+        </div>
       )}
 
       <MDFeWizard

@@ -18,9 +18,9 @@ namespace MDFeApi.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<PagedResult<ContratanteListDTO>>> Get(
-            [FromQuery] int page = 1,
-            [FromQuery] int pageSize = 10,
+        public async Task<ActionResult<ResultadoPaginado<ContratanteListDto>>> Get(
+            [FromQuery] int pagina = 1,
+            [FromQuery] int tamanhoPagina = 10,
             [FromQuery] string? search = null)
         {
             var query = _context.Contratantes.AsQueryable();
@@ -34,13 +34,13 @@ namespace MDFeApi.Controllers
                     c.Cpf!.Contains(search));
             }
 
-            var total = await query.CountAsync();
+            var totalItens = await query.CountAsync();
 
             var contratantes = await query
                 .OrderBy(c => c.RazaoSocial)
-                .Skip((page - 1) * pageSize)
-                .Take(pageSize)
-                .Select(c => new ContratanteListDTO
+                .Skip((pagina - 1) * tamanhoPagina)
+                .Take(tamanhoPagina)
+                .Select(c => new ContratanteListDto
                 {
                     Id = c.Id,
                     Cnpj = c.Cnpj,
@@ -55,28 +55,27 @@ namespace MDFeApi.Controllers
                     Municipio = c.Municipio,
                     Cep = c.Cep,
                     Uf = c.Uf,
-                    Telefone = c.Telefone,
-                    Email = c.Email,
+                    Ie = c.Ie,
                     Ativo = c.Ativo,
                     DataCriacao = c.DataCriacao
                 })
                 .ToListAsync();
 
-            return Ok(new PagedResult<ContratanteListDTO>
+            return Ok(new ResultadoPaginado<ContratanteListDto>
             {
-                Items = contratantes,
-                TotalCount = total,
-                Page = page,
-                PageSize = pageSize
+                Itens = contratantes,
+                TotalItens = totalItens,
+                Pagina = pagina,
+                TamanhoPagina = tamanhoPagina
             });
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<ContratanteDetailDTO>> Get(int id)
+        public async Task<ActionResult<ContratanteDetailDto>> Get(int id)
         {
             var contratante = await _context.Contratantes
                 .Where(c => c.Id == id)
-                .Select(c => new ContratanteDetailDTO
+                .Select(c => new ContratanteDetailDto
                 {
                     Id = c.Id,
                     Cnpj = c.Cnpj,
@@ -91,8 +90,7 @@ namespace MDFeApi.Controllers
                     Municipio = c.Municipio,
                     Cep = c.Cep,
                     Uf = c.Uf,
-                    Telefone = c.Telefone,
-                    Email = c.Email,
+                    Ie = c.Ie,
                     Ativo = c.Ativo,
                     DataCriacao = c.DataCriacao,
                     DataUltimaAlteracao = c.DataUltimaAlteracao
@@ -108,7 +106,7 @@ namespace MDFeApi.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<ContratanteDetailDTO>> Post([FromBody] ContratanteCreateDTO dto)
+        public async Task<ActionResult<ContratanteDetailDto>> Post([FromBody] ContratanteCreateDto dto)
         {
             if (!ModelState.IsValid)
             {
@@ -146,8 +144,7 @@ namespace MDFeApi.Controllers
                 Municipio = dto.Municipio,
                 Cep = dto.Cep,
                 Uf = dto.Uf,
-                Telefone = dto.Telefone,
-                Email = dto.Email,
+                Ie = dto.Ie,
                 Ativo = dto.Ativo,
                 DataCriacao = DateTime.Now
             };
@@ -155,7 +152,7 @@ namespace MDFeApi.Controllers
             _context.Contratantes.Add(contratante);
             await _context.SaveChangesAsync();
 
-            var result = new ContratanteDetailDTO
+            var result = new ContratanteDetailDto
             {
                 Id = contratante.Id,
                 Cnpj = contratante.Cnpj,
@@ -170,8 +167,7 @@ namespace MDFeApi.Controllers
                 Municipio = contratante.Municipio,
                 Cep = contratante.Cep,
                 Uf = contratante.Uf,
-                Telefone = contratante.Telefone,
-                Email = contratante.Email,
+                Ie = contratante.Ie,
                 Ativo = contratante.Ativo,
                 DataCriacao = contratante.DataCriacao,
                 DataUltimaAlteracao = contratante.DataUltimaAlteracao
@@ -181,7 +177,7 @@ namespace MDFeApi.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> Put(int id, [FromBody] ContratanteUpdateDTO dto)
+        public async Task<IActionResult> Put(int id, [FromBody] ContratanteUpdateDto dto)
         {
             if (!ModelState.IsValid)
             {
@@ -225,8 +221,7 @@ namespace MDFeApi.Controllers
             contratante.Municipio = dto.Municipio;
             contratante.Cep = dto.Cep;
             contratante.Uf = dto.Uf;
-            contratante.Telefone = dto.Telefone;
-            contratante.Email = dto.Email;
+            contratante.Ie = dto.Ie;
             contratante.Ativo = dto.Ativo;
             contratante.DataUltimaAlteracao = DateTime.Now;
 

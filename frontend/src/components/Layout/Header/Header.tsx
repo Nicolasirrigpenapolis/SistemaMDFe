@@ -19,17 +19,34 @@ export function Header({ onToggleSidebar, sidebarAberta }: HeaderProps) {
         >
           <Icon name="bars" />
         </button>
-        <h1 className={styles.title}>MDFe System</h1>
+
+        <div className={styles.logoSection}>
+          <div className={styles.logoText}>
+            <h1 className={styles.title}>MDFe System</h1>
+            <span className={styles.subtitle}>Gestão Profissional</span>
+          </div>
+        </div>
       </div>
 
       <div className={styles.headerRight}>
-        <ThemeToggle />
-        <div className={styles.userInfo}>
-          <span className={styles.userName}>Sistema MDFe</span>
-          <span className={styles.userRole}>Administrador</span>
+        <div className={styles.userSection}>
+          <ThemeToggle />
+          <div className={styles.divider}></div>
+          <div className={styles.userAvatar}>
+            <i className="fas fa-user"></i>
+          </div>
+          <div className={styles.userInfo}>
+            <span className={styles.userName}>Sistema MDFe</span>
+            <span className={styles.userRole}>Administrador</span>
+          </div>
+          <button className={styles.userDropdown}>
+            <i className="fas fa-chevron-down"></i>
+          </button>
         </div>
+
         <button className={styles.logoutBtn}>
-          Sair
+          <i className="fas fa-sign-out-alt"></i>
+          <span>Sair</span>
         </button>
       </div>
     </header>

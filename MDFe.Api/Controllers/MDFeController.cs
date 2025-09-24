@@ -821,7 +821,7 @@ namespace MDFeApi.Controllers
         }
         // Endpoint para criar/atualizar documentos fiscais de um MDF-e
         [HttpPost("{id}/documentos-fiscais")]
-        public async Task<ActionResult<MDFeDocumentosFiscaisResponseDTO>> CreateOrUpdateDocumentosFiscais(int id, [FromBody] MDFeDocumentosFiscaisCreateDTO dto)
+        public async Task<ActionResult<MDFeDocumentosFiscaisResponseDto>> CreateOrUpdateDocumentosFiscais(int id, [FromBody] MDFeDocumentosFiscaisCreateDto dto)
         {
             try
             {
@@ -982,7 +982,7 @@ namespace MDFeApi.Controllers
 
         // Endpoint para obter documentos fiscais de um MDF-e
         [HttpGet("{id}/documentos-fiscais")]
-        public async Task<ActionResult<MDFeDocumentosFiscaisResponseDTO>> ObterDocumentosFiscais(int id)
+        public async Task<ActionResult<MDFeDocumentosFiscaisResponseDto>> ObterDocumentosFiscais(int id)
         {
             try
             {
@@ -1018,16 +1018,16 @@ namespace MDFeApi.Controllers
                     .Distinct()
                     .ToList();
 
-                var municipiosDescarga = new List<MDFeMunicipioDescargaDTO>();
+                var municipiosDescarga = new List<MDFeMunicipioDescargaDto>();
 
                 foreach (var municipio in municipiosGroup)
                 {
-                    var municipioDto = new MDFeMunicipioDescargaDTO
+                    var municipioDto = new MDFeMunicipioDescargaDto
                     {
                         MunicipioId = municipio?.Id ?? 0,
                         NomeMunicipio = municipio?.Nome ?? string.Empty,
                         DocumentosCte = ctes.Where(c => c.MunicipioDescargaId == municipio?.Id)
-                            .Select(c => new MDFeCteDTO
+                            .Select(c => new MDFeCteDto
                             {
                                 Id = c.Id,
                                 ChaveCte = c.ChaveCte,
@@ -1036,7 +1036,7 @@ namespace MDFeApi.Controllers
                                 IndicadorPrestacaoParcial = c.IndicadorPrestacaoParcial
                             }).ToList(),
                         DocumentosNfe = nfes.Where(n => n.MunicipioDescargaId == municipio?.Id)
-                            .Select(n => new MDFeNfeDTO
+                            .Select(n => new MDFeNfeDto
                             {
                                 Id = n.Id,
                                 ChaveNfe = n.ChaveNfe,
@@ -1046,7 +1046,7 @@ namespace MDFeApi.Controllers
                                 DataPrevistaEntrega = n.DataPrevistaEntrega
                             }).ToList(),
                         DocumentosMdfeTransp = mdfeTransps.Where(m => m.MunicipioDescargaId == municipio?.Id)
-                            .Select(m => new MDFeMdfeTranspDTO
+                            .Select(m => new MDFeMdfeTranspDto
                             {
                                 Id = m.Id,
                                 ChaveMdfeTransp = m.ChaveMdfeTransp,
@@ -1058,11 +1058,11 @@ namespace MDFeApi.Controllers
                     municipiosDescarga.Add(municipioDto);
                 }
 
-                var response = new MDFeDocumentosFiscaisResponseDTO
+                var response = new MDFeDocumentosFiscaisResponseDto
                 {
                     MDFeId = id,
                     MunicipiosDescarga = municipiosDescarga,
-                    LacresRodoviarios = lacres.Select(l => new MDFeLacreRodoviarioDTO
+                    LacresRodoviarios = lacres.Select(l => new MDFeLacreRodoviarioDto
                     {
                         Id = l.Id,
                         NumeroLacre = l.NumeroLacre
@@ -1081,7 +1081,7 @@ namespace MDFeApi.Controllers
             }
         }
 
-        private async Task ProcessarUnidadesTransporte(int documentoId, List<MDFeUnidadeTransporteDTO> unidadesDto, string tipoDocumento)
+        private async Task ProcessarUnidadesTransporte(int documentoId, List<MDFeUnidadeTransporteDto> unidadesDto, string tipoDocumento)
         {
             if (unidadesDto == null || !unidadesDto.Any()) return;
 
@@ -1150,7 +1150,7 @@ namespace MDFeApi.Controllers
             }
         }
 
-        private Task ProcessarProdutosPerigosos(int documentoId, List<MDFeProdutoPerigososDTO> produtosDto, string tipoDocumento)
+        private Task ProcessarProdutosPerigosos(int documentoId, List<MDFeProdutoPerigososDto> produtosDto, string tipoDocumento)
         {
             if (produtosDto == null || !produtosDto.Any()) return Task.CompletedTask;
 

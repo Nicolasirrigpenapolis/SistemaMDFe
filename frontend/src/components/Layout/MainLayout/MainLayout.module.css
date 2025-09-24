@@ -5,6 +5,10 @@
   background-color: #f8fafc;
 }
 
+:global(body.dark) .mainLayout {
+  background-color: #0f172a;
+}
+
 .content {
   display: flex;
   flex: 1;
@@ -17,7 +21,7 @@
   transition: margin-left 0.3s ease;
   margin-left: 280px;
   padding: 1.5rem;
-  margin-top: 60px;
+  margin-top: 70px;
 }
 
 .main.sidebarFechada {

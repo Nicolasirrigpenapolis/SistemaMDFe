@@ -52,11 +52,6 @@ namespace MDFeApi.Models
         [MaxLength(2)]
         public string Uf { get; set; } = string.Empty;
 
-        [MaxLength(20)]
-        public string? Telefone { get; set; }
-
-        [MaxLength(200)]
-        public string? Email { get; set; }
 
         public bool Ativo { get; set; } = true;
 
@@ -65,8 +60,6 @@ namespace MDFeApi.Models
         [MaxLength(50)]
         public string TipoEmitente { get; set; } = "PrestadorServico"; // PrestadorServico ou EntregaPropria
         
-        [MaxLength(100)]
-        public string? DescricaoEmitente { get; set; } // Ex: "Transportadora ABC - Prestador"
 
         // Certificado Digital
         [MaxLength(500)]

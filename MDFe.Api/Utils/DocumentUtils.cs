@@ -91,7 +91,6 @@ namespace MDFeApi.Utils
             emitente.Cnpj = LimparCnpj(emitente.Cnpj);
             emitente.Cpf = LimparCpf(emitente.Cpf);
             emitente.Cep = LimparCep(emitente.Cep) ?? string.Empty;
-            emitente.Telefone = LimparTelefone(emitente.Telefone);
         }
     }
 }

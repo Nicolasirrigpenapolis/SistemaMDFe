@@ -9,8 +9,11 @@ export interface CNPJData {
   municipio: string;
   uf: string;
   cep: string;
+  codigo_municipio?: number;
   telefone?: string;
   email?: string;
+  situacao?: string;
+  data_situacao?: string;
 }
 
 export interface CNPJResponse {
@@ -60,9 +63,12 @@ class CNPJService {
           bairro: data.bairro || '',
           municipio: data.municipio || '',
           uf: data.uf || '',
-          cep: data.cep || '',
-          telefone: data.telefone || '',
-          email: data.email || ''
+          cep: data.cep?.replace(/\D/g, '') || '',
+          codigo_municipio: parseInt(data.codigo_municipio) || 0,
+          telefone: data.ddd_telefone_1 ? `(${data.ddd_telefone_1.substring(0, 2)}) ${data.ddd_telefone_1.substring(2)}` : '',
+          email: data.email || '',
+          situacao: data.situacao || '',
+          data_situacao: data.data_situacao || ''
         }
       };
 

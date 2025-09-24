@@ -24,8 +24,6 @@ namespace MDFeApi.Services
             mdfe.EmitenteMunicipio = emitente.Municipio;
             mdfe.EmitenteCep = emitente.Cep;
             mdfe.EmitenteUf = emitente.Uf;
-            mdfe.EmitenteTelefone = emitente.Telefone;
-            mdfe.EmitenteEmail = emitente.Email;
             mdfe.EmitenteTipoEmitente = emitente.TipoEmitente;
             mdfe.EmitenteRntrc = emitente.Rntrc;
         }
@@ -37,7 +35,6 @@ namespace MDFeApi.Services
         {
             mdfe.CondutorNome = condutor.Nome;
             mdfe.CondutorCpf = condutor.Cpf;
-            mdfe.CondutorTelefone = condutor.Telefone;
         }
 
         /// <summary>
@@ -46,7 +43,6 @@ namespace MDFeApi.Services
         public static void CopyVeiculoData(this MDFe mdfe, Veiculo veiculo)
         {
             mdfe.VeiculoPlaca = veiculo.Placa;
-            mdfe.VeiculoRenavam = veiculo.Renavam;
             mdfe.VeiculoTara = veiculo.Tara;
             mdfe.VeiculoCapacidadeKg = veiculo.CapacidadeKg;
             mdfe.VeiculoTipoRodado = veiculo.TipoRodado;
@@ -55,8 +51,6 @@ namespace MDFeApi.Services
             mdfe.VeiculoMarca = veiculo.Marca;
             mdfe.VeiculoModelo = veiculo.Modelo;
             mdfe.VeiculoAno = veiculo.Ano;
-            mdfe.VeiculoCor = veiculo.Cor;
-            mdfe.VeiculoCombustivel = veiculo.Combustivel;
 
             // Copiar RNTRC do veículo se disponível
             mdfe.Rntrc = veiculo.Rntrc ?? mdfe.EmitenteRntrc;
@@ -82,8 +76,6 @@ namespace MDFeApi.Services
             mdfe.ContratanteMunicipio = contratante.Municipio;
             mdfe.ContratanteCep = contratante.Cep;
             mdfe.ContratanteUf = contratante.Uf;
-            mdfe.ContratanteTelefone = contratante.Telefone;
-            mdfe.ContratanteEmail = contratante.Email;
         }
 
         /// <summary>
@@ -96,15 +88,7 @@ namespace MDFeApi.Services
             mdfe.SeguradoraId = seguradora.Id;
             mdfe.SeguradoraCnpj = seguradora.Cnpj;
             mdfe.SeguradoraRazaoSocial = seguradora.RazaoSocial;
-            mdfe.SeguradoraEndereco = seguradora.Endereco;
-            mdfe.SeguradoraNumero = seguradora.Numero;
-            mdfe.SeguradoraComplemento = seguradora.Complemento;
-            mdfe.SeguradoraBairro = seguradora.Bairro;
-            mdfe.SeguradoraCodMunicipio = seguradora.CodMunicipio;
-            mdfe.SeguradoraMunicipio = seguradora.Municipio;
-            mdfe.SeguradoraCep = seguradora.Cep;
-            mdfe.SeguradoraUf = seguradora.Uf;
-            mdfe.SeguradoraTelefone = seguradora.Telefone;
+            mdfe.NumeroApoliceSeguro = seguradora.Apolice;
         }
 
         /// <summary>
@@ -159,7 +143,6 @@ namespace MDFeApi.Services
                 {
                     veiculo.Id,
                     veiculo.Placa,
-                    veiculo.Renavam,
                     veiculo.Marca,
                     veiculo.Modelo,
                     veiculo.Ano,
@@ -175,7 +158,6 @@ namespace MDFeApi.Services
                     condutor.Id,
                     condutor.Nome,
                     condutor.Cpf,
-                    condutor.Telefone,
                     DataSnapshot = DateTime.Now
                 },
                 Contratante = contratante != null ? new

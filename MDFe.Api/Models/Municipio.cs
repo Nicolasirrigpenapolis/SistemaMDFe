@@ -16,8 +16,6 @@ namespace MDFeApi.Models
         [MaxLength(2)]
         public string Uf { get; set; } = string.Empty;
 
-        [MaxLength(20)]
-        public string? Ibge { get; set; }
 
         public bool Ativo { get; set; } = true;
 

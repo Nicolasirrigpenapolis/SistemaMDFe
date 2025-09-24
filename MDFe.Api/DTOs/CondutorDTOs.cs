@@ -14,10 +14,6 @@ namespace MDFeApi.DTOs
         [MaxLength(11, ErrorMessage = "CPF deve ter no máximo 11 caracteres")]
         [Cpf(ErrorMessage = "CPF deve ser válido")]
         public string Cpf { get; set; } = string.Empty;
-
-        [MaxLength(20, ErrorMessage = "Telefone deve ter no máximo 20 caracteres")]
-        [Phone(ErrorMessage = "Formato de telefone inválido")]
-        public string? Telefone { get; set; }
     }
 
     public class CondutorUpdateDto : CondutorCreateDto
@@ -30,7 +26,6 @@ namespace MDFeApi.DTOs
         public int Id { get; set; }
         public string Nome { get; set; } = string.Empty;
         public string Cpf { get; set; } = string.Empty;
-        public string? Telefone { get; set; }
         public bool Ativo { get; set; }
         public DateTime DataCriacao { get; set; }
     }
@@ -40,7 +35,6 @@ namespace MDFeApi.DTOs
         public int Id { get; set; }
         public string Nome { get; set; } = string.Empty;
         public string Cpf { get; set; } = string.Empty;
-        public string? Telefone { get; set; }
         public bool Ativo { get; set; }
     }
 
@@ -53,8 +47,5 @@ namespace MDFeApi.DTOs
         [Required(ErrorMessage = "CPF do condutor é obrigatório")]
         [Cpf(ErrorMessage = "CPF deve ser válido")]
         public string Cpf { get; set; } = "";
-
-        [Phone(ErrorMessage = "Formato de telefone inválido")]
-        public string? Telefone { get; set; }
     }
 }

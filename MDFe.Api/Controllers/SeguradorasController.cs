@@ -18,7 +18,7 @@ namespace MDFeApi.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<ResultadoPaginado<SeguradoraListDTO>>> Get(
+        public async Task<ActionResult<ResultadoPaginado<SeguradoraListDto>>> Get(
             [FromQuery] int pagina = 1,
             [FromQuery] int tamanhoPagina = 10,
             [FromQuery] string? busca = null)
@@ -39,27 +39,19 @@ namespace MDFeApi.Controllers
                 .OrderBy(s => s.RazaoSocial)
                 .Skip((pagina - 1) * tamanhoPagina)
                 .Take(tamanhoPagina)
-                .Select(s => new SeguradoraListDTO
+                .Select(s => new SeguradoraListDto
                 {
                     Id = s.Id,
                     Cnpj = s.Cnpj,
                     RazaoSocial = s.RazaoSocial,
-                    Endereco = s.Endereco,
-                    Numero = s.Numero,
-                    Complemento = s.Complemento,
-                    Bairro = s.Bairro,
-                    CodMunicipio = s.CodMunicipio,
-                    Municipio = s.Municipio,
-                    Cep = s.Cep,
-                    Uf = s.Uf,
-                    Telefone = s.Telefone,
+                    NomeFantasia = s.NomeFantasia,
                     Apolice = s.Apolice,
                     Ativo = s.Ativo,
                     DataCriacao = s.DataCriacao
                 })
                 .ToListAsync();
 
-            return Ok(new ResultadoPaginado<SeguradoraListDTO>
+            return Ok(new ResultadoPaginado<SeguradoraListDto>
             {
                 Itens = seguradoras,
                 TotalItens = totalItens,
@@ -69,24 +61,16 @@ namespace MDFeApi.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<SeguradoraDetailDTO>> Get(int id)
+        public async Task<ActionResult<SeguradoraDetailDto>> Get(int id)
         {
             var seguradora = await _context.Seguradoras
                 .Where(s => s.Id == id)
-                .Select(s => new SeguradoraDetailDTO
+                .Select(s => new SeguradoraDetailDto
                 {
                     Id = s.Id,
                     Cnpj = s.Cnpj,
                     RazaoSocial = s.RazaoSocial,
-                    Endereco = s.Endereco,
-                    Numero = s.Numero,
-                    Complemento = s.Complemento,
-                    Bairro = s.Bairro,
-                    CodMunicipio = s.CodMunicipio,
-                    Municipio = s.Municipio,
-                    Cep = s.Cep,
-                    Uf = s.Uf,
-                    Telefone = s.Telefone,
+                    NomeFantasia = s.NomeFantasia,
                     Apolice = s.Apolice,
                     Ativo = s.Ativo,
                     DataCriacao = s.DataCriacao,
@@ -103,12 +87,14 @@ namespace MDFeApi.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<SeguradoraDetailDTO>> Post([FromBody] SeguradoraCreateDTO dto)
+        public async Task<ActionResult<SeguradoraDetailDto>> Post([FromBody] SeguradoraCreateWrapper wrapper)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
+
+            var dto = wrapper.Dto;
 
             // Validações de negócio
             if (string.IsNullOrEmpty(dto.Cnpj))
@@ -131,15 +117,7 @@ namespace MDFeApi.Controllers
             {
                 Cnpj = dto.Cnpj,
                 RazaoSocial = dto.RazaoSocial,
-                Endereco = dto.Endereco,
-                Numero = dto.Numero,
-                Complemento = dto.Complemento,
-                Bairro = dto.Bairro,
-                CodMunicipio = dto.CodMunicipio,
-                Municipio = dto.Municipio,
-                Cep = dto.Cep,
-                Uf = dto.Uf,
-                Telefone = dto.Telefone,
+                NomeFantasia = dto.NomeFantasia,
                 Apolice = dto.Apolice,
                 Ativo = dto.Ativo,
                 DataCriacao = DateTime.Now
@@ -148,20 +126,12 @@ namespace MDFeApi.Controllers
             _context.Seguradoras.Add(seguradora);
             await _context.SaveChangesAsync();
 
-            var result = new SeguradoraDetailDTO
+            var result = new SeguradoraDetailDto
             {
                 Id = seguradora.Id,
                 Cnpj = seguradora.Cnpj,
                 RazaoSocial = seguradora.RazaoSocial,
-                Endereco = seguradora.Endereco,
-                Numero = seguradora.Numero,
-                Complemento = seguradora.Complemento,
-                Bairro = seguradora.Bairro,
-                CodMunicipio = seguradora.CodMunicipio,
-                Municipio = seguradora.Municipio,
-                Cep = seguradora.Cep,
-                Uf = seguradora.Uf,
-                Telefone = seguradora.Telefone,
+                NomeFantasia = seguradora.NomeFantasia,
                 Apolice = seguradora.Apolice,
                 Ativo = seguradora.Ativo,
                 DataCriacao = seguradora.DataCriacao,
@@ -172,7 +142,7 @@ namespace MDFeApi.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> Put(int id, [FromBody] SeguradoraUpdateDTO dto)
+        public async Task<IActionResult> Put(int id, SeguradoraUpdateDto dto)
         {
             if (!ModelState.IsValid)
             {
@@ -205,15 +175,7 @@ namespace MDFeApi.Controllers
             // Atualizar dados
             seguradora.Cnpj = dto.Cnpj;
             seguradora.RazaoSocial = dto.RazaoSocial;
-            seguradora.Endereco = dto.Endereco;
-            seguradora.Numero = dto.Numero;
-            seguradora.Complemento = dto.Complemento;
-            seguradora.Bairro = dto.Bairro;
-            seguradora.CodMunicipio = dto.CodMunicipio;
-            seguradora.Municipio = dto.Municipio;
-            seguradora.Cep = dto.Cep;
-            seguradora.Uf = dto.Uf;
-            seguradora.Telefone = dto.Telefone;
+            seguradora.NomeFantasia = dto.NomeFantasia;
             seguradora.Apolice = dto.Apolice;
             seguradora.Ativo = dto.Ativo;
             seguradora.DataUltimaAlteracao = DateTime.Now;

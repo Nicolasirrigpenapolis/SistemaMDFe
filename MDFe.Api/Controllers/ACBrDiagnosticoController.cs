@@ -574,14 +574,13 @@ namespace MDFeApi.Controllers
             ini.AppendLine($"xMun={mdfe.Emitente.Municipio}");
             ini.AppendLine($"CEP={mdfe.Emitente.Cep?.Replace("-", "")}");
             ini.AppendLine($"UF={mdfe.Emitente.Uf}");
-            ini.AppendLine($"fone={mdfe.Emitente.Telefone ?? ""}");
-            ini.AppendLine($"email={mdfe.Emitente.Email ?? ""}");
+            ini.AppendLine($"fone={mdfe.EmitenteTelefone ?? ""}");
+            ini.AppendLine($"email={mdfe.EmitenteEmail ?? ""}");
             ini.AppendLine();
 
             ini.AppendLine("[veicTracao]");
             ini.AppendLine("cInt=001");
             ini.AppendLine($"placa={mdfe.Veiculo.Placa}");
-            ini.AppendLine($"RENAVAM={mdfe.Veiculo.Renavam ?? ""}");
             ini.AppendLine($"tara={mdfe.Veiculo.Tara}");
             ini.AppendLine($"capKG={mdfe.Veiculo.CapacidadeKg ?? 0}");
             

@@ -48,11 +48,9 @@ namespace MDFeApi.Models
         [MaxLength(2)]
         public string Uf { get; set; } = string.Empty;
 
-        [MaxLength(15)]
-        public string? Telefone { get; set; }
 
-        [MaxLength(200)]
-        public string? Email { get; set; }
+        [MaxLength(20)]
+        public string? Ie { get; set; }
 
         public bool Ativo { get; set; } = true;
 

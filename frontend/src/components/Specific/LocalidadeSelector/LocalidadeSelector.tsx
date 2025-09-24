@@ -14,6 +14,7 @@ import {
   Alert
 } from '@mui/material';
 import { LocationOn as LocationIcon } from '@mui/icons-material';
+import { localidadeService } from '../../../services/localidadeService';
 
 interface Estado {
   sigla: string;
@@ -50,50 +51,37 @@ export const LocalidadeSelector: React.FC<LocalidadeSelectorProps> = ({
 
   // Carregar estados do banco de dados
   useEffect(() => {
-    setCarregandoEstados(true);
-    setErro(null);
+    const carregarEstados = async () => {
+      setCarregandoEstados(true);
+      setErro(null);
 
-    fetch('/api/Municipios')
-      .then(res => {
-        if (!res.ok) {
-          throw new Error('Erro ao carregar estados');
+      try {
+        const estadosData = await localidadeService.obterEstados();
+        if (estadosData && estadosData.length > 0) {
+          setEstados(estadosData);
         }
-        return res.json();
-      })
-      .then(data => {
-        if (data && Array.isArray(data)) {
-          // Extrair estados únicos dos municípios
-          const estadosUnicos = Array.from(new Set(data.map((m: any) => m.uf)))
-            .sort()
-            .map(uf => ({ sigla: uf, nome: uf }));
-          setEstados(estadosUnicos);
-        }
-      })
-      .catch(err => {
+      } catch (err) {
         setErro('Erro ao carregar estados');
         console.error('Erro ao carregar estados:', err);
-      })
-      .finally(() => {
+      } finally {
         setCarregandoEstados(false);
-      });
+      }
+    };
+
+    carregarEstados();
   }, []);
 
   // Carregar municípios do banco quando UF muda
   useEffect(() => {
-    if (ufValue && ufValue.length === 2) {
-      setCarregandoMunicipios(true);
-      setErro(null);
+    const carregarMunicipios = async () => {
+      if (ufValue && ufValue.length === 2) {
+        setCarregandoMunicipios(true);
+        setErro(null);
 
-      fetch(`/api/Municipios?uf=${ufValue}`)
-        .then(res => {
-          if (!res.ok) {
-            throw new Error('Erro ao carregar municípios');
-          }
-          return res.json();
-        })
-        .then(data => {
-          if (data && Array.isArray(data)) {
-            const municipiosMapeados = data.map((m: any) => ({
+        try {
+          const municipiosData = await localidadeService.obterMunicipiosPorEstado(ufValue);
+          if (municipiosData && municipiosData.length > 0) {
+            const municipiosMapeados = municipiosData.map((m: any) => ({
               id: m.id,
               nome: m.nome
             }));
@@ -101,19 +89,20 @@ export const LocalidadeSelector: React.FC<LocalidadeSelectorProps> = ({
           } else {
             setMunicipios([]);
           }
-        })
-        .catch(err => {
+        } catch (err) {
           setErro('Erro ao carregar municípios');
           setMunicipios([]);
           console.error('Erro ao carregar municípios:', err);
-        })
-        .finally(() => {
+        } finally {
           setCarregandoMunicipios(false);
-        });
-    } else {
-      setMunicipios([]);
-      onMunicipioChange(''); // Limpar município
-    }
+        }
+      } else {
+        setMunicipios([]);
+        onMunicipioChange(''); // Limpar município
+      }
+    };
+
+    carregarMunicipios();
   }, [ufValue, onMunicipioChange]);
 
   const handleUfChange = (event: any) => {

@@ -51,19 +51,11 @@ namespace MDFeApi.DTOs
         [MaxLength(2, ErrorMessage = "UF deve ter no máximo 2 caracteres")]
         public string Uf { get; set; } = string.Empty;
 
-        [MaxLength(20, ErrorMessage = "Telefone deve ter no máximo 20 caracteres")]
-        public string? Telefone { get; set; }
-
-        [MaxLength(200, ErrorMessage = "Email deve ter no máximo 200 caracteres")]
-        [EmailAddress(ErrorMessage = "Email deve ter formato válido")]
-        public string? Email { get; set; }
 
         [Required(ErrorMessage = "Tipo Emitente é obrigatório")]
         [MaxLength(50, ErrorMessage = "Tipo Emitente deve ter no máximo 50 caracteres")]
         public string TipoEmitente { get; set; } = "PrestadorServico";
 
-        [MaxLength(100, ErrorMessage = "Descrição Emitente deve ter no máximo 100 caracteres")]
-        public string? DescricaoEmitente { get; set; }
 
         [MaxLength(500, ErrorMessage = "Caminho do Certificado deve ter no máximo 500 caracteres")]
         public string? CaminhoArquivoCertificado { get; set; }
@@ -96,11 +88,8 @@ namespace MDFeApi.DTOs
         public string Municipio { get; set; } = string.Empty;
         public string Cep { get; set; } = string.Empty;
         public string Uf { get; set; } = string.Empty;
-        public string? Telefone { get; set; }
-        public string? Email { get; set; }
         public bool Ativo { get; set; }
         public string TipoEmitente { get; set; } = string.Empty;
-        public string? DescricaoEmitente { get; set; }
         public string? CaminhoArquivoCertificado { get; set; }
         public string? Rntrc { get; set; }
         public DateTime DataCriacao { get; set; }
@@ -114,7 +103,6 @@ namespace MDFeApi.DTOs
         public string? Cnpj { get; set; }
         public string? Cpf { get; set; }
         public string TipoEmitente { get; set; } = string.Empty;
-        public string? DescricaoEmitente { get; set; }
         public bool TemCertificado { get; set; }
         public int AmbienteSefaz { get; set; }
         public string? Uf { get; set; }

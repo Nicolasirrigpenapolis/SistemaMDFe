@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTheme } from '../../../contexts/ThemeContext';
 
 interface OptionalFieldsToggleProps {
   label: string;
@@ -17,6 +18,8 @@ export const OptionalFieldsToggle: React.FC<OptionalFieldsToggleProps> = ({
   icon = 'fas fa-plus-circle',
   className = ''
 }) => {
+  const { theme } = useTheme();
+
   return (
     <div
       className={`optional-fields-toggle ${className}`}
@@ -25,8 +28,8 @@ export const OptionalFieldsToggle: React.FC<OptionalFieldsToggleProps> = ({
         display: 'flex',
         alignItems: 'center',
         padding: '12px 16px',
-        background: isExpanded ? '#f0f8ff' : '#f8fafc',
-        border: `1px solid ${isExpanded ? '#0284c7' : '#e2e8f0'}`,
+        background: isExpanded ? 'var(--color-primary-light)' : 'var(--color-surface-hover)',
+        border: `1px solid ${isExpanded ? 'var(--color-primary)' : 'var(--color-border)'}`,
         borderRadius: '8px',
         cursor: 'pointer',
         marginBottom: '16px',
@@ -38,18 +41,26 @@ export const OptionalFieldsToggle: React.FC<OptionalFieldsToggleProps> = ({
       <i
         className={isExpanded ? 'fas fa-minus-circle' : icon}
         style={{
-          color: isExpanded ? '#0284c7' : '#6b7280',
+          color: isExpanded ? 'var(--color-primary)' : 'var(--color-text-secondary)',
           marginRight: '12px',
-          fontSize: '16px'
+          fontSize: '16px',
+          transition: 'color 0.2s ease'
         }}
       />
       <div style={{ flex: 1 }}>
-        <div style={{ color: '#374151', fontWeight: '600' }}>{label}</div>
+        <div style={{
+          color: 'var(--color-text-primary)',
+          fontWeight: '600',
+          transition: 'color 0.2s ease'
+        }}>
+          {label}
+        </div>
         {description && (
           <div style={{
-            color: '#6b7280',
+            color: 'var(--color-text-secondary)',
             fontSize: '12px',
-            marginTop: '2px'
+            marginTop: '2px',
+            transition: 'color 0.2s ease'
           }}>
             {description}
           </div>
@@ -58,8 +69,9 @@ export const OptionalFieldsToggle: React.FC<OptionalFieldsToggleProps> = ({
       <i
         className={`fas fa-chevron-${isExpanded ? 'up' : 'down'}`}
         style={{
-          color: '#6b7280',
-          fontSize: '12px'
+          color: 'var(--color-text-secondary)',
+          fontSize: '12px',
+          transition: 'color 0.2s ease'
         }}
       />
     </div>
@@ -77,17 +89,20 @@ export const OptionalSection: React.FC<OptionalSectionProps> = ({
   isVisible,
   className = ''
 }) => {
+  const { theme } = useTheme();
+
   if (!isVisible) return null;
 
   return (
     <div
       className={`optional-section ${className}`}
       style={{
-        background: '#fafbfc',
-        border: '1px solid #e2e8f0',
+        background: 'var(--color-surface)',
+        border: '1px solid var(--color-border)',
         borderRadius: '8px',
         padding: '20px',
-        marginBottom: '16px'
+        marginBottom: '16px',
+        transition: 'all 0.2s ease'
       }}
     >
       {children}

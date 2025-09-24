@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import { ConfirmDeleteModal } from '../../../components/UI/Modal/ConfirmDeleteModal';
+import { formatPlaca, cleanPlaca } from '../../../utils/formatters';
 import styles from './ListarReboques.module.css';
 
 interface Reboque {
@@ -22,6 +24,11 @@ export function ListarReboques() {
   // Estados do modal
   const [modalAberto, setModalAberto] = useState(false);
   const [reboqueEdicao, setReboqueEdicao] = useState<Reboque | null>(null);
+
+  // Estados do modal de exclusão
+  const [modalExclusao, setModalExclusao] = useState(false);
+  const [reboqueExclusao, setReboqueExclusao] = useState<Reboque | null>(null);
+  const [excludindo, setExcluindo] = useState(false);
   const [dadosModal, setDadosModal] = useState<Reboque>({
     placa: '',
     tara: 0,
@@ -39,34 +46,33 @@ export function ListarReboques() {
   const carregarReboques = async () => {
     try {
       setCarregando(true);
-      // Simular dados por enquanto
-      const dadosSimulados: Reboque[] = [
-        {
-          id: 1,
-          placa: 'ABC1234',
-          renavam: '12345678901',
-          tara: 6000,
-          capacidadeKg: 25000,
-          tipoRodado: 'Truck',
-          tipoCarroceria: 'Graneleiro',
-          uf: 'SP',
-          rntrc: 'RNTRC123456',
-          ativo: true
-        },
-        {
-          id: 2,
-          placa: 'DEF5678',
-          renavam: '98765432109',
-          tara: 7500,
-          capacidadeKg: 30000,
-          tipoRodado: 'Carreta',
-          tipoCarroceria: 'Baú',
-          uf: 'RS',
-          rntrc: 'RNTRC789012',
-          ativo: true
-        }
-      ];
-      setReboques(dadosSimulados);
+
+      // Conectar à API real de reboques
+      const response = await fetch('https://localhost:5001/api/reboques?pageSize=100');
+
+      if (!response.ok) {
+        // Se não houver reboques cadastrados, mostrar lista vazia
+        setReboques([]);
+        return;
+      }
+
+      const data = await response.json();
+
+      // Mapear dados da API para o formato esperado
+      const reboquesFormatados = (data.items || data.Itens || data || []).map((reboque: any) => ({
+        id: reboque.id || reboque.Id,
+        placa: reboque.placa || reboque.Placa,
+        renavam: reboque.renavam || reboque.Renavam,
+        tara: reboque.tara || reboque.Tara,
+        capacidadeKg: reboque.capacidadeKg || reboque.CapacidadeKg,
+        tipoRodado: reboque.tipoRodado || reboque.TipoRodado,
+        tipoCarroceria: reboque.tipoCarroceria || reboque.TipoCarroceria,
+        uf: reboque.uf || reboque.Uf,
+        rntrc: reboque.rntrc || reboque.Rntrc,
+        ativo: reboque.ativo !== undefined ? reboque.ativo : reboque.Ativo !== undefined ? reboque.Ativo : true
+      }));
+
+      setReboques(reboquesFormatados);
     } catch (error) {
       console.error('Erro ao carregar reboques:', error);
     } finally {
@@ -120,9 +126,28 @@ export function ListarReboques() {
     }
   };
 
-  const excluirReboque = async (id: number) => {
-    if (confirm('Deseja realmente excluir este reboque?')) {
-      setReboques(prev => prev.filter(reb => reb.id !== id));
+  const abrirModalExclusao = (reboque: Reboque) => {
+    setReboqueExclusao(reboque);
+    setModalExclusao(true);
+  };
+
+  const fecharModalExclusao = () => {
+    setModalExclusao(false);
+    setReboqueExclusao(null);
+    setExcluindo(false);
+  };
+
+  const confirmarExclusao = async () => {
+    if (!reboqueExclusao?.id) return;
+
+    try {
+      setExcluindo(true);
+      setReboques(prev => prev.filter(r => r.id !== reboqueExclusao.id));
+      fecharModalExclusao();
+    } catch (error) {
+      console.error('Erro ao excluir reboque:', error);
+      alert('Erro inesperado ao excluir reboque. Tente novamente.');
+      setExcluindo(false);
     }
   };
 
@@ -152,9 +177,9 @@ export function ListarReboques() {
                   <label>Placa *</label>
                   <input
                     type="text"
-                    value={dadosModal.placa}
-                    onChange={(e) => setDadosModal({ ...dadosModal, placa: e.target.value })}
-                    placeholder="ABC1234"
+                    value={formatPlaca(dadosModal.placa)}
+                    onChange={(e) => setDadosModal({ ...dadosModal, placa: cleanPlaca(e.target.value) })}
+                    placeholder="ABC-1234"
                     maxLength={8}
                     required
                   />
@@ -376,7 +401,7 @@ export function ListarReboques() {
                   </button>
                   <button
                     className={styles.btnDelete}
-                    onClick={() => reboque.id && excluirReboque(reboque.id)}
+                    onClick={() => abrirModalExclusao(reboque)}
                   >
                     Excluir
                   </button>
@@ -388,6 +413,16 @@ export function ListarReboques() {
       </div>
 
       {renderModal()}
+
+      <ConfirmDeleteModal
+        isOpen={modalExclusao}
+        title="Excluir Reboque"
+        message="Tem certeza de que deseja excluir este reboque?"
+        itemName={reboqueExclusao ? formatPlaca(reboqueExclusao.placa) : ''}
+        onConfirm={confirmarExclusao}
+        onCancel={fecharModalExclusao}
+        loading={excludindo}
+      />
     </div>
   );
 }

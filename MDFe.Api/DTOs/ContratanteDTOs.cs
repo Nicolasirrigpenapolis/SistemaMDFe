@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace MDFeApi.DTOs
 {
-    public class ContratanteListDTO
+    public class ContratanteListDto
     {
         public int Id { get; set; }
         public string? Cnpj { get; set; }
@@ -17,13 +17,12 @@ namespace MDFeApi.DTOs
         public string Municipio { get; set; } = string.Empty;
         public string Cep { get; set; } = string.Empty;
         public string Uf { get; set; } = string.Empty;
-        public string? Telefone { get; set; }
-        public string? Email { get; set; }
+        public string? Ie { get; set; }
         public bool Ativo { get; set; }
         public DateTime DataCriacao { get; set; }
     }
 
-    public class ContratanteCreateDTO
+    public class ContratanteCreateDto
     {
         [MaxLength(14)]
         public string? Cnpj { get; set; }
@@ -67,21 +66,19 @@ namespace MDFeApi.DTOs
         [MaxLength(2)]
         public string Uf { get; set; } = string.Empty;
 
-        [MaxLength(15)]
-        public string? Telefone { get; set; }
 
-        [MaxLength(200)]
-        public string? Email { get; set; }
+        [MaxLength(20)]
+        public string? Ie { get; set; }
 
         public bool Ativo { get; set; } = true;
     }
 
-    public class ContratanteUpdateDTO : ContratanteCreateDTO
+    public class ContratanteUpdateDto : ContratanteCreateDto
     {
         // Herda todos os campos do Create
     }
 
-    public class ContratanteDetailDTO : ContratanteListDTO
+    public class ContratanteDetailDto : ContratanteListDto
     {
         public DateTime? DataUltimaAlteracao { get; set; }
     }

@@ -10,8 +10,6 @@ namespace MDFeApi.DTOs
         [PlacaVeiculo(ErrorMessage = "Placa deve estar no formato ABC1234 ou ABC1A23 (Mercosul)")]
         public string Placa { get; set; } = string.Empty;
 
-        [StringLength(11, ErrorMessage = "RENAVAM deve ter no máximo 11 caracteres")]
-        public string? Renavam { get; set; }
 
         [Required(ErrorMessage = "Marca é obrigatória")]
         [MaxLength(100, ErrorMessage = "Marca deve ter no máximo 100 caracteres")]
@@ -40,8 +38,8 @@ namespace MDFeApi.DTOs
         [Range(0, int.MaxValue, ErrorMessage = "Capacidade deve ser maior ou igual a zero")]
         public int? CapacidadeKg { get; set; }
 
-        [Range(0, int.MaxValue, ErrorMessage = "Capacidade em M³ deve ser maior ou igual a zero")]
-        public int? CapacidadeM3 { get; set; }
+        [Range(0, double.MaxValue, ErrorMessage = "Capacidade em M³ deve ser maior ou igual a zero")]
+        public decimal? CapacidadeM3 { get; set; }
         
         [Required(ErrorMessage = "Tipo de rodado é obrigatório")]
         [MaxLength(50, ErrorMessage = "Tipo de rodado deve ter no máximo 50 caracteres")]
@@ -69,7 +67,6 @@ namespace MDFeApi.DTOs
     {
         public int Id { get; set; }
         public string Placa { get; set; } = string.Empty;
-        public string? Renavam { get; set; }
         public string Marca { get; set; } = string.Empty;
         public string Modelo { get; set; } = string.Empty;
         public int Ano { get; set; }
@@ -77,7 +74,7 @@ namespace MDFeApi.DTOs
         public string Combustivel { get; set; } = string.Empty;
         public int Tara { get; set; }
         public int? CapacidadeKg { get; set; }
-        public int? CapacidadeM3 { get; set; }
+        public decimal? CapacidadeM3 { get; set; }
         public string TipoRodado { get; set; } = string.Empty;
         public string TipoCarroceria { get; set; } = string.Empty;
         public string Uf { get; set; } = string.Empty;

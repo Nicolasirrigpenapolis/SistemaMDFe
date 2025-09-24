@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using MDFeApi.Data;
 using MDFeApi.Models;
 using MDFeApi.DTOs;
+using MDFeApi.Extensions;
 
 namespace MDFeApi.Controllers
 {
@@ -19,29 +20,57 @@ namespace MDFeApi.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<ResultadoPaginado<Veiculo>>> GetVeiculos([FromQuery] int pagina = 1, [FromQuery] int tamanhoPagina = 10)
+        public async Task<ActionResult<PaginationResult<Veiculo>>> GetVeiculos([FromQuery] PaginationRequest request)
         {
-            var query = _context.Veiculos
-                .Where(v => v.Ativo)
-                .AsQueryable();
-
-            var totalItens = await query.CountAsync();
-
-            var itens = await query
-                .OrderBy(v => v.Placa)
-                .Skip((pagina - 1) * tamanhoPagina)
-                .Take(tamanhoPagina)
-                .ToListAsync();
-
-            var resultadoPaginado = new ResultadoPaginado<Veiculo>
+            try
             {
-                Itens = itens,
-                TotalItens = totalItens,
-                Pagina = pagina,
-                TamanhoPagina = tamanhoPagina
-            };
+                var query = _context.Veiculos
+                    .Where(v => v.Ativo)
+                    .AsQueryable();
 
-            return Ok(resultadoPaginado);
+                // Filtrar por busca se fornecido
+                if (!string.IsNullOrWhiteSpace(request.Search))
+                {
+                    var searchTerm = request.Search.ToLower();
+                    query = query.Where(v =>
+                        (v.Placa != null && v.Placa.ToLower().Contains(searchTerm)) ||
+                        (v.Marca != null && v.Marca.ToLower().Contains(searchTerm)) ||
+                        (v.Modelo != null && v.Modelo.ToLower().Contains(searchTerm))
+                    );
+                }
+
+                // Aplicar ordenação
+                switch (request.SortBy?.ToLower())
+                {
+                    case "marca":
+                        query = request.SortDirection?.ToLower() == "desc" ?
+                            query.OrderByDescending(v => v.Marca) :
+                            query.OrderBy(v => v.Marca);
+                        break;
+                    case "modelo":
+                        query = request.SortDirection?.ToLower() == "desc" ?
+                            query.OrderByDescending(v => v.Modelo) :
+                            query.OrderBy(v => v.Modelo);
+                        break;
+                    case "ano":
+                        query = request.SortDirection?.ToLower() == "desc" ?
+                            query.OrderByDescending(v => v.Ano) :
+                            query.OrderBy(v => v.Ano);
+                        break;
+                    default:
+                        query = request.SortDirection?.ToLower() == "desc" ?
+                            query.OrderByDescending(v => v.Placa) :
+                            query.OrderBy(v => v.Placa);
+                        break;
+                }
+
+                var result = await query.ToPaginatedListAsync(request);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Erro ao obter veículos", error = ex.Message });
+            }
         }
 
         [HttpGet("{id}")]
@@ -73,12 +102,9 @@ namespace MDFeApi.Controllers
                 var veiculo = new Veiculo
                 {
                     Placa = veiculoDto.Placa,
-                    Renavam = veiculoDto.Renavam,
                     Marca = veiculoDto.Marca,
                     Modelo = veiculoDto.Modelo,
                     Ano = veiculoDto.Ano,
-                    Cor = veiculoDto.Cor,
-                    Combustivel = veiculoDto.Combustivel,
                     Tara = veiculoDto.Tara,
                     CapacidadeKg = veiculoDto.CapacidadeKg,
                     TipoRodado = veiculoDto.TipoRodado,
@@ -121,12 +147,9 @@ namespace MDFeApi.Controllers
                 }
 
                 veiculo.Placa = veiculoDto.Placa;
-                veiculo.Renavam = veiculoDto.Renavam;
                 veiculo.Marca = veiculoDto.Marca;
                 veiculo.Modelo = veiculoDto.Modelo;
                 veiculo.Ano = veiculoDto.Ano;
-                veiculo.Cor = veiculoDto.Cor;
-                veiculo.Combustivel = veiculoDto.Combustivel;
                 veiculo.Tara = veiculoDto.Tara;
                 veiculo.CapacidadeKg = veiculoDto.CapacidadeKg;
                 veiculo.TipoRodado = veiculoDto.TipoRodado;

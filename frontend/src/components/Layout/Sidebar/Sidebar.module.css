@@ -1,13 +1,18 @@
 .sidebar {
   background: white;
   border-right: 1px solid #e2e8f0;
-  height: calc(100vh - 60px);
+  height: calc(100vh - 70px);
   position: fixed;
-  top: 60px;
+  top: 70px;
   left: 0;
   z-index: 900;
-  transition: width 0.3s ease;
+  transition: all 0.3s ease;
   overflow: hidden;
+}
+
+:global(body.dark) .sidebar {
+  background: rgba(15, 23, 42, 0.95);
+  border-right: 1px solid rgba(51, 65, 85, 0.5);
 }
 
 .sidebar.aberta {
@@ -48,10 +53,14 @@
   border: none;
   color: #64748b;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.3s ease;
   font-size: 0.875rem;
   text-align: left;
   border-radius: 0;
+}
+
+:global(body.dark) .navButton {
+  color: #94a3b8;
 }
 
 .navButton:hover {
@@ -59,10 +68,21 @@
   color: #334155;
 }
 
+:global(body.dark) .navButton:hover {
+  background-color: rgba(51, 65, 85, 0.3);
+  color: #e2e8f0;
+}
+
 .navButton.active {
   background-color: #dbeafe;
   color: #1976d2;
   border-right: 3px solid #1976d2;
+}
+
+:global(body.dark) .navButton.active {
+  background-color: rgba(59, 130, 246, 0.2);
+  color: #60a5fa;
+  border-right: 3px solid #3b82f6;
 }
 
 .navIcon {
@@ -87,6 +107,11 @@
 .sidebarFooter {
   padding: 1rem;
   border-top: 1px solid #e2e8f0;
+  transition: border-color 0.3s ease;
+}
+
+:global(body.dark) .sidebarFooter {
+  border-top: 1px solid rgba(51, 65, 85, 0.5);
 }
 
 .version {
@@ -95,6 +120,11 @@
   align-items: center;
   font-size: 0.75rem;
   color: #64748b;
+  transition: color 0.3s ease;
+}
+
+:global(body.dark) .version {
+  color: #94a3b8;
 }
 
 .versionLabel {
@@ -104,6 +134,11 @@
 .versionNumber {
   margin-top: 0.25rem;
   color: #94a3b8;
+  transition: color 0.3s ease;
+}
+
+:global(body.dark) .versionNumber {
+  color: #64748b;
 }
 
 @media (max-width: 768px) {

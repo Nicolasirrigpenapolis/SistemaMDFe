@@ -113,6 +113,8 @@ namespace MDFeApi.Services
 
         public async Task<string> GerarMDFeAsync(int mdfeId)
         {
+            _logger.LogInformation("=== INICIANDO GERAÇÃO COMPLETA DO MDFE {MDFeId} ===", mdfeId);
+
             var mdfe = await _context.MDFes
                 .Include(m => m.Emitente)
                 .Include(m => m.Veiculo)
@@ -120,20 +122,74 @@ namespace MDFeApi.Services
                 .Include(m => m.MunicipioCarregamento)
                 .FirstOrDefaultAsync(m => m.Id == mdfeId);
 
-            if (mdfe == null) throw new ArgumentException("MDFe não encontrado");
+            if (mdfe == null)
+            {
+                _logger.LogError("DEBUG: MDFe com ID {MDFeId} não encontrado no banco de dados", mdfeId);
+                throw new ArgumentException("MDFe não encontrado");
+            }
 
+            _logger.LogDebug("DEBUG: MDFe encontrado - Série: {Serie}, Número: {Numero}, Status atual: {Status}",
+                mdfe.Serie, mdfe.NumeroMdfe, mdfe.StatusSefaz);
+
+            // Validar dados essenciais antes de prosseguir
+            await ValidarDadosEssenciaisAsync(mdfe);
+
+            _logger.LogDebug("DEBUG: Configurando certificado do emitente ID: {EmitenteId}", mdfe.EmitenteId);
             await ConfigurarCertificadoDoEmitenteAsync(mdfe.EmitenteId);
+            _logger.LogDebug("DEBUG: Certificado configurado com sucesso");
 
             // Usar os dados reais do MDFe e cadastros vinculados para gerar INI completo
+            _logger.LogDebug("DEBUG: Iniciando geração do arquivo INI...");
             var iniPath = await GerarINICompletoAsync(mdfe);
+            _logger.LogDebug("DEBUG: Arquivo INI gerado: {IniPath}", iniPath);
+
+            _logger.LogDebug("DEBUG: Carregando INI no ACBr...");
             await CarregarINIAsync(iniPath);
+            _logger.LogDebug("DEBUG: INI carregado com sucesso");
+
+            _logger.LogDebug("DEBUG: Iniciando processo de assinatura...");
             await AssinarAsync();
+            _logger.LogDebug("DEBUG: Assinatura concluída com sucesso");
+
+            _logger.LogDebug("DEBUG: Obtendo XML assinado...");
             var xmlAssinado = await ObterXMLAsync(0);
+            _logger.LogDebug("DEBUG: XML assinado obtido - Tamanho: {TamanhoXML} caracteres", xmlAssinado?.Length ?? 0);
+
+            if (string.IsNullOrWhiteSpace(xmlAssinado))
+            {
+                _logger.LogError("DEBUG: ERRO CRÍTICO - XML assinado está vazio ou nulo!");
+                throw new InvalidOperationException("Falha na geração do XML assinado");
+            }
+
+            // Extrair chave de acesso do XML
+            try
+            {
+                var chaveAcesso = ExtrairChaveAcessoDoXML(xmlAssinado);
+                if (!string.IsNullOrEmpty(chaveAcesso))
+                {
+                    mdfe.ChaveAcesso = chaveAcesso;
+                    _logger.LogDebug("DEBUG: Chave de acesso extraída: {ChaveAcesso}", chaveAcesso);
+                }
+                else
+                {
+                    _logger.LogWarning("DEBUG: Não foi possível extrair a chave de acesso do XML");
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "DEBUG: Erro ao extrair chave de acesso do XML");
+            }
 
             mdfe.XmlGerado = xmlAssinado;
             mdfe.XmlAssinado = xmlAssinado;
             mdfe.StatusSefaz = "ASSINADO";
+            mdfe.DataGeracao = DateTime.Now;
+
+            _logger.LogDebug("DEBUG: Salvando alterações no banco de dados...");
             await _context.SaveChangesAsync();
+            _logger.LogDebug("DEBUG: Alterações salvas com sucesso");
+
+            _logger.LogInformation("=== MDFE {MDFeId} GERADO COM SUCESSO - CHAVE: {ChaveAcesso} ===", mdfeId, mdfe.ChaveAcesso ?? "N/A");
 
             return xmlAssinado;
         }
@@ -147,61 +203,105 @@ namespace MDFeApi.Services
             {
                 try
                 {
+                    _logger.LogInformation("=== INICIANDO GERAÇÃO DO INI PARA MDFE {MDFeId} ===", mdfe.Id);
+
                     var tempPath = Path.GetTempPath();
                     var iniFileName = $"MDFe_{mdfe.Id}_{DateTime.Now:yyyyMMddHHmmss}.ini";
                     var iniFilePath = Path.Combine(tempPath, iniFileName);
 
+                    _logger.LogDebug("DEBUG: Arquivo INI será salvo em: {IniFilePath}", iniFilePath);
+                    _logger.LogDebug("DEBUG: Dados do MDFe - ID: {Id}, Serie: {Serie}, Numero: {Numero}", mdfe.Id, mdfe.Serie, mdfe.NumeroMdfe);
+                    _logger.LogDebug("DEBUG: UF Origem: {UfInicio}, UF Destino: {UfFim}", mdfe.UfInicio, mdfe.UfFim);
+                    _logger.LogDebug("DEBUG: Emitente CNPJ: {CNPJ}, Razão: {RazaoSocial}", mdfe.EmitenteCnpj, mdfe.EmitenteRazaoSocial);
+
                     var ini = new StringBuilder();
 
+                    // Gerar código numérico aleatório se não existir
+                    var codigoNumerico = mdfe.CodigoNumericoAleatorio ?? new Random().Next(10000000, 99999999).ToString();
+                    _logger.LogDebug("DEBUG: Código numérico aleatório: {CodigoNumerico}", codigoNumerico);
+
                     // [ide] - Identificação do documento
+                    _logger.LogDebug("DEBUG: Gerando seção [ide]...");
                     ini.AppendLine("[ide]");
-                    ini.AppendLine($"cUF=35"); // SP - pode ser configurável
-                    ini.AppendLine($"tpAmb={mdfe.Emitente.AmbienteSefaz}");
+
+                    // UF do emitente (dinâmico baseado no estado do emitente)
+                    var codigoUF = ObterCodigoUF(mdfe.EmitenteUf);
+                    ini.AppendLine($"cUF={codigoUF}");
+                    _logger.LogDebug("DEBUG: cUF={CodigoUF} (baseado na UF do emitente: {UF})", codigoUF, mdfe.EmitenteUf);
+
+                    // Ambiente (pegar do emitente ou usar padrão)
+                    var ambiente = mdfe.Emitente?.AmbienteSefaz ?? 2; // 2 = Homologação por padrão
+                    ini.AppendLine($"tpAmb={ambiente}");
+                    _logger.LogDebug("DEBUG: tpAmb={Ambiente} (1=Produção, 2=Homologação)", ambiente);
+
                     ini.AppendLine($"tpEmit={mdfe.TipoTransportador}");
-                    ini.AppendLine($"tpTransp=1"); // ETC
-                    ini.AppendLine($"mod=58");
+                    ini.AppendLine($"tpTransp=1"); // 1=ETC (Empresa de Transporte de Carga)
+                    ini.AppendLine($"mod=58"); // Modelo 58 = MDFe
                     ini.AppendLine($"serie={mdfe.Serie}");
                     ini.AppendLine($"nMDF={mdfe.NumeroMdfe}");
-                    ini.AppendLine($"cMDF={DateTime.Now.Ticks.ToString().Substring(0, 8)}");
-                    ini.AppendLine($"cDV=0");
-                    ini.AppendLine($"modal={mdfe.Modal}");
+                    ini.AppendLine($"cMDF={codigoNumerico}");
+                    ini.AppendLine($"cDV=0"); // Será calculado pelo ACBr
+                    ini.AppendLine($"modal={mdfe.Modal}"); // 1=Rodoviário
                     ini.AppendLine($"dhEmi={mdfe.DataEmissao:yyyy-MM-ddTHH:mm:sszzz}");
-                    ini.AppendLine($"tpEmis=1");
-                    ini.AppendLine($"procEmi=0");
+                    ini.AppendLine($"tpEmis=1"); // 1=Emissão Normal
+                    ini.AppendLine($"procEmi=0"); // 0=Emissão de MDF-e com aplicativo do contribuinte
                     ini.AppendLine($"verProc=1.0.0");
                     ini.AppendLine($"UFIni={mdfe.UfInicio}");
                     ini.AppendLine($"UFFim={mdfe.UfFim}");
+
                     if (mdfe.DataInicioViagem.HasValue)
                         ini.AppendLine($"dhIniViagem={mdfe.DataInicioViagem:yyyy-MM-ddTHH:mm:sszzz}");
+
+                    _logger.LogDebug("DEBUG: Seção [ide] concluída com sucesso");
                     ini.AppendLine();
 
                     // [emit] - Emitente
+                    _logger.LogDebug("DEBUG: Gerando seção [emit]...");
                     ini.AppendLine("[emit]");
-                    ini.AppendLine($"CNPJCPF={mdfe.Emitente.Cnpj?.Replace(".", "").Replace("/", "").Replace("-", "")}");
-                    ini.AppendLine($"IE={mdfe.Emitente.Ie}");
-                    ini.AppendLine($"xNome={mdfe.Emitente.RazaoSocial}");
-                    ini.AppendLine($"xFant={mdfe.Emitente.NomeFantasia ?? mdfe.Emitente.RazaoSocial}");
-                    ini.AppendLine($"xLgr={mdfe.Emitente.Endereco}");
-                    ini.AppendLine($"nro={mdfe.Emitente.Numero ?? "S/N"}");
-                    if (!string.IsNullOrEmpty(mdfe.Emitente.Complemento))
-                        ini.AppendLine($"xCpl={mdfe.Emitente.Complemento}");
-                    ini.AppendLine($"xBairro={mdfe.Emitente.Bairro}");
-                    ini.AppendLine($"cMun={mdfe.Emitente.CodMunicipio}");
-                    ini.AppendLine($"xMun={mdfe.Emitente.Municipio}");
-                    ini.AppendLine($"CEP={mdfe.Emitente.Cep?.Replace("-", "")}");
-                    ini.AppendLine($"UF={mdfe.Emitente.Uf}");
-                    if (!string.IsNullOrEmpty(mdfe.Emitente.Telefone))
-                        ini.AppendLine($"fone={mdfe.Emitente.Telefone}");
-                    if (!string.IsNullOrEmpty(mdfe.Emitente.Email))
-                        ini.AppendLine($"email={mdfe.Emitente.Email}");
+
+                    // Usar dados snapshotados do MDFe ao invés da entidade relacionada
+                    var cnpjLimpo = mdfe.EmitenteCnpj?.Replace(".", "").Replace("/", "").Replace("-", "") ?? "";
+                    ini.AppendLine($"CNPJCPF={cnpjLimpo}");
+                    _logger.LogDebug("DEBUG: CNPJ Limpo: {CNPJ}", cnpjLimpo);
+
+                    if (!string.IsNullOrEmpty(mdfe.EmitenteIe))
+                        ini.AppendLine($"IE={mdfe.EmitenteIe}");
+
+                    ini.AppendLine($"xNome={mdfe.EmitenteRazaoSocial}");
+                    ini.AppendLine($"xFant={mdfe.EmitenteNomeFantasia ?? mdfe.EmitenteRazaoSocial}");
+                    ini.AppendLine($"xLgr={mdfe.EmitenteEndereco}");
+                    ini.AppendLine($"nro={mdfe.EmitenteNumero ?? "S/N"}");
+
+                    if (!string.IsNullOrEmpty(mdfe.EmitenteComplemento))
+                        ini.AppendLine($"xCpl={mdfe.EmitenteComplemento}");
+
+                    ini.AppendLine($"xBairro={mdfe.EmitenteBairro}");
+                    ini.AppendLine($"cMun={mdfe.EmitenteCodMunicipio}");
+                    ini.AppendLine($"xMun={mdfe.EmitenteMunicipio}");
+
+                    var cepLimpo = mdfe.EmitenteCep?.Replace("-", "").Replace(".", "") ?? "";
+                    ini.AppendLine($"CEP={cepLimpo}");
+                    _logger.LogDebug("DEBUG: CEP Limpo: {CEP}", cepLimpo);
+
+                    ini.AppendLine($"UF={mdfe.EmitenteUf}");
+
+                    if (!string.IsNullOrEmpty(mdfe.EmitenteTelefone))
+                    {
+                        var telefone = mdfe.EmitenteTelefone.Replace("(", "").Replace(")", "").Replace(" ", "").Replace("-", "");
+                        ini.AppendLine($"fone={telefone}");
+                        _logger.LogDebug("DEBUG: Telefone Limpo: {Telefone}", telefone);
+                    }
+
+                    if (!string.IsNullOrEmpty(mdfe.EmitenteEmail))
+                        ini.AppendLine($"email={mdfe.EmitenteEmail}");
+
+                    _logger.LogDebug("DEBUG: Seção [emit] concluída com sucesso");
                     ini.AppendLine();
 
                     // [veicTracao] - Veículo de tração
                     ini.AppendLine("[veicTracao]");
                     ini.AppendLine("cInt=001");
                     ini.AppendLine($"placa={mdfe.Veiculo.Placa}");
-                    if (!string.IsNullOrEmpty(mdfe.Veiculo.Renavam))
-                        ini.AppendLine($"RENAVAM={mdfe.Veiculo.Renavam}");
                     ini.AppendLine($"tara={mdfe.Veiculo.Tara}");
                     if (mdfe.Veiculo.CapacidadeKg.HasValue)
                         ini.AppendLine($"capKG={mdfe.Veiculo.CapacidadeKg}");
@@ -226,20 +326,136 @@ namespace MDFeApi.Services
                     }
 
                     // [tot] - Totais
+                    _logger.LogDebug("DEBUG: Gerando seção [tot]...");
                     ini.AppendLine("[tot]");
                     ini.AppendLine($"qCTe=0"); // Será preenchido se houver CTes vinculados
                     ini.AppendLine($"qNFe=0"); // Será preenchido se houver NFes vinculados
                     ini.AppendLine($"qMDFe=1");
+
+                    var valorCarga = mdfe.ValorCarga ?? 0;
+                    var quantidadeCarga = mdfe.QuantidadeCarga ?? 0;
+
                     if (mdfe.ValorCarga.HasValue)
-                        ini.AppendLine($"vCarga={mdfe.ValorCarga:F2}".Replace(",", "."));
+                    {
+                        var valorCarregFormatted = valorCarga.ToString("F2", System.Globalization.CultureInfo.InvariantCulture);
+                        ini.AppendLine($"vCarga={valorCarregFormatted}");
+                        _logger.LogDebug("DEBUG: Valor da carga: {Valor} (formatado: {ValorFormatado})", valorCarga, valorCarregFormatted);
+                    }
+                    else
+                    {
+                        _logger.LogDebug("DEBUG: Valor da carga não informado");
+                    }
+
                     ini.AppendLine($"cUnid=01"); // KG
+
                     if (mdfe.QuantidadeCarga.HasValue)
-                        ini.AppendLine($"qCarga={mdfe.QuantidadeCarga:F3}".Replace(",", "."));
+                    {
+                        var quantidadeFormatted = quantidadeCarga.ToString("F3", System.Globalization.CultureInfo.InvariantCulture);
+                        ini.AppendLine($"qCarga={quantidadeFormatted}");
+                        _logger.LogDebug("DEBUG: Quantidade da carga: {Quantidade} (formatado: {QuantidadeFormatada})", quantidadeCarga, quantidadeFormatted);
+                    }
+                    else
+                    {
+                        _logger.LogDebug("DEBUG: Quantidade da carga não informada");
+                    }
+
+                    _logger.LogDebug("DEBUG: Seção [tot] concluída com sucesso");
                     ini.AppendLine();
 
+                    // Seções adicionais obrigatórias baseadas no modal rodoviário
+
+                    // [rodo] - Informações do modal rodoviário (obrigatório para modal=1)
+                    _logger.LogDebug("DEBUG: Gerando seção [rodo]...");
+                    ini.AppendLine("[rodo]");
+
+                    // infETC - Informações da ETC (empresa de transporte de carga)
+                    if (mdfe.TipoTransportador == 1 || mdfe.TipoTransportador == 2)
+                    {
+                        ini.AppendLine($"infETC_CNPJCPF={cnpjLimpo}");
+                        ini.AppendLine($"infETC_cInt=001");
+                        _logger.LogDebug("DEBUG: infETC configurado para CNPJ: {CNPJ}", cnpjLimpo);
+                    }
+
+                    // CIOT - Código Identificador da Operação de Transporte (obrigatório se aplicável)
+                    if (!string.IsNullOrEmpty(mdfe.CodigoCIOT))
+                    {
+                        ini.AppendLine($"CIOT={mdfe.CodigoCIOT}");
+                        _logger.LogDebug("DEBUG: CIOT informado: {CIOT}", mdfe.CodigoCIOT);
+                    }
+                    else
+                    {
+                        _logger.LogDebug("DEBUG: CIOT não informado (pode ser obrigatório dependendo da operação)");
+                    }
+
+                    _logger.LogDebug("DEBUG: Seção [rodo] concluída com sucesso");
+                    ini.AppendLine();
+
+                    // [infDoc] - Informações dos documentos fiscais (obrigatório)
+                    _logger.LogDebug("DEBUG: Gerando seção [infDoc]...");
+                    ini.AppendLine("[infDoc]");
+
+                    // Por enquanto deixar vazio, mas será preenchido com CTes/NFes vinculados
+                    _logger.LogDebug("DEBUG: Seção [infDoc] criada (documentos fiscais serão adicionados posteriormente)");
+                    ini.AppendLine();
+
+                    // [seg] - Informações de seguro (se aplicável)
+                    if (!string.IsNullOrEmpty(mdfe.SeguradoraCnpj) || !string.IsNullOrEmpty(mdfe.SeguradoraRazaoSocial))
+                    {
+                        _logger.LogDebug("DEBUG: Gerando seção [seg] para seguradora...");
+                        ini.AppendLine("[seg]");
+
+                        if (!string.IsNullOrEmpty(mdfe.SeguradoraCnpj))
+                        {
+                            var seguradoraCnpjLimpo = mdfe.SeguradoraCnpj.Replace(".", "").Replace("/", "").Replace("-", "");
+                            ini.AppendLine($"infSeg_CNPJCPF={seguradoraCnpjLimpo}");
+                            _logger.LogDebug("DEBUG: Seguradora CNPJ: {CNPJ}", seguradoraCnpjLimpo);
+                        }
+
+                        if (!string.IsNullOrEmpty(mdfe.SeguradoraRazaoSocial))
+                        {
+                            ini.AppendLine($"infSeg_xSeg={mdfe.SeguradoraRazaoSocial}");
+                            _logger.LogDebug("DEBUG: Seguradora Razão Social: {RazaoSocial}", mdfe.SeguradoraRazaoSocial);
+                        }
+
+                        // Outras informações de seguro se disponíveis
+                        if (!string.IsNullOrEmpty(mdfe.NumeroApolice))
+                        {
+                            ini.AppendLine($"nApol={mdfe.NumeroApolice}");
+                            _logger.LogDebug("DEBUG: Número da apólice: {NumeroApolice}", mdfe.NumeroApolice);
+                        }
+
+                        if (!string.IsNullOrEmpty(mdfe.NumeroAverbacao))
+                        {
+                            ini.AppendLine($"nAver={mdfe.NumeroAverbacao}");
+                            _logger.LogDebug("DEBUG: Número da averbação: {NumeroAverbacao}", mdfe.NumeroAverbacao);
+                        }
+
+                        _logger.LogDebug("DEBUG: Seção [seg] concluída com sucesso");
+                        ini.AppendLine();
+                    }
+                    else
+                    {
+                        _logger.LogDebug("DEBUG: Seção [seg] não criada (informações de seguro não disponíveis)");
+                    }
+
+                    // [lacRodo] - Lacres rodoviários (se aplicável)
+                    // Esta seção será adicionada se houver lacres configurados no banco
+                    _logger.LogDebug("DEBUG: Verificando necessidade de lacres rodoviários...");
+                    _logger.LogDebug("DEBUG: Lacres rodoviários não implementados nesta versão (será adicionado posteriormente)");
+
+                    // Salvar arquivo INI
+                    _logger.LogDebug("DEBUG: Salvando arquivo INI em: {CaminhoArquivo}", iniFilePath);
                     File.WriteAllText(iniFilePath, ini.ToString(), Encoding.UTF8);
 
-                    _logger.LogInformation("Arquivo INI completo gerado: {FilePath}", iniFilePath);
+                    _logger.LogDebug("DEBUG: Tamanho do arquivo INI gerado: {TamanhoBytes} bytes", new FileInfo(iniFilePath).Length);
+                    _logger.LogInformation("=== ARQUIVO INI COMPLETO GERADO COM SUCESSO ===\nCaminho: {FilePath}\nTamanho: {TamanhoKB} KB", iniFilePath, Math.Round(new FileInfo(iniFilePath).Length / 1024.0, 2));
+
+                    // Log completo do conteúdo gerado (apenas em modo DEBUG)
+                    if (_logger.IsEnabled(LogLevel.Debug))
+                    {
+                        var conteudoIni = File.ReadAllText(iniFilePath, Encoding.UTF8);
+                        _logger.LogDebug("DEBUG: CONTEÚDO COMPLETO DO ARQUIVO INI:\n{ConteudoINI}", conteudoIni);
+                    }
                     return iniFilePath;
                 }
                 catch (Exception ex)
@@ -252,14 +468,37 @@ namespace MDFeApi.Services
 
         public async Task<string> TransmitirMDFeAsync(int mdfeId)
         {
-            var mdfe = await _context.MDFes.FindAsync(mdfeId);
-            if (mdfe == null) throw new ArgumentException("MDFe não encontrado.");
-            if (string.IsNullOrWhiteSpace(mdfe.XmlAssinado)) throw new InvalidOperationException("O MDF-e precisa ser gerado e assinado antes da transmissão.");
+            _logger.LogInformation("=== INICIANDO TRANSMISSÃO DO MDFE {MDFeId} ===", mdfeId);
 
+            var mdfe = await _context.MDFes.FindAsync(mdfeId);
+            if (mdfe == null)
+            {
+                _logger.LogError("DEBUG: MDFe com ID {MDFeId} não encontrado para transmissão", mdfeId);
+                throw new ArgumentException("MDFe não encontrado.");
+            }
+
+            _logger.LogDebug("DEBUG: MDFe encontrado - Status atual: {Status}, Chave: {ChaveAcesso}",
+                mdfe.StatusSefaz, mdfe.ChaveAcesso ?? "N/A");
+
+            if (string.IsNullOrWhiteSpace(mdfe.XmlAssinado))
+            {
+                _logger.LogError("DEBUG: XML assinado não disponível para transmissão. Status: {Status}", mdfe.StatusSefaz);
+                throw new InvalidOperationException("O MDF-e precisa ser gerado e assinado antes da transmissão.");
+            }
+
+            _logger.LogDebug("DEBUG: XML disponível para transmissão - Tamanho: {TamanhoXML} caracteres", mdfe.XmlAssinado.Length);
+
+            _logger.LogDebug("DEBUG: Configurando certificado para transmissão...");
             await ConfigurarCertificadoDoEmitenteAsync(mdfe.EmitenteId);
+            _logger.LogDebug("DEBUG: Certificado configurado para transmissão");
+
+            _logger.LogDebug("DEBUG: Carregando XML no ACBr para transmissão...");
             await CarregarXMLAsync(mdfe.XmlAssinado, isFile: false);
-            
+            _logger.LogDebug("DEBUG: XML carregado no ACBr com sucesso");
+
+            _logger.LogDebug("DEBUG: Enviando XML para SEFAZ (lote 1, assíncrono)...");
             var resultado = await EnviarAsync(1, sincrono: false);
+            _logger.LogDebug("DEBUG: Resposta recebida da SEFAZ - Tamanho: {TamanhoResposta} caracteres", resultado?.Length ?? 0);
 
             // Parsear o XML de resultado para pegar o número do recibo e o status real
             try
@@ -308,7 +547,13 @@ namespace MDFeApi.Services
             
             mdfe.DataTransmissao = DateTime.Now;
             mdfe.Transmitido = true;
+
+            _logger.LogDebug("DEBUG: Salvando status de transmissão no banco...");
             await _context.SaveChangesAsync();
+            _logger.LogDebug("DEBUG: Status salvo com sucesso");
+
+            _logger.LogInformation("=== TRANSMISSÃO CONCLUÍDA - MDFE {MDFeId} - STATUS: {Status} - RECIBO: {Recibo} ===",
+                mdfeId, mdfe.StatusSefaz, mdfe.NumeroRecibo ?? "N/A");
 
             return resultado;
         }
@@ -465,6 +710,136 @@ namespace MDFeApi.Services
             await _context.SaveChangesAsync();
 
             return resultado;
+        }
+
+        #endregion
+
+        #region Métodos Auxiliares
+
+        /// <summary>
+        /// Validar dados essenciais do MDFe antes da geração
+        /// </summary>
+        private async Task ValidarDadosEssenciaisAsync(Models.MDFe mdfe)
+        {
+            _logger.LogDebug("DEBUG: Iniciando validação de dados essenciais...");
+
+            var erros = new List<string>();
+
+            // Validar emitente
+            if (string.IsNullOrWhiteSpace(mdfe.EmitenteCnpj))
+                erros.Add("CNPJ do emitente é obrigatório");
+            if (string.IsNullOrWhiteSpace(mdfe.EmitenteRazaoSocial))
+                erros.Add("Razão social do emitente é obrigatória");
+            if (string.IsNullOrWhiteSpace(mdfe.EmitenteUf))
+                erros.Add("UF do emitente é obrigatória");
+
+            // Validar dados do MDFe
+            if (mdfe.Serie <= 0)
+                erros.Add("Série do MDFe é obrigatória e deve ser maior que zero");
+            if (mdfe.NumeroMdfe <= 0)
+                erros.Add("Número do MDFe é obrigatório e deve ser maior que zero");
+            if (string.IsNullOrWhiteSpace(mdfe.UfInicio))
+                erros.Add("UF de início da viagem é obrigatória");
+            if (string.IsNullOrWhiteSpace(mdfe.UfFim))
+                erros.Add("UF de fim da viagem é obrigatória");
+
+            // Validar veículo
+            if (mdfe.Veiculo == null)
+                erros.Add("Veículo de tração é obrigatório");
+            else
+            {
+                if (string.IsNullOrWhiteSpace(mdfe.Veiculo.Placa))
+                    erros.Add("Placa do veículo é obrigatória");
+                if (mdfe.Veiculo.Tara <= 0)
+                    erros.Add("Tara do veículo é obrigatória e deve ser maior que zero");
+            }
+
+            // Validar condutor
+            if (mdfe.Condutor == null)
+                erros.Add("Condutor é obrigatório");
+            else
+            {
+                if (string.IsNullOrWhiteSpace(mdfe.Condutor.Nome))
+                    erros.Add("Nome do condutor é obrigatório");
+                if (string.IsNullOrWhiteSpace(mdfe.Condutor.Cpf))
+                    erros.Add("CPF do condutor é obrigatório");
+            }
+
+            // Validar município de carregamento
+            if (mdfe.MunicipioCarregamento == null)
+                erros.Add("Município de carregamento é obrigatório");
+
+            if (erros.Any())
+            {
+                var mensagemErro = "Dados essenciais inválidos:\n" + string.Join("\n", erros);
+                _logger.LogError("DEBUG: VALIDAÇÃO FALHOU - {Erros}", mensagemErro);
+                throw new InvalidOperationException(mensagemErro);
+            }
+
+            _logger.LogDebug("DEBUG: Validação de dados essenciais concluída com sucesso");
+            await Task.CompletedTask;
+        }
+
+        /// <summary>
+        /// Extrair chave de acesso do XML gerado
+        /// </summary>
+        private string? ExtrairChaveAcessoDoXML(string xml)
+        {
+            try
+            {
+                _logger.LogDebug("DEBUG: Tentando extrair chave de acesso do XML...");
+
+                var xmlDoc = XDocument.Parse(xml);
+                var ns = xmlDoc.Root?.GetDefaultNamespace();
+
+                // Procurar pela chave de acesso no elemento infMDFe
+                var chaveElement = xmlDoc.Descendants(ns! + "infMDFe").FirstOrDefault()?.Attribute("Id");
+                if (chaveElement != null)
+                {
+                    var chaveCompleta = chaveElement.Value;
+                    // Remover o prefixo "MDFe" se existir
+                    var chave = chaveCompleta.StartsWith("MDFe") ? chaveCompleta.Substring(4) : chaveCompleta;
+                    _logger.LogDebug("DEBUG: Chave de acesso extraída com sucesso: {ChaveAcesso}", chave);
+                    return chave;
+                }
+
+                // Tentativa alternativa: procurar no elemento chMDFe
+                var chMDFeElement = xmlDoc.Descendants(ns! + "chMDFe").FirstOrDefault();
+                if (chMDFeElement != null)
+                {
+                    var chave = chMDFeElement.Value;
+                    _logger.LogDebug("DEBUG: Chave de acesso extraída de chMDFe: {ChaveAcesso}", chave);
+                    return chave;
+                }
+
+                _logger.LogWarning("DEBUG: Nenhuma chave de acesso encontrada no XML");
+                return null;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "DEBUG: Erro ao extrair chave de acesso do XML");
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// Obter código IBGE da UF
+        /// </summary>
+        private string ObterCodigoUF(string uf)
+        {
+            var codigosUF = new Dictionary<string, string>
+            {
+                { "AC", "12" }, { "AL", "17" }, { "AP", "16" }, { "AM", "13" }, { "BA", "29" },
+                { "CE", "23" }, { "DF", "53" }, { "ES", "32" }, { "GO", "52" }, { "MA", "21" },
+                { "MT", "51" }, { "MS", "50" }, { "MG", "31" }, { "PA", "15" }, { "PB", "25" },
+                { "PR", "41" }, { "PE", "26" }, { "PI", "22" }, { "RJ", "33" }, { "RN", "24" },
+                { "RS", "43" }, { "RO", "11" }, { "RR", "14" }, { "SC", "42" }, { "SP", "35" },
+                { "SE", "28" }, { "TO", "27" }
+            };
+
+            var codigo = codigosUF.TryGetValue(uf?.ToUpper() ?? "", out var codigoUF) ? codigoUF : "35";
+            _logger.LogDebug("DEBUG: Código UF para {UF}: {Codigo}", uf, codigo);
+            return codigo;
         }
 
         #endregion

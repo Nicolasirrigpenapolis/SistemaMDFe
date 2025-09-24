@@ -2,6 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styles from './ListarMDFe.module.css';
 import Pagination from '../../../components/UI/Pagination/Pagination';
+import { MDFeNumberBadge } from '../../../components/UI/MDFe/MDFeNumberBadge';
+import { MDFeViewModal } from '../../../components/UI/Modal/MDFeViewModal';
+import { mdfeService } from '../../../services/mdfeService';
 
 interface MDFe {
   id: number;
@@ -25,6 +28,8 @@ export function ListarMDFe() {
   const [statusFiltro, setStatusFiltro] = useState('todos');
   const [paginaAtual, setPaginaAtual] = useState(1);
   const [itensPorPagina, setItensPorPagina] = useState(10);
+  const [selectedMDFe, setSelectedMDFe] = useState<MDFe | null>(null);
+  const [showViewModal, setShowViewModal] = useState(false);
 
   useEffect(() => {
     carregarMDFes();
@@ -32,14 +37,15 @@ export function ListarMDFe() {
 
   const carregarMDFes = async () => {
     try {
-      setCarregando(false);
-      const response = await fetch('/api/MDFe');
+      setCarregando(true);
+      const response = await mdfeService.listarMDFes({
+        tamanhoPagina: 1000 // Buscar todos os MDFes
+      });
 
-      if (response.ok) {
-        const data = await response.json();
-        // Garantir que sempre seja um array
-        const mdfesArray = Array.isArray(data) ? data : (data?.items || data?.data || []);
-        setMDFes(mdfesArray);
+      if (response.sucesso && response.dados) {
+        // O backend retorna dados paginados: { Itens: [], TotalItens: 0, Pagina: 1, TamanhoPagina: 10 }
+        const mdfesArray = response.dados.Itens || response.dados.Items || response.dados.itens || response.dados.items || response.dados;
+        setMDFes(Array.isArray(mdfesArray) ? mdfesArray : []);
       } else {
         setMDFes([]);
       }
@@ -116,6 +122,16 @@ export function ListarMDFe() {
     setPaginaAtual(1);
   };
 
+  const handleViewMDFe = (mdfe: MDFe) => {
+    setSelectedMDFe(mdfe);
+    setShowViewModal(true);
+  };
+
+  const handleCloseViewModal = () => {
+    setShowViewModal(false);
+    setSelectedMDFe(null);
+  };
+
   if (carregando) {
     return (
       <div className="mdfe-list-container">
@@ -128,11 +144,11 @@ export function ListarMDFe() {
   }
 
   return (
-    <div className={styles.container}>
+    <div className={styles.mdfeListContainer}>
       {/* Header */}
-      <div className="mdfe-list-header">
-        <div className="header-content">
-          <div className="title-section">
+      <div className={styles.mdfeListHeader}>
+        <div className={styles.headerContent}>
+          <div className={styles.titleSection}>
             <div>
               <h1>Manifestos Eletrônicos</h1>
               <p>Gerencie seus MDFe de forma profissional</p>
@@ -140,54 +156,94 @@ export function ListarMDFe() {
           </div>
 
           <button
-            className={styles.btnNovo}
+            className={styles.btnNovoMdfe}
             onClick={() => navigate('/mdfes/novo')}
           >
-            Novo MDFe
+            <span style={{ fontSize: '1.2rem', fontWeight: 'bold' }}>+</span>
+            <span>Novo MDFe</span>
           </button>
         </div>
 
         {/* Dashboard Stats */}
-        <div className="dashboard-stats">
-          <div className="stat-card">
-            <div className="stat-content">
-              <div className="stat-number">{mdfes.length}</div>
-              <div className="stat-label">Total</div>
+        <div className={styles.dashboardStats}>
+          <div className={styles.statCard}>
+            <div className={styles.statHeader}>
+              <div className={styles.statIcon}>
+                <i className="fas fa-file-alt"></i>
+              </div>
+              <div className={styles.statTrend}>
+                <i className="fas fa-arrow-up"></i>
+              </div>
+            </div>
+            <div className={styles.statContent}>
+              <div className={styles.statNumber}>{mdfes.length}</div>
+              <div className={styles.statLabel}>Total MDF-es</div>
             </div>
           </div>
 
-          <div className="stat-card">
-            <div className="stat-content">
-              <div className="stat-number">{mdfes.filter(m => m.status === 'Autorizado').length}</div>
-              <div className="stat-label">Autorizados</div>
+          <div className={styles.statCard}>
+            <div className={styles.statHeader}>
+              <div className={`${styles.statIcon} ${styles.success}`}>
+                <i className="fas fa-check-circle"></i>
+              </div>
+              <div className={styles.statTrend}>
+                <i className="fas fa-arrow-up"></i>
+              </div>
+            </div>
+            <div className={styles.statContent}>
+              <div className={styles.statNumber}>{mdfes.filter(m => m.status === 'Autorizado').length}</div>
+              <div className={styles.statLabel}>Autorizados</div>
             </div>
           </div>
 
-          <div className="stat-card">
-            <div className="stat-content">
-              <div className="stat-number">{mdfes.filter(m => m.status === 'Pendente').length}</div>
-              <div className="stat-label">Pendentes</div>
+          <div className={styles.statCard}>
+            <div className={styles.statHeader}>
+              <div className={`${styles.statIcon} ${styles.warning}`}>
+                <i className="fas fa-clock"></i>
+              </div>
+              <div className={styles.statTrend}>
+                <i className="fas fa-arrow-up"></i>
+              </div>
+            </div>
+            <div className={styles.statContent}>
+              <div className={styles.statNumber}>{mdfes.filter(m => m.status === 'Pendente').length}</div>
+              <div className={styles.statLabel}>Pendentes</div>
+            </div>
+          </div>
+
+          <div className={styles.statCard}>
+            <div className={styles.statHeader}>
+              <div className={`${styles.statIcon} ${styles.danger}`}>
+                <i className="fas fa-times-circle"></i>
+              </div>
+              <div className={styles.statTrend}>
+                <i className="fas fa-arrow-down"></i>
+              </div>
+            </div>
+            <div className={styles.statContent}>
+              <div className={styles.statNumber}>{mdfes.filter(m => m.status === 'Rejeitado' || m.status === 'Cancelado').length}</div>
+              <div className={styles.statLabel}>Rejeitados/Cancelados</div>
             </div>
           </div>
 
         </div>
 
         {/* Filtros */}
-        <div className="filters-section">
-          <div className="search-container">
+        <div className={styles.filtersSection}>
+          <div className={styles.searchContainer}>
             <input
               type="text"
               placeholder="Buscar por número, emitente ou veículo..."
               value={filtro}
               onChange={(e) => setFiltro(e.target.value)}
-              className="search-input"
+              className={styles.searchInput}
             />
           </div>
-          
+
           <select
             value={statusFiltro}
             onChange={(e) => setStatusFiltro(e.target.value)}
-            className="status-filter"
+            className={styles.statusFilter}
           >
             <option value="todos">Todos os Status</option>
             <option value="Autorizado">Autorizado</option>
@@ -200,7 +256,7 @@ export function ListarMDFe() {
           <select
             value={itensPorPagina}
             onChange={(e) => handleItemsPerPageChange(Number(e.target.value))}
-            className="items-per-page-filter"
+            className={styles.itemsPerPageFilter}
           >
             <option value={5}>5 por página</option>
             <option value={10}>10 por página</option>
@@ -211,9 +267,9 @@ export function ListarMDFe() {
       </div>
 
       {/* Lista de MDFes */}
-      <div className="mdfe-list-content">
+      <div className={styles.mdfeListContent}>
         {totalItems > 0 && (
-          <div className="pagination-info">
+          <div className={styles.paginationInfo}>
             <span>
               Mostrando {startIndex + 1} a {Math.min(endIndex, totalItems)} de {totalItems} MDFes
             </span>
@@ -221,7 +277,10 @@ export function ListarMDFe() {
         )}
 
         {mdfesFiltrados.length === 0 ? (
-          <div className="empty-state">
+          <div className={styles.emptyState}>
+            <div className={styles.emptyIcon}>
+              <i className="fas fa-file-alt"></i>
+            </div>
             <h3>Nenhum MDFe encontrado</h3>
             <p>
               {mdfes.length === 0
@@ -229,69 +288,78 @@ export function ListarMDFe() {
                 : "Nenhum MDFe corresponde aos filtros selecionados."
               }
             </p>
+            {mdfes.length === 0 && (
+              <button
+                className={styles.btnPrimaryLarge}
+                onClick={() => navigate('/mdfes/novo')}
+              >
+                <i className="fas fa-plus"></i>
+                Criar primeiro MDF-e
+              </button>
+            )}
           </div>
         ) : (
-          <div className="mdfe-grid-container">
-            <div className="grid-table">
-              <div className="grid-header">
-                <div className="grid-col col-numero">Número</div>
-                <div className="grid-col col-emitente">Emitente</div>
-                <div className="grid-col col-veiculo">Veículo</div>
-                <div className="grid-col col-percurso">Percurso</div>
-                <div className="grid-col col-valor">Valor</div>
-                <div className="grid-col col-data">Data/Hora</div>
-                <div className="grid-col col-status">Status</div>
-                <div className="grid-col col-acoes">Ações</div>
+          <div className={styles.mdfeGridContainer}>
+            <div className={styles.gridTable}>
+              <div className={styles.gridHeader}>
+                <div className={styles.gridCol}>MDFe / Série</div>
+                <div className={styles.gridCol}>Emitente</div>
+                <div className={styles.gridCol}>Veículo</div>
+                <div className={styles.gridCol}>Percurso</div>
+                <div className={styles.gridCol}>Valor</div>
+                <div className={styles.gridCol}>Data/Hora</div>
+                <div className={styles.gridCol}>Status</div>
+                <div className={styles.gridCol}>Ações</div>
               </div>
               
-              <div className="grid-body">
+              <div className={styles.gridBody}>
                 {mdfesPaginados.map((mdfe) => {
                   const statusConfig = getStatusConfig(mdfe.status);
 
                   return (
-                    <div key={mdfe.id} className="grid-row">
-                      <div className="grid-col col-numero">
-                        <div className="numero-info">
-                          <div>
-                            <span className="numero">Nº {mdfe.numero}</span>
-                            <span className="serie">Série {mdfe.serie}</span>
-                          </div>
-                        </div>
+                    <div key={mdfe.id} className={styles.gridRow}>
+                      <div className={styles.gridCol}>
+                        <MDFeNumberBadge
+                          numero={mdfe.numero}
+                          serie={mdfe.serie}
+                          size="medium"
+                          variant="primary"
+                        />
                       </div>
 
-                      <div className="grid-col col-emitente">
-                        <div className="emitente-info">
+                      <div className={styles.gridCol}>
+                        <div className={styles.emitenteInfo}>
                           <span>{mdfe.emitenteNome || 'N/A'}</span>
                         </div>
                       </div>
 
-                      <div className="grid-col col-veiculo">
-                        <div className="veiculo-info">
+                      <div className={styles.gridCol}>
+                        <div className={styles.veiculoInfo}>
                           <span>{mdfe.veiculoPlaca || 'N/A'}</span>
                         </div>
                       </div>
 
-                      <div className="grid-col col-percurso">
-                        <div className="percurso-info">
+                      <div className={styles.gridCol}>
+                        <div className={styles.percursoInfo}>
                           <span>{mdfe.ufInicio} → {mdfe.ufFim}</span>
                         </div>
                       </div>
 
-                      <div className="grid-col col-valor">
-                        <div className="valor-info">
+                      <div className={styles.gridCol}>
+                        <div className={styles.valorInfo}>
                           <span>{formatCurrency(mdfe.valorCarga)}</span>
                         </div>
                       </div>
 
-                      <div className="grid-col col-data">
-                        <div className="data-info">
+                      <div className={styles.gridCol}>
+                        <div className={styles.dataInfo}>
                           <span>{formatDate(mdfe.dataEmissao)}</span>
                         </div>
                       </div>
 
-                      <div className="grid-col col-status">
+                      <div className={styles.gridCol}>
                         <div
-                          className="status-badge-grid"
+                          className={styles.statusBadgeGrid}
                           style={{
                             backgroundColor: statusConfig.bgColor,
                             color: statusConfig.textColor
@@ -300,33 +368,52 @@ export function ListarMDFe() {
                           <span>{mdfe.status}</span>
                         </div>
                       </div>
-                      
-                      <div className="grid-col col-acoes">
-                        <div className="grid-actions">
-                          <button className="grid-action-btn view" title="Visualizar">
-                            Ver
+
+                      <div className={styles.gridCol}>
+                        <div className={styles.gridActions}>
+                          <button
+                            className={`${styles.gridActionBtn} ${styles.view}`}
+                            title="Visualizar"
+                            onClick={() => handleViewMDFe(mdfe)}
+                          >
+                            <i className="fas fa-eye"></i>
                           </button>
 
                           {mdfe.status === 'Rascunho' ? (
                             <button
-                              className="grid-action-btn edit primary"
+                              className={`${styles.gridActionBtn} ${styles.edit}`}
                               title="Continuar Editando"
                               onClick={() => navigate(`/mdfes/editar/${mdfe.id}`)}
                             >
-                              Editar
+                              <i className="fas fa-edit"></i>
                             </button>
                           ) : (
-                            <button className="grid-action-btn edit" title="Editar">
-                              Editar
+                            <button className={`${styles.gridActionBtn} ${styles.edit}`} title="Editar">
+                              <i className="fas fa-edit"></i>
                             </button>
                           )}
 
-                          <button className="grid-action-btn download" title="Download">
-                            Download
+                          <button
+                            className={`${styles.gridActionBtn} ${styles.download}`}
+                            title="Download"
+                            onClick={() => {
+                              // Implementar download do XML/PDF
+                              alert('Funcionalidade de download será implementada em breve');
+                            }}
+                          >
+                            <i className="fas fa-download"></i>
                           </button>
                           {mdfe.status !== 'Cancelado' && (
-                            <button className="grid-action-btn cancel" title="Cancelar">
-                              Cancelar
+                            <button
+                              className={`${styles.gridActionBtn} ${styles.cancel}`}
+                              title="Cancelar"
+                              onClick={() => {
+                                if (confirm(`Deseja realmente cancelar o MDFe ${mdfe.numero}?`)) {
+                                  alert('Funcionalidade de cancelamento será implementada em breve');
+                                }
+                              }}
+                            >
+                              <i className="fas fa-times"></i>
                             </button>
                           )}
                         </div>
@@ -347,6 +434,15 @@ export function ListarMDFe() {
           </div>
         )}
       </div>
+
+      {/* Modal de Visualização */}
+      {selectedMDFe && (
+        <MDFeViewModal
+          mdfe={selectedMDFe}
+          isOpen={showViewModal}
+          onClose={handleCloseViewModal}
+        />
+      )}
     </div>
   );
 };

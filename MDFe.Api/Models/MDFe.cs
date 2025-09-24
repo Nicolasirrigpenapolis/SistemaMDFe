@@ -143,6 +143,14 @@ namespace MDFeApi.Models
         [MaxLength(44)]
         public string? ChaveAcesso { get; set; }
 
+        // Dígito verificador da chave de acesso (extraído da chave)
+        [MaxLength(1)]
+        public string? CodigoVerificador { get; set; }
+
+        // Código numérico aleatório (usado na geração da chave)
+        [MaxLength(8)]
+        public string? CodigoNumericoAleatorio { get; set; }
+
         [Required]
         [MaxLength(2)]
         public string UfInicio { get; set; } = string.Empty;
@@ -427,6 +435,16 @@ namespace MDFeApi.Models
         [NotMapped]
         public string? XmlMDFe => XmlGerado;
 
+        // Propriedades adicionais para compatibilidade
+        public DateTime? DataGeracao { get; set; }
+        public string? NumeroAverbacao { get; set; }
+
+        [MaxLength(20)]
+        public string? CodigoCIOT { get; set; }
+
+        [MaxLength(50)]
+        public string? NumeroApolice { get; set; }
+
         // Relacionamentos
         public virtual ICollection<MDFeReboque> Reboques { get; set; } = new List<MDFeReboque>();
         public virtual ICollection<MDFeCte> DocumentosCte { get; set; } = new List<MDFeCte>();
@@ -600,5 +618,184 @@ namespace MDFeApi.Models
 
         public int Ordem { get; set; }
     }
+
+    // Lacres rodoviários do MDFe
+    public class MDFeLacreRodoviario
+    {
+        public int Id { get; set; }
+
+        [Required]
+        public int MDFeId { get; set; }
+        public virtual MDFe MDFe { get; set; } = null!;
+
+        [Required]
+        [MaxLength(20)]
+        public string NumeroLacre { get; set; } = string.Empty;
+
+        public int Ordem { get; set; }
+
+        public DateTime DataCriacao { get; set; } = DateTime.Now;
+    }
+
+    // Unidades de transporte para documentos fiscais
+    public class MDFeUnidadeTransporte
+    {
+        public int Id { get; set; }
+
+        [Required]
+        public int MDFeId { get; set; }
+        public virtual MDFe MDFe { get; set; } = null!;
+
+        [Required]
+        [MaxLength(1)]
+        public string TipoUnidadeTransporte { get; set; } = string.Empty; // 1-Rodoviário Tração, 2-Rodoviário Reboque, etc.
+
+        [MaxLength(20)]
+        public string? CodigoInterno { get; set; }
+
+        [MaxLength(8)]
+        public string? Placa { get; set; }
+
+        [MaxLength(11)]
+        public string? Renavam { get; set; }
+
+        [Column(TypeName = "decimal(10,3)")]
+        public decimal? Tara { get; set; }
+
+        [Column(TypeName = "decimal(10,3)")]
+        public decimal? CapacidadeKg { get; set; }
+
+        [Column(TypeName = "decimal(10,3)")]
+        public decimal? CapacidadeM3 { get; set; }
+
+        [MaxLength(2)]
+        public string? TipoRodado { get; set; }
+
+        [MaxLength(2)]
+        public string? TipoCarroceria { get; set; }
+
+        [MaxLength(2)]
+        public string? Uf { get; set; }
+
+        public int Ordem { get; set; }
+
+        // Propriedades adicionais para compatibilidade
+        [MaxLength(50)]
+        public string? IdentificacaoUnidadeTransporte { get; set; }
+
+        [Column(TypeName = "decimal(10,3)")]
+        public decimal? QuantidadeRateada { get; set; }
+
+        // Relacionamentos com documentos
+        public int? MDFeCteId { get; set; }
+        public virtual MDFeCte? MDFeCte { get; set; }
+
+        public int? MDFeNfeId { get; set; }
+        public virtual MDFeNfe? MDFeNfe { get; set; }
+
+        public int? MDFeMdfeTranspId { get; set; }
+        public virtual MDFeMdfeTransp? MDFeMdfeTransp { get; set; }
+
+        // Relacionamentos com unidades de carga e lacres
+        public virtual ICollection<MDFeUnidadeCarga>? UnidadesCarga { get; set; } = new List<MDFeUnidadeCarga>();
+        public virtual ICollection<MDFeLacreUnidadeTransporte>? Lacres { get; set; } = new List<MDFeLacreUnidadeTransporte>();
+    }
+
+    // Produtos perigosos transportados
+    public class MDFeProdutoPerigoso
+    {
+        public int Id { get; set; }
+
+        [Required]
+        public int MDFeId { get; set; }
+        public virtual MDFe MDFe { get; set; } = null!;
+
+        [Required]
+        [MaxLength(4)]
+        public string NumeroONU { get; set; } = string.Empty;
+
+        [Required]
+        [MaxLength(150)]
+        public string NomeEmbarque { get; set; } = string.Empty;
+
+        [Required]
+        [MaxLength(1)]
+        public string ClasseRisco { get; set; } = string.Empty;
+
+        [MaxLength(3)]
+        public string? GrupoEmbalagem { get; set; }
+
+        [Column(TypeName = "decimal(12,4)")]
+        public decimal QuantidadeTotal { get; set; }
+
+        [Required]
+        [MaxLength(2)]
+        public string UnidadeMedida { get; set; } = string.Empty;
+
+        [MaxLength(200)]
+        public string? Observacoes { get; set; }
+
+        public int Ordem { get; set; }
+
+        // Propriedades adicionais para compatibilidade
+
+        [MaxLength(150)]
+        public string? NomeApropriado { get; set; }
+
+        [MaxLength(20)]
+        public string? QuantidadeTotalProduto { get; set; }
+
+        [MaxLength(10)]
+        public string? QuantidadeVolumoTipo { get; set; }
+
+        // Relacionamentos com documentos
+        public int? MDFeCteId { get; set; }
+        public virtual MDFeCte? MDFeCte { get; set; }
+
+        public int? MDFeNfeId { get; set; }
+        public virtual MDFeNfe? MDFeNfe { get; set; }
+
+        public int? MDFeMdfeTranspId { get; set; }
+        public virtual MDFeMdfeTransp? MDFeMdfeTransp { get; set; }
+    }
+
+    // Entregas parciais
+    public class MDFeEntregaParcial
+    {
+        public int Id { get; set; }
+
+        [Required]
+        public int MDFeId { get; set; }
+        public virtual MDFe MDFe { get; set; } = null!;
+
+        [Column(TypeName = "decimal(12,4)")]
+        public decimal QuantidadeParcial { get; set; }
+
+        [Required]
+        [MaxLength(200)]
+        public string DescricaoEntrega { get; set; } = string.Empty;
+
+        public DateTime DataEntrega { get; set; }
+
+        [MaxLength(100)]
+        public string? LocalEntrega { get; set; }
+
+        public int Ordem { get; set; }
+
+        // Propriedades adicionais para compatibilidade
+        [Column(TypeName = "decimal(12,4)")]
+        public decimal? QuantidadeTotal { get; set; }
+
+        // Relacionamentos com documentos
+        public int? MDFeCteId { get; set; }
+        public virtual MDFeCte? MDFeCte { get; set; }
+
+        public int? MDFeNfeId { get; set; }
+        public virtual MDFeNfe? MDFeNfe { get; set; }
+
+        public int? MDFeMdfeTranspId { get; set; }
+        public virtual MDFeMdfeTransp? MDFeMdfeTransp { get; set; }
+    }
+
 
 }
