@@ -6,13 +6,37 @@ export type MDFeStep =
   | 'emissao';             // Revisão final e emissão
 
 export interface MDFeData {
+  // ID do MDFe (quando editando)
+  id?: string;
+
   // IDs das entidades cadastradas (backend vai puxar dados completos)
   emitenteId?: number;
   veiculoId?: number;
   motoristaId?: number;
   contratanteId?: number;
   seguradoraId?: number;
-  
+
+  // Dados básicos do MDFe
+  ufInicio?: string;
+  ufFim?: string;
+  valorCarga?: number;
+  quantidadeCarga?: number;
+  unidadeMedida?: string;
+  statusSefaz?: string;
+  infoAdicional?: string;
+
+  // Dados copiados para auditoria
+  veiculo?: {
+    placa?: string;
+    tara?: number;
+    uf?: string;
+  };
+
+  condutor?: {
+    nome?: string;
+    cpf?: string;
+  };
+
   ide?: {
     cUF?: string;
     tpAmb?: '1' | '2'; // 1=Producao, 2=Homologacao

@@ -1079,7 +1079,10 @@ namespace MDFeApi.Services
                     // Seção [ide] - Identificação do documento
                     iniContent.AppendLine("[ide]");
                     iniContent.AppendLine($"cUF={(mdfeData.ide?.cUF ?? "35")}"); // SP por padrão
-                    iniContent.AppendLine($"tpAmb={(mdfeData.ide?.tpAmb ?? "2")}"); // Homologação por padrão
+                    var ambiente = mdfeData.ide?.tpAmb ?? "2"; // Homologação por padrão
+                    iniContent.AppendLine($"tpAmb={ambiente}");
+                    _logger.LogInformation("🌍 GerarArquivoINI - Ambiente SEFAZ: {Ambiente} ({Descricao})",
+                        ambiente, ambiente == "1" ? "PRODUÇÃO" : "HOMOLOGAÇÃO");
                     iniContent.AppendLine($"tpEmit={(mdfeData.ide?.tpEmit ?? "1")}"); // Prestador de serviço de transporte
                     iniContent.AppendLine($"tpTransp=1"); // ETC
                     iniContent.AppendLine($"mod={(mdfeData.ide?.mod ?? "58")}");

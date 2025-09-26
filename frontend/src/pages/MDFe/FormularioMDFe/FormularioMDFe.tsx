@@ -3,7 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { mdfeService } from '../../../services/mdfeService';
 import { entitiesService } from '../../../services/entitiesService';
 import { MDFeData } from '../../../types/mdfe';
-import { MDFeWizardNovo } from '../../../components/UI/Forms/MDFeWizardNovo';
+import { MDFeForm } from '../../../components/UI/Forms/MDFeForm';
 import { ErrorDisplay } from '../../../components/UI/ErrorDisplay/ErrorDisplay';
 import styles from './FormularioMDFe.module.css';
 
@@ -297,7 +297,7 @@ export function FormularioMDFe() {
         }
       `}</style>
 
-      <MDFeWizardNovo
+      <MDFeForm
         dados={dados}
         onDadosChange={setDados}
         onSalvar={salvar}

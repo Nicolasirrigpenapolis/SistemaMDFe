@@ -345,7 +345,11 @@ namespace MDFeApi.Services
             // Seção [ide] - Identificação
             ini.AppendLine("[ide]");
             ini.AppendLine($"cUF={ObterCodigoUF(mdfe.EmitenteUf)}");
-            ini.AppendLine($"tpAmb={_config.TipoAmbiente}");
+            // ✅ CORRIGIDO: Usar ambiente do emitente, não configuração global
+            var ambiente = mdfe.Emitente?.AmbienteSefaz ?? 2; // 1=Produção, 2=Homologação
+            ini.AppendLine($"tpAmb={ambiente}");
+            _logger.LogInformation("🌍 Ambiente SEFAZ definido: {Ambiente} ({Descricao})",
+                ambiente, ambiente == 1 ? "PRODUÇÃO" : "HOMOLOGAÇÃO");
             ini.AppendLine($"tpEmit={mdfe.TipoTransportador}");
             ini.AppendLine($"tpTransp=1"); // ETC
             ini.AppendLine($"mod=58"); // MDFe

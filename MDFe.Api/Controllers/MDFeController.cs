@@ -641,6 +641,163 @@ namespace MDFeApi.Controllers
             }
         }
 
+        /// <summary>
+        /// Endpoint unificado para carregar TODOS os dados necessários do MDFe wizard em UMA única consulta
+        /// Retorna: dados do MDFe (se editando) + todas as entidades para comboboxes com dados completos
+        /// Elimina necessidade de múltiplas consultas API
+        /// </summary>
+        [HttpGet("wizard-complete/{id?}")]
+        public async Task<ActionResult> GetMDFeWizardComplete(int? id = null)
+        {
+            try
+            {
+                var response = new
+                {
+                    // Dados do MDFe (se editando)
+                    mdfe = id.HasValue ? await GetMDFeCompleteData(id.Value) : null,
+
+                    // TODAS as entidades para comboboxes (1 consulta só)
+                    entities = new
+                    {
+                        emitentes = await _context.Emitentes
+                            .Where(e => e.Ativo)
+                            .Select(e => new
+                            {
+                                id = e.Id.ToString(),
+                                label = e.RazaoSocial,
+                                description = $"{e.Cnpj} - {e.Municipio}",
+                                data = e // ← DADOS COMPLETOS já inclusos
+                            })
+                            .OrderBy(e => e.label)
+                            .ToListAsync(),
+
+                        veiculos = await _context.Veiculos
+                            .Where(v => v.Ativo)
+                            .Select(v => new
+                            {
+                                id = v.Id.ToString(),
+                                label = $"{v.Placa} - {v.Modelo}",
+                                description = v.Marca,
+                                data = v // ← DADOS COMPLETOS já inclusos
+                            })
+                            .OrderBy(v => v.label)
+                            .ToListAsync(),
+
+                        condutores = await _context.Condutores
+                            .Where(c => c.Ativo)
+                            .Select(c => new
+                            {
+                                id = c.Id.ToString(),
+                                label = c.Nome,
+                                description = c.Cpf,
+                                data = c // ← DADOS COMPLETOS já inclusos
+                            })
+                            .OrderBy(c => c.label)
+                            .ToListAsync(),
+
+                        contratantes = await _context.Contratantes
+                            .Where(c => c.Ativo)
+                            .Select(c => new
+                            {
+                                id = c.Id.ToString(),
+                                label = c.RazaoSocial,
+                                description = !string.IsNullOrEmpty(c.Cnpj) ? c.Cnpj : c.Cpf,
+                                data = c // ← DADOS COMPLETOS já inclusos
+                            })
+                            .OrderBy(c => c.label)
+                            .ToListAsync(),
+
+                        seguradoras = await _context.Seguradoras
+                            .Where(s => s.Ativo)
+                            .Select(s => new
+                            {
+                                id = s.Id.ToString(),
+                                label = s.RazaoSocial,
+                                description = s.Cnpj,
+                                data = s // ← DADOS COMPLETOS já inclusos
+                            })
+                            .OrderBy(s => s.label)
+                            .ToListAsync()
+                    }
+                };
+
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erro ao obter dados completos para wizard MDFe {Id}", id);
+                return StatusCode(500, new
+                {
+                    message = "Erro ao carregar dados do wizard",
+                    error = ex.Message
+                });
+            }
+        }
+
+        /// <summary>
+        /// Método auxiliar para obter dados completos do MDFe para edição
+        /// </summary>
+        private async Task<object?> GetMDFeCompleteData(int id)
+        {
+            var mdfe = await _context.MDFes
+                .Include(m => m.Emitente)
+                .Include(m => m.Veiculo)
+                .Include(m => m.Condutor)
+                .FirstOrDefaultAsync(m => m.Id == id && m.Ativo);
+
+            if (mdfe == null) return null;
+
+            return new
+            {
+                id = mdfe.Id,
+                emitenteId = mdfe.EmitenteId,
+                veiculoId = mdfe.VeiculoId,
+                condutorId = mdfe.CondutorId,
+                serie = mdfe.Serie,
+                numero = mdfe.NumeroMdfe,
+                ufInicio = mdfe.UfInicio,
+                ufFim = mdfe.UfFim,
+                dataEmissao = mdfe.DataEmissao,
+                valorCarga = mdfe.ValorCarga,
+                quantidadeCarga = mdfe.QuantidadeCarga,
+                unidadeMedida = mdfe.UnidadeMedida,
+                statusSefaz = mdfe.StatusSefaz,
+                infoAdicional = mdfe.InfoAdicional,
+
+                // Dados copiados/fotografados para auditoria (compatibilidade fiscal)
+                emit = new
+                {
+                    CNPJ = mdfe.EmitenteCnpj,
+                    xNome = mdfe.EmitenteRazaoSocial,
+                    IE = mdfe.EmitenteIe,
+                    enderEmit = new
+                    {
+                        xLgr = mdfe.EmitenteEndereco,
+                        nro = mdfe.EmitenteNumero,
+                        xCpl = mdfe.EmitenteComplemento,
+                        xBairro = mdfe.EmitenteBairro,
+                        cMun = mdfe.EmitenteCodMunicipio?.ToString(),
+                        xMun = mdfe.EmitenteMunicipio,
+                        CEP = mdfe.EmitenteCep,
+                        UF = mdfe.EmitenteUf
+                    }
+                },
+
+                veiculo = new
+                {
+                    placa = mdfe.VeiculoPlaca,
+                    tara = mdfe.VeiculoTara,
+                    uf = mdfe.VeiculoUf
+                },
+
+                condutor = new
+                {
+                    nome = mdfe.CondutorNome,
+                    cpf = mdfe.CondutorCpf
+                }
+            };
+        }
+
         // Novos métodos para a interface MDFe Editor
 
         [HttpPost("carregar-ini")]
@@ -1902,7 +2059,7 @@ namespace MDFeApi.Controllers
                     ide = new
                     {
                         cUF = GetUFCode(mdfe.EmitenteUf) ?? GetUFCode(mdfe.UfInicio) ?? "42", // SC como padrão
-                        tpAmb = "2", // Homologação por padrão
+                        tpAmb = mdfe.Emitente?.AmbienteSefaz.ToString() ?? "2", // Usar ambiente do emitente
                         tpEmit = "1", // Normal
                         tpTransp = mdfe.TipoTransportador.ToString() ?? "1",
                         mod = "58", // Modelo fixo
