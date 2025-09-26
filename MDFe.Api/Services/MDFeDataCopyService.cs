@@ -44,16 +44,13 @@ namespace MDFeApi.Services
         {
             mdfe.VeiculoPlaca = veiculo.Placa;
             mdfe.VeiculoTara = veiculo.Tara;
-            mdfe.VeiculoCapacidadeKg = veiculo.CapacidadeKg;
             mdfe.VeiculoTipoRodado = veiculo.TipoRodado;
             mdfe.VeiculoTipoCarroceria = veiculo.TipoCarroceria;
             mdfe.VeiculoUf = veiculo.Uf;
             mdfe.VeiculoMarca = veiculo.Marca;
-            mdfe.VeiculoModelo = veiculo.Modelo;
-            mdfe.VeiculoAno = veiculo.Ano;
 
-            // Copiar RNTRC do veículo se disponível
-            mdfe.Rntrc = veiculo.Rntrc ?? mdfe.EmitenteRntrc;
+            // RNTRC será copiado apenas do emitente
+            mdfe.Rntrc = mdfe.EmitenteRntrc;
         }
 
         /// <summary>
@@ -144,10 +141,7 @@ namespace MDFeApi.Services
                     veiculo.Id,
                     veiculo.Placa,
                     veiculo.Marca,
-                    veiculo.Modelo,
-                    veiculo.Ano,
                     veiculo.Tara,
-                    veiculo.CapacidadeKg,
                     veiculo.TipoRodado,
                     veiculo.TipoCarroceria,
                     veiculo.Uf,

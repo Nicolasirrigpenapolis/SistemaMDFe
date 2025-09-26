@@ -207,23 +207,23 @@ export function ListarCondutores() {
   }
 
   return (
-    <div className={styles.condutoresContainer}>
+    <div className={styles.container}>
       {/* Header */}
-      <div className={styles.pageHeader}>
-        <div className={styles.headerContent}>
-          <div className={styles.titleSection}>
-            <h1>Condutores</h1>
-            <p>Gerencie os motoristas do seu sistema MDF-e</p>
-          </div>
-          <button className={styles.btnNovo} onClick={abrirModalNovo}>
-            <i className="fas fa-plus"></i>
-            Novo Condutor
-          </button>
-        </div>
+      <div className={styles.header}>
+        <h1>
+          <i className="fas fa-user-tie"></i>
+          Condutores
+        </h1>
+        <button className={styles.btnNovo} onClick={abrirModalNovo}>
+          <i className="fas fa-plus"></i>
+          Novo Condutor
+        </button>
+      </div>
 
         {/* Filtros */}
-        <div className={styles.filtersSection}>
-          <div className={styles.searchContainer}>
+      <div className={styles.filters}>
+        <div className={styles.filtersRow}>
+          <div className={styles.filterField}>
             <input
               type="text"
               placeholder="Buscar por nome ou CPF..."
@@ -233,67 +233,21 @@ export function ListarCondutores() {
             />
           </div>
 
-          <select
-            value={filtroStatus}
-            onChange={(e) => setFiltroStatus(e.target.value)}
-            className={styles.statusFilter}
-          >
-            <option value="todos">Todos os Status</option>
-            <option value="ativo">Ativo</option>
-            <option value="inativo">Inativo</option>
-          </select>
+          <div className={styles.filterField}>
+            <select
+              value={filtroStatus}
+              onChange={(e) => setFiltroStatus(e.target.value)}
+            >
+              <option value="todos">Todos os Status</option>
+              <option value="ativo">Ativo</option>
+              <option value="inativo">Inativo</option>
+            </select>
+          </div>
         </div>
       </div>
 
       {/* Lista de Condutores */}
-      <div className={styles.condutoresContent}>
-        {/* Informações de paginação */}
-        {paginacao && paginacao.totalItems > 0 && (
-          <div className={styles.paginationContainer}>
-            <div className={styles.paginationControls}>
-              <div className={styles.pageSizeSelector}>
-                <label>Itens por página:</label>
-                <select
-                  className={styles.pageSizeSelect}
-                  value={paginacao.pageSize}
-                  onChange={(e) => alterarTamanhoPagina(Number(e.target.value))}
-                >
-                  <option value={5}>5</option>
-                  <option value={10}>10</option>
-                  <option value={20}>20</option>
-                  <option value={50}>50</option>
-                </select>
-              </div>
-
-              <div className={styles.pagination}>
-                <button
-                  className={styles.paginationBtn}
-                  onClick={() => alterarPagina(paginacao.currentPage - 1)}
-                  disabled={paginacao.currentPage === 1}
-                >
-                  Anterior
-                </button>
-
-                <span className={styles.pageInfo}>
-                  Página {paginacao.currentPage} de {paginacao.totalPages}
-                </span>
-
-                <button
-                  className={styles.paginationBtn}
-                  onClick={() => alterarPagina(paginacao.currentPage + 1)}
-                  disabled={paginacao.currentPage === paginacao.totalPages}
-                >
-                  Próxima
-                </button>
-              </div>
-
-              <div className={styles.paginationInfo}>
-                Mostrando {paginacao.startItem + 1} a {paginacao.endItem} de {paginacao.totalItems} condutores
-              </div>
-            </div>
-          </div>
-        )}
-
+      <div className={styles.list}>
         {condutoresFiltrados.length === 0 ? (
           <div className={styles.emptyState}>
             <div className={styles.emptyIcon}>
@@ -314,22 +268,47 @@ export function ListarCondutores() {
             )}
           </div>
         ) : (
-          <div className={styles.condutoresGrid}>
+          <div className={styles.table}>
+            {/* Header da Tabela */}
+            <div className={styles.tableHeader}>
+              <div>ID</div>
+              <div>Nome</div>
+              <div>CPF</div>
+              <div>Status</div>
+              <div>Data Cadastro</div>
+              <div>Ações</div>
+            </div>
+
+            {/* Linhas da Tabela */}
             {condutoresFiltrados.map((condutor) => (
-              <div key={condutor.id} className={styles.condutorCard}>
-                <div className={styles.cardHeader}>
-                  <div className={styles.condutorInfo}>
-                    <h3>{condutor.nome}</h3>
-                    <p>CPF: {formatCPF(condutor.cpf)}</p>
-                  </div>
-                  <div className={`${styles.statusBadge} ${condutor.ativo ? styles.ativo : styles.inativo}`}>
-                    {condutor.ativo ? 'Ativo' : 'Inativo'}
-                  </div>
+              <div key={condutor.id} className={styles.tableRow}>
+                <div>
+                  <strong>#{condutor.id}</strong>
                 </div>
 
-                <div className={styles.cardActions}>
+                <div>
+                  <span>{condutor.nome}</span>
+                </div>
+
+                <div>
+                  <span>{formatCPF(condutor.cpf)}</span>
+                </div>
+
+                <div>
+                  <span className={`${styles.status} ${condutor.ativo ? styles.ativo : styles.inativo}`}>
+                    {condutor.ativo ? 'Ativo' : 'Inativo'}
+                  </span>
+                </div>
+
+                <div>
+                  <span className={styles.subtext}>
+                    {new Date().toLocaleDateString('pt-BR')}
+                  </span>
+                </div>
+
+                <div className={styles.actions}>
                   <button
-                    className={`${styles.actionBtn} ${styles.view}`}
+                    className={styles.btnView}
                     onClick={() => abrirModalVisualizacao(condutor)}
                     title="Visualizar"
                   >
@@ -337,7 +316,7 @@ export function ListarCondutores() {
                   </button>
 
                   <button
-                    className={`${styles.actionBtn} ${styles.edit}`}
+                    className={styles.btnEdit}
                     onClick={() => abrirModalEdicao(condutor)}
                     title="Editar"
                   >
@@ -345,7 +324,7 @@ export function ListarCondutores() {
                   </button>
 
                   <button
-                    className={`${styles.actionBtn} ${styles.delete}`}
+                    className={styles.btnDelete}
                     onClick={() => abrirModalExclusao(condutor)}
                     title="Excluir"
                   >
@@ -357,6 +336,53 @@ export function ListarCondutores() {
           </div>
         )}
       </div>
+
+      {/* Paginação */}
+      {paginacao && paginacao.totalItems > 0 && (
+        <div className={styles.paginationContainer}>
+          <div className={styles.paginationControls}>
+            <div className={styles.pageSizeSelector}>
+              <label>Itens por página:</label>
+              <select
+                className={styles.pageSizeSelect}
+                value={paginacao.pageSize}
+                onChange={(e) => alterarTamanhoPagina(Number(e.target.value))}
+              >
+                <option value={5}>5</option>
+                <option value={10}>10</option>
+                <option value={20}>20</option>
+                <option value={50}>50</option>
+              </select>
+            </div>
+
+            <div className={styles.pagination}>
+              <button
+                className={styles.paginationBtn}
+                onClick={() => alterarPagina(paginacao.currentPage - 1)}
+                disabled={paginacao.currentPage === 1}
+              >
+                Anterior
+              </button>
+
+              <span className={styles.pageInfo}>
+                Página {paginacao.currentPage} de {paginacao.totalPages}
+              </span>
+
+              <button
+                className={styles.paginationBtn}
+                onClick={() => alterarPagina(paginacao.currentPage + 1)}
+                disabled={paginacao.currentPage === paginacao.totalPages}
+              >
+                Próxima
+              </button>
+            </div>
+
+            <div className={styles.paginationInfo}>
+              Mostrando {((paginacao.currentPage - 1) * paginacao.pageSize) + 1} a {Math.min(paginacao.currentPage * paginacao.pageSize, paginacao.totalItems)} de {paginacao.totalItems} condutores
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Modal de Cadastro/Edição */}
       {modalAberto && (
@@ -379,6 +405,7 @@ export function ListarCondutores() {
                       value={dadosFormulario.nome || ''}
                       onChange={(e) => atualizarCampo('nome', e.target.value)}
                       placeholder="Nome completo do condutor"
+                      maxLength={200}
                       required
                     />
                   </div>
@@ -480,11 +507,11 @@ export function ListarCondutores() {
       {/* Modal de Exclusão */}
       <ConfirmDeleteModal
         isOpen={modalExclusao}
-        onClose={fecharModalExclusao}
+        onCancel={fecharModalExclusao}
         onConfirm={confirmarExclusao}
         title="Excluir Condutor"
         message={`Tem certeza que deseja excluir o condutor "${condutorExclusao?.nome}"?`}
-        isLoading={excluindo}
+        loading={excluindo}
       />
     </div>
   );

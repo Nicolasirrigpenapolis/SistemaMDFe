@@ -10,15 +10,11 @@ interface Veiculo {
   id?: number;
   placa: string;
   tara: number;
-  capacidadeKg?: number;
   tipoRodado: string;
   tipoCarroceria: string;
   uf: string;
-  rntrc?: string;
   ativo?: boolean;
   marca: string;
-  modelo: string;
-  ano: number;
 }
 
 interface PaginationData {
@@ -69,8 +65,6 @@ export function ListarVeiculos() {
     tipoCarroceria: '',
     uf: '',
     marca: '',
-    modelo: '',
-    ano: new Date().getFullYear(),
     ativo: true
   });
 
@@ -136,8 +130,6 @@ export function ListarVeiculos() {
       tipoCarroceria: '',
       uf: '',
       marca: '',
-      modelo: '',
-      ano: new Date().getFullYear(),
       ativo: true
     });
     setModalAberto(true);
@@ -186,7 +178,6 @@ export function ListarVeiculos() {
         ...dadosModal,
         placa: dadosModal.placa.trim().toUpperCase(),
         marca: dadosModal.marca.trim(),
-        modelo: dadosModal.modelo.trim(),
         uf: dadosModal.uf.toUpperCase()
       };
 
@@ -304,33 +295,11 @@ export function ListarVeiculos() {
                     type="text"
                     value={dadosModal.marca}
                     onChange={(e) => setDadosModal({ ...dadosModal, marca: e.target.value })}
+                    maxLength={100}
                     required
                   />
                 </div>
 
-                <div className={styles.modalField}>
-                  <label>Modelo *</label>
-                  <input
-                    type="text"
-                    value={dadosModal.modelo}
-                    onChange={(e) => setDadosModal({ ...dadosModal, modelo: e.target.value })}
-                    required
-                  />
-                </div>
-              </div>
-
-              <div className={styles.modalRow}>
-                <div className={styles.modalField}>
-                  <label>Ano *</label>
-                  <input
-                    type="number"
-                    value={dadosModal.ano}
-                    onChange={(e) => setDadosModal({ ...dadosModal, ano: parseInt(e.target.value) })}
-                    required
-                    min="1900"
-                    max={new Date().getFullYear() + 1}
-                  />
-                </div>
               </div>
 
               <div className={styles.modalRow}>
@@ -412,16 +381,6 @@ export function ListarVeiculos() {
                   />
                 </div>
 
-                <div className={styles.modalField}>
-                  <label>Capacidade (kg)</label>
-                  <input
-                    type="number"
-                    value={dadosModal.capacidadeKg || ''}
-                    onChange={(e) => setDadosModal({ ...dadosModal, capacidadeKg: Number(e.target.value) || undefined })}
-                    min="0"
-                  />
-                </div>
-
               </div>
 
               <div className={styles.modalRow}>
@@ -443,15 +402,6 @@ export function ListarVeiculos() {
                 </div>
 
 
-                <div className={styles.modalField}>
-                  <label>RNTRC</label>
-                  <input
-                    type="text"
-                    value={dadosModal.rntrc || ''}
-                    onChange={(e) => setDadosModal({ ...dadosModal, rntrc: e.target.value })}
-                    placeholder="Registro Nacional dos Transportadores"
-                  />
-                </div>
               </div>
 
             </OptionalSection>
@@ -522,14 +472,6 @@ export function ListarVeiculos() {
                   <span>{veiculoVisualizacao.marca}</span>
                 </div>
                 <div className={styles.viewField}>
-                  <label>Modelo:</label>
-                  <span>{veiculoVisualizacao.modelo}</span>
-                </div>
-                <div className={styles.viewField}>
-                  <label>Ano:</label>
-                  <span>{veiculoVisualizacao.ano}</span>
-                </div>
-                <div className={styles.viewField}>
                   <label>Tipo de Rodado:</label>
                   <span>{veiculoVisualizacao.tipoRodado}</span>
                 </div>
@@ -540,7 +482,7 @@ export function ListarVeiculos() {
               </div>
             </div>
 
-            {(veiculoVisualizacao.tara || veiculoVisualizacao.capacidadeKg || veiculoVisualizacao.tipoCarroceria || veiculoVisualizacao.rntrc) && (
+            {(veiculoVisualizacao.tara || veiculoVisualizacao.tipoCarroceria) && (
               <div className={styles.modalSection}>
                 <h3>Dados Complementares</h3>
                 <div className={styles.viewGrid}>
@@ -548,22 +490,10 @@ export function ListarVeiculos() {
                     <label>Tara:</label>
                     <span>{veiculoVisualizacao.tara.toLocaleString()} kg</span>
                   </div>
-                  {veiculoVisualizacao.capacidadeKg && (
-                    <div className={styles.viewField}>
-                      <label>Capacidade (kg):</label>
-                      <span>{veiculoVisualizacao.capacidadeKg.toLocaleString()} kg</span>
-                    </div>
-                  )}
                   <div className={styles.viewField}>
                     <label>Tipo de Carroceria:</label>
                     <span>{veiculoVisualizacao.tipoCarroceria}</span>
                   </div>
-                  {veiculoVisualizacao.rntrc && (
-                    <div className={styles.viewField}>
-                      <label>RNTRC:</label>
-                      <span>{veiculoVisualizacao.rntrc}</span>
-                    </div>
-                  )}
                 </div>
               </div>
             )}
@@ -730,13 +660,10 @@ export function ListarVeiculos() {
               <div key={veiculo.id} className={styles.tableRow}>
                 <div>
                   <strong>{veiculo.placa}</strong>
-                  {veiculo.renavam && (
-                    <div className={styles.subtext}>RENAVAM: {veiculo.renavam}</div>
-                  )}
                 </div>
                 <div>
-                  <strong>{veiculo.marca} {veiculo.modelo}</strong>
-                  <div className={styles.subtext}>{veiculo.ano} - {veiculo.cor}</div>
+                  <strong>{veiculo.marca}</strong>
+                  <div className={styles.subtext}>Tara: {veiculo.tara.toLocaleString()}kg</div>
                 </div>
                 <div>
                   <span className={styles.tipoVeiculo}>
@@ -775,60 +702,60 @@ export function ListarVeiculos() {
             ))}
           </div>
         )}
+      </div>
 
-        {/* Informações e Paginação - só mostra se houver registros */}
-        {paginacao && paginacao.totalItems > 0 && (
-          <div className={styles.paginationContainer}>
-            <div className={styles.paginationControls}>
-              <div className={styles.paginationInfo}>
-                Mostrando {paginacao.startItem} até {paginacao.endItem} de {paginacao.totalItems} veículos
-              </div>
+      {/* Paginação */}
+      {paginacao && paginacao.totalItems > 0 && (
+        <div className={styles.paginationContainer}>
+          <div className={styles.paginationControls}>
+            <div className={styles.paginationInfo}>
+              Mostrando {((paginacao.currentPage - 1) * paginacao.pageSize) + 1} até {Math.min(paginacao.currentPage * paginacao.pageSize, paginacao.totalItems)} de {paginacao.totalItems} veículos
+            </div>
 
-              {paginacao.totalPages > 1 && (
-                <div className={styles.pagination}>
-                  <button
-                    onClick={() => setPaginaAtual(paginacao.currentPage - 1)}
-                    disabled={!paginacao.hasPreviousPage}
-                    className={styles.paginationBtn}
-                  >
-                    ← Anterior
-                  </button>
-
-                  <span className={styles.pageInfo}>
-                    Página {paginacao.currentPage} de {paginacao.totalPages}
-                  </span>
-
-                  <button
-                    onClick={() => setPaginaAtual(paginacao.currentPage + 1)}
-                    disabled={!paginacao.hasNextPage}
-                    className={styles.paginationBtn}
-                  >
-                    Próxima →
-                  </button>
-                </div>
-              )}
-
-              <div className={styles.pageSizeSelector}>
-                <label>Itens por página:</label>
-                <select
-                  value={tamanhoPagina}
-                  onChange={(e) => {
-                    setTamanhoPagina(Number(e.target.value));
-                    setPaginaAtual(1);
-                  }}
-                  className={styles.pageSizeSelect}
+            {paginacao.totalPages > 1 && (
+              <div className={styles.pagination}>
+                <button
+                  onClick={() => setPaginaAtual(paginacao.currentPage - 1)}
+                  disabled={!paginacao.hasPreviousPage}
+                  className={styles.paginationBtn}
                 >
-                  <option value={1}>1</option>
-                  <option value={2}>2</option>
-                  <option value={5}>5</option>
-                  <option value={10}>10</option>
-                  <option value={20}>20</option>
-                </select>
+                  ← Anterior
+                </button>
+
+                <span className={styles.pageInfo}>
+                  Página {paginacao.currentPage} de {paginacao.totalPages}
+                </span>
+
+                <button
+                  onClick={() => setPaginaAtual(paginacao.currentPage + 1)}
+                  disabled={!paginacao.hasNextPage}
+                  className={styles.paginationBtn}
+                >
+                  Próxima →
+                </button>
               </div>
+            )}
+
+            <div className={styles.pageSizeSelector}>
+              <label>Itens por página:</label>
+              <select
+                value={tamanhoPagina}
+                onChange={(e) => {
+                  setTamanhoPagina(Number(e.target.value));
+                  setPaginaAtual(1);
+                }}
+                className={styles.pageSizeSelect}
+              >
+                <option value={1}>1</option>
+                <option value={2}>2</option>
+                <option value={5}>5</option>
+                <option value={10}>10</option>
+                <option value={20}>20</option>
+              </select>
             </div>
           </div>
-        )}
-      </div>
+        </div>
+      )}
 
       {renderModal()}
       {renderModalVisualizacao()}
@@ -837,7 +764,7 @@ export function ListarVeiculos() {
         isOpen={modalExclusao}
         title="Excluir Veículo"
         message="Tem certeza de que deseja excluir este veículo?"
-        itemName={veiculoExclusao ? `${formatPlaca(veiculoExclusao.placa)} - ${veiculoExclusao.marca} ${veiculoExclusao.modelo}` : ''}
+        itemName={veiculoExclusao ? `${formatPlaca(veiculoExclusao.placa)} - ${veiculoExclusao.marca}` : ''}
         onConfirm={confirmarExclusao}
         onCancel={fecharModalExclusao}
         loading={excludindo}

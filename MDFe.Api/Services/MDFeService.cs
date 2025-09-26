@@ -91,14 +91,10 @@ namespace MDFeApi.Services
             {
                 mdfe.VeiculoPlaca = veiculo.Placa;
                 mdfe.VeiculoTara = veiculo.Tara;
-                mdfe.VeiculoCapacidadeKg = veiculo.CapacidadeKg;
-                // mdfe.VeiculoCapacidadeM3 = veiculo.CapacidadeM3; // Campo ainda não existe no model MDFe
                 mdfe.VeiculoTipoRodado = veiculo.TipoRodado;
                 mdfe.VeiculoTipoCarroceria = veiculo.TipoCarroceria;
                 mdfe.VeiculoUf = veiculo.Uf;
                 mdfe.VeiculoMarca = veiculo.Marca;
-                mdfe.VeiculoModelo = veiculo.Modelo;
-                mdfe.VeiculoAno = veiculo.Ano;
             }
 
             // Snapshot do Contratante (se informado)
@@ -111,7 +107,6 @@ namespace MDFeApi.Services
                     mdfe.ContratanteCpf = contratante.Cpf;
                     mdfe.ContratanteRazaoSocial = contratante.RazaoSocial;
                     mdfe.ContratanteNomeFantasia = contratante.NomeFantasia;
-                    mdfe.ContratanteIe = contratante.Ie; // ✅ CAMPO ADICIONADO
                     mdfe.ContratanteEndereco = contratante.Endereco;
                     mdfe.ContratanteNumero = contratante.Numero;
                     mdfe.ContratanteComplemento = contratante.Complemento;
@@ -243,43 +238,151 @@ namespace MDFeApi.Services
             return true;
         }
 
-        public Task<string> SalvarRascunhoAsync(Controllers.MDFeData mdfeData)
+        public async Task<string> SalvarRascunhoAsync(Controllers.MDFeData mdfeData)
         {
-            var rascunhoId = Guid.NewGuid().ToString();
-            var cacheKey = $"rascunho_{rascunhoId}";
-            
-            // Armazenar rascunho no cache com expiração de 24 horas
-            var cacheOptions = new MemoryCacheEntryOptions
+            // ✅ CORREÇÃO: Salvar no banco de dados ao invés de apenas cache
+            try
             {
-                AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(24),
-                Priority = CacheItemPriority.Normal
-            };
-            
-            _cache.Set(cacheKey, mdfeData, cacheOptions);
-            
-            _logger.LogInformation($"Rascunho salvo no cache: {rascunhoId}");
-            return Task.FromResult(rascunhoId);
+                var mdfe = new MDFe
+                {
+                    StatusSefaz = "RASCUNHO",
+                    DataCriacao = DateTime.Now,
+                    DataUltimaAlteracao = DateTime.Now,
+                    UsuarioCriacao = "wizard",
+                    UsuarioUltimaAlteracao = "wizard",
+                    DadosOriginaisJson = System.Text.Json.JsonSerializer.Serialize(mdfeData, new System.Text.Json.JsonSerializerOptions
+                    {
+                        WriteIndented = true,
+                        PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase
+                    })
+                };
+
+                // Salvar dados básicos do MDFe se disponíveis
+                if (mdfeData.ide != null)
+                {
+                    if (!string.IsNullOrEmpty(mdfeData.ide.serie) && int.TryParse(mdfeData.ide.serie, out var serie))
+                        mdfe.Serie = serie;
+
+                    if (!string.IsNullOrEmpty(mdfeData.ide.UFIni))
+                        mdfe.UfInicio = mdfeData.ide.UFIni;
+
+                    if (!string.IsNullOrEmpty(mdfeData.ide.UFFim))
+                        mdfe.UfFim = mdfeData.ide.UFFim;
+                }
+
+                if (mdfeData.emit != null)
+                {
+                    if (!string.IsNullOrEmpty(mdfeData.emit.CNPJ))
+                        mdfe.EmitenteCnpj = mdfeData.emit.CNPJ;
+
+                    if (!string.IsNullOrEmpty(mdfeData.emit.xNome))
+                        mdfe.EmitenteRazaoSocial = mdfeData.emit.xNome;
+
+                    if (!string.IsNullOrEmpty(mdfeData.emit.xFant))
+                        mdfe.EmitenteNomeFantasia = mdfeData.emit.xFant;
+                }
+
+                if (mdfeData.tot != null)
+                {
+                    if (decimal.TryParse(mdfeData.tot.vCarga, out var vCarga))
+                        mdfe.ValorCarga = vCarga;
+
+                    if (decimal.TryParse(mdfeData.tot.qCarga, out var qCarga))
+                        mdfe.QuantidadeCarga = qCarga;
+                }
+
+                // Definir EmitenteId padrão se não existir
+                if (mdfe.EmitenteId == 0)
+                {
+                    var primeiroEmitente = await _context.Emitentes.FirstOrDefaultAsync();
+                    if (primeiroEmitente != null)
+                        mdfe.EmitenteId = primeiroEmitente.Id;
+                }
+
+                // Salvar no banco de dados
+                _context.MDFes.Add(mdfe);
+                await _context.SaveChangesAsync();
+
+                _logger.LogInformation($"Rascunho salvo no banco de dados: ID {mdfe.Id}");
+
+                // Manter também no cache para acesso rápido
+                var cacheKey = $"rascunho_{mdfe.Id}";
+                var cacheOptions = new MemoryCacheEntryOptions
+                {
+                    AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(24),
+                    Priority = CacheItemPriority.Normal
+                };
+                _cache.Set(cacheKey, mdfeData, cacheOptions);
+
+                return mdfe.Id.ToString();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erro ao salvar rascunho no banco de dados");
+
+                // Fallback para cache se banco falhar
+                var rascunhoId = Guid.NewGuid().ToString();
+                var cacheKey = $"rascunho_fallback_{rascunhoId}";
+                var cacheOptions = new MemoryCacheEntryOptions
+                {
+                    AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(24),
+                    Priority = CacheItemPriority.Normal
+                };
+                _cache.Set(cacheKey, mdfeData, cacheOptions);
+
+                _logger.LogWarning($"Rascunho salvo apenas no cache (fallback): {rascunhoId}");
+                return rascunhoId;
+            }
         }
 
-        public Task<Controllers.MDFeData?> CarregarRascunhoAsync(string id)
+        public async Task<Controllers.MDFeData?> CarregarRascunhoAsync(string id)
         {
             try
             {
-                var cacheKey = $"rascunho_{id}";
-                
-                if (_cache.TryGetValue(cacheKey, out Controllers.MDFeData? mdfeData))
+                // ✅ CORREÇÃO: Carregar do banco de dados primeiro
+                if (int.TryParse(id, out var rascunhoId))
                 {
-                    _logger.LogInformation($"Rascunho carregado do cache: {id}");
-                    return Task.FromResult<Controllers.MDFeData?>(mdfeData);
+                    var mdfe = await _context.MDFes
+                        .FirstOrDefaultAsync(m => m.Id == rascunhoId && m.StatusSefaz == "RASCUNHO");
+
+                    if (mdfe != null && !string.IsNullOrEmpty(mdfe.DadosOriginaisJson))
+                    {
+                        var mdfeData = System.Text.Json.JsonSerializer.Deserialize<Controllers.MDFeData>(
+                            mdfe.DadosOriginaisJson,
+                            new System.Text.Json.JsonSerializerOptions
+                            {
+                                PropertyNameCaseInsensitive = true,
+                                PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase
+                            });
+
+                        _logger.LogInformation($"Rascunho carregado do banco de dados: {id}");
+                        return mdfeData;
+                    }
                 }
 
-                _logger.LogWarning($"Rascunho não encontrado no cache: {id}");
-                return Task.FromResult<Controllers.MDFeData?>(null);
+                // Fallback para cache se não encontrar no banco ou ID inválido
+                var cacheKey = $"rascunho_{id}";
+                if (_cache.TryGetValue(cacheKey, out Controllers.MDFeData? cachedData))
+                {
+                    _logger.LogInformation($"Rascunho carregado do cache (fallback): {id}");
+                    return cachedData;
+                }
+
+                // Tentar buscar cache com fallback prefix
+                var fallbackCacheKey = $"rascunho_fallback_{id}";
+                if (_cache.TryGetValue(fallbackCacheKey, out Controllers.MDFeData? fallbackData))
+                {
+                    _logger.LogInformation($"Rascunho carregado do cache fallback: {id}");
+                    return fallbackData;
+                }
+
+                _logger.LogWarning($"Rascunho não encontrado: {id}");
+                return null;
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, $"Erro ao carregar rascunho: {id}");
-                return Task.FromResult<Controllers.MDFeData?>(null);
+                return null;
             }
         }
     }

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { ConfirmDeleteModal } from '../../../components/UI/Modal/ConfirmDeleteModal';
 import { formatCNPJ, formatCPF, cleanNumericString, applyMask } from '../../../utils/formatters';
 import { entitiesService } from '../../../services/entitiesService';
+import { useCNPJLookup } from '../../../hooks/useCNPJLookup';
 import styles from './ListarContratantes.module.css';
 
 interface Contratante {
@@ -18,7 +19,6 @@ interface Contratante {
   municipio: string;
   cep: string;
   uf: string;
-  ie?: string;
   ativo?: boolean;
 }
 
@@ -58,6 +58,9 @@ export function ListarContratantes() {
   const [contratanteExclusao, setContratanteExclusao] = useState<Contratante | null>(null);
   const [excludindo, setExcluindo] = useState(false);
 
+  // Hook para consulta automática de CNPJ
+  const { consultarCNPJ, loading: loadingCNPJ, error: errorCNPJ, clearError } = useCNPJLookup();
+
   useEffect(() => {
     carregarContratantes();
   }, [paginaAtual, tamanhoPagina, filtro, filtroTipo, filtroStatus, filtroUf]);
@@ -67,12 +70,12 @@ export function ListarContratantes() {
     try {
       const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://localhost:5001/api';
       const params = new URLSearchParams({
-        Page: paginaAtual.toString(),
-        PageSize: tamanhoPagina.toString()
+        pagina: paginaAtual.toString(),
+        tamanhoPagina: tamanhoPagina.toString()
       });
 
       if (filtro.trim()) {
-        params.append('Search', filtro.trim());
+        params.append('busca', filtro.trim());
       }
 
       const response = await fetch(`${API_BASE_URL}/contratantes?${params}`);
@@ -82,14 +85,14 @@ export function ListarContratantes() {
       }
 
       const data = await response.json();
+      console.log('Dados recebidos da API de contratantes:', data);
 
-      const contratantesMapeados: Contratante[] = (data.items || data.Itens || []).map((contratante: any) => ({
+      const contratantesMapeados: Contratante[] = (data.itens || data.items || data.Itens || []).map((contratante: any) => ({
         id: contratante.id || contratante.Id,
         cnpj: contratante.cnpj || contratante.Cnpj,
         cpf: contratante.cpf || contratante.Cpf,
         razaoSocial: contratante.razaoSocial || contratante.RazaoSocial,
         nomeFantasia: contratante.nomeFantasia || contratante.NomeFantasia,
-        ie: contratante.ie || contratante.Ie,
         endereco: contratante.endereco || contratante.Endereco,
         numero: contratante.numero || contratante.Numero,
         complemento: contratante.complemento || contratante.Complemento,
@@ -101,14 +104,15 @@ export function ListarContratantes() {
         ativo: contratante.ativo !== undefined ? contratante.ativo : (contratante.Ativo !== undefined ? contratante.Ativo : true)
       }));
 
+      console.log('Contratantes mapeados:', contratantesMapeados);
       setContratantes(contratantesMapeados);
       setPaginacao({
-        totalItems: data.totalItems || data.TotalItens || contratantesMapeados.length,
-        totalPages: data.totalPages || data.TotalPaginas || 1,
-        currentPage: data.currentPage || data.Pagina || 1,
-        pageSize: data.pageSize || data.TamanhoPagina || 10,
-        hasNextPage: data.hasNextPage || data.TemProxima || false,
-        hasPreviousPage: data.hasPreviousPage || data.TemAnterior || false,
+        totalItems: data.totalItens || data.totalItems || data.TotalItens || contratantesMapeados.length,
+        totalPages: data.totalPaginas || data.totalPages || data.TotalPaginas || 1,
+        currentPage: data.pagina || data.currentPage || data.Pagina || 1,
+        pageSize: data.tamanhoPagina || data.pageSize || data.TamanhoPagina || 10,
+        hasNextPage: data.temProximaPagina || data.hasNextPage || data.TemProxima || false,
+        hasPreviousPage: data.temPaginaAnterior || data.hasPreviousPage || data.TemAnterior || false,
         startItem: data.startItem || 1,
         endItem: data.endItem || contratantesMapeados.length
       });
@@ -151,6 +155,34 @@ export function ListarContratantes() {
     setModalEdicao(false);
     setContratanteSelecionado(null);
     setDadosFormulario({});
+    clearError();
+  };
+
+  const handleCNPJChange = async (cnpj: string) => {
+    const cnpjFormatado = formatCNPJ(cnpj);
+    setDadosFormulario(prev => ({ ...prev, cnpj: cnpjFormatado }));
+
+    const cnpjLimpo = cleanNumericString(cnpj);
+    if (cnpjLimpo.length === 14) {
+      const dadosCNPJ = await consultarCNPJ(cnpjLimpo);
+
+      if (dadosCNPJ) {
+        setDadosFormulario(prev => ({
+          ...prev,
+          cnpj: formatCNPJ(dadosCNPJ.cnpj),
+          razaoSocial: dadosCNPJ.razao_social,
+          nomeFantasia: dadosCNPJ.nome_fantasia || '',
+          endereco: dadosCNPJ.logradouro,
+          numero: dadosCNPJ.numero,
+          complemento: dadosCNPJ.complemento || '',
+          bairro: dadosCNPJ.bairro,
+          codMunicipio: dadosCNPJ.codigo_municipio || 0,
+          municipio: dadosCNPJ.municipio,
+          cep: dadosCNPJ.cep,
+          uf: dadosCNPJ.uf
+        }));
+      }
+    }
   };
 
   const salvarContratante = async () => {
@@ -169,7 +201,6 @@ export function ListarContratantes() {
         municipio: dadosFormulario.municipio?.trim(),
         cep: dadosFormulario.cep ? cleanNumericString(dadosFormulario.cep) : undefined,
         uf: dadosFormulario.uf?.toUpperCase(),
-        ie: dadosFormulario.ie?.trim(),
         ativo: dadosFormulario.ativo !== false
       };
 
@@ -360,7 +391,6 @@ export function ListarContratantes() {
                   <strong>
                     {contratante.cnpj ? formatCNPJ(contratante.cnpj) : formatCPF(contratante.cpf || '')}
                   </strong>
-                  {contratante.ie && <div className={styles.subtext}>IE: {contratante.ie}</div>}
                 </div>
                 <div>
                   <strong>{contratante.razaoSocial}</strong>
@@ -407,7 +437,7 @@ export function ListarContratantes() {
         <div className={styles.paginationContainer}>
           <div className={styles.paginationControls}>
             <div className={styles.paginationInfo}>
-              Mostrando {paginacao.startItem} até {paginacao.endItem} de {paginacao.totalItems} contratantes
+              Mostrando {((paginacao.currentPage - 1) * paginacao.pageSize) + 1} até {Math.min(paginacao.currentPage * paginacao.pageSize, paginacao.totalItems)} de {paginacao.totalItems} contratantes
             </div>
 
             {paginacao.totalPages > 1 && (
@@ -484,12 +514,6 @@ export function ListarContratantes() {
                         : formatCPF(contratanteSelecionado.cpf || '')}
                     </span>
                   </div>
-                  {contratanteSelecionado.ie && (
-                    <div className={styles.viewField}>
-                      <label>IE:</label>
-                      <span>{contratanteSelecionado.ie}</span>
-                    </div>
-                  )}
                   <div className={styles.viewField}>
                     <label>Tipo:</label>
                     <span>{tipoContratante(contratanteSelecionado)}</span>
@@ -566,35 +590,24 @@ export function ListarContratantes() {
             <form className={styles.modalForm} onSubmit={(e) => { e.preventDefault(); salvarContratante(); }}>
               <div className={styles.modalSection}>
                 <h3>Dados Principais</h3>
+
+                {/* Primeira linha: CNPJ com busca automática */}
                 <div className={styles.modalRow}>
                   <div className={styles.modalField}>
-                    <label>Razão Social *</label>
-                    <input
-                      type="text"
-                      value={dadosFormulario.razaoSocial || ''}
-                      onChange={(e) => atualizarCampo('razaoSocial', e.target.value)}
-                      required
-                    />
-                  </div>
-                  <div className={styles.modalField}>
-                    <label>Nome Fantasia</label>
-                    <input
-                      type="text"
-                      value={dadosFormulario.nomeFantasia || ''}
-                      onChange={(e) => atualizarCampo('nomeFantasia', e.target.value)}
-                    />
-                  </div>
-                </div>
-                <div className={styles.modalRow}>
-                  <div className={styles.modalField}>
-                    <label>CNPJ</label>
+                    <label>CNPJ *</label>
                     <input
                       type="text"
                       value={dadosFormulario.cnpj ? formatCNPJ(dadosFormulario.cnpj) : ''}
-                      onChange={(e) => atualizarCampo('cnpj', cleanNumericString(e.target.value))}
+                      onChange={(e) => handleCNPJChange(e.target.value)}
                       maxLength={18}
                       placeholder="00.000.000/0000-00"
                     />
+                    {loadingCNPJ && (
+                      <small className={styles.loadingText}>Consultando CNPJ...</small>
+                    )}
+                    {errorCNPJ && (
+                      <small className={styles.errorText}>{errorCNPJ}</small>
+                    )}
                   </div>
                   <div className={styles.modalField}>
                     <label>CPF</label>
@@ -606,15 +619,31 @@ export function ListarContratantes() {
                       placeholder="000.000.000-00"
                     />
                   </div>
+                </div>
+
+                {/* Segunda linha: Razão Social e Nome Fantasia */}
+                <div className={styles.modalRow}>
                   <div className={styles.modalField}>
-                    <label>Inscrição Estadual</label>
+                    <label>Razão Social *</label>
                     <input
                       type="text"
-                      value={dadosFormulario.ie || ''}
-                      onChange={(e) => atualizarCampo('ie', e.target.value)}
+                      value={dadosFormulario.razaoSocial || ''}
+                      onChange={(e) => atualizarCampo('razaoSocial', e.target.value)}
+                      maxLength={200}
+                      required
+                    />
+                  </div>
+                  <div className={styles.modalField}>
+                    <label>Nome Fantasia</label>
+                    <input
+                      type="text"
+                      value={dadosFormulario.nomeFantasia || ''}
+                      onChange={(e) => atualizarCampo('nomeFantasia', e.target.value)}
+                      maxLength={200}
                     />
                   </div>
                 </div>
+
               </div>
 
               <div className={styles.modalSection}>
@@ -626,6 +655,7 @@ export function ListarContratantes() {
                       type="text"
                       value={dadosFormulario.endereco || ''}
                       onChange={(e) => atualizarCampo('endereco', e.target.value)}
+                      maxLength={200}
                       required
                     />
                   </div>
@@ -635,6 +665,7 @@ export function ListarContratantes() {
                       type="text"
                       value={dadosFormulario.numero || ''}
                       onChange={(e) => atualizarCampo('numero', e.target.value)}
+                      maxLength={20}
                     />
                   </div>
                 </div>
@@ -645,6 +676,7 @@ export function ListarContratantes() {
                       type="text"
                       value={dadosFormulario.bairro || ''}
                       onChange={(e) => atualizarCampo('bairro', e.target.value)}
+                      maxLength={100}
                       required
                     />
                   </div>
@@ -654,6 +686,7 @@ export function ListarContratantes() {
                       type="text"
                       value={dadosFormulario.complemento || ''}
                       onChange={(e) => atualizarCampo('complemento', e.target.value)}
+                      maxLength={100}
                     />
                   </div>
                 </div>
@@ -664,6 +697,7 @@ export function ListarContratantes() {
                       type="text"
                       value={dadosFormulario.municipio || ''}
                       onChange={(e) => atualizarCampo('municipio', e.target.value)}
+                      maxLength={100}
                       required
                     />
                   </div>

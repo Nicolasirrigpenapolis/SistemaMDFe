@@ -13,7 +13,6 @@ namespace MDFeApi.Models
 
         public int Tara { get; set; }
 
-        public int? CapacidadeKg { get; set; }
 
 
         [Required]
@@ -28,8 +27,6 @@ namespace MDFeApi.Models
         [MaxLength(2)]
         public string Uf { get; set; } = string.Empty;
 
-        [MaxLength(20)]
-        public string? Rntrc { get; set; }
 
         public bool Ativo { get; set; } = true;
 
@@ -40,12 +37,7 @@ namespace MDFeApi.Models
         [MaxLength(100)]
         public string Marca { get; set; } = string.Empty;
 
-        [Required]
-        [MaxLength(100)]
-        public string Modelo { get; set; } = string.Empty;
 
-        [Required]
-        public int Ano { get; set; }
 
         
         [NotMapped]

@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using MDFeApi.Data;
 using MDFeApi.Models;
 using MDFeApi.DTOs;
+using MDFeApi.Utils;
 
 namespace MDFeApi.Controllers
 {
@@ -50,13 +51,24 @@ namespace MDFeApi.Controllers
                 Renavam = reboqueDto.Renavam,
                 Tara = reboqueDto.Tara,
                 CapacidadeKg = reboqueDto.CapacidadeKg,
-                TipoRodado = reboqueDto.TipoRodado,
-                TipoCarroceria = reboqueDto.TipoCarroceria,
-                Uf = reboqueDto.Uf,
-                Rntrc = reboqueDto.Rntrc,
+                TipoRodado = reboqueDto.TipoRodado?.Trim(),
+                TipoCarroceria = reboqueDto.TipoCarroceria?.Trim(),
+                Uf = reboqueDto.Uf?.Trim(),
+                Rntrc = reboqueDto.Rntrc?.Trim(),
                 Ativo = true,
                 DataCriacao = DateTime.UtcNow
             };
+
+            // Aplicar limpeza automática de documentos
+            DocumentUtils.LimparDocumentosReboque(reboque);
+
+            // Validar se placa já existe (usando dados limpos)
+            var existingPlaca = await _context.Reboques
+                .AnyAsync(r => r.Placa == reboque.Placa && r.Ativo);
+            if (existingPlaca)
+            {
+                return BadRequest(new { message = "Placa já cadastrada" });
+            }
 
             _context.Reboques.Add(reboque);
             await _context.SaveChangesAsync();
@@ -76,14 +88,32 @@ namespace MDFeApi.Controllers
                 return NotFound();
             }
 
+            // Salvar placa original
+            var placaOriginal = reboque.Placa;
+
+            // Atualizar dados com trim
             reboque.Placa = reboqueDto.Placa;
             reboque.Renavam = reboqueDto.Renavam;
             reboque.Tara = reboqueDto.Tara;
             reboque.CapacidadeKg = reboqueDto.CapacidadeKg;
-            reboque.TipoRodado = reboqueDto.TipoRodado;
-            reboque.TipoCarroceria = reboqueDto.TipoCarroceria;
-            reboque.Uf = reboqueDto.Uf;
-            reboque.Rntrc = reboqueDto.Rntrc;
+            reboque.TipoRodado = reboqueDto.TipoRodado?.Trim();
+            reboque.TipoCarroceria = reboqueDto.TipoCarroceria?.Trim();
+            reboque.Uf = reboqueDto.Uf?.Trim();
+            reboque.Rntrc = reboqueDto.Rntrc?.Trim();
+
+            // Aplicar limpeza automática de documentos
+            DocumentUtils.LimparDocumentosReboque(reboque);
+
+            // Validar se placa já existe (exceto para o próprio reboque, usando dados limpos)
+            if (reboque.Placa != placaOriginal)
+            {
+                var existingPlaca = await _context.Reboques
+                    .AnyAsync(r => r.Placa == reboque.Placa && r.Id != id && r.Ativo);
+                if (existingPlaca)
+                {
+                    return BadRequest(new { message = "Placa já cadastrada" });
+                }
+            }
 
             try
             {

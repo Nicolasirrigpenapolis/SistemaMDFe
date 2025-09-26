@@ -38,18 +38,79 @@ namespace MDFeApi.Services
         {
             try
             {
+                // Primeiro, tenta inicializar sem arquivo INI (funciona)
+                _logger.LogInformation("Inicializando ACBrLibMDFe...");
                 ACBrLibMDFeHelper.ExecutarComandoSimples(() =>
-                    ACBrLibMDFeNative.MDFe_Inicializar(new StringBuilder(), ACBrLibMDFeHelper.ToStringBuilder(chaveCrypt)));
+                    ACBrLibMDFeNative.MDFE_Inicializar(new StringBuilder(), ACBrLibMDFeHelper.ToStringBuilder(chaveCrypt)));
 
-                await AplicarConfiguracoesGeraisAsync();
-                
-                _logger.LogInformation("ACBrLibMDFe inicializada com sucesso via configuração programática.");
+                _logger.LogInformation("ACBrLibMDFe inicializada com sucesso.");
+
+                // Agora aplica as configurações básicas necessárias
+                await AplicarConfiguracoesMinimasAsync();
+
                 return true;
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Erro ao inicializar ACBrLibMDFe");
                 throw;
+            }
+        }
+
+        private async Task AplicarConfiguracoesMinimasAsync()
+        {
+            try
+            {
+                _logger.LogInformation("Aplicando configurações mínimas...");
+
+                // Configurações essenciais apenas
+                await ConfigurarPropriedadeSeguraAsync("DFe", "UF", _acbrConfig.UF);
+                await ConfigurarPropriedadeSeguraAsync("DFe", "Ambiente", _acbrConfig.TipoAmbiente.ToString());
+                await ConfigurarPropriedadeSeguraAsync("MDFe", "FormaEmissao", _acbrConfig.FormaEmissao.ToString());
+                await ConfigurarPropriedadeSeguraAsync("MDFe", "VersaoDF", _acbrConfig.VersaoDF);
+
+                _logger.LogInformation("Configurações mínimas aplicadas com sucesso.");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Algumas configurações mínimas falharam");
+            }
+        }
+
+        private async Task AplicarConfiguracoesEspecificasAsync()
+        {
+            try
+            {
+                // Configurações mínimas necessárias - apenas se não existirem no arquivo INI
+                _logger.LogInformation("Aplicando configurações específicas do sistema...");
+
+                // Configurações críticas do ambiente
+                await ConfigurarPropriedadeSeguraAsync("DFe", "UF", _acbrConfig.UF);
+                await ConfigurarPropriedadeSeguraAsync("DFe", "Ambiente", _acbrConfig.TipoAmbiente.ToString());
+
+                // Configurações do MDFe
+                await ConfigurarPropriedadeSeguraAsync("MDFe", "FormaEmissao", _acbrConfig.FormaEmissao.ToString());
+                await ConfigurarPropriedadeSeguraAsync("MDFe", "VersaoDF", _acbrConfig.VersaoDF);
+
+                _logger.LogInformation("Configurações específicas aplicadas com sucesso.");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Algumas configurações específicas falharam, mas inicialização continua");
+            }
+        }
+
+        private async Task<bool> ConfigurarPropriedadeSeguraAsync(string sessao, string chave, string valor)
+        {
+            try
+            {
+                await ConfigurarPropriedadeAsync(sessao, chave, valor);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, $"Não foi possível configurar {sessao}.{chave} = {valor}");
+                return false;
             }
         }
 
@@ -75,12 +136,10 @@ namespace MDFeApi.Services
             await ConfigurarPropriedadeAsync("MDFe", "ValidarSchemas", "1");
             await ConfigurarPropriedadeAsync("MDFe", "ValidarAssinatura", "1");
 
-            var pathSalvar = Path.GetFullPath(Path.Combine(_baseDirectory, _acbrConfig.PathSalvar));
+            // PathSalvar será configurado específico por emitente em ConfigurarCertificadoDoEmitenteAsync()
             var pathSchemas = Path.GetFullPath(Path.Combine(_baseDirectory, _acbrConfig.PathSchemas));
             var iniServicos = Path.GetFullPath(Path.Combine(_baseDirectory, _acbrConfig.IniServicos));
-            if (!Directory.Exists(pathSalvar)) Directory.CreateDirectory(pathSalvar);
 
-            await ConfigurarPropriedadeAsync("MDFe", "PathSalvar", pathSalvar);
             await ConfigurarPropriedadeAsync("MDFe", "PathSchemas", pathSchemas);
             await ConfigurarPropriedadeAsync("MDFe", "IniServicos", iniServicos);
 
@@ -105,6 +164,55 @@ namespace MDFeApi.Services
 
             await ConfigurarPropriedadeAsync("DFe", "ArquivoPFX", caminhoAbsolutoCertificado);
             await ConfigurarPropriedadeAsync("DFe", "Senha", senha);
+
+            // ✅ CONFIGURAR CAMINHO ESPECÍFICO DO EMITENTE PARA SALVAR XMLs
+            await ConfigurarCaminhoSalvarXmlDoEmitenteAsync(emitente);
+        }
+
+        /// <summary>
+        /// Configura o caminho específico do emitente para salvar XMLs, se configurado
+        /// </summary>
+        private async Task ConfigurarCaminhoSalvarXmlDoEmitenteAsync(Emitente emitente)
+        {
+            // Se o emitente tem um caminho específico configurado, usar ele
+            if (!string.IsNullOrWhiteSpace(emitente.CaminhoSalvarXml))
+            {
+                string pathSalvarEmitente;
+
+                // Se é um caminho absoluto, usar diretamente
+                if (Path.IsPathRooted(emitente.CaminhoSalvarXml))
+                {
+                    pathSalvarEmitente = emitente.CaminhoSalvarXml;
+                }
+                else
+                {
+                    // Se é um caminho relativo, combinar com o diretório base
+                    pathSalvarEmitente = Path.GetFullPath(Path.Combine(_baseDirectory, emitente.CaminhoSalvarXml));
+                }
+
+                // Criar diretório se não existir
+                if (!Directory.Exists(pathSalvarEmitente))
+                {
+                    Directory.CreateDirectory(pathSalvarEmitente);
+                    _logger.LogDebug("DEBUG: Diretório criado para emitente {RazaoSocial}: {Caminho}",
+                        emitente.RazaoSocial, pathSalvarEmitente);
+                }
+
+                // Configurar no ACBr o caminho específico do emitente
+                await ConfigurarPropriedadeAsync("MDFe", "PathSalvar", pathSalvarEmitente);
+                _logger.LogInformation("Caminho específico configurado para emitente '{RazaoSocial}': {Caminho}",
+                    emitente.RazaoSocial, pathSalvarEmitente);
+            }
+            else
+            {
+                // Se não tem caminho específico, usar o padrão global
+                var pathSalvarGlobal = Path.GetFullPath(Path.Combine(_baseDirectory, _acbrConfig.PathSalvar));
+                if (!Directory.Exists(pathSalvarGlobal)) Directory.CreateDirectory(pathSalvarGlobal);
+
+                await ConfigurarPropriedadeAsync("MDFe", "PathSalvar", pathSalvarGlobal);
+                _logger.LogDebug("DEBUG: Usando caminho global para emitente '{RazaoSocial}': {Caminho}",
+                    emitente.RazaoSocial, pathSalvarGlobal);
+            }
         }
 
         #endregion
@@ -303,8 +411,6 @@ namespace MDFeApi.Services
                     ini.AppendLine("cInt=001");
                     ini.AppendLine($"placa={mdfe.Veiculo.Placa}");
                     ini.AppendLine($"tara={mdfe.Veiculo.Tara}");
-                    if (mdfe.Veiculo.CapacidadeKg.HasValue)
-                        ini.AppendLine($"capKG={mdfe.Veiculo.CapacidadeKg}");
                     ini.AppendLine($"tpRod={mdfe.Veiculo.TipoRodado}");
                     ini.AppendLine($"tpCar={mdfe.Veiculo.TipoCarroceria}");
                     ini.AppendLine($"UF={mdfe.Veiculo.Uf}");
@@ -852,7 +958,7 @@ namespace MDFeApi.Services
             {
                 var buffer = new StringBuilder(65536);
                 var bufferSize = 65536;
-                var resultado = ACBrLibMDFeNative.MDFe_Enviar(lote, false, sincrono, false, buffer, ref bufferSize);
+                var resultado = ACBrLibMDFeNative.MDFE_Enviar(lote, false, sincrono, false, buffer, ref bufferSize);
                 if (resultado != 0) throw new ACBrLibException($"Erro no envio: {resultado}");
                 return buffer.ToString();
             });
@@ -868,7 +974,7 @@ namespace MDFeApi.Services
                 
                 var buffer = new StringBuilder(65536);
                 var bufferSize = 65536;
-                var resultado = ACBrLibMDFeNative.MDFe_CancelarMDFe(chaveBuilder, justificativaBuilder, cnpjBuilder, 1, buffer, ref bufferSize);
+                var resultado = ACBrLibMDFeNative.MDFE_CancelarMDFe(chaveBuilder, justificativaBuilder, cnpjBuilder, 1, buffer, ref bufferSize);
                 if (resultado != 0) throw new ACBrLibException($"Erro no cancelamento: {resultado}");
                 return buffer.ToString();
             });
@@ -885,7 +991,7 @@ namespace MDFeApi.Services
                 
                 var buffer = new StringBuilder(65536);
                 var bufferSize = 65536;
-                var resultado = ACBrLibMDFeNative.MDFe_EncerrarMDFe(chaveBuilder, dataBuilder, cUFBuilder, cMunBuilder, buffer, ref bufferSize);
+                var resultado = ACBrLibMDFeNative.MDFE_EncerrarMDFe(chaveBuilder, dataBuilder, cUFBuilder, cMunBuilder, buffer, ref bufferSize);
                 if (resultado != 0) throw new ACBrLibException($"Erro no encerramento: {resultado}");
                 return buffer.ToString();
             });
@@ -898,7 +1004,7 @@ namespace MDFeApi.Services
                     ACBrLibMDFeHelper.ValidarArquivo(xml, "Arquivo XML");
                 } 
                 var sbXml = ACBrLibMDFeHelper.ToStringBuilder(xml);
-                ACBrLibMDFeNative.MDFe_CarregarXML(sbXml);
+                ACBrLibMDFeNative.MDFE_CarregarXML(sbXml);
             });
             return true;
         }
@@ -933,7 +1039,7 @@ namespace MDFeApi.Services
                 var valorBuilder = ACBrLibMDFeHelper.ToStringBuilder(valor);
                 
                 ACBrLibMDFeHelper.ExecutarComandoSimples(() =>
-                    ACBrLibMDFeNative.MDFe_ConfigGravar(sessaoBuilder, chaveBuilder, valorBuilder));
+                    ACBrLibMDFeNative.MDFE_ConfigGravar(sessaoBuilder, chaveBuilder, valorBuilder));
             });
             return true;
         }
@@ -946,7 +1052,7 @@ namespace MDFeApi.Services
                 
                 var buffer = new StringBuilder(4096);
                 var bufferSize = 4096;
-                var resultado = ACBrLibMDFeNative.MDFe_ConfigLer(sessaoBuilder, chaveBuilder, buffer, ref bufferSize);
+                var resultado = ACBrLibMDFeNative.MDFE_ConfigLer(sessaoBuilder, chaveBuilder, buffer, ref bufferSize);
                 if (resultado != 0) throw new ACBrLibException($"Erro na leitura de configuração: {resultado}");
                 return buffer.ToString();
             });
@@ -954,7 +1060,7 @@ namespace MDFeApi.Services
 
         public async Task<bool> LimparListaAsync()
         {
-            await Task.Run(() => ACBrLibMDFeNative.MDFe_LimparLista());
+            await Task.Run(() => ACBrLibMDFeNative.MDFE_LimparLista());
             return true;
         }
 
@@ -974,21 +1080,68 @@ namespace MDFeApi.Services
                     iniContent.AppendLine("[ide]");
                     iniContent.AppendLine($"cUF={(mdfeData.ide?.cUF ?? "35")}"); // SP por padrão
                     iniContent.AppendLine($"tpAmb={(mdfeData.ide?.tpAmb ?? "2")}"); // Homologação por padrão
-                    iniContent.AppendLine($"tpEmit=1"); // 1=Prestador de serviço de transporte
-                    iniContent.AppendLine($"tpTransp=1"); // 1=ETC, 2=TAC, 3=CTC
-                    iniContent.AppendLine($"mod={mdfeData.ide?.mod ?? "58"}");
-                    iniContent.AppendLine($"serie={mdfeData.ide?.serie ?? "1"}");
-                    iniContent.AppendLine($"nMDF={mdfeData.ide?.nMDF ?? "1"}");
-                    iniContent.AppendLine($"cMDF={DateTime.Now.Ticks.ToString().Substring(0, 8)}"); // Código numérico
+                    iniContent.AppendLine($"tpEmit={(mdfeData.ide?.tpEmit ?? "1")}"); // Prestador de serviço de transporte
+                    iniContent.AppendLine($"tpTransp=1"); // ETC
+                    iniContent.AppendLine($"mod={(mdfeData.ide?.mod ?? "58")}");
+                    iniContent.AppendLine($"serie={(mdfeData.ide?.serie ?? "1")}");
+                    iniContent.AppendLine($"nMDF={(mdfeData.ide?.nMDF ?? "1")}");
+                    iniContent.AppendLine($"cMDF={(DateTime.Now.Ticks % 100000000).ToString("D8")}"); // Código numérico 8 dígitos
                     iniContent.AppendLine($"cDV=0"); // Será calculado pelo ACBr
-                    iniContent.AppendLine($"modal=1"); // 1=Rodoviário
-                    iniContent.AppendLine($"dhEmi={DateTime.Now:yyyy-MM-ddTHH:mm:sszzz}");
-                    iniContent.AppendLine($"tpEmis=1"); // Normal
-                    iniContent.AppendLine($"procEmi=0"); // Aplicação do contribuinte
-                    iniContent.AppendLine($"verProc=1.0.0");
-                    iniContent.AppendLine($"UFIni={mdfeData.ide?.UFIni ?? "SP"}");
-                    iniContent.AppendLine($"UFFim={mdfeData.ide?.UFFim ?? "SP"}");
+                    iniContent.AppendLine($"modal={(mdfeData.ide?.modal ?? "1")}"); // Rodoviário
+
+                    var dataEmissao = !string.IsNullOrEmpty(mdfeData.ide?.dhEmi)
+                        ? DateTime.Parse(mdfeData.ide.dhEmi)
+                        : DateTime.Now;
+                    iniContent.AppendLine($"dhEmi={dataEmissao:yyyy-MM-ddTHH:mm:ss-03:00}");
+
+                    iniContent.AppendLine($"tpEmis={(mdfeData.ide?.tpEmis ?? "1")}"); // Normal
+                    iniContent.AppendLine($"procEmi={(mdfeData.ide?.procEmi ?? "0")}"); // Aplicação do contribuinte
+                    iniContent.AppendLine($"verProc={(mdfeData.ide?.verProc ?? "1.0.0")}");
+                    iniContent.AppendLine($"UFIni={(mdfeData.ide?.UFIni ?? "SP")}");
+                    iniContent.AppendLine($"UFFim={(mdfeData.ide?.UFFim ?? "SP")}");
+
+                    // Data início da viagem (usar mesma data da emissão por padrão)
+                    iniContent.AppendLine($"dhIniViagem={dataEmissao:yyyy-MM-ddTHH:mm:ss-03:00}");
                     iniContent.AppendLine();
+
+                    // Seção [emit] - Emitente (obrigatório)
+                    if (mdfeData.emit != null)
+                    {
+                        iniContent.AppendLine("[emit]");
+                        iniContent.AppendLine($"CNPJ={(mdfeData.emit.CNPJ ?? "").Replace(".", "").Replace("/", "").Replace("-", "")}");
+                        iniContent.AppendLine($"IE={(mdfeData.emit.IE ?? "")}");
+                        iniContent.AppendLine($"xNome={(mdfeData.emit.xNome ?? "")}");
+                        if (!string.IsNullOrEmpty(mdfeData.emit.xFant))
+                            iniContent.AppendLine($"xFant={mdfeData.emit.xFant}");
+
+                        // Endereço do emitente
+                        if (mdfeData.emit.enderEmit != null)
+                        {
+                            iniContent.AppendLine($"xLgr={(mdfeData.emit.enderEmit.xLgr ?? "")}");
+                            iniContent.AppendLine($"nro={(mdfeData.emit.enderEmit.nro ?? "SN")}");
+                            if (!string.IsNullOrEmpty(mdfeData.emit.enderEmit.xCpl))
+                                iniContent.AppendLine($"xCpl={mdfeData.emit.enderEmit.xCpl}");
+                            iniContent.AppendLine($"xBairro={(mdfeData.emit.enderEmit.xBairro ?? "")}");
+                            iniContent.AppendLine($"cMun={(mdfeData.emit.enderEmit.cMun ?? "")}");
+                            iniContent.AppendLine($"xMun={(mdfeData.emit.enderEmit.xMun ?? "")}");
+                            iniContent.AppendLine($"CEP={(mdfeData.emit.enderEmit.CEP ?? "").Replace("-", "")}");
+                            iniContent.AppendLine($"UF={(mdfeData.emit.enderEmit.UF ?? "")}");
+                        }
+                        iniContent.AppendLine();
+                    }
+
+                    // Seção [tot] - Totais (obrigatório)
+                    if (mdfeData.tot != null)
+                    {
+                        iniContent.AppendLine("[tot]");
+                        iniContent.AppendLine($"qCTe={(mdfeData.tot.qCTe ?? "0")}");
+                        iniContent.AppendLine($"qNFe={(mdfeData.tot.qNFe ?? "0")}");
+                        iniContent.AppendLine($"qMDFe={(mdfeData.tot.qMDFe ?? "1")}");
+                        iniContent.AppendLine($"vCarga={(mdfeData.tot.vCarga ?? "0.00")}");
+                        iniContent.AppendLine($"cUnid={(mdfeData.tot.cUnid ?? "01")}"); // 01=KG
+                        iniContent.AppendLine($"qCarga={(mdfeData.tot.qCarga ?? "0.000")}");
+                        iniContent.AppendLine();
+                    }
 
                     // Salvar arquivo INI
                     File.WriteAllText(iniFilePath, iniContent.ToString(), Encoding.UTF8);
@@ -1013,11 +1166,58 @@ namespace MDFeApi.Services
 
         public async Task<bool> CarregarINIAsync(string arquivoIni)
         {
-            await Task.Run(() => {
-                ACBrLibMDFeHelper.ValidarArquivo(arquivoIni, "Arquivo INI");
-                ACBrLibMDFeNative.MDFe_CarregarINI(ACBrLibMDFeHelper.ToStringBuilder(arquivoIni));
-            });
-            return true;
+            try
+            {
+                await Task.Run(() => {
+                    // Verificar se arquivo existe
+                    if (!File.Exists(arquivoIni))
+                    {
+                        throw new FileNotFoundException($"Arquivo INI não encontrado: {arquivoIni}");
+                    }
+
+                    _logger.LogInformation("Carregando arquivo INI: {FilePath}", arquivoIni);
+
+                    // Validar arquivo antes de carregar
+                    ACBrLibMDFeHelper.ValidarArquivo(arquivoIni, "Arquivo INI");
+
+                    // Limpar lista antes de carregar novo
+                    var limparResultado = ACBrLibMDFeNative.MDFE_LimparLista();
+                    if (limparResultado != 0)
+                    {
+                        _logger.LogWarning("Aviso ao limpar lista: código {Codigo}", limparResultado);
+                    }
+
+                    // Garantir que a biblioteca esteja inicializada
+                    try
+                    {
+                        // Re-inicializar a biblioteca para garantir estado limpo
+                        _logger.LogInformation("Re-inicializando ACBrLibMDFe para estado limpo...");
+                        ACBrLibMDFeHelper.ExecutarComandoSimples(() =>
+                            ACBrLibMDFeNative.MDFE_Inicializar(new StringBuilder(), new StringBuilder()));
+                    }
+                    catch (Exception initEx)
+                    {
+                        _logger.LogWarning("Aviso na re-inicialização: {Message}", initEx.Message);
+                        // Continua mesmo com aviso na inicialização
+                    }
+
+                    // Carregar no ACBr
+                    var resultado = ACBrLibMDFeNative.MDFE_CarregarINI(ACBrLibMDFeHelper.ToStringBuilder(arquivoIni));
+
+                    if (resultado != 0)
+                    {
+                        throw new ACBrLibException($"Erro ao carregar INI na ACBrLib: código {resultado}");
+                    }
+
+                    _logger.LogInformation("INI carregado com sucesso na ACBrLib");
+                });
+                return true;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erro ao carregar arquivo INI: {FilePath}", arquivoIni);
+                throw new InvalidOperationException($"Falha ao carregar INI: {ex.Message}", ex);
+            }
         }
 
         public async Task<bool> CarregarXMLAsync(string xml)
@@ -1030,7 +1230,7 @@ namespace MDFeApi.Services
             return await Task.Run(() => {
                 var buffer = new StringBuilder(65536);
                 var bufferSize = 65536;
-                var resultado = ACBrLibMDFeNative.MDFe_ObterXml(index, buffer, ref bufferSize);
+                var resultado = ACBrLibMDFeNative.MDFE_ObterXml(index, buffer, ref bufferSize);
                 if (resultado != 0) throw new ACBrLibException($"Erro ao obter XML: {resultado}");
                 return buffer.ToString();
             });
@@ -1044,7 +1244,7 @@ namespace MDFeApi.Services
 
         public async Task<bool> AssinarAsync()
         {
-            await Task.Run(() => ACBrLibMDFeNative.MDFe_Assinar());
+            await Task.Run(() => ACBrLibMDFeNative.MDFE_Assinar());
             return true;
         }
 
@@ -1054,7 +1254,7 @@ namespace MDFeApi.Services
             {
                 var buffer = new StringBuilder(4096);
                 var bufferSize = 4096;
-                var resultado = ACBrLibMDFeNative.MDFe_Validar(buffer, ref bufferSize);
+                var resultado = ACBrLibMDFeNative.MDFE_Validar(buffer, ref bufferSize);
                 if (resultado != 0) throw new ACBrLibException($"Erro na validação: {resultado}");
                 return buffer.ToString();
             });
@@ -1067,7 +1267,7 @@ namespace MDFeApi.Services
             {
                 var buffer = new StringBuilder(4096);
                 var bufferSize = 4096;
-                var resultado = ACBrLibMDFeNative.MDFe_ValidarRegrasdeNegocios(buffer, ref bufferSize);
+                var resultado = ACBrLibMDFeNative.MDFE_ValidarRegrasdeNegocios(buffer, ref bufferSize);
                 if (resultado != 0) throw new ACBrLibException($"Erro na validação de regras: {resultado}");
                 return buffer.ToString();
             });
@@ -1092,7 +1292,7 @@ namespace MDFeApi.Services
                 var reciboBuilder = ACBrLibMDFeHelper.ToStringBuilder(recibo);
                 var buffer = new StringBuilder(4096);
                 var bufferSize = 4096;
-                var resultado = ACBrLibMDFeNative.MDFe_ConsultarRecibo(reciboBuilder, buffer, ref bufferSize);
+                var resultado = ACBrLibMDFeNative.MDFE_ConsultarRecibo(reciboBuilder, buffer, ref bufferSize);
                 if (resultado != 0) throw new ACBrLibException($"Erro na consulta do recibo: {resultado}");
                 return buffer.ToString();
             });
@@ -1105,7 +1305,7 @@ namespace MDFeApi.Services
                 var chaveBuilder = ACBrLibMDFeHelper.ToStringBuilder(chave);
                 var buffer = new StringBuilder(4096);
                 var bufferSize = 4096;
-                var resultado = ACBrLibMDFeNative.MDFe_Consultar(chaveBuilder, extrairEventos, buffer, ref bufferSize);
+                var resultado = ACBrLibMDFeNative.MDFE_Consultar(chaveBuilder, extrairEventos, buffer, ref bufferSize);
                 if (resultado != 0) throw new ACBrLibException($"Erro na consulta: {resultado}");
                 return buffer.ToString();
             });
@@ -1117,7 +1317,7 @@ namespace MDFeApi.Services
             var resultado = await Task.Run(() => {
                 var buffer = new StringBuilder(4096);
                 var bufferSize = 4096;
-                var resultado = ACBrLibMDFeNative.MDFe_StatusServico(buffer, ref bufferSize);
+                var resultado = ACBrLibMDFeNative.MDFE_StatusServico(buffer, ref bufferSize);
                 if (resultado != 0) throw new ACBrLibException($"Erro na consulta de status: {resultado}");
                 return buffer.ToString();
             });
@@ -1147,7 +1347,7 @@ namespace MDFeApi.Services
                 
                 var buffer = new StringBuilder(4096);
                 var bufferSize = 4096;
-                var resultado = ACBrLibMDFeNative.MDFe_IncluirCondutor(chaveBuilder, nomeBuilder, cpfBuilder, 1, buffer, ref bufferSize);
+                var resultado = ACBrLibMDFeNative.MDFE_IncluirCondutor(chaveBuilder, nomeBuilder, cpfBuilder, 1, buffer, ref bufferSize);
                 if (resultado != 0) throw new ACBrLibException($"Erro ao incluir condutor: {resultado}");
                 return buffer.ToString();
             });
@@ -1174,14 +1374,68 @@ namespace MDFeApi.Services
 
         public async Task<object> ImprimirDAMDFEAsync()
         {
-            await Task.Run(() => ACBrLibMDFeHelper.ExecutarComandoSimples(() => ACBrLibMDFeNative.MDFe_ImprimirPDF()));
+            await Task.Run(() => ACBrLibMDFeHelper.ExecutarComandoSimples(() => ACBrLibMDFeNative.MDFE_ImprimirPDF()));
             return new { sucesso = true, mensagem = "DAMDFE impresso com sucesso" };
         }
 
         public async Task<object> SalvarPDFAsync()
         {
-            await Task.Delay(10);
-            return new { sucesso = true, mensagem = "PDF salvo com sucesso" };
+            try
+            {
+                var baseDirectory = AppContext.BaseDirectory;
+                var pdfDirectory = Path.Combine(baseDirectory, "PDFs");
+
+                // Criar diretório se não existir
+                if (!Directory.Exists(pdfDirectory))
+                {
+                    Directory.CreateDirectory(pdfDirectory);
+                }
+
+                // Configurar diretório de saída
+                await ConfigurarPropriedadeAsync("DAMDFE", "PathPDF", pdfDirectory);
+
+                // Gerar PDF
+                await Task.Run(() => ACBrLibMDFeHelper.ExecutarComandoSimples(() =>
+                    ACBrLibMDFeNative.MDFE_ImprimirPDF()));
+
+                // Aguardar geração
+                await Task.Delay(1500);
+
+                // Verificar se algum PDF foi gerado
+                var arquivosPDF = Directory.GetFiles(pdfDirectory, "*.pdf", SearchOption.TopDirectoryOnly)
+                    .Where(f => File.GetCreationTime(f) > DateTime.Now.AddMinutes(-2))
+                    .OrderByDescending(f => File.GetCreationTime(f))
+                    .FirstOrDefault();
+
+                if (arquivosPDF != null)
+                {
+                    var nomeArquivo = Path.GetFileName(arquivosPDF);
+                    return new
+                    {
+                        sucesso = true,
+                        mensagem = "PDF salvo com sucesso",
+                        arquivo = nomeArquivo,
+                        caminho = arquivosPDF
+                    };
+                }
+                else
+                {
+                    return new
+                    {
+                        sucesso = false,
+                        mensagem = "Nenhum PDF foi gerado. Verifique se há dados válidos carregados."
+                    };
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger?.LogError(ex, "Erro ao salvar PDF DAMDFE");
+                return new
+                {
+                    sucesso = false,
+                    mensagem = $"Erro ao salvar PDF: {ex.Message}"
+                };
+            }
         }
 
         public async Task<object> DistribuicaoDFePorUltimoNSUAsync(int codigoUF, string cnpjCpf, string ultimoNSU)
@@ -1217,10 +1471,76 @@ namespace MDFeApi.Services
 
         public async Task<byte[]> GerarDAMDFeAsync(int empresaId)
         {
-            await ImprimirDAMDFEAsync();
-            // Retorna um PDF mock como byte array
-            var pdfMock = System.Text.Encoding.UTF8.GetBytes("PDF Mock Content for DAMDFE");
-            return pdfMock;
+            try
+            {
+                var baseDirectory = AppContext.BaseDirectory;
+                var pdfDirectory = Path.Combine(baseDirectory, "PDFs");
+
+                // Criar diretório se não existir
+                if (!Directory.Exists(pdfDirectory))
+                {
+                    Directory.CreateDirectory(pdfDirectory);
+                }
+
+                // Gerar nome único para o arquivo PDF
+                var nomeArquivo = $"DAMDFE_{empresaId}_{DateTime.Now:yyyyMMddHHmmss}.pdf";
+                var caminhoCompleto = Path.Combine(pdfDirectory, nomeArquivo);
+
+                // Configurar caminho de saída no ACBr
+                await ConfigurarPropriedadeAsync("DAMDFE", "PathPDF", pdfDirectory);
+
+                // Usar a função que permite especificar arquivo de saída
+                var buffer = new StringBuilder(caminhoCompleto, 256);
+                await Task.Run(() => ACBrLibMDFeHelper.ExecutarComandoSimples(() =>
+                    ACBrLibMDFeNative.MDFE_ImprimirPDFArquivo(buffer)));
+
+                // Aguardar um pouco para garantir que o arquivo foi gerado
+                await Task.Delay(1000);
+
+                // Verificar se o arquivo foi gerado
+                if (File.Exists(caminhoCompleto))
+                {
+                    var pdfBytes = await File.ReadAllBytesAsync(caminhoCompleto);
+
+                    // Opcional: remover arquivo temporário após leitura
+                    try
+                    {
+                        File.Delete(caminhoCompleto);
+                    }
+                    catch
+                    {
+                        // Ignorar erro de exclusão
+                    }
+
+                    return pdfBytes;
+                }
+                else
+                {
+                    // Se não conseguiu gerar o arquivo, tentar método alternativo
+                    await Task.Run(() => ACBrLibMDFeHelper.ExecutarComandoSimples(() =>
+                        ACBrLibMDFeNative.MDFE_ImprimirPDF()));
+
+                    // Procurar por arquivos PDF recém-criados no diretório
+                    var arquivosPDF = Directory.GetFiles(pdfDirectory, "*.pdf", SearchOption.TopDirectoryOnly)
+                        .OrderByDescending(f => File.GetCreationTime(f))
+                        .FirstOrDefault();
+
+                    if (arquivosPDF != null && File.GetCreationTime(arquivosPDF) > DateTime.Now.AddMinutes(-1))
+                    {
+                        var pdfBytes = await File.ReadAllBytesAsync(arquivosPDF);
+                        return pdfBytes;
+                    }
+                    else
+                    {
+                        throw new InvalidOperationException("Não foi possível gerar o PDF do DAMDFE. Verifique se o MDFe foi carregado corretamente e se há dados válidos.");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger?.LogError(ex, "Erro ao gerar PDF DAMDFE para empresa {EmpresaId}", empresaId);
+                throw new InvalidOperationException($"Erro ao gerar PDF DAMDFE: {ex.Message}", ex);
+            }
         }
 
         public async Task<string> ConsultarStatusServicoAsync(int empresaId)

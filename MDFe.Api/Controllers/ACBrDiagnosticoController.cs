@@ -582,7 +582,6 @@ namespace MDFeApi.Controllers
             ini.AppendLine("cInt=001");
             ini.AppendLine($"placa={mdfe.Veiculo.Placa}");
             ini.AppendLine($"tara={mdfe.Veiculo.Tara}");
-            ini.AppendLine($"capKG={mdfe.Veiculo.CapacidadeKg ?? 0}");
             
             ini.AppendLine($"tpRod={mdfe.Veiculo.TipoRodado}");
             ini.AppendLine($"tpCar={mdfe.Veiculo.TipoCarroceria}");

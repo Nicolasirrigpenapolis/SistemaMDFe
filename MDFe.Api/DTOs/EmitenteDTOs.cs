@@ -63,6 +63,9 @@ namespace MDFeApi.DTOs
         [MaxLength(500, ErrorMessage = "Senha do Certificado deve ter no máximo 500 caracteres")]
         public string? SenhaCertificado { get; set; }
 
+        [MaxLength(500, ErrorMessage = "Caminho para salvar XML deve ter no máximo 500 caracteres")]
+        public string? CaminhoSalvarXml { get; set; }
+
         [MaxLength(20, ErrorMessage = "RNTRC deve ter no máximo 20 caracteres")]
         public string? Rntrc { get; set; }
     }
@@ -91,6 +94,7 @@ namespace MDFeApi.DTOs
         public bool Ativo { get; set; }
         public string TipoEmitente { get; set; } = string.Empty;
         public string? CaminhoArquivoCertificado { get; set; }
+        public string? CaminhoSalvarXml { get; set; }
         public string? Rntrc { get; set; }
         public DateTime DataCriacao { get; set; }
     }

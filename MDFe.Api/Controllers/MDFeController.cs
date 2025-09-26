@@ -4,7 +4,9 @@ using Microsoft.EntityFrameworkCore;
 using MDFeApi.Data;
 using MDFeApi.Models;
 using MDFeApi.DTOs;
+using MDFeApi.DTOs.Extensions;
 using MDFeApi.Services;
+using MDFeApi.Utils;
 using Microsoft.Extensions.Logging;
 
 namespace MDFeApi.Controllers
@@ -106,6 +108,16 @@ namespace MDFeApi.Controllers
         {
             try
             {
+                // Limpar campos do DTO antes de processar
+                mdfeDto.LimparDados();
+
+                // Validar consistência dos dados
+                var errosValidacao = mdfeDto.ValidarConsistencia();
+                if (errosValidacao.Any())
+                {
+                    return BadRequest(new { message = "Dados inconsistentes", errors = errosValidacao });
+                }
+
                 // Validar se emitente, veículo e condutor existem
                 var emitente = await _context.Emitentes.FindAsync(mdfeDto.EmitenteId);
                 if (emitente == null || !emitente.Ativo)
@@ -124,6 +136,11 @@ namespace MDFeApi.Controllers
                 {
                     return BadRequest(new { message = "Condutor não encontrado ou inativo" });
                 }
+
+                // Limpar dados dos cadastros antes de copiar
+                DocumentUtils.LimparDocumentosEmitente(emitente);
+                DocumentUtils.LimparDocumentosCondutor(condutor);
+                DocumentUtils.LimparDocumentosVeiculo(veiculo);
 
                 // Gerar próximo número
                 var ultimoNumero = await _context.MDFes
@@ -204,6 +221,37 @@ namespace MDFeApi.Controllers
 
             try
             {
+                // Limpar campos do DTO antes de processar
+                mdfeDto.LimparDados();
+
+                // Validar consistência dos dados
+                var errosValidacao = mdfeDto.ValidarConsistencia();
+                if (errosValidacao.Any())
+                {
+                    return BadRequest(new { message = "Dados inconsistentes", errors = errosValidacao });
+                }
+
+                // Validar e limpar dados dos cadastros se alterados
+                if (mdfeDto.VeiculoId != mdfe.VeiculoId)
+                {
+                    var veiculo = await _context.Veiculos.FindAsync(mdfeDto.VeiculoId);
+                    if (veiculo == null || !veiculo.Ativo)
+                    {
+                        return BadRequest(new { message = "Veículo não encontrado ou inativo" });
+                    }
+                    DocumentUtils.LimparDocumentosVeiculo(veiculo);
+                }
+
+                if (mdfeDto.CondutorId != mdfe.CondutorId)
+                {
+                    var condutor = await _context.Condutores.FindAsync(mdfeDto.CondutorId);
+                    if (condutor == null || !condutor.Ativo)
+                    {
+                        return BadRequest(new { message = "Condutor não encontrado ou inativo" });
+                    }
+                    DocumentUtils.LimparDocumentosCondutor(condutor);
+                }
+
                 mdfe.VeiculoId = mdfeDto.VeiculoId;
                 mdfe.CondutorId = mdfeDto.CondutorId;
                 mdfe.DataEmissao = mdfeDto.DataEmissao;
@@ -443,13 +491,39 @@ namespace MDFeApi.Controllers
         {
             try
             {
-                var pdfBytes = await _acbrService.GerarDAMDFeAsync(id);
-                
-                return File(pdfBytes, "application/pdf", $"DAMDFe_{id}.pdf");
+                // Usar o serviço completo para gerar PDF real
+                var pdfBytes = await _mdfeServiceCompleto.GerarPDFDAMDFEAsync(id);
+
+                var mdfe = await _context.MDFes.FindAsync(id);
+                var nomeArquivo = $"DAMDFE_{id}_{mdfe?.ChaveAcesso ?? "SemChave"}_{DateTime.Now:yyyyMMdd}.pdf";
+
+                return File(pdfBytes, "application/pdf", nomeArquivo);
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { message = "Erro ao gerar PDF", error = ex.Message });
+                _logger.LogError(ex, "Erro ao gerar PDF DAMDFE para MDFe {Id}", id);
+                return StatusCode(500, new { message = "Erro ao gerar PDF DAMDFE", error = ex.Message });
+            }
+        }
+
+        [HttpPost("{id}/salvar-pdf")]
+        public async Task<ActionResult> SalvarPDFDAMDFe(int id)
+        {
+            try
+            {
+                var caminhoArquivo = await _mdfeServiceCompleto.SalvarPDFDAMDFEAsync(id);
+
+                return Ok(new
+                {
+                    message = "PDF DAMDFE salvo com sucesso",
+                    arquivo = Path.GetFileName(caminhoArquivo),
+                    caminho = caminhoArquivo
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erro ao salvar PDF DAMDFE para MDFe {Id}", id);
+                return StatusCode(500, new { message = "Erro ao salvar PDF DAMDFE", error = ex.Message });
             }
         }
 
@@ -468,6 +542,105 @@ namespace MDFeApi.Controllers
             }
         }
 
+        [HttpPost("{id}/duplicar")]
+        public async Task<ActionResult> DuplicarMDFe(int id)
+        {
+            try
+            {
+                var mdfeOriginal = await _context.MDFes
+                    .Include(m => m.Emitente)
+                    .Include(m => m.Veiculo)
+                    .Include(m => m.Condutor)
+                    .FirstOrDefaultAsync(m => m.Id == id && m.Ativo);
+
+                if (mdfeOriginal == null)
+                {
+                    return NotFound(new { message = "MDFe não encontrado" });
+                }
+
+                // Criar novo MDFe baseado no original
+                var mdfeNovo = new MDFe
+                {
+                    // Dados do emitente (copiados)
+                    EmitenteId = mdfeOriginal.EmitenteId,
+                    EmitenteCnpj = mdfeOriginal.EmitenteCnpj,
+                    EmitenteIe = mdfeOriginal.EmitenteIe,
+                    EmitenteRazaoSocial = mdfeOriginal.EmitenteRazaoSocial,
+                    EmitenteNomeFantasia = mdfeOriginal.EmitenteNomeFantasia,
+                    EmitenteEndereco = mdfeOriginal.EmitenteEndereco,
+                    EmitenteNumero = mdfeOriginal.EmitenteNumero,
+                    EmitenteComplemento = mdfeOriginal.EmitenteComplemento,
+                    EmitenteBairro = mdfeOriginal.EmitenteBairro,
+                    EmitenteCodMunicipio = mdfeOriginal.EmitenteCodMunicipio,
+                    EmitenteMunicipio = mdfeOriginal.EmitenteMunicipio,
+                    EmitenteCep = mdfeOriginal.EmitenteCep,
+                    EmitenteUf = mdfeOriginal.EmitenteUf,
+                    EmitenteTelefone = mdfeOriginal.EmitenteTelefone,
+                    EmitenteEmail = mdfeOriginal.EmitenteEmail,
+
+                    // Dados básicos
+                    Serie = mdfeOriginal.Serie,
+                    // NumeroMdfe será gerado automaticamente
+                    UfInicio = mdfeOriginal.UfInicio,
+                    UfFim = mdfeOriginal.UfFim,
+                    Modal = mdfeOriginal.Modal,
+                    TipoTransportador = mdfeOriginal.TipoTransportador,
+                    UnidadeMedida = mdfeOriginal.UnidadeMedida,
+
+                    // Transporte
+                    VeiculoId = mdfeOriginal.VeiculoId,
+                    CondutorId = mdfeOriginal.CondutorId,
+
+                    // Dados do veículo (copiados)
+                    VeiculoPlaca = mdfeOriginal.VeiculoPlaca,
+                    VeiculoTara = mdfeOriginal.VeiculoTara,
+                    VeiculoCapacidadeKg = mdfeOriginal.VeiculoCapacidadeKg,
+                    VeiculoTipoRodado = mdfeOriginal.VeiculoTipoRodado,
+                    VeiculoTipoCarroceria = mdfeOriginal.VeiculoTipoCarroceria,
+                    VeiculoUf = mdfeOriginal.VeiculoUf,
+
+                    // Dados do condutor (copiados)
+                    CondutorNome = mdfeOriginal.CondutorNome,
+                    CondutorCpf = mdfeOriginal.CondutorCpf,
+
+                    // Carga
+                    ValorCarga = mdfeOriginal.ValorCarga,
+                    QuantidadeCarga = mdfeOriginal.QuantidadeCarga,
+                    InfoAdicional = mdfeOriginal.InfoAdicional,
+
+                    // Status inicial
+                    StatusSefaz = "RASCUNHO",
+                    DataEmissao = DateTime.Now,
+                    DataCriacao = DateTime.Now,
+                    Ativo = true
+                };
+
+                // Gerar novo número sequencial
+                var ultimoNumero = await _context.MDFes
+                    .Where(m => m.EmitenteId == mdfeOriginal.EmitenteId && m.Serie == mdfeOriginal.Serie)
+                    .MaxAsync(m => (int?)m.NumeroMdfe) ?? 0;
+
+                mdfeNovo.NumeroMdfe = ultimoNumero + 1;
+
+                _context.MDFes.Add(mdfeNovo);
+                await _context.SaveChangesAsync();
+
+                _logger.LogInformation("MDFe {OriginalId} duplicado com sucesso. Novo MDFe: {NovoId}",
+                    id, mdfeNovo.Id);
+
+                return Ok(new {
+                    id = mdfeNovo.Id,
+                    numero = mdfeNovo.NumeroMdfe,
+                    message = "MDFe duplicado com sucesso"
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erro ao duplicar MDFe {MDFeId}", id);
+                return StatusCode(500, new { message = "Erro ao duplicar MDFe", error = ex.Message });
+            }
+        }
+
         // Novos métodos para a interface MDFe Editor
 
         [HttpPost("carregar-ini")]
@@ -475,32 +648,43 @@ namespace MDFeApi.Controllers
         {
             try
             {
+                // Debug: verificar se dados estão chegando
+                if (mdfeData == null)
+                {
+                    return BadRequest(new {
+                        success = false,
+                        message = "Dados do MDFe não foram enviados"
+                    });
+                }
+
                 // Converter dados do frontend para INI e carregar na ACBrLib
                 string iniPath = await _acbrService.GerarArquivoINIAsync(mdfeData);
                 bool sucesso = await _acbrService.CarregarINIAsync(iniPath);
 
                 if (sucesso)
                 {
-                    return Ok(new { 
-                        success = true, 
-                        message = "INI carregado com sucesso na ACBrLib",
-                        data = new { iniPath }
+                    return Ok(new {
+                        sucesso = true,
+                        mensagem = "INI carregado com sucesso na ACBrLib",
+                        dados = new { iniPath }
                     });
                 }
                 else
                 {
-                    return BadRequest(new { 
-                        success = false, 
-                        message = "Erro ao carregar INI na ACBrLib" 
+                    return BadRequest(new {
+                        sucesso = false,
+                        mensagem = "Erro ao carregar INI na ACBrLib"
                     });
                 }
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { 
-                    success = false, 
-                    message = "Erro interno do servidor", 
-                    error = ex.Message 
+                // Log mais detalhado do erro
+                _logger.LogError(ex, "Erro ao carregar INI: {Message}", ex.Message);
+                return StatusCode(500, new {
+                    sucesso = false,
+                    mensagem = "Erro interno do servidor: " + ex.Message,
+                    codigoErro = "CARREGAR_INI_ERROR"
                 });
             }
         }
@@ -1401,20 +1585,463 @@ namespace MDFeApi.Controllers
         /// Suporte completo ao auto-preenchimento e estrutura XML
         /// </summary>
         [HttpPost("wizard")]
-        public async Task<ActionResult<MDFeWizardResponseDto>> CreateMDFeWizard([FromBody] MDFeWizardCreateDto wizardDto)
+        public async Task<ActionResult> CreateMDFeWizard([FromBody] MDFeWizardCreateDto mdfeData)
         {
             try
             {
-                // Lógica do endpoint wizard...
-                return Ok();
+                // Obter primeiro emitente disponível como fallback
+                var primeiroEmitente = await _context.Emitentes.FirstOrDefaultAsync(e => e.Ativo);
+                if (primeiroEmitente == null)
+                {
+                    return BadRequest(new { success = false, message = "Nenhum emitente cadastrado" });
+                }
+
+                // Buscar primeiro condutor e veiculo para usar como padrão
+                var primeiroCondutor = await _context.Condutores.FirstOrDefaultAsync(c => c.Ativo);
+                var primeiroVeiculo = await _context.Veiculos.FirstOrDefaultAsync(v => v.Ativo);
+
+                if (primeiroCondutor == null || primeiroVeiculo == null)
+                {
+                    return BadRequest(new { success = false, message = "É necessário ter pelo menos um condutor e um veículo cadastrados" });
+                }
+
+                // Criar novo MDFe a partir dos dados do wizard
+                var mdfe = new MDFe
+                {
+                    NumeroMdfe = int.TryParse(mdfeData.Ide?.NMDF, out var numero) ? numero : 700,
+                    Serie = int.TryParse(mdfeData.Ide?.Serie, out var serie) ? serie : 1,
+                    UfInicio = mdfeData.Ide?.UFIni?.Trim()?.ToUpper() ?? "SC",
+                    UfFim = mdfeData.Ide?.UFFim?.Trim()?.ToUpper() ?? "RS",
+                    DataEmissao = mdfeData.Ide?.DhEmi ?? DateTime.Now,
+
+                    // Emitente - usar o primeiro disponível se não especificado
+                    EmitenteId = GetEmitenteIdFromCNPJ(mdfeData.Emit?.CNPJ) ?? primeiroEmitente.Id,
+
+                    // Usar primeiro condutor e veículo disponível
+                    CondutorId = primeiroCondutor.Id,
+                    VeiculoId = primeiroVeiculo.Id,
+
+                    // Valores
+                    ValorCarga = mdfeData.Tot?.VCarga ?? 0,
+                    QuantidadeCarga = mdfeData.Tot?.QCarga ?? 0,
+
+                    // Informações adicionais
+                    InfoAdicional = null,
+
+                    // Status
+                    StatusSefaz = "NAO_TRANSMITIDO",
+                    DataCriacao = DateTime.Now,
+                    DataUltimaAlteracao = DateTime.Now
+                };
+
+                _context.MDFes.Add(mdfe);
+                await _context.SaveChangesAsync();
+
+                return Ok(new {
+                    sucesso = true,
+                    mensagem = "MDFe criado com sucesso",
+                    id = mdfe.Id
+                });
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { message = "Erro interno", error = ex.Message });
+                _logger.LogError(ex, "Erro ao criar MDFe via wizard");
+                return StatusCode(500, new {
+                    sucesso = false,
+                    mensagem = "Erro ao criar MDFe: " + ex.Message
+                });
+            }
+        }
+
+        private int? GetEmitenteIdFromCNPJ(string cnpj)
+        {
+            if (string.IsNullOrEmpty(cnpj)) return null;
+            return _context.Emitentes.FirstOrDefault(e => e.Cnpj == cnpj.Trim())?.Id;
+        }
+
+
+        /// <summary>
+        /// Atualizar MDFe existente via wizard inteligente (salvamento flexível/parcial)
+        /// </summary>
+        [HttpPut("wizard/{id}")]
+        public async Task<ActionResult> UpdateMDFeWizard(int id, [FromBody] MDFeData mdfeData)
+        {
+            try
+            {
+                var mdfe = await _context.MDFes.FindAsync(id);
+                if (mdfe == null || !mdfe.Ativo)
+                    return Ok(new { sucesso = false, mensagem = "MDFe não encontrado" });
+
+                // Não permitir edição se já transmitido (apenas autorizados)
+                if (mdfe.StatusSefaz == "AUTORIZADO")
+                    return Ok(new { sucesso = false, mensagem = "MDFe autorizado não pode ser editado" });
+
+                // ===== SALVAMENTO FLEXÍVEL - ACEITA DADOS PARCIAIS =====
+
+                // Atualizar IDs das entidades se fornecidos (dados diretos do frontend)
+                if ((mdfeData as dynamic)?.emitenteId != null)
+                {
+                    var emitenteId = Convert.ToInt32((mdfeData as dynamic).emitenteId);
+                    if (emitenteId > 0)
+                    {
+                        var emitente = await _context.Emitentes.FindAsync(emitenteId);
+                        if (emitente != null && emitente.Ativo)
+                        {
+                            mdfe.EmitenteId = emitenteId;
+                            // Atualizar dados do emitente no MDFe (cópia para auditoria)
+                            mdfe.EmitenteCnpj = emitente.Cnpj;
+                            mdfe.EmitenteRazaoSocial = emitente.RazaoSocial;
+                            mdfe.EmitenteNomeFantasia = emitente.NomeFantasia;
+                            mdfe.EmitenteIe = emitente.Ie;
+                            mdfe.EmitenteEndereco = emitente.Endereco;
+                            mdfe.EmitenteNumero = emitente.Numero;
+                            mdfe.EmitenteComplemento = emitente.Complemento;
+                            mdfe.EmitenteBairro = emitente.Bairro;
+                            mdfe.EmitenteCodMunicipio = emitente.CodMunicipio;
+                            mdfe.EmitenteMunicipio = emitente.Municipio;
+                            mdfe.EmitenteCep = emitente.Cep;
+                            mdfe.EmitenteUf = emitente.Uf;
+                            mdfe.EmitenteTelefone = emitente.Telefone;
+                            mdfe.EmitenteEmail = emitente.Email;
+                            mdfe.EmitenteRntrc = emitente.Rntrc;
+                        }
+                    }
+                }
+
+                if ((mdfeData as dynamic)?.veiculoId != null)
+                {
+                    var veiculoId = Convert.ToInt32((mdfeData as dynamic).veiculoId);
+                    if (veiculoId > 0)
+                    {
+                        var veiculo = await _context.Veiculos.FindAsync(veiculoId);
+                        if (veiculo != null && veiculo.Ativo)
+                        {
+                            mdfe.VeiculoId = veiculoId;
+                            // Atualizar dados do veículo no MDFe
+                            mdfe.VeiculoPlaca = veiculo.Placa;
+                            mdfe.VeiculoTara = veiculo.Tara;
+                            mdfe.VeiculoCapacidadeKg = veiculo.CapacidadeKg;
+                            mdfe.VeiculoTipoRodado = veiculo.TipoRodado;
+                            mdfe.VeiculoTipoCarroceria = veiculo.TipoCarroceria;
+                            mdfe.VeiculoUf = veiculo.Uf;
+                        }
+                    }
+                }
+
+                if ((mdfeData as dynamic)?.motoristaId != null)
+                {
+                    var motoristaId = Convert.ToInt32((mdfeData as dynamic).motoristaId);
+                    if (motoristaId > 0)
+                    {
+                        var condutor = await _context.Condutores.FindAsync(motoristaId);
+                        if (condutor != null && condutor.Ativo)
+                        {
+                            mdfe.CondutorId = motoristaId;
+                            // Atualizar dados do condutor no MDFe
+                            mdfe.CondutorNome = condutor.Nome;
+                            mdfe.CondutorCpf = condutor.Cpf;
+                            mdfe.CondutorTelefone = condutor.Telefone;
+                        }
+                    }
+                }
+
+                // Atualizar dados básicos se fornecidos
+                if (mdfeData.ide != null)
+                {
+                    if (!string.IsNullOrEmpty(mdfeData.ide.UFIni))
+                        mdfe.UfInicio = mdfeData.ide.UFIni.Trim().ToUpper();
+
+                    if (!string.IsNullOrEmpty(mdfeData.ide.UFFim))
+                        mdfe.UfFim = mdfeData.ide.UFFim.Trim().ToUpper();
+
+                    if (!string.IsNullOrEmpty(mdfeData.ide.dhEmi) && DateTime.TryParse(mdfeData.ide.dhEmi, out var dataEmissao))
+                        mdfe.DataEmissao = dataEmissao;
+
+                    if (!string.IsNullOrEmpty(mdfeData.ide.dhIniViagem) && DateTime.TryParse(mdfeData.ide.dhIniViagem, out var dataInicioViagem))
+                        mdfe.DataInicioViagem = dataInicioViagem;
+
+                    if (!string.IsNullOrEmpty(mdfeData.ide.serie) && int.TryParse(mdfeData.ide.serie, out var serie))
+                        mdfe.Serie = serie;
+
+                    if (!string.IsNullOrEmpty(mdfeData.ide.nMDF) && int.TryParse(mdfeData.ide.nMDF, out var numeroMdfe))
+                        mdfe.NumeroMdfe = numeroMdfe;
+                }
+
+                // Atualizar totais se fornecidos
+                if (mdfeData.tot != null)
+                {
+                    if (!string.IsNullOrEmpty(mdfeData.tot.vCarga) && decimal.TryParse(mdfeData.tot.vCarga, out var valorCarga))
+                        mdfe.ValorCarga = valorCarga;
+
+                    if (!string.IsNullOrEmpty(mdfeData.tot.qCarga) && decimal.TryParse(mdfeData.tot.qCarga, out var quantidadeCarga))
+                        mdfe.QuantidadeCarga = quantidadeCarga;
+
+                    if (!string.IsNullOrEmpty(mdfeData.tot.cUnid))
+                        mdfe.UnidadeMedida = mdfeData.tot.cUnid;
+                }
+
+                // Atualizar informações adicionais se fornecidas
+                if (mdfeData.infAdic?.infCpl != null)
+                    mdfe.InfoAdicional = mdfeData.infAdic.infCpl;
+
+                // ===== SEMPRE MANTER COMO RASCUNHO/NÃO TRANSMITIDO =====
+                if (mdfe.StatusSefaz != "AUTORIZADO" && mdfe.StatusSefaz != "REJEITADO")
+                    mdfe.StatusSefaz = "RASCUNHO";
+
+                mdfe.DataUltimaAlteracao = DateTime.Now;
+
+                // ===== SALVAMENTO SEM VALIDAÇÃO RÍGIDA =====
+                await _context.SaveChangesAsync();
+
+                _logger.LogInformation("MDFe {Id} salvo parcialmente com sucesso", id);
+
+                return Ok(new {
+                    sucesso = true,
+                    mensagem = "Rascunho salvo com sucesso",
+                    id = mdfe.Id
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erro ao salvar MDFe {Id}", id);
+                return Ok(new {
+                    sucesso = false,
+                    mensagem = "Erro ao salvar: " + ex.Message
+                });
+            }
+        }
+
+        /// <summary>
+        /// Obter MDFe no formato compatível com o wizard inteligente
+        /// </summary>
+        [HttpGet("wizard/{id}")]
+        public async Task<ActionResult> GetMDFeWizard(int id)
+        {
+            try
+            {
+                _logger.LogInformation("Carregando MDFe {Id} para wizard", id);
+
+                var mdfe = await _context.MDFes
+                    .Include(m => m.Emitente)
+                    .Include(m => m.Veiculo)
+                    .Include(m => m.Condutor)
+                    .Include(m => m.Reboques)
+                    .FirstOrDefaultAsync(m => m.Id == id);
+
+                if (mdfe == null)
+                {
+                    _logger.LogWarning("MDFe {Id} não encontrado", id);
+                    return Ok(new {
+                        sucesso = false,
+                        mensagem = "MDFe não encontrado"
+                    });
+                }
+
+                if (!mdfe.Ativo)
+                {
+                    _logger.LogWarning("MDFe {Id} está inativo", id);
+                    return Ok(new {
+                        sucesso = false,
+                        mensagem = "MDFe não encontrado ou inativo"
+                    });
+                }
+
+                _logger.LogInformation("MDFe {Id} encontrado, convertendo dados para wizard", id);
+
+                // Buscar reboques associados se houver
+                var reboques = await _context.MDFeReboques
+                    .Where(r => r.MDFeId == id)
+                    .Include(r => r.Reboque)
+                    .ToListAsync();
+
+                // Buscar município de carregamento
+                var municipiosCarregamento = new List<object>();
+                if (!string.IsNullOrEmpty(mdfe.MunicipioIni))
+                {
+                    municipiosCarregamento.Add(new
+                    {
+                        cMunCarrega = mdfe.MunicipioIni,
+                        xMunCarrega = mdfe.MunicipioIni
+                    });
+                }
+
+                // Buscar documentos fiscais (CT-e, NF-e, etc.)
+                var ctes = await _context.MDFeCtes.Where(c => c.MDFeId == id).ToListAsync();
+                var nfes = await _context.MDFeNfes.Where(n => n.MDFeId == id).ToListAsync();
+
+                var municipiosDescarga = new List<object>();
+                if (!string.IsNullOrEmpty(mdfe.MunicipioFim))
+                {
+                    municipiosDescarga.Add(new
+                    {
+                        cMunDescarga = mdfe.MunicipioFim,
+                        xMunDescarga = mdfe.MunicipioFim,
+                        infCTe = ctes.Select(c => new
+                        {
+                            chCTe = c.ChaveCte,
+                            SegCodBarra = c.SegundoCodigoBarras
+                        }).ToList(),
+                        infNFe = nfes.Select(n => new
+                        {
+                            chNFe = n.ChaveNfe,
+                            SegCodBarra = n.SegundoCodigoBarras,
+                            PIN = n.PinSuframa
+                        }).ToList()
+                    });
+                }
+
+                // Montar dados no formato esperado pelo frontend
+                var mdfeData = new
+                {
+                    // IDs das entidades para os comboboxes
+                    emitenteId = mdfe.EmitenteId,
+                    veiculoId = mdfe.VeiculoId,
+                    motoristaId = mdfe.CondutorId,
+                    reboquesIds = reboques.Select(r => r.ReboqueId).ToList(),
+
+                    ide = new
+                    {
+                        cUF = GetUFCode(mdfe.EmitenteUf) ?? GetUFCode(mdfe.UfInicio) ?? "42", // SC como padrão
+                        tpAmb = "2", // Homologação por padrão
+                        tpEmit = "1", // Normal
+                        tpTransp = mdfe.TipoTransportador.ToString() ?? "1",
+                        mod = "58", // Modelo fixo
+                        serie = mdfe.Serie.ToString().PadLeft(3, '0'),
+                        nMDF = mdfe.NumeroMdfe.ToString().PadLeft(9, '0'),
+                        cMDF = mdfe.CodigoNumericoAleatorio ?? "12345678", // Código numérico aleatório
+                        cDV = mdfe.CodigoVerificador ?? "0",
+                        modal = mdfe.Modal.ToString() ?? "1",
+                        dhEmi = mdfe.DataEmissao.ToString("yyyy-MM-ddTHH:mm:ss"),
+                        tpEmis = "1",
+                        procEmi = "0",
+                        verProc = "1.0.0",
+                        UFIni = mdfe.UfInicio ?? "SC",
+                        UFFim = mdfe.UfFim ?? "RS",
+                        infMunCarrega = municipiosCarregamento,
+                        infPercurso = new List<object>(), // Percurso vazio por enquanto
+                        dhIniViagem = (mdfe.DataInicioViagem ?? mdfe.DataEmissao).ToString("yyyy-MM-ddTHH:mm:ss")
+                    },
+                    emit = new
+                    {
+                        CNPJ = !string.IsNullOrEmpty(mdfe.EmitenteCnpj) ? mdfe.EmitenteCnpj.Replace(".", "").Replace("/", "").Replace("-", "") :
+                               !string.IsNullOrEmpty(mdfe.Emitente?.Cnpj) ? mdfe.Emitente.Cnpj.Replace(".", "").Replace("/", "").Replace("-", "") : "",
+                        IE = mdfe.EmitenteIe ?? mdfe.Emitente?.Ie ?? "",
+                        xNome = mdfe.EmitenteRazaoSocial ?? mdfe.Emitente?.RazaoSocial ?? "",
+                        xFant = mdfe.EmitenteNomeFantasia ?? mdfe.Emitente?.NomeFantasia ?? "",
+                        enderEmit = new
+                        {
+                            xLgr = mdfe.EmitenteEndereco ?? mdfe.Emitente?.Endereco ?? "",
+                            nro = mdfe.EmitenteNumero ?? mdfe.Emitente?.Numero ?? "",
+                            xCpl = mdfe.EmitenteComplemento ?? mdfe.Emitente?.Complemento ?? "",
+                            xBairro = mdfe.EmitenteBairro ?? mdfe.Emitente?.Bairro ?? "",
+                            cMun = (mdfe.EmitenteCodMunicipio != 0 ? mdfe.EmitenteCodMunicipio : (mdfe.Emitente?.CodMunicipio ?? 0)).ToString(),
+                            xMun = mdfe.EmitenteMunicipio ?? mdfe.Emitente?.Municipio ?? "",
+                            CEP = !string.IsNullOrEmpty(mdfe.EmitenteCep) ? mdfe.EmitenteCep.Replace("-", "") :
+                                  !string.IsNullOrEmpty(mdfe.Emitente?.Cep) ? mdfe.Emitente.Cep.Replace("-", "") : "",
+                            UF = mdfe.EmitenteUf ?? mdfe.Emitente?.Uf ?? "",
+                            fone = mdfe.EmitenteTelefone ?? "",
+                            email = mdfe.EmitenteEmail ?? ""
+                        }
+                    },
+                    infModal = new
+                    {
+                        versaoModal = "3.00",
+                        rodo = new
+                        {
+                            infANTT = new
+                            {
+                                RNTRC = mdfe.EmitenteRntrc ?? mdfe.Emitente?.Rntrc ?? ""
+                            },
+                            veicTracao = new
+                            {
+                                cInt = mdfe.VeiculoId.ToString(), // ID interno do veículo
+                                placa = mdfe.VeiculoPlaca ?? mdfe.Veiculo?.Placa ?? "",
+                                RENAVAM = mdfe.VeiculoRenavam ?? "",
+                                tara = (mdfe.VeiculoTara != 0 ? mdfe.VeiculoTara : (mdfe.Veiculo?.Tara ?? 0)).ToString(),
+                                capKG = (mdfe.VeiculoCapacidadeKg ?? 0).ToString(),
+                                capM3 = "0",
+                                tpRod = mdfe.VeiculoTipoRodado ?? mdfe.Veiculo?.TipoRodado ?? "01",
+                                tpCar = mdfe.VeiculoTipoCarroceria ?? mdfe.Veiculo?.TipoCarroceria ?? "00",
+                                UF = mdfe.VeiculoUf ?? mdfe.Veiculo?.Uf ?? "",
+                                condutor = new[]
+                                {
+                                    new
+                                    {
+                                        xNome = mdfe.CondutorNome ?? mdfe.Condutor?.Nome ?? "",
+                                        CPF = !string.IsNullOrEmpty(mdfe.CondutorCpf) ? mdfe.CondutorCpf.Replace(".", "").Replace("-", "") :
+                                              !string.IsNullOrEmpty(mdfe.Condutor?.Cpf) ? mdfe.Condutor.Cpf.Replace(".", "").Replace("-", "") : ""
+                                    }
+                                }
+                            },
+                            veicReboque = reboques.Select(r => new
+                            {
+                                cInt = r.ReboqueId.ToString(),
+                                placa = r.Reboque?.Placa ?? "",
+                                RENAVAM = "",
+                                tara = (r.Reboque?.Tara ?? 0).ToString(),
+                                capKG = "0",
+                                capM3 = "0",
+                                tpCar = r.Reboque?.TipoCarroceria ?? "00",
+                                UF = r.Reboque?.Uf ?? ""
+                            }).ToArray()
+                        }
+                    },
+                    tot = new
+                    {
+                        qCTe = ctes.Count.ToString(),
+                        qNFe = nfes.Count.ToString(),
+                        qMDFe = "1",
+                        vCarga = (mdfe.ValorCarga ?? 0).ToString("F2", System.Globalization.CultureInfo.InvariantCulture),
+                        cUnid = mdfe.UnidadeMedida ?? "01",
+                        qCarga = (mdfe.QuantidadeCarga ?? 0).ToString("F3", System.Globalization.CultureInfo.InvariantCulture)
+                    },
+                    infDoc = new
+                    {
+                        infMunCarrega = municipiosCarregamento,
+                        infMunDescarga = municipiosDescarga
+                    },
+                    infAdic = new
+                    {
+                        infCpl = mdfe.InfoAdicional ?? ""
+                    }
+                };
+
+                return Ok(new {
+                    sucesso = true,
+                    mensagem = "MDFe carregado com sucesso",
+                    dados = mdfeData
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erro ao obter MDFe {Id} no formato wizard", id);
+                return Ok(new {
+                    sucesso = false,
+                    mensagem = "Erro interno ao carregar MDFe: " + ex.Message
+                });
             }
         }
 
         #endregion
+
+        // Método helper para converter UF para código
+        private static string? GetUFCode(string? uf)
+        {
+            if (string.IsNullOrEmpty(uf)) return null;
+
+            var ufCodes = new Dictionary<string, string>
+            {
+                ["AC"] = "12", ["AL"] = "17", ["AP"] = "16", ["AM"] = "13",
+                ["BA"] = "29", ["CE"] = "23", ["DF"] = "53", ["ES"] = "32",
+                ["GO"] = "52", ["MA"] = "21", ["MT"] = "51", ["MS"] = "50",
+                ["MG"] = "31", ["PA"] = "15", ["PB"] = "25", ["PR"] = "41",
+                ["PE"] = "26", ["PI"] = "22", ["RJ"] = "33", ["RN"] = "24",
+                ["RS"] = "43", ["RO"] = "11", ["RR"] = "14", ["SC"] = "42",
+                ["SP"] = "35", ["SE"] = "28", ["TO"] = "17"
+            };
+
+            return ufCodes.TryGetValue(uf.ToUpper(), out var code) ? code : null;
+        }
     }
 
     public class CancelarMDFeRequest

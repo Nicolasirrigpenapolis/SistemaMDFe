@@ -432,8 +432,6 @@ namespace MDFeApi.Services
             ini.AppendLine($"placa={mdfe.Veiculo.Placa}");
             ini.AppendLine($"tara={mdfe.Veiculo.Tara}");
 
-            if (mdfe.Veiculo.CapacidadeKg.HasValue)
-                ini.AppendLine($"capKG={mdfe.Veiculo.CapacidadeKg}");
 
             ini.AppendLine($"tpRod={mdfe.Veiculo.TipoRodado}");
             ini.AppendLine($"tpCar={mdfe.Veiculo.TipoCarroceria}");
@@ -705,6 +703,90 @@ namespace MDFeApi.Services
         private string LimparTelefone(string? telefone)
         {
             return telefone?.Replace("(", "").Replace(")", "").Replace(" ", "").Replace("-", "") ?? "";
+        }
+
+        #endregion
+
+        #region Métodos de PDF/DAMDFE
+
+        /// <summary>
+        /// Gerar PDF DAMDFE para um MDFe específico
+        /// </summary>
+        public async Task<byte[]> GerarPDFDAMDFEAsync(int mdfeId)
+        {
+            _logger.LogInformation("Gerando PDF DAMDFE para MDFe {MDFeId}", mdfeId);
+
+            var mdfe = await _context.MDFes.FindAsync(mdfeId);
+            if (mdfe == null || string.IsNullOrEmpty(mdfe.XmlAssinado))
+                throw new InvalidOperationException("MDFe não encontrado ou não possui XML assinado");
+
+            try
+            {
+                // Inicializar ACBr
+                await _acbrService.InicializarAsync();
+
+                // Configurar certificado do emitente
+                await ConfigurarCertificadoEmitenteAsync(mdfe.EmitenteId);
+
+                // Carregar XML no ACBr
+                await _acbrService.CarregarXMLAsync(mdfe.XmlAssinado);
+
+                // Gerar PDF
+                var pdfBytes = await _acbrService.GerarDAMDFeAsync(mdfeId);
+
+                _logger.LogInformation("PDF DAMDFE gerado com sucesso para MDFe {MDFeId}", mdfeId);
+                return pdfBytes;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erro ao gerar PDF DAMDFE para MDFe {MDFeId}", mdfeId);
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// Salvar PDF DAMDFE em diretório específico
+        /// </summary>
+        public async Task<string> SalvarPDFDAMDFEAsync(int mdfeId, string? diretorioDestino = null)
+        {
+            _logger.LogInformation("Salvando PDF DAMDFE para MDFe {MDFeId}", mdfeId);
+
+            var mdfe = await _context.MDFes.FindAsync(mdfeId);
+            if (mdfe == null || string.IsNullOrEmpty(mdfe.XmlAssinado))
+                throw new InvalidOperationException("MDFe não encontrado ou não possui XML assinado");
+
+            try
+            {
+                // Gerar PDF
+                var pdfBytes = await GerarPDFDAMDFEAsync(mdfeId);
+
+                // Definir diretório de destino
+                var baseDirectory = AppContext.BaseDirectory;
+                var pdfDirectory = string.IsNullOrEmpty(diretorioDestino)
+                    ? Path.Combine(baseDirectory, "PDFs")
+                    : diretorioDestino;
+
+                // Criar diretório se não existir
+                if (!Directory.Exists(pdfDirectory))
+                {
+                    Directory.CreateDirectory(pdfDirectory);
+                }
+
+                // Gerar nome do arquivo
+                var nomeArquivo = $"DAMDFE_{mdfe.Id}_ChaveAcesso_{mdfe.ChaveAcesso}_{DateTime.Now:yyyyMMddHHmmss}.pdf";
+                var caminhoCompleto = Path.Combine(pdfDirectory, nomeArquivo);
+
+                // Salvar arquivo
+                await File.WriteAllBytesAsync(caminhoCompleto, pdfBytes);
+
+                _logger.LogInformation("PDF DAMDFE salvo em: {CaminhoArquivo}", caminhoCompleto);
+                return caminhoCompleto;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erro ao salvar PDF DAMDFE para MDFe {MDFeId}", mdfeId);
+                throw;
+            }
         }
 
         #endregion

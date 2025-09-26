@@ -5,6 +5,7 @@ using MDFeApi.Data;
 using MDFeApi.Models;
 using MDFeApi.DTOs;
 using MDFeApi.Extensions;
+using MDFeApi.Utils;
 
 namespace MDFeApi.Controllers
 {
@@ -34,8 +35,7 @@ namespace MDFeApi.Controllers
                     var searchTerm = request.Search.ToLower();
                     query = query.Where(v =>
                         (v.Placa != null && v.Placa.ToLower().Contains(searchTerm)) ||
-                        (v.Marca != null && v.Marca.ToLower().Contains(searchTerm)) ||
-                        (v.Modelo != null && v.Modelo.ToLower().Contains(searchTerm))
+                        (v.Marca != null && v.Marca.ToLower().Contains(searchTerm))
                     );
                 }
 
@@ -46,16 +46,6 @@ namespace MDFeApi.Controllers
                         query = request.SortDirection?.ToLower() == "desc" ?
                             query.OrderByDescending(v => v.Marca) :
                             query.OrderBy(v => v.Marca);
-                        break;
-                    case "modelo":
-                        query = request.SortDirection?.ToLower() == "desc" ?
-                            query.OrderByDescending(v => v.Modelo) :
-                            query.OrderBy(v => v.Modelo);
-                        break;
-                    case "ano":
-                        query = request.SortDirection?.ToLower() == "desc" ?
-                            query.OrderByDescending(v => v.Ano) :
-                            query.OrderBy(v => v.Ano);
                         break;
                     default:
                         query = request.SortDirection?.ToLower() == "desc" ?
@@ -91,27 +81,27 @@ namespace MDFeApi.Controllers
         {
             try
             {
-                // Validar se placa já existe
+                var veiculo = new Veiculo
+                {
+                    Placa = veiculoDto.Placa,
+                    Marca = veiculoDto.Marca?.Trim(),
+                    Tara = veiculoDto.Tara,
+                    TipoRodado = veiculoDto.TipoRodado?.Trim(),
+                    TipoCarroceria = veiculoDto.TipoCarroceria?.Trim(),
+                    Uf = veiculoDto.Uf?.Trim(),
+                    Ativo = true
+                };
+
+                // Aplicar limpeza automática de documentos
+                DocumentUtils.LimparDocumentosVeiculo(veiculo);
+
+                // Validar se placa já existe (usando dados limpos)
                 var existingPlaca = await _context.Veiculos
-                    .AnyAsync(v => v.Placa == veiculoDto.Placa && v.Ativo);
+                    .AnyAsync(v => v.Placa == veiculo.Placa && v.Ativo);
                 if (existingPlaca)
                 {
                     return BadRequest(new { message = "Placa já cadastrada" });
                 }
-
-                var veiculo = new Veiculo
-                {
-                    Placa = veiculoDto.Placa,
-                    Marca = veiculoDto.Marca,
-                    Modelo = veiculoDto.Modelo,
-                    Ano = veiculoDto.Ano,
-                    Tara = veiculoDto.Tara,
-                    CapacidadeKg = veiculoDto.CapacidadeKg,
-                    TipoRodado = veiculoDto.TipoRodado,
-                    TipoCarroceria = veiculoDto.TipoCarroceria,
-                    Uf = veiculoDto.Uf,
-                    Ativo = true
-                };
 
                 _context.Veiculos.Add(veiculo);
                 await _context.SaveChangesAsync();
@@ -130,31 +120,35 @@ namespace MDFeApi.Controllers
             var veiculo = await _context.Veiculos.FindAsync(id);
             if (veiculo == null || !veiculo.Ativo)
             {
-                return NotFound();
+                return NotFound(new { message = "Veículo não encontrado" });
             }
 
             try
             {
-                // Validar se placa já existe (exceto para o próprio veículo)
-                if (veiculoDto.Placa != veiculo.Placa)
+                // Salvar placa original
+                var placaOriginal = veiculo.Placa;
+
+                // Atualizar dados com trim
+                veiculo.Placa = veiculoDto.Placa;
+                veiculo.Marca = veiculoDto.Marca?.Trim();
+                veiculo.Tara = veiculoDto.Tara;
+                veiculo.TipoRodado = veiculoDto.TipoRodado?.Trim();
+                veiculo.TipoCarroceria = veiculoDto.TipoCarroceria?.Trim();
+                veiculo.Uf = veiculoDto.Uf?.Trim();
+
+                // Aplicar limpeza automática de documentos
+                DocumentUtils.LimparDocumentosVeiculo(veiculo);
+
+                // Validar se placa já existe (exceto para o próprio veículo, usando dados limpos)
+                if (veiculo.Placa != placaOriginal)
                 {
                     var existingPlaca = await _context.Veiculos
-                        .AnyAsync(v => v.Placa == veiculoDto.Placa && v.Id != id && v.Ativo);
+                        .AnyAsync(v => v.Placa == veiculo.Placa && v.Id != id && v.Ativo);
                     if (existingPlaca)
                     {
                         return BadRequest(new { message = "Placa já cadastrada" });
                     }
                 }
-
-                veiculo.Placa = veiculoDto.Placa;
-                veiculo.Marca = veiculoDto.Marca;
-                veiculo.Modelo = veiculoDto.Modelo;
-                veiculo.Ano = veiculoDto.Ano;
-                veiculo.Tara = veiculoDto.Tara;
-                veiculo.CapacidadeKg = veiculoDto.CapacidadeKg;
-                veiculo.TipoRodado = veiculoDto.TipoRodado;
-                veiculo.TipoCarroceria = veiculoDto.TipoCarroceria;
-                veiculo.Uf = veiculoDto.Uf;
 
                 await _context.SaveChangesAsync();
 
@@ -162,7 +156,7 @@ namespace MDFeApi.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { message = "Erro interno do servidor", error = ex.Message });
+                return StatusCode(500, new { message = "Erro ao atualizar veículo", error = ex.Message });
             }
         }
 

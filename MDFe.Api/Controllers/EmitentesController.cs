@@ -384,22 +384,24 @@ namespace MDFeApi.Controllers
         {
             try
             {
-                var emitentes = await _certificadoService.ObterEmitentesPorTipoAsync(tipoEmitente);
-                
-                var resultado = emitentes.Select(e => new
-                {
-                    Id = 1,
-                    RazaoSocial = "Emitente Teste",
-                    NomeFantasia = "Nome Fantasia",
-                    Cnpj = "12345678000199",
-                    Cpf = "",
-                    TipoEmitente = tipoEmitente,
-                    TemCertificado = true,
-                    AmbienteSefaz = "Homologação",
-                    Uf = "SP"
-                }).ToList();
+                var emitentes = await _context.Emitentes
+                    .Where(e => e.Ativo && e.TipoEmitente == tipoEmitente)
+                    .Select(e => new EmitenteListDto
+                    {
+                        Id = e.Id,
+                        RazaoSocial = e.RazaoSocial,
+                        NomeFantasia = e.NomeFantasia,
+                        Cnpj = e.Cnpj,
+                        Cpf = e.Cpf,
+                        TipoEmitente = e.TipoEmitente,
+                        TemCertificado = !string.IsNullOrEmpty(e.CaminhoArquivoCertificado),
+                        AmbienteSefaz = e.AmbienteSefaz,
+                        Uf = e.Uf
+                    })
+                    .OrderBy(e => e.RazaoSocial)
+                    .ToListAsync();
 
-                return Ok(resultado);
+                return Ok(emitentes);
             }
             catch (Exception ex)
             {

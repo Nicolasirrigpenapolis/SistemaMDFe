@@ -24,6 +24,7 @@ namespace MDFeApi.Services
         public string PathLogs { get; set; } = "logs";
         public string PathSchemas { get; set; } = "Schemas\\MDFe";
         public string PathSalvar { get; set; } = "MDFe";
+        public string PathPDF { get; set; } = "PDFs";
         public string IniServicos { get; set; } = "ACBrMDFeServicos.ini";
 
         public static ACBrMDFeConfiguration FromConfiguration(IConfiguration configuration)

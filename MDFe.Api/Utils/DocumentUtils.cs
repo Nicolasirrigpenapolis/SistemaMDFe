@@ -92,5 +92,76 @@ namespace MDFeApi.Utils
             emitente.Cpf = LimparCpf(emitente.Cpf);
             emitente.Cep = LimparCep(emitente.Cep) ?? string.Empty;
         }
+
+        /// <summary>
+        /// Aplica limpeza em uma entidade Condutor
+        /// </summary>
+        /// <param name="condutor">Entidade Condutor</param>
+        public static void LimparDocumentosCondutor(Models.Condutor condutor)
+        {
+            if (condutor == null) return;
+
+            condutor.Cpf = LimparCpf(condutor.Cpf) ?? string.Empty;
+        }
+
+        /// <summary>
+        /// Aplica limpeza em uma entidade Contratante
+        /// </summary>
+        /// <param name="contratante">Entidade Contratante</param>
+        public static void LimparDocumentosContratante(Models.Contratante contratante)
+        {
+            if (contratante == null) return;
+
+            contratante.Cnpj = LimparCnpj(contratante.Cnpj);
+            contratante.Cpf = LimparCpf(contratante.Cpf);
+            contratante.Cep = LimparCep(contratante.Cep) ?? string.Empty;
+        }
+
+        /// <summary>
+        /// Aplica limpeza em uma entidade Seguradora
+        /// </summary>
+        /// <param name="seguradora">Entidade Seguradora</param>
+        public static void LimparDocumentosSeguradora(Models.Seguradora seguradora)
+        {
+            if (seguradora == null) return;
+
+            seguradora.Cnpj = LimparCnpj(seguradora.Cnpj) ?? string.Empty;
+        }
+
+        /// <summary>
+        /// Remove formatação da placa, mantendo apenas letras e números
+        /// </summary>
+        /// <param name="placa">Placa formatada (ex: ABC-1234)</param>
+        /// <returns>Placa limpa (ex: ABC1234)</returns>
+        public static string? LimparPlaca(string? placa)
+        {
+            if (string.IsNullOrWhiteSpace(placa))
+                return null;
+
+            // Remove tudo que não for letra ou número e converte para maiúsculo
+            return Regex.Replace(placa.ToUpper(), @"[^A-Z0-9]", "");
+        }
+
+        /// <summary>
+        /// Aplica limpeza em uma entidade Veiculo
+        /// </summary>
+        /// <param name="veiculo">Entidade Veiculo</param>
+        public static void LimparDocumentosVeiculo(Models.Veiculo veiculo)
+        {
+            if (veiculo == null) return;
+
+            veiculo.Placa = LimparPlaca(veiculo.Placa);
+        }
+
+        /// <summary>
+        /// Aplica limpeza em uma entidade Reboque
+        /// </summary>
+        /// <param name="reboque">Entidade Reboque</param>
+        public static void LimparDocumentosReboque(Models.Reboque reboque)
+        {
+            if (reboque == null) return;
+
+            reboque.Placa = LimparPlaca(reboque.Placa) ?? string.Empty;
+        }
     }
 }

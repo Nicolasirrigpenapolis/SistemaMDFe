@@ -5,6 +5,7 @@ using MDFeApi.Data;
 using MDFeApi.Models;
 using MDFeApi.DTOs;
 using MDFeApi.Extensions;
+using MDFeApi.Utils;
 
 namespace MDFeApi.Controllers
 {
@@ -121,11 +122,12 @@ namespace MDFeApi.Controllers
 
             try
             {
-                // Validar se CPF já existe
+                // Validar se CPF já existe (usando CPF limpo)
                 if (!string.IsNullOrWhiteSpace(condutorDto.Cpf))
                 {
+                    var cpfLimpo = DocumentUtils.LimparCpf(condutorDto.Cpf);
                     var existingCpf = await _context.Condutores
-                        .AnyAsync(c => c.Cpf == condutorDto.Cpf && c.Ativo);
+                        .AnyAsync(c => c.Cpf == cpfLimpo && c.Ativo);
                     if (existingCpf)
                     {
                         return BadRequest(new { message = "CPF já cadastrado" });
@@ -134,8 +136,8 @@ namespace MDFeApi.Controllers
 
                 var condutor = new Condutor
                 {
-                    Nome = condutorDto.Nome,
-                    Cpf = condutorDto.Cpf,
+                    Nome = condutorDto.Nome?.Trim(),
+                    Cpf = DocumentUtils.LimparCpf(condutorDto.Cpf) ?? string.Empty,
                     Ativo = true
                 };
 
@@ -161,19 +163,22 @@ namespace MDFeApi.Controllers
 
             try
             {
+                // Limpar CPF do DTO para comparação
+                var cpfLimpo = DocumentUtils.LimparCpf(condutorDto.Cpf);
+
                 // Validar se CPF já existe (exceto para o próprio condutor)
-                if (!string.IsNullOrWhiteSpace(condutorDto.Cpf) && condutorDto.Cpf != condutor.Cpf)
+                if (!string.IsNullOrWhiteSpace(cpfLimpo) && cpfLimpo != condutor.Cpf)
                 {
                     var existingCpf = await _context.Condutores
-                        .AnyAsync(c => c.Cpf == condutorDto.Cpf && c.Id != id && c.Ativo);
+                        .AnyAsync(c => c.Cpf == cpfLimpo && c.Id != id && c.Ativo);
                     if (existingCpf)
                     {
                         return BadRequest(new { message = "CPF já cadastrado" });
                     }
                 }
 
-                condutor.Nome = condutorDto.Nome;
-                condutor.Cpf = condutorDto.Cpf;
+                condutor.Nome = condutorDto.Nome?.Trim();
+                condutor.Cpf = cpfLimpo ?? string.Empty;
 
                 await _context.SaveChangesAsync();
 

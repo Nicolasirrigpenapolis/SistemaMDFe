@@ -689,20 +689,6 @@ export function MDFeWizard({ dados, onDadosChange, onSalvar, onCancelar, onTrans
     // Os locais já são gerenciados pela função salvarLocaisDescarregamento
   };
 
-  const nextSection = () => {
-    const currentIndex = sections.findIndex(s => s.id === currentSection);
-    if (currentIndex < sections.length - 1) {
-      setCurrentSection(sections[currentIndex + 1].id);
-    }
-  };
-
-  const prevSection = () => {
-    const currentIndex = sections.findIndex(s => s.id === currentSection);
-    if (currentIndex > 0) {
-      setCurrentSection(sections[currentIndex - 1].id);
-    }
-  };
-
   const renderSectionContent = () => {
     switch (currentSection) {
       case 'emitente':
@@ -1746,71 +1732,513 @@ export function MDFeWizard({ dados, onDadosChange, onSalvar, onCancelar, onTrans
       case 'resumo':
         return (
           <div className="card-body">
-            <h4>Resumo do MDF-e</h4>
-
-            {/* Status de validação */}
+            {/* Header com status geral */}
             <div style={{
-              padding: '1.5rem',
-              borderRadius: '12px',
-              marginBottom: '2rem',
-              background: todasSecoesCompletas ? '#d1fae5' : '#fee2e2',
-              border: `2px solid ${todasSecoesCompletas ? '#10b981' : '#ef4444'}`
+              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+              borderRadius: '20px',
+              padding: '2.5rem',
+              marginBottom: '2.5rem',
+              color: 'white',
+              textAlign: 'center',
+              position: 'relative',
+              overflow: 'hidden'
             }}>
-              <h6 style={{ margin: 0, color: todasSecoesCompletas ? '#10b981' : '#ef4444' }}>
-                {todasSecoesCompletas ? '✅ MDFe pronto para emissão!' : '❌ Complete todas as seções obrigatórias'}
-              </h6>
-            </div>
+              {/* Background pattern */}
+              <div style={{
+                position: 'absolute',
+                top: '-50%',
+                left: '-50%',
+                width: '200%',
+                height: '200%',
+                background: 'radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%)',
+                animation: 'pulse 4s ease-in-out infinite'
+              }} />
 
-            {/* Resumo das seções */}
-            <div style={{ marginBottom: '2rem' }}>
-              {sections.map(section => (
-                <div key={section.id} style={{
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '1.5rem',
+                marginBottom: '1.5rem',
+                position: 'relative',
+                zIndex: 1
+              }}>
+                <div style={{
+                  width: '80px',
+                  height: '80px',
+                  background: 'rgba(255,255,255,0.2)',
+                  borderRadius: '50%',
                   display: 'flex',
-                  justifyContent: 'space-between',
-                  padding: '0.5rem 0',
-                  borderBottom: '1px solid #e5e7eb'
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  backdropFilter: 'blur(10px)',
+                  border: '2px solid rgba(255,255,255,0.3)'
                 }}>
-                  <span>{section.title}</span>
-                  <span style={{ color: section.completed ? '#10b981' : '#ef4444' }}>
-                    {section.completed ? '✅' : '⏳'}
+                  <Icon name="clipboard-check" style={{ fontSize: '2.5rem' }} />
+                </div>
+                <div style={{ textAlign: 'left' }}>
+                  <h3 style={{
+                    margin: 0,
+                    fontSize: '2.5rem',
+                    fontWeight: '800',
+                    textShadow: '0 2px 10px rgba(0,0,0,0.3)',
+                    letterSpacing: '-0.02em'
+                  }}>Revisão Final</h3>
+                  <p style={{
+                    margin: 0,
+                    fontSize: '1.125rem',
+                    opacity: 0.9,
+                    fontWeight: '500'
+                  }}>Manifesto de Documentos Fiscais Eletrônicos</p>
+                </div>
+              </div>
+
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '2rem',
+                position: 'relative',
+                zIndex: 1
+              }}>
+                <div style={{
+                  background: todasSecoesCompletas ? 'rgba(16, 185, 129, 0.3)' : 'rgba(239, 68, 68, 0.3)',
+                  borderRadius: '50px',
+                  padding: '0.75rem 2rem',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.5rem',
+                  backdropFilter: 'blur(10px)',
+                  border: todasSecoesCompletas ? '2px solid rgba(16, 185, 129, 0.5)' : '2px solid rgba(239, 68, 68, 0.5)'
+                }}>
+                  <Icon name={todasSecoesCompletas ? "check-circle" : "alert-circle"} />
+                  <span style={{ fontSize: '1rem', fontWeight: '600' }}>
+                    {todasSecoesCompletas ? 'Pronto para Emissão' : 'Pendências Encontradas'}
                   </span>
                 </div>
-              ))}
+
+                <div style={{
+                  background: 'rgba(255,255,255,0.2)',
+                  borderRadius: '50px',
+                  padding: '0.75rem 2rem',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.5rem',
+                  backdropFilter: 'blur(10px)',
+                  border: '2px solid rgba(255,255,255,0.3)'
+                }}>
+                  <Icon name="tasks" />
+                  <span style={{ fontSize: '1rem', fontWeight: '600' }}>
+                    {sections.filter(s => s.completed && s.id !== 'resumo').length}/{sections.filter(s => s.id !== 'resumo').length} Seções
+                  </span>
+                </div>
+              </div>
             </div>
 
-            {/* Botões de ação */}
-            <div style={{ display: 'flex', gap: '1rem', justifyContent: 'flex-end' }}>
-              <button onClick={onCancelar} style={{
-                padding: '0.75rem 1.5rem',
-                border: '1px solid #d1d5db',
-                borderRadius: '8px',
-                background: 'white',
-                cursor: 'pointer'
+            {/* Status das Seções Aprimorado */}
+            <div style={{
+              marginBottom: '2.5rem'
+            }}>
+              <h5 style={{
+                margin: '0 0 1.5rem 0',
+                fontSize: '1.5rem',
+                fontWeight: '700',
+                color: 'var(--color-text-primary)',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.75rem'
               }}>
+                <div style={{
+                  width: '40px',
+                  height: '40px',
+                  background: 'linear-gradient(135deg, #6366f1, #8b5cf6)',
+                  borderRadius: '12px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: 'white'
+                }}>
+                  <Icon name="list-check" style={{ fontSize: '1.25rem' }} />
+                </div>
+                Verificação das Seções
+              </h5>
+
+              <div style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
+                gap: '1.25rem'
+              }}>
+                {sections.filter(section => section.id !== 'resumo').map((section) => (
+                  <div
+                    key={section.id}
+                    style={{
+                      padding: '1.5rem',
+                      border: section.completed
+                        ? '3px solid #10b981'
+                        : section.required
+                          ? '3px solid #ef4444'
+                          : '3px solid #f59e0b',
+                      borderRadius: '16px',
+                      background: section.completed
+                        ? 'linear-gradient(145deg, rgba(16, 185, 129, 0.1), rgba(16, 185, 129, 0.05))'
+                        : section.required
+                          ? 'linear-gradient(145deg, rgba(239, 68, 68, 0.1), rgba(239, 68, 68, 0.05))'
+                          : 'linear-gradient(145deg, rgba(245, 158, 11, 0.1), rgba(245, 158, 11, 0.05))',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      boxShadow: section.completed
+                        ? '0 4px 20px rgba(16, 185, 129, 0.15)'
+                        : section.required
+                          ? '0 4px 20px rgba(239, 68, 68, 0.15)'
+                          : '0 4px 20px rgba(245, 158, 11, 0.15)',
+                      transition: 'all 0.3s ease',
+                      position: 'relative',
+                      overflow: 'hidden'
+                    }}
+                  >
+                    {/* Background decoration */}
+                    <div style={{
+                      position: 'absolute',
+                      top: 0,
+                      right: 0,
+                      width: '100px',
+                      height: '100px',
+                      background: section.completed
+                        ? 'radial-gradient(circle, rgba(16, 185, 129, 0.1) 0%, transparent 70%)'
+                        : section.required
+                          ? 'radial-gradient(circle, rgba(239, 68, 68, 0.1) 0%, transparent 70%)'
+                          : 'radial-gradient(circle, rgba(245, 158, 11, 0.1) 0%, transparent 70%)',
+                      borderRadius: '50%',
+                      transform: 'translate(30%, -30%)'
+                    }} />
+
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', position: 'relative', zIndex: 1 }}>
+                      <div style={{
+                        width: '50px',
+                        height: '50px',
+                        background: section.completed
+                          ? 'linear-gradient(135deg, #10b981, #059669)'
+                          : section.required
+                            ? 'linear-gradient(135deg, #ef4444, #dc2626)'
+                            : 'linear-gradient(135deg, #f59e0b, #d97706)',
+                        borderRadius: '15px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        color: 'white',
+                        flexShrink: 0
+                      }}>
+                        {section.completed ? (
+                          <Icon name="check-circle" style={{ fontSize: '1.5rem' }} />
+                        ) : section.required ? (
+                          <Icon name="alert-circle" style={{ fontSize: '1.5rem' }} />
+                        ) : (
+                          <Icon name="clock" style={{ fontSize: '1.5rem' }} />
+                        )}
+                      </div>
+                      <div>
+                        <h6 style={{
+                          margin: 0,
+                          fontSize: '1.125rem',
+                          fontWeight: '700',
+                          color: 'var(--color-text-primary)',
+                          marginBottom: '0.25rem'
+                        }}>
+                          {section.title}
+                        </h6>
+                        <p style={{
+                          margin: 0,
+                          fontSize: '0.875rem',
+                          color: 'var(--color-text-secondary)',
+                          lineHeight: 1.4
+                        }}>
+                          {section.description}
+                        </p>
+                        <div style={{
+                          marginTop: '0.5rem',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '0.5rem'
+                        }}>
+                          <div style={{
+                            padding: '0.25rem 0.75rem',
+                            borderRadius: '20px',
+                            fontSize: '0.75rem',
+                            fontWeight: '600',
+                            background: section.completed
+                              ? 'rgba(16, 185, 129, 0.2)'
+                              : section.required
+                                ? 'rgba(239, 68, 68, 0.2)'
+                                : 'rgba(245, 158, 11, 0.2)',
+                            color: section.completed
+                              ? '#059669'
+                              : section.required
+                                ? '#dc2626'
+                                : '#d97706'
+                          }}>
+                            {section.completed ? 'CONCLUÍDO' : section.required ? 'OBRIGATÓRIO' : 'OPCIONAL'}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <button
+                      onClick={() => setCurrentSection(section.id)}
+                      style={{
+                        padding: '0.75rem 1.5rem',
+                        background: section.completed
+                          ? 'linear-gradient(135deg, #10b981, #059669)'
+                          : 'linear-gradient(135deg, #6366f1, #4f46e5)',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '12px',
+                        cursor: 'pointer',
+                        fontSize: '0.875rem',
+                        fontWeight: '600',
+                        transition: 'all 0.2s ease',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '0.5rem',
+                        position: 'relative',
+                        zIndex: 1,
+                        boxShadow: '0 2px 8px rgba(0,0,0,0.15)'
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.transform = 'translateY(-2px)';
+                        e.currentTarget.style.boxShadow = '0 4px 16px rgba(0,0,0,0.25)';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.transform = 'translateY(0)';
+                        e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.15)';
+                      }}
+                    >
+                      <Icon name={section.completed ? "edit" : "arrow-right"} />
+                      {section.completed ? 'Revisar' : 'Completar'}
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Resumo dos Dados */}
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+              gap: '1rem',
+              marginBottom: '2rem'
+            }}>
+              {/* Card Emitente */}
+              {dados.emit?.xNome && (
+                <div style={{
+                  padding: '1rem',
+                  border: '1px solid var(--color-border)',
+                  borderRadius: '8px',
+                  background: 'var(--color-background-secondary)'
+                }}>
+                  <h6 style={{ margin: '0 0 0.5rem 0', color: 'var(--color-text-primary)' }}>
+                    🏢 Emitente
+                  </h6>
+                  <p style={{ margin: 0, fontSize: '0.875rem', color: 'var(--color-text-secondary)' }}>
+                    <strong>{dados.emit.xNome}</strong><br />
+                    {dados.emit.CNPJ || dados.emit.CPF}
+                  </p>
+                </div>
+              )}
+
+              {/* Card Veículo */}
+              {dados.infModal?.rodo?.veicTracao?.placa && (
+                <div style={{
+                  padding: '1rem',
+                  border: '1px solid var(--color-border)',
+                  borderRadius: '8px',
+                  background: 'var(--color-background-secondary)'
+                }}>
+                  <h6 style={{ margin: '0 0 0.5rem 0', color: 'var(--color-text-primary)' }}>
+                    🚛 Veículo
+                  </h6>
+                  <p style={{ margin: 0, fontSize: '0.875rem', color: 'var(--color-text-secondary)' }}>
+                    <strong>Placa:</strong> {dados.infModal.rodo.veicTracao.placa}<br />
+                    <strong>Tara:</strong> {dados.infModal.rodo.veicTracao.tara} kg
+                  </p>
+                </div>
+              )}
+
+              {/* Card Trajeto */}
+              {(locaisCarregamento.length > 0 || locaisDescarregamento.length > 0) && (
+                <div style={{
+                  padding: '1rem',
+                  border: '1px solid var(--color-border)',
+                  borderRadius: '8px',
+                  background: 'var(--color-background-secondary)'
+                }}>
+                  <h6 style={{ margin: '0 0 0.5rem 0', color: 'var(--color-text-primary)' }}>
+                    🗺️ Trajeto
+                  </h6>
+                  <p style={{ margin: 0, fontSize: '0.875rem', color: 'var(--color-text-secondary)' }}>
+                    <strong>Carregamento:</strong> {locaisCarregamento.length} local(is)<br />
+                    <strong>Descarregamento:</strong> {locaisDescarregamento.length} local(is)
+                  </p>
+                </div>
+              )}
+
+              {/* Card Carga */}
+              {dados.tot?.vCarga && (
+                <div style={{
+                  padding: '1rem',
+                  border: '1px solid var(--color-border)',
+                  borderRadius: '8px',
+                  background: 'var(--color-background-secondary)'
+                }}>
+                  <h6 style={{ margin: '0 0 0.5rem 0', color: 'var(--color-text-primary)' }}>
+                    📦 Carga
+                  </h6>
+                  <p style={{ margin: 0, fontSize: '0.875rem', color: 'var(--color-text-secondary)' }}>
+                    <strong>Valor:</strong> R$ {parseFloat(dados.tot.vCarga).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}<br />
+                    {dados.tot.qCarga && <><strong>Peso:</strong> {dados.tot.qCarga} {dados.tot.cUnid === '01' ? 'kg' : 'ton'}</>}
+                  </p>
+                </div>
+              )}
+
+              {/* Card Documentos */}
+              <div style={{
+                padding: '1rem',
+                border: '1px solid var(--color-border)',
+                borderRadius: '8px',
+                background: 'var(--color-background-secondary)'
+              }}>
+                <h6 style={{ margin: '0 0 0.5rem 0', color: 'var(--color-text-primary)' }}>
+                  📄 Documentos
+                </h6>
+                <p style={{ margin: 0, fontSize: '0.875rem', color: 'var(--color-text-secondary)' }}>
+                  {dados.tot?.qCTe ? `${dados.tot.qCTe} CTe(s)` : '0 CTe(s)'}<br />
+                  {dados.tot?.qNFe ? `${dados.tot.qNFe} NFe(s)` : '0 NFe(s)'}
+                </p>
+              </div>
+            </div>
+
+            {/* Validações Finais */}
+            <div style={{
+              padding: '1rem',
+              border: todasSecoesCompletas ? '2px solid #10b981' : '2px solid #ef4444',
+              borderRadius: '12px',
+              background: todasSecoesCompletas ? 'rgba(16, 185, 129, 0.1)' : 'rgba(239, 68, 68, 0.1)',
+              marginBottom: '2rem'
+            }}>
+              <h6 style={{
+                margin: '0 0 1rem 0',
+                color: 'var(--color-text-primary)',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem'
+              }}>
+                {todasSecoesCompletas ? (
+                  <Icon name="check-circle" style={{ color: '#10b981' }} />
+                ) : (
+                  <Icon name="alert-circle" style={{ color: '#ef4444' }} />
+                )}
+                Status de Validação
+              </h6>
+
+              {todasSecoesCompletas ? (
+                <div style={{ color: '#10b981', fontSize: '0.875rem' }}>
+                  ✅ <strong>MDFe pronto para emissão!</strong><br />
+                  Todas as informações obrigatórias foram preenchidas corretamente.
+                </div>
+              ) : (
+                <div style={{ color: '#ef4444', fontSize: '0.875rem' }}>
+                  ❌ <strong>MDFe não pode ser emitido ainda.</strong><br />
+                  Complete todas as seções obrigatórias antes de prosseguir.
+                </div>
+              )}
+            </div>
+
+            {/* Botões de Ação */}
+            <div style={{
+              display: 'flex',
+              gap: '1rem',
+              justifyContent: 'flex-end',
+              borderTop: '1px solid var(--color-border)',
+              paddingTop: '1rem'
+            }}>
+              <button
+                onClick={onCancelar}
+                style={{
+                  padding: '0.75rem 1.5rem',
+                  border: '1px solid var(--color-border)',
+                  borderRadius: '8px',
+                  background: 'transparent',
+                  color: 'var(--color-text-primary)',
+                  cursor: 'pointer',
+                  fontSize: '0.875rem'
+                }}
+              >
                 Cancelar
               </button>
 
-              <button onClick={onSalvar} disabled={!todasSecoesCompletas} style={{
-                padding: '0.75rem 1.5rem',
-                border: 'none',
-                borderRadius: '8px',
-                background: todasSecoesCompletas ? '#10b981' : '#d1d5db',
-                color: 'white',
-                cursor: todasSecoesCompletas ? 'pointer' : 'not-allowed'
-              }}>
-                {salvando ? 'Salvando...' : 'Salvar MDFe'}
-              </button>
-
-              {onTransmitir && todasSecoesCompletas && (
-                <button onClick={onTransmitir} disabled={transmitindo} style={{
+              <button
+                onClick={onSalvar}
+                disabled={salvando || !todasSecoesCompletas}
+                style={{
                   padding: '0.75rem 1.5rem',
                   border: 'none',
                   borderRadius: '8px',
-                  background: '#3b82f6',
+                  background: todasSecoesCompletas
+                    ? 'linear-gradient(135deg, #10b981, #059669)'
+                    : 'var(--color-border)',
                   color: 'white',
-                  cursor: 'pointer'
-                }}>
-                  {transmitindo ? 'Transmitindo...' : 'Transmitir'}
+                  cursor: todasSecoesCompletas ? 'pointer' : 'not-allowed',
+                  fontSize: '0.875rem',
+                  fontWeight: '600',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.5rem',
+                  opacity: todasSecoesCompletas ? 1 : 0.5
+                }}
+              >
+                {salvando ? (
+                  <>
+                    <div className="spinner-border spinner-border-sm" role="status" />
+                    Salvando...
+                  </>
+                ) : (
+                  <>
+                    <Icon name="save" />
+                    Salvar MDFe
+                  </>
+                )}
+              </button>
+
+              {onTransmitir && todasSecoesCompletas && (
+                <button
+                  onClick={onTransmitir}
+                  disabled={transmitindo || !todasSecoesCompletas}
+                  style={{
+                    padding: '0.75rem 1.5rem',
+                    border: 'none',
+                    borderRadius: '8px',
+                    background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)',
+                    color: 'white',
+                    cursor: todasSecoesCompletas ? 'pointer' : 'not-allowed',
+                    fontSize: '0.875rem',
+                    fontWeight: '600',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.5rem',
+                    opacity: todasSecoesCompletas ? 1 : 0.5
+                  }}
+                >
+                  {transmitindo ? (
+                    <>
+                      <div className="spinner-border spinner-border-sm" role="status" />
+                      Transmitindo...
+                    </>
+                  ) : (
+                    <>
+                      <Icon name="send" />
+                      Transmitir para SEFAZ
+                    </>
+                  )}
                 </button>
               )}
             </div>
@@ -1824,6 +2252,25 @@ export function MDFeWizard({ dados, onDadosChange, onSalvar, onCancelar, onTrans
             <p>Seção em desenvolvimento...</p>
           </div>
         );
+    }
+  };
+
+  const canProceed = () => {
+    const currentSectionData = sections.find(s => s.id === currentSection);
+    return currentSectionData?.completed || false;
+  };
+
+  const nextSection = () => {
+    const currentIndex = sections.findIndex(s => s.id === currentSection);
+    if (currentIndex < sections.length - 1) {
+      setCurrentSection(sections[currentIndex + 1].id);
+    }
+  };
+
+  const prevSection = () => {
+    const currentIndex = sections.findIndex(s => s.id === currentSection);
+    if (currentIndex > 0) {
+      setCurrentSection(sections[currentIndex - 1].id);
     }
   };
 
@@ -1849,33 +2296,606 @@ export function MDFeWizard({ dados, onDadosChange, onSalvar, onCancelar, onTrans
         position: 'relative',
         overflow: 'hidden'
       }}>
-        <h2>Wizard MDF-e - {sections.find(s => s.id === currentSection)?.title}</h2>
+        <div style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          height: '4px',
+          background: 'linear-gradient(90deg, #3b82f6, #1d4ed8)',
+          borderRadius: '20px 20px 0 0'
+        }}></div>
+
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
+          <div style={{
+            width: '64px',
+            height: '64px',
+            background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)',
+            borderRadius: '16px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            color: 'white',
+            fontSize: '24px',
+            fontWeight: 'bold',
+            boxShadow: '0 8px 24px rgba(59, 130, 246, 0.3)'
+          }}>
+<i className={isEdicao ? 'fas fa-edit' : 'fas fa-plus'}></i>
+          </div>
+          <div>
+            <h1 style={{
+              margin: 0,
+              fontSize: '2rem',
+              fontWeight: '700',
+              color: theme === 'dark' ? '#f9fafb' : '#1f2937',
+              lineHeight: '1.2'
+            }}>
+              {isEdicao ? 'Editar MDF-e' : 'Novo MDF-e'}
+            </h1>
+            <p style={{
+              margin: '0.5rem 0 0 0',
+              color: theme === 'dark' ? '#d1d5db' : '#6b7280',
+              fontSize: '1rem',
+              fontWeight: '400'
+            }}>
+              {isEdicao ? 'Modifique as informações do manifesto' : 'Complete os dados para gerar o manifesto eletrônico'}
+            </p>
+
+            {/* Informações do MDF-e (Número e Série) - DESTAQUE */}
+            {(dados.ide?.serie || dados.ide?.nMDF) && (
+              <div style={{
+                marginTop: '1.5rem',
+                padding: '1.25rem 2rem',
+                background: theme === 'dark'
+                  ? 'linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(59, 130, 246, 0.15) 100%)'
+                  : 'linear-gradient(135deg, rgba(16, 185, 129, 0.08) 0%, rgba(59, 130, 246, 0.08) 100%)',
+                border: theme === 'dark'
+                  ? '2px solid rgba(16, 185, 129, 0.4)'
+                  : '2px solid rgba(16, 185, 129, 0.3)',
+                borderRadius: '16px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                position: 'relative',
+                overflow: 'hidden',
+                boxShadow: theme === 'dark'
+                  ? '0 8px 32px rgba(16, 185, 129, 0.2)'
+                  : '0 8px 32px rgba(16, 185, 129, 0.15)'
+              }}>
+                {/* Barra superior destacada */}
+                <div style={{
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  height: '4px',
+                  background: 'linear-gradient(90deg, #10b981, #3b82f6)',
+                }}></div>
+
+
+                {/* Informações de número e série */}
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '2rem'
+                }}>
+                  {dados.ide?.nMDF && (
+                    <div style={{
+                      textAlign: 'center',
+                      padding: '0.75rem 1.25rem',
+                      background: theme === 'dark'
+                        ? 'rgba(255, 255, 255, 0.1)'
+                        : 'rgba(255, 255, 255, 0.8)',
+                      borderRadius: '12px',
+                      border: theme === 'dark'
+                        ? '1px solid rgba(255, 255, 255, 0.2)'
+                        : '1px solid rgba(59, 130, 246, 0.2)',
+                      minWidth: '120px'
+                    }}>
+                      <div style={{
+                        fontSize: '0.75rem',
+                        fontWeight: '600',
+                        color: theme === 'dark' ? '#94a3b8' : '#6b7280',
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.05em',
+                        marginBottom: '0.25rem'
+                      }}>
+                        NÚMERO
+                      </div>
+                      <div style={{
+                        fontSize: '1.25rem',
+                        fontWeight: '800',
+                        color: '#3b82f6',
+                        lineHeight: '1'
+                      }}>
+                        {dados.ide.nMDF}
+                      </div>
+                    </div>
+                  )}
+                  {dados.ide?.serie && (
+                    <div style={{
+                      textAlign: 'center',
+                      padding: '0.75rem 1.25rem',
+                      background: theme === 'dark'
+                        ? 'rgba(255, 255, 255, 0.1)'
+                        : 'rgba(255, 255, 255, 0.8)',
+                      borderRadius: '12px',
+                      border: theme === 'dark'
+                        ? '1px solid rgba(255, 255, 255, 0.2)'
+                        : '1px solid rgba(16, 185, 129, 0.2)',
+                      minWidth: '100px'
+                    }}>
+                      <div style={{
+                        fontSize: '0.75rem',
+                        fontWeight: '600',
+                        color: theme === 'dark' ? '#94a3b8' : '#6b7280',
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.05em',
+                        marginBottom: '0.25rem'
+                      }}>
+                        SÉRIE
+                      </div>
+                      <div style={{
+                        fontSize: '1.25rem',
+                        fontWeight: '800',
+                        color: '#10b981',
+                        lineHeight: '1'
+                      }}>
+                        {dados.ide.serie}
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+              </div>
+            )}
+          </div>
+        </div>
+
+        <div style={{ display: 'flex', gap: '1rem' }}>
+          <button
+            type="button"
+            onClick={onCancelar}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.5rem',
+              padding: '0.875rem 1.5rem',
+              background: 'transparent',
+              color: '#dc2626',
+              border: '2px solid #dc2626',
+              borderRadius: '12px',
+              cursor: 'pointer',
+              fontWeight: '600',
+              fontSize: '0.875rem',
+              transition: 'all 0.3s ease'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = '#dc2626';
+              e.currentTarget.style.borderColor = '#dc2626';
+              e.currentTarget.style.color = '#ffffff';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = 'transparent';
+              e.currentTarget.style.borderColor = '#dc2626';
+              e.currentTarget.style.color = '#dc2626';
+            }}
+          >
+            <Icon name="times" />
+            Cancelar
+          </button>
+          <button
+            type="button"
+            onClick={onSalvar}
+            disabled={salvando || transmitindo}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.5rem',
+              padding: '0.875rem 1.5rem',
+              background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)',
+              color: 'white',
+              border: 'none',
+              borderRadius: '12px',
+              cursor: (salvando || transmitindo) ? 'not-allowed' : 'pointer',
+              fontWeight: '600',
+              fontSize: '0.875rem',
+              transition: 'all 0.3s ease',
+              boxShadow: '0 4px 16px rgba(59, 130, 246, 0.3)',
+              opacity: (salvando || transmitindo) ? 0.7 : 1
+            }}
+            onMouseEnter={(e) => {
+              if (!salvando && !transmitindo) {
+                e.currentTarget.style.transform = 'translateY(-2px)';
+                e.currentTarget.style.boxShadow = '0 8px 24px rgba(59, 130, 246, 0.4)';
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (!salvando && !transmitindo) {
+                e.currentTarget.style.transform = 'translateY(0)';
+                e.currentTarget.style.boxShadow = '0 4px 16px rgba(59, 130, 246, 0.3)';
+              }
+            }}
+          >
+            <Icon name={salvando ? 'spinner' : 'save'} />
+            {salvando ? 'Salvando...' : 'Salvar MDF-e'}
+          </button>
+
+          {onTransmitir && sections.every(section => section.completed) && (
+            <button
+              type="button"
+              onClick={onTransmitir}
+              disabled={salvando || transmitindo}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem',
+                padding: '0.875rem 1.5rem',
+                background: 'linear-gradient(135deg, #10b981, #059669)',
+                color: 'white',
+                border: 'none',
+                borderRadius: '12px',
+                cursor: (salvando || transmitindo) ? 'not-allowed' : 'pointer',
+                fontWeight: '600',
+                fontSize: '0.875rem',
+                transition: 'all 0.3s ease',
+                boxShadow: '0 4px 16px rgba(16, 185, 129, 0.3)',
+                opacity: (salvando || transmitindo) ? 0.7 : 1
+              }}
+              onMouseEnter={(e) => {
+                if (!salvando && !transmitindo) {
+                  e.currentTarget.style.transform = 'translateY(-2px)';
+                  e.currentTarget.style.boxShadow = '0 8px 24px rgba(16, 185, 129, 0.4)';
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (!salvando && !transmitindo) {
+                  e.currentTarget.style.transform = 'translateY(0)';
+                  e.currentTarget.style.boxShadow = '0 4px 16px rgba(16, 185, 129, 0.3)';
+                }
+              }}
+            >
+              <i className={transmitindo ? "fas fa-spinner fa-spin" : "fas fa-paper-plane"}></i>
+              {transmitindo ? 'Transmitindo...' : 'Transmitir para SEFAZ'}
+            </button>
+          )}
+        </div>
       </header>
 
-      {/* Conteúdo da Seção */}
-      <div style={{ marginBottom: '2rem' }}>
-        {renderSectionContent()}
-      </div>
+      <div style={{ display: 'flex', gap: 'var(--space-6)', minHeight: '600px' }}>
+        {/* Sidebar Moderna com seções */}
+        <div style={{ flexShrink: 0, width: '320px' }}>
+          <div style={{
+            background: theme === 'dark' ? '#1f2937' : 'white',
+            borderRadius: '20px',
+            border: theme === 'dark'
+              ? '1px solid rgba(55, 65, 81, 0.5)'
+              : '1px solid rgba(229, 231, 235, 0.5)',
+            boxShadow: theme === 'dark'
+              ? '0 4px 20px rgba(0, 0, 0, 0.3)'
+              : '0 4px 20px rgba(0, 0, 0, 0.08)',
+            overflow: 'hidden'
+          }}>
+            <div style={{
+              padding: '1.5rem 2rem',
+              background: theme === 'dark'
+                ? 'linear-gradient(135deg, #374151 0%, #1f2937 100%)'
+                : 'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)',
+              borderBottom: theme === 'dark'
+                ? '1px solid rgba(55, 65, 81, 0.3)'
+                : '1px solid rgba(229, 231, 235, 0.3)'
+            }}>
+              <h3 style={{
+                margin: 0,
+                fontSize: '1.25rem',
+                fontWeight: '700',
+                color: theme === 'dark' ? '#f9fafb' : '#1f2937',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.75rem'
+              }}>
+                <div style={{
+                  width: '32px',
+                  height: '32px',
+                  background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)',
+                  borderRadius: '8px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: 'white',
+                  fontSize: '14px'
+                }}>
+                  <Icon name="list" />
+                </div>
+                Etapas do MDF-e
+              </h3>
+            </div>
+            <div style={{ padding: 0 }}>
+              {sections.map((section, index) => (
+                <button
+                  key={section.id}
+                  onClick={() => setCurrentSection(section.id)}
+                  style={{
+                    width: '100%',
+                    textAlign: 'left',
+                    padding: '1.25rem 2rem',
+                    border: 'none',
+                    borderBottom: '1px solid rgba(229, 231, 235, 0.2)',
+                    background: currentSection === section.id
+                      ? 'linear-gradient(90deg, rgba(59, 130, 246, 0.1) 0%, rgba(59, 130, 246, 0.05) 100%)'
+                      : 'transparent',
+                    cursor: 'pointer',
+                    transition: 'all 0.3s ease',
+                    borderLeft: currentSection === section.id ? '4px solid #3b82f6' : '4px solid transparent',
+                    position: 'relative'
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                    <div style={{
+                      width: '40px',
+                      height: '40px',
+                      borderRadius: '12px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontSize: '0.875rem',
+                      fontWeight: '600',
+                      background: section.completed
+                        ? 'linear-gradient(135deg, #10b981, #059669)'
+                        : currentSection === section.id
+                        ? 'linear-gradient(135deg, #3b82f6, #1d4ed8)'
+                        : 'linear-gradient(135deg, #f3f4f6, #e5e7eb)',
+                      color: section.completed || currentSection === section.id ? 'white' : '#6b7280',
+                      transition: 'all 0.3s ease',
+                      boxShadow: section.completed || currentSection === section.id
+                        ? '0 4px 12px rgba(59, 130, 246, 0.3)'
+                        : 'none'
+                    }}>
+                      {section.completed ? <Icon name="check" /> : index + 1}
+                    </div>
+                    <div style={{ flex: 1 }}>
+                      <div style={{
+                        fontWeight: '600',
+                        color: theme === 'dark'
+                          ? (currentSection === section.id ? '#f9fafb' : '#e2e8f0')
+                          : (currentSection === section.id ? '#1f2937' : '#374151'),
+                        fontSize: '0.9rem',
+                        marginBottom: '0.25rem'
+                      }}>
+                        {section.title}
+                      </div>
+                      <div style={{
+                        fontSize: '0.75rem',
+                        color: theme === 'dark' ? '#94a3b8' : '#6b7280',
+                        lineHeight: '1.3'
+                      }}>
+                        {section.description}
+                      </div>
+                    </div>
+                    {section.completed && (
+                      <div style={{
+                        width: '8px',
+                        height: '8px',
+                        borderRadius: '50%',
+                        background: '#10b981'
+                      }}></div>
+                    )}
+                  </div>
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
 
-      {/* Navegação */}
-      <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-        <button onClick={() => {
-          const currentIndex = sections.findIndex(s => s.id === currentSection);
-          if (currentIndex > 0) {
-            setCurrentSection(sections[currentIndex - 1].id);
-          }
-        }} disabled={sections.findIndex(s => s.id === currentSection) === 0}>
-          Anterior
-        </button>
+        {/* Conteúdo principal */}
+        <div style={{ flex: 1 }}>
+          <div style={{
+            background: theme === 'dark' ? '#1f2937' : 'white',
+            borderRadius: '20px',
+            border: theme === 'dark'
+              ? '1px solid rgba(55, 65, 81, 0.5)'
+              : '1px solid rgba(229, 231, 235, 0.5)',
+            boxShadow: theme === 'dark'
+              ? '0 4px 20px rgba(0, 0, 0, 0.3)'
+              : '0 4px 20px rgba(0, 0, 0, 0.08)',
+            overflow: 'hidden',
+            minHeight: '600px'
+          }}>
+            {/* Header da seção ativa */}
+            <div style={{
+              padding: '2rem 2.5rem 1.5rem',
+              background: theme === 'dark'
+                ? 'linear-gradient(135deg, #374151 0%, #1f2937 100%)'
+                : 'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)',
+              borderBottom: theme === 'dark'
+                ? '1px solid rgba(55, 65, 81, 0.3)'
+                : '1px solid rgba(229, 231, 235, 0.3)',
+              position: 'relative'
+            }}>
+              {/* Barra de progresso */}
+              <div style={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                right: 0,
+                height: '4px',
+                background: 'rgba(229, 231, 235, 0.3)'
+              }}>
+                <div style={{
+                  height: '100%',
+                  background: 'linear-gradient(90deg, #3b82f6, #1d4ed8)',
+                  width: `${((sections.findIndex(s => s.id === currentSection) + 1) / sections.length) * 100}%`,
+                  transition: 'width 0.3s ease'
+                }}></div>
+              </div>
 
-        <button onClick={() => {
-          const currentIndex = sections.findIndex(s => s.id === currentSection);
-          if (currentIndex < sections.length - 1) {
-            setCurrentSection(sections[currentIndex + 1].id);
-          }
-        }} disabled={sections.findIndex(s => s.id === currentSection) === sections.length - 1}>
-          Próximo
-        </button>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
+                <div style={{
+                  width: '56px',
+                  height: '56px',
+                  borderRadius: '16px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: '24px',
+                  background: sections.find(s => s.id === currentSection)?.completed
+                    ? 'linear-gradient(135deg, #10b981, #059669)'
+                    : 'linear-gradient(135deg, #3b82f6, #1d4ed8)',
+                  color: 'white',
+                  boxShadow: '0 8px 24px rgba(59, 130, 246, 0.3)'
+                }}>
+                  {sections.find(s => s.id === currentSection)?.completed ?
+                    <Icon name="check" /> :
+                    <Icon name="edit" />
+                  }
+                </div>
+                <div style={{ flex: 1 }}>
+                  <h3 style={{
+                    margin: 0,
+                    fontSize: '1.5rem',
+                    fontWeight: '700',
+                    color: theme === 'dark' ? '#f9fafb' : '#1f2937',
+                    marginBottom: '0.5rem'
+                  }}>
+                    {sections.find(s => s.id === currentSection)?.title}
+                  </h3>
+                  <p style={{
+                    margin: 0,
+                    fontSize: '1rem',
+                    color: theme === 'dark' ? '#d1d5db' : '#6b7280',
+                    fontWeight: '400'
+                  }}>
+                    {sections.find(s => s.id === currentSection)?.description}
+                  </p>
+                </div>
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.5rem',
+                  padding: '0.5rem 1rem',
+                  background: 'rgba(59, 130, 246, 0.1)',
+                  borderRadius: '8px',
+                  fontSize: '0.875rem',
+                  fontWeight: '600',
+                  color: '#3b82f6'
+                }}>
+                  <Icon name="layers" />
+                  {sections.findIndex(s => s.id === currentSection) + 1} de {sections.length}
+                </div>
+              </div>
+            </div>
+
+            {/* Conteúdo da seção */}
+            <div style={{ padding: '2.5rem' }}>
+              {renderSectionContent()}
+            </div>
+
+            {/* Footer com navegação */}
+            <div style={{
+              padding: '1.5rem 2.5rem',
+              borderTop: theme === 'dark'
+                ? '1px solid rgba(55, 65, 81, 0.3)'
+                : '1px solid rgba(229, 231, 235, 0.3)',
+              background: theme === 'dark'
+                ? 'rgba(55, 65, 81, 0.3)'
+                : 'rgba(248, 250, 252, 0.5)',
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center'
+            }}>
+              <button
+                onClick={prevSection}
+                disabled={sections.findIndex(s => s.id === currentSection) === 0}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.5rem',
+                  padding: '0.75rem 1.5rem',
+                  background: 'transparent',
+                  color: sections.findIndex(s => s.id === currentSection) === 0 ? '#9ca3af' : '#6b7280',
+                  border: '2px solid',
+                  borderColor: sections.findIndex(s => s.id === currentSection) === 0 ? '#e5e7eb' : '#d1d5db',
+                  borderRadius: '12px',
+                  cursor: sections.findIndex(s => s.id === currentSection) === 0 ? 'not-allowed' : 'pointer',
+                  fontWeight: '600',
+                  fontSize: '0.875rem',
+                  transition: 'all 0.3s ease',
+                  opacity: sections.findIndex(s => s.id === currentSection) === 0 ? 0.5 : 1
+                }}
+                onMouseEnter={(e) => {
+                  if (sections.findIndex(s => s.id === currentSection) !== 0) {
+                    e.currentTarget.style.background = 'rgba(59, 130, 246, 0.05)';
+                    e.currentTarget.style.borderColor = '#3b82f6';
+                    e.currentTarget.style.color = '#3b82f6';
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (sections.findIndex(s => s.id === currentSection) !== 0) {
+                    e.currentTarget.style.background = 'transparent';
+                    e.currentTarget.style.borderColor = '#d1d5db';
+                    e.currentTarget.style.color = '#6b7280';
+                  }
+                }}
+              >
+                <Icon name="arrow-left" />
+                Anterior
+              </button>
+
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem',
+                color: theme === 'dark' ? '#d1d5db' : '#6b7280',
+                fontSize: '0.875rem',
+                fontWeight: '500'
+              }}>
+                <Icon name="info-circle" />
+                {sections.filter(s => s.completed).length} de {sections.length} seções concluídas
+              </div>
+
+              <button
+                onClick={nextSection}
+                disabled={sections.findIndex(s => s.id === currentSection) === sections.length - 1}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.5rem',
+                  padding: '0.75rem 1.5rem',
+                  background: sections.findIndex(s => s.id === currentSection) === sections.length - 1
+                    ? 'transparent'
+                    : 'linear-gradient(135deg, #3b82f6, #1d4ed8)',
+                  color: sections.findIndex(s => s.id === currentSection) === sections.length - 1 ? '#9ca3af' : 'white',
+                  border: '2px solid',
+                  borderColor: sections.findIndex(s => s.id === currentSection) === sections.length - 1 ? '#e5e7eb' : 'transparent',
+                  borderRadius: '12px',
+                  cursor: sections.findIndex(s => s.id === currentSection) === sections.length - 1 ? 'not-allowed' : 'pointer',
+                  fontWeight: '600',
+                  fontSize: '0.875rem',
+                  transition: 'all 0.3s ease',
+                  boxShadow: sections.findIndex(s => s.id === currentSection) === sections.length - 1
+                    ? 'none'
+                    : '0 4px 16px rgba(59, 130, 246, 0.3)',
+                  opacity: sections.findIndex(s => s.id === currentSection) === sections.length - 1 ? 0.5 : 1
+                }}
+                onMouseEnter={(e) => {
+                  if (sections.findIndex(s => s.id === currentSection) !== sections.length - 1) {
+                    e.currentTarget.style.transform = 'translateY(-2px)';
+                    e.currentTarget.style.boxShadow = '0 8px 24px rgba(59, 130, 246, 0.4)';
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (sections.findIndex(s => s.id === currentSection) !== sections.length - 1) {
+                    e.currentTarget.style.transform = 'translateY(0)';
+                    e.currentTarget.style.boxShadow = '0 4px 16px rgba(59, 130, 246, 0.3)';
+                  }
+                }}
+              >
+                Próximo
+                <Icon name="arrow-right" />
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );

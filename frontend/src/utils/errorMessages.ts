@@ -30,15 +30,12 @@ export class ErrorMessageHelper {
 
     // Campos do Veículo
     'placa': 'Placa',
-    'renavam': 'RENAVAM',
     'marca': 'Marca',
     'modelo': 'Modelo',
     'ano': 'Ano',
     'cor': 'Cor',
     'combustivel': 'Combustível',
     'tara': 'Tara',
-    'capacidadeKg': 'Capacidade (Kg)',
-    'capacidadeM3': 'Capacidade (M³)',
     'tipoRodado': 'Tipo de Rodado',
     'tipoCarroceria': 'Tipo de Carroceria',
     'rntrc': 'RNTRC',
@@ -99,7 +96,6 @@ export class ErrorMessageHelper {
     'INVALID_CEP': 'CEP deve conter exatamente 8 dígitos.',
     'INVALID_UF': 'UF deve conter exatamente 2 letras maiúsculas.',
     'INVALID_PLACA': 'Placa deve estar no formato ABC1234 ou ABC1A23 (Mercosul).',
-    'INVALID_RENAVAM': 'RENAVAM deve conter apenas números (9 a 11 dígitos).',
     'INVALID_DOCUMENTO_FISCAL': 'Chave do documento fiscal deve conter exatamente 44 dígitos.',
     'INVALID_MUNICIPIO_CODE': 'Código do município deve ser válido (código IBGE).',
     'INVALID_YEAR': 'Ano deve estar entre 1900 e 2030.',

@@ -68,6 +68,10 @@ namespace MDFeApi.Models
         [MaxLength(500)]
         public string? SenhaCertificado { get; set; }
 
+        // Caminho para salvar XMLs dos MDFe emitidos
+        [MaxLength(500)]
+        public string? CaminhoSalvarXml { get; set; }
+
         // Configurações RNTRC
         [MaxLength(20)]
         public string? Rntrc { get; set; }

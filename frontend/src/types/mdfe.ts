@@ -8,8 +8,10 @@ export type MDFeStep =
 export interface MDFeData {
   // IDs das entidades cadastradas (backend vai puxar dados completos)
   emitenteId?: number;
-  veiculoId?: number; 
+  veiculoId?: number;
   motoristaId?: number;
+  contratanteId?: number;
+  seguradoraId?: number;
   
   ide?: {
     cUF?: string;
@@ -30,7 +32,8 @@ export interface MDFeData {
     UFFim?: string; // UF de fim do transporte
     infMunCarrega?: Array<{
       cMunCarrega?: string; // Codigo do municipio de carregamento
-      xMunCarrega?: string; // Nome do municipio de carregamento  
+      xMunCarrega?: string; // Nome do municipio de carregamento
+      uf?: string; // UF do municipio de carregamento
     }>;
     infPercurso?: Array<{
       UFPer?: string; // UF de percurso
@@ -56,16 +59,28 @@ export interface MDFeData {
       email?: string; // Email
     };
   };
+  contrat?: {
+    CNPJ?: string;
+    CPF?: string; // Para pessoa fisica
+    IE?: string;
+    xNome?: string; // Razao social ou nome
+    xFant?: string; // Nome fantasia
+    enderContrat?: {
+      xLgr?: string; // Logradouro
+      nro?: string; // Numero
+      xCpl?: string; // Complemento
+      xBairro?: string; // Bairro
+      cMun?: string; // Codigo do municipio IBGE
+      xMun?: string; // Nome do municipio
+      CEP?: string;
+      UF?: string;
+    };
+  };
   infModal?: {
     versaoModal?: string;
     rodo?: {
       infANTT?: {
         RNTRC?: string; // Registro Nacional dos Transportadores Rodoviarios de Carga
-        infCIOT?: Array<{
-          CIOT?: string; // Codigo Identificador da Operacao de Transporte
-          CPF?: string; // CPF responsavel pela geracao do CIOT
-          CNPJ?: string; // CNPJ responsavel pela geracao do CIOT
-        }>;
         valePed?: {
           disp?: Array<{
             CNPJForn?: string; // CNPJ da empresa fornecedora do vale-pedagio
@@ -99,10 +114,7 @@ export interface MDFeData {
       veicTracao?: {
         cInt?: string; // Codigo interno do veiculo
         placa?: string; // Placa do veiculo
-        RENAVAM?: string; // RENAVAM do veiculo
         tara?: string; // Tara em KG
-        capKG?: string; // Capacidade em KG
-        capM3?: string; // Capacidade em M3
         tpRod?: '01' | '02' | '03' | '04' | '05' | '06'; // Tipo de rodado
         tpCar?: '00' | '01' | '02' | '03' | '04' | '05' | '06'; // Tipo de carroceria
         UF?: string; // UF de licenciamento do veiculo
@@ -115,11 +127,8 @@ export interface MDFeData {
       };
       veicReboque?: Array<{
         cInt?: string; // Codigo interno do veiculo
-        placa?: string; // Placa do veiculo  
-        RENAVAM?: string; // RENAVAM do veiculo
+        placa?: string; // Placa do veiculo
         tara?: string; // Tara em KG
-        capKG?: string; // Capacidade em KG
-        capM3?: string; // Capacidade em M3
         tpCar?: '00' | '01' | '02' | '03' | '04' | '05' | '06'; // Tipo de carroceria
         UF?: string; // UF de licenciamento do veiculo
         tpNav?: '0' | '1' | '2'; // Tipo de navegacao (so para aquaviario)
@@ -172,6 +181,7 @@ export interface MDFeData {
     infMunDescarga?: Array<{
       cMunDescarga?: string; // Codigo do municipio de descarregamento
       xMunDescarga?: string; // Nome do municipio de descarregamento
+      uf?: string; // UF do municipio de descarregamento
       infCTe?: Array<CTeMDFeInfo>;
       infNFe?: Array<NFeMDFeInfo>;
       infMDFeTransp?: Array<{
@@ -294,15 +304,12 @@ export interface EmitenteCadastrado {
 export interface VeiculoCadastrado {
   id: number;
   placa: string; // Mapeado do backend Placa
-  renavam?: string; // Mapeado do backend Renavam
   marca?: string; // Mapeado do backend Marca
   modelo?: string; // Mapeado do backend Modelo
   ano?: number; // Mapeado do backend Ano
   cor?: string; // Mapeado do backend Cor
   combustivel?: string; // Mapeado do backend Combustivel
   tara: number; // Mapeado do backend Tara
-  capacidadeKg: number; // Mapeado do backend CapacidadeKg
-  capacidadeM3?: number; // Mapeado do backend CapacidadeM3
   tipoRodado?: string; // Mapeado do backend TipoRodado
   tipoCarroceria?: string; // Mapeado do backend TipoCarroceria
   uf: string; // Mapeado do backend Uf

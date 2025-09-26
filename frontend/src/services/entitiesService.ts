@@ -149,7 +149,7 @@ class EntitiesService {
           nro: emitente.numero || emitente.Numero,
           xCpl: emitente.complemento || emitente.Complemento,
           xBairro: emitente.bairro || emitente.Bairro,
-          cMun: (emitente.codMunicipio || emitente.CodMunicipio)?.toString(),
+          cMun: (emitente.codMunicipio || emitente.CodMunicipio)?.toString().padStart(7, '0'),
           xMun: emitente.municipio || emitente.Municipio,
           CEP: emitente.cep || emitente.Cep,
           UF: emitente.uf || emitente.Uf,
@@ -225,14 +225,12 @@ class EntitiesService {
 
     return veiculos.map((veiculo: any) => ({
       id: (veiculo.id || veiculo.Id).toString(),
-      label: `${veiculo.placa || veiculo.Placa} - ${veiculo.marca || veiculo.Marca} ${veiculo.modelo || veiculo.Modelo}`,
-      description: `Ano: ${veiculo.ano || veiculo.Ano}`,
+      label: `${veiculo.placa || veiculo.Placa} - ${veiculo.marca || veiculo.Marca}`,
+      description: `Tara: ${veiculo.tara || veiculo.Tara}kg`,
       data: {
         cInt: (veiculo.id || veiculo.Id)?.toString(),
         placa: veiculo.placa || veiculo.Placa,
         tara: (veiculo.tara || veiculo.Tara)?.toString(),
-        capKG: (veiculo.capacidadeKg || veiculo.CapacidadeKg)?.toString(),
-        capM3: (veiculo.capacidadeM3 || veiculo.CapacidadeM3)?.toString(),
         tpProp: '1', // Padrão: próprio
         tpVeic: '07', // Padrão: caminhão trator
         tpRod: veiculo.tipoRodado || veiculo.TipoRodado,
@@ -269,10 +267,60 @@ class EntitiesService {
           nro: destinatario.Numero,
           xCpl: destinatario.Complemento,
           xBairro: destinatario.Bairro,
-          cMun: destinatario.CodMunicipio?.toString(),
+          cMun: destinatario.CodMunicipio?.toString().padStart(7, '0'),
           xMun: destinatario.Municipio,
           CEP: destinatario.Cep,
           UF: destinatario.Uf
+        }
+      }
+    }));
+  }
+
+  // Contratantes
+  async obterContratantes(): Promise<EntityOption[]> {
+    const response = await this.request('/contratantes?pageSize=100');
+    if (!response.sucesso || !response.dados) {
+      console.warn('Contratantes não disponíveis:', response.mensagem);
+      return [];
+    }
+
+    // O backend pode retornar dados em diferentes formatos
+    let contratantes;
+    if (Array.isArray(response.dados)) {
+      contratantes = response.dados;
+    } else if (response.dados.itens) {
+      contratantes = response.dados.itens;
+    } else if (response.dados.items) {
+      contratantes = response.dados.items;
+    } else if (response.dados.Itens) {
+      contratantes = response.dados.Itens;
+    } else {
+      contratantes = response.dados;
+    }
+
+    if (!Array.isArray(contratantes)) {
+      console.error('Formato de dados inesperado para contratantes:', response.dados);
+      return [];
+    }
+
+    return contratantes.map((contratante: any) => ({
+      id: (contratante.id || contratante.Id).toString(),
+      label: contratante.razaoSocial || contratante.RazaoSocial || contratante.nomeFantasia || contratante.NomeFantasia,
+      description: `${contratante.cnpj || contratante.Cnpj} - ${contratante.municipio || contratante.Municipio || ''}`,
+      data: {
+        CNPJ: contratante.cnpj || contratante.Cnpj,
+        IE: contratante.ie || contratante.Ie,
+        xNome: contratante.razaoSocial || contratante.RazaoSocial,
+        xFant: contratante.nomeFantasia || contratante.NomeFantasia,
+        enderContrat: {
+          xLgr: contratante.endereco || contratante.Endereco,
+          nro: contratante.numero || contratante.Numero,
+          xCpl: contratante.complemento || contratante.Complemento,
+          xBairro: contratante.bairro || contratante.Bairro,
+          cMun: (contratante.codMunicipio || contratante.CodMunicipio)?.toString().padStart(7, '0'),
+          xMun: contratante.municipio || contratante.Municipio,
+          CEP: contratante.cep || contratante.Cep,
+          UF: contratante.uf || contratante.Uf
         }
       }
     }));
@@ -298,19 +346,19 @@ class EntitiesService {
       return [];
     }
 
-    // O backend retorna dados paginados: { Itens: [], TotalItens: 0, Pagina: 1, TamanhoPagina: 10 }
-    const seguradoras = response.dados.Itens || response.dados;
+    // O backend retorna dados paginados: { itens: [], totalItens: 0, pagina: 1, tamanhoPagina: 10 }
+    const seguradoras = response.dados.itens || response.dados.Itens || response.dados;
     if (!Array.isArray(seguradoras)) {
       return [];
     }
 
     return seguradoras.map((seguradora: any) => ({
       id: seguradora.Id || seguradora.id,
-      label: seguradora.Nome || seguradora.nome,
-      description: `CNPJ: ${seguradora.Cnpj || seguradora.cnpj}`,
+      label: seguradora.razaoSocial || seguradora.RazaoSocial || seguradora.nomeFantasia || seguradora.NomeFantasia || seguradora.Nome || seguradora.nome,
+      description: `CNPJ: ${seguradora.cnpj || seguradora.Cnpj}`,
       data: {
-        xSeg: seguradora.Nome || seguradora.nome,
-        CNPJ: seguradora.Cnpj || seguradora.cnpj
+        xSeg: seguradora.razaoSocial || seguradora.RazaoSocial || seguradora.nomeFantasia || seguradora.NomeFantasia || seguradora.Nome || seguradora.nome,
+        CNPJ: seguradora.cnpj || seguradora.Cnpj
       }
     }));
   }
@@ -432,9 +480,7 @@ class EntitiesService {
   async criarVeiculo(dados: any): Promise<RespostaACBr> {
     // Limpar dados antes de enviar
     const dadosLimpos = {
-      ...dados,
-      telefone: dados.telefone ? dados.telefone.replace(/\D/g, '') : undefined,
-      cep: dados.cep ? dados.cep.replace(/\D/g, '') : undefined
+      ...dados
     };
 
     console.log('Dados enviados para POST /veiculos:', JSON.stringify(dadosLimpos, null, 2));
@@ -448,9 +494,7 @@ class EntitiesService {
   async atualizarVeiculo(id: number, dados: any): Promise<RespostaACBr> {
     // Limpar dados antes de enviar
     const dadosLimpos = {
-      ...dados,
-      telefone: dados.telefone ? dados.telefone.replace(/\D/g, '') : undefined,
-      cep: dados.cep ? dados.cep.replace(/\D/g, '') : undefined
+      ...dados
     };
 
     console.log('Dados enviados para PUT /veiculos/' + id + ':', JSON.stringify(dadosLimpos, null, 2));

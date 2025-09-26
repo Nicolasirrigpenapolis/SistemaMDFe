@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using MDFeApi.Data;
 using MDFeApi.DTOs;
 using MDFeApi.Models;
+using MDFeApi.Utils;
 
 namespace MDFeApi.Controllers
 {
@@ -102,26 +103,28 @@ namespace MDFeApi.Controllers
                 return BadRequest(new { message = "CNPJ é obrigatório" });
             }
 
-            // Verificar se já existe seguradora com mesmo CNPJ
+            var seguradora = new Seguradora
+            {
+                Cnpj = dto.Cnpj,
+                RazaoSocial = dto.RazaoSocial?.Trim(),
+                NomeFantasia = dto.NomeFantasia?.Trim(),
+                Apolice = dto.Apolice?.Trim(),
+                Ativo = dto.Ativo,
+                DataCriacao = DateTime.Now
+            };
+
+            // Aplicar limpeza automática de documentos
+            DocumentUtils.LimparDocumentosSeguradora(seguradora);
+
+            // Verificar se já existe seguradora com mesmo CNPJ (usando dados limpos)
             var existenteCnpj = await _context.Seguradoras
-                .Where(s => s.Cnpj == dto.Cnpj)
+                .Where(s => s.Cnpj == seguradora.Cnpj)
                 .FirstOrDefaultAsync();
 
             if (existenteCnpj != null)
             {
                 return BadRequest(new { message = "Já existe uma seguradora cadastrada com este CNPJ" });
             }
-
-
-            var seguradora = new Seguradora
-            {
-                Cnpj = dto.Cnpj,
-                RazaoSocial = dto.RazaoSocial,
-                NomeFantasia = dto.NomeFantasia,
-                Apolice = dto.Apolice,
-                Ativo = dto.Ativo,
-                DataCriacao = DateTime.Now
-            };
 
             _context.Seguradoras.Add(seguradora);
             await _context.SaveChangesAsync();
@@ -161,24 +164,26 @@ namespace MDFeApi.Controllers
                 return BadRequest(new { message = "CNPJ é obrigatório" });
             }
 
-            // Verificar se já existe outra seguradora com mesmo CNPJ
+            // Atualizar dados com trim
+            seguradora.Cnpj = dto.Cnpj;
+            seguradora.RazaoSocial = dto.RazaoSocial?.Trim();
+            seguradora.NomeFantasia = dto.NomeFantasia?.Trim();
+            seguradora.Apolice = dto.Apolice?.Trim();
+            seguradora.Ativo = dto.Ativo;
+            seguradora.DataUltimaAlteracao = DateTime.Now;
+
+            // Aplicar limpeza automática de documentos
+            DocumentUtils.LimparDocumentosSeguradora(seguradora);
+
+            // Verificar se já existe outra seguradora com mesmo CNPJ (usando dados limpos)
             var existenteCnpj = await _context.Seguradoras
-                .Where(s => s.Id != id && s.Cnpj == dto.Cnpj)
+                .Where(s => s.Id != id && s.Cnpj == seguradora.Cnpj)
                 .FirstOrDefaultAsync();
 
             if (existenteCnpj != null)
             {
                 return BadRequest(new { message = "Já existe outra seguradora cadastrada com este CNPJ" });
             }
-
-
-            // Atualizar dados
-            seguradora.Cnpj = dto.Cnpj;
-            seguradora.RazaoSocial = dto.RazaoSocial;
-            seguradora.NomeFantasia = dto.NomeFantasia;
-            seguradora.Apolice = dto.Apolice;
-            seguradora.Ativo = dto.Ativo;
-            seguradora.DataUltimaAlteracao = DateTime.Now;
 
             try
             {

@@ -24,6 +24,7 @@ interface Emitente {
   tipoEmitente: string;
   caminhoArquivoCertificado?: string;
   senhaCertificado?: string;
+  caminhoSalvarXml?: string;
   rntrc?: string;
   ambienteSefaz?: number;
 }
@@ -77,6 +78,7 @@ export function ListarEmitentes() {
     tipoEmitente: 'PrestadorServico',
     ambienteSefaz: 2
   });
+
 
   useEffect(() => {
     carregarEmitentes();
@@ -335,6 +337,7 @@ export function ListarEmitentes() {
                     type="text"
                     value={dadosModal.razaoSocial}
                     onChange={(e) => setDadosModal({ ...dadosModal, razaoSocial: e.target.value })}
+                    maxLength={200}
                     required
                   />
                 </div>
@@ -345,6 +348,7 @@ export function ListarEmitentes() {
                     type="text"
                     value={dadosModal.nomeFantasia || ''}
                     onChange={(e) => setDadosModal({ ...dadosModal, nomeFantasia: e.target.value })}
+                    maxLength={200}
                   />
                 </div>
               </div>
@@ -356,6 +360,7 @@ export function ListarEmitentes() {
                     type="text"
                     value={dadosModal.ie || ''}
                     onChange={(e) => setDadosModal({ ...dadosModal, ie: e.target.value })}
+                    maxLength={20}
                   />
                 </div>
 
@@ -383,6 +388,7 @@ export function ListarEmitentes() {
                     type="text"
                     value={dadosModal.endereco}
                     onChange={(e) => setDadosModal({ ...dadosModal, endereco: e.target.value })}
+                    maxLength={200}
                     required
                   />
                 </div>
@@ -393,6 +399,7 @@ export function ListarEmitentes() {
                     type="text"
                     value={dadosModal.numero || ''}
                     onChange={(e) => setDadosModal({ ...dadosModal, numero: e.target.value })}
+                    maxLength={20}
                   />
                 </div>
               </div>
@@ -404,6 +411,7 @@ export function ListarEmitentes() {
                     type="text"
                     value={dadosModal.bairro}
                     onChange={(e) => setDadosModal({ ...dadosModal, bairro: e.target.value })}
+                    maxLength={100}
                     required
                   />
                 </div>
@@ -414,6 +422,7 @@ export function ListarEmitentes() {
                     type="text"
                     value={dadosModal.complemento || ''}
                     onChange={(e) => setDadosModal({ ...dadosModal, complemento: e.target.value })}
+                    maxLength={100}
                   />
                 </div>
               </div>
@@ -425,6 +434,7 @@ export function ListarEmitentes() {
                     type="text"
                     value={dadosModal.municipio}
                     onChange={(e) => setDadosModal({ ...dadosModal, municipio: e.target.value })}
+                    maxLength={100}
                     required
                   />
                 </div>
@@ -492,6 +502,7 @@ export function ListarEmitentes() {
                     value={dadosModal.rntrc || ''}
                     onChange={(e) => setDadosModal({ ...dadosModal, rntrc: e.target.value })}
                     placeholder="Registro Nacional dos Transportadores"
+                    maxLength={20}
                   />
                 </div>
 
@@ -510,12 +521,34 @@ export function ListarEmitentes() {
               <div className={styles.modalRow}>
                 <div className={styles.modalField}>
                   <label>Caminho do Certificado</label>
-                  <input
-                    type="text"
-                    value={dadosModal.caminhoArquivoCertificado || ''}
-                    onChange={(e) => setDadosModal({ ...dadosModal, caminhoArquivoCertificado: e.target.value })}
-                    placeholder="C:\certificados\certificado.pfx"
-                  />
+                  <div className={styles.inputWithButton}>
+                    <input
+                      type="text"
+                      value={dadosModal.caminhoArquivoCertificado || ''}
+                      onChange={(e) => setDadosModal({ ...dadosModal, caminhoArquivoCertificado: e.target.value })}
+                      placeholder="C:\certificados\certificado.pfx"
+                      maxLength={500}
+                    />
+                    <button
+                      type="button"
+                      className={styles.btnBuscar}
+                      onClick={() => {
+                        const input = document.createElement('input');
+                        input.type = 'file';
+                        input.accept = '.pfx,.p12';
+                        input.onchange = (e) => {
+                          const file = (e.target as HTMLInputElement).files?.[0];
+                          if (file) {
+                            const path = file.webkitRelativePath || file.name;
+                            setDadosModal({ ...dadosModal, caminhoArquivoCertificado: path });
+                          }
+                        };
+                        input.click();
+                      }}
+                    >
+                      Buscar
+                    </button>
+                  </div>
                 </div>
 
                 <div className={styles.modalField}>
@@ -526,6 +559,45 @@ export function ListarEmitentes() {
                     onChange={(e) => setDadosModal({ ...dadosModal, senhaCertificado: e.target.value })}
                     placeholder={emitenteEdicao?.caminhoArquivoCertificado ? "Deixe vazio para manter" : "Senha do certificado"}
                   />
+                </div>
+              </div>
+
+              <div className={styles.modalRow}>
+                <div className={styles.modalField}>
+                  <label>Pasta para Salvar XMLs</label>
+                  <div className={styles.inputWithButton}>
+                    <input
+                      type="text"
+                      value={dadosModal.caminhoSalvarXml || ''}
+                      onChange={(e) => setDadosModal({ ...dadosModal, caminhoSalvarXml: e.target.value })}
+                      placeholder="C:\MDFes\XMLs"
+                      maxLength={500}
+                    />
+                    <button
+                      type="button"
+                      className={styles.btnBuscar}
+                      onClick={async () => {
+                        try {
+                          // API moderna do navegador para seleção de diretório
+                          if ('showDirectoryPicker' in window) {
+                            const dirHandle = await (window as any).showDirectoryPicker();
+                            setDadosModal({ ...dadosModal, caminhoSalvarXml: dirHandle.name });
+                          } else {
+                            // Fallback para navegadores que não suportam
+                            const path = prompt('Digite o caminho da pasta:', dadosModal.caminhoSalvarXml || 'C:\\MDFe_XMLs\\');
+                            if (path) {
+                              setDadosModal({ ...dadosModal, caminhoSalvarXml: path });
+                            }
+                          }
+                        } catch (error) {
+                          // Usuário cancelou ou erro
+                          console.log('Seleção cancelada');
+                        }
+                      }}
+                    >
+                      Buscar Pasta
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -856,59 +928,59 @@ export function ListarEmitentes() {
             ))}
           </div>
         )}
+      </div>
 
-        {paginacao && paginacao.totalItems > 0 && (
-          <div className={styles.paginationContainer}>
-            <div className={styles.paginationControls}>
-              <div className={styles.paginationInfo}>
-                Mostrando {paginacao.startItem} até {paginacao.endItem} de {paginacao.totalItems} emitentes
-              </div>
+      {paginacao && paginacao.totalItems > 0 && (
+        <div className={styles.paginationContainer}>
+          <div className={styles.paginationControls}>
+            <div className={styles.paginationInfo}>
+              Mostrando {((paginacao.currentPage - 1) * paginacao.pageSize) + 1} até {Math.min(paginacao.currentPage * paginacao.pageSize, paginacao.totalItems)} de {paginacao.totalItems} emitentes
+            </div>
 
-              {paginacao.totalPages > 1 && (
-                <div className={styles.pagination}>
-                  <button
-                    onClick={() => setPaginaAtual(paginacao.currentPage - 1)}
-                    disabled={!paginacao.hasPreviousPage}
-                    className={styles.paginationBtn}
-                  >
-                    ← Anterior
-                  </button>
-
-                  <span className={styles.pageInfo}>
-                    Página {paginacao.currentPage} de {paginacao.totalPages}
-                  </span>
-
-                  <button
-                    onClick={() => setPaginaAtual(paginacao.currentPage + 1)}
-                    disabled={!paginacao.hasNextPage}
-                    className={styles.paginationBtn}
-                  >
-                    Próxima →
-                  </button>
-                </div>
-              )}
-
-              <div className={styles.pageSizeSelector}>
-                <label>Itens por página:</label>
-                <select
-                  value={tamanhoPagina}
-                  onChange={(e) => {
-                    setTamanhoPagina(Number(e.target.value));
-                    setPaginaAtual(1);
-                  }}
-                  className={styles.pageSizeSelect}
+            {paginacao.totalPages > 1 && (
+              <div className={styles.pagination}>
+                <button
+                  onClick={() => setPaginaAtual(paginacao.currentPage - 1)}
+                  disabled={!paginacao.hasPreviousPage}
+                  className={styles.paginationBtn}
                 >
-                  <option value={1}>1</option>
-                  <option value={2}>2</option>
-                  <option value={5}>5</option>
-                  <option value={10}>10</option>
-                  <option value={20}>20</option>
-                </select>
+                  ← Anterior
+                </button>
+
+                <span className={styles.pageInfo}>
+                  Página {paginacao.currentPage} de {paginacao.totalPages}
+                </span>
+
+                <button
+                  onClick={() => setPaginaAtual(paginacao.currentPage + 1)}
+                  disabled={!paginacao.hasNextPage}
+                  className={styles.paginationBtn}
+                >
+                  Próxima →
+                </button>
               </div>
+            )}
+
+            <div className={styles.pageSizeSelector}>
+              <label>Itens por página:</label>
+              <select
+                value={tamanhoPagina}
+                onChange={(e) => {
+                  setTamanhoPagina(Number(e.target.value));
+                  setPaginaAtual(1);
+                }}
+                className={styles.pageSizeSelect}
+              >
+                <option value={1}>1</option>
+                <option value={2}>2</option>
+                <option value={5}>5</option>
+                <option value={10}>10</option>
+                <option value={20}>20</option>
+              </select>
             </div>
           </div>
-        )}
-      </div>
+        </div>
+      )}
 
       {renderModal()}
       {renderModalVisualizacao()}
@@ -922,6 +994,8 @@ export function ListarEmitentes() {
         onCancel={fecharModalExclusao}
         loading={excludindo}
       />
+
+
     </div>
   );
 }

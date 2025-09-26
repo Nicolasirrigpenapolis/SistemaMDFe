@@ -48,10 +48,6 @@ namespace MDFeApi.Models
         [MaxLength(2)]
         public string Uf { get; set; } = string.Empty;
 
-
-        [MaxLength(20)]
-        public string? Ie { get; set; }
-
         public bool Ativo { get; set; } = true;
 
         public DateTime DataCriacao { get; set; } = DateTime.Now;

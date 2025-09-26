@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { ConfirmDeleteModal } from '../../../components/UI/Modal/ConfirmDeleteModal';
 import { formatCNPJ, cleanNumericString, applyMask } from '../../../utils/formatters';
 import { entitiesService } from '../../../services/entitiesService';
+import { useCNPJLookup } from '../../../hooks/useCNPJLookup';
 import styles from './ListarSeguradoras.module.css';
 
 interface Seguradora {
@@ -47,6 +48,9 @@ export function ListarSeguradoras() {
   const [seguradoraExclusao, setSeguradoraExclusao] = useState<Seguradora | null>(null);
   const [excludindo, setExcluindo] = useState(false);
 
+  // Hook para consulta automática de CNPJ
+  const { consultarCNPJ, loading: loadingCNPJ, error: errorCNPJ, clearError } = useCNPJLookup();
+
   useEffect(() => {
     carregarSeguradoras();
   }, [paginaAtual, tamanhoPagina, filtro, filtroStatus]);
@@ -56,12 +60,12 @@ export function ListarSeguradoras() {
     try {
       const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://localhost:5001/api';
       const params = new URLSearchParams({
-        Page: paginaAtual.toString(),
-        PageSize: tamanhoPagina.toString()
+        pagina: paginaAtual.toString(),
+        tamanhoPagina: tamanhoPagina.toString()
       });
 
       if (filtro.trim()) {
-        params.append('Search', filtro.trim());
+        params.append('busca', filtro.trim());
       }
 
       const response = await fetch(`${API_BASE_URL}/seguradoras?${params}`);
@@ -71,8 +75,9 @@ export function ListarSeguradoras() {
       }
 
       const data = await response.json();
+      console.log('Dados recebidos da API de seguradoras:', data);
 
-      const seguradorasMapeadas: Seguradora[] = (data.items || data.Itens || []).map((seguradora: any) => ({
+      const seguradorasMapeadas: Seguradora[] = (data.itens || data.items || data.Itens || []).map((seguradora: any) => ({
         id: seguradora.id || seguradora.Id,
         cnpj: seguradora.cnpj || seguradora.Cnpj,
         razaoSocial: seguradora.razaoSocial || seguradora.RazaoSocial || seguradora.nome || seguradora.Nome,
@@ -83,12 +88,12 @@ export function ListarSeguradoras() {
 
       setSeguradoras(seguradorasMapeadas);
       setPaginacao({
-        totalItems: data.totalItems || data.TotalItens || seguradorasMapeadas.length,
-        totalPages: data.totalPages || data.TotalPaginas || 1,
-        currentPage: data.currentPage || data.Pagina || 1,
-        pageSize: data.pageSize || data.TamanhoPagina || 10,
-        hasNextPage: data.hasNextPage || data.TemProxima || false,
-        hasPreviousPage: data.hasPreviousPage || data.TemAnterior || false,
+        totalItems: data.totalItens || data.totalItems || data.TotalItens || seguradorasMapeadas.length,
+        totalPages: data.totalPaginas || data.totalPages || data.TotalPaginas || 1,
+        currentPage: data.pagina || data.currentPage || data.Pagina || 1,
+        pageSize: data.tamanhoPagina || data.pageSize || data.TamanhoPagina || 10,
+        hasNextPage: data.temProximaPagina || data.hasNextPage || data.TemProxima || false,
+        hasPreviousPage: data.temPaginaAnterior || data.hasPreviousPage || data.TemAnterior || false,
         startItem: data.startItem || 1,
         endItem: data.endItem || seguradorasMapeadas.length
       });
@@ -131,6 +136,26 @@ export function ListarSeguradoras() {
     setModalEdicao(false);
     setSeguradoraSelecionada(null);
     setDadosFormulario({});
+    clearError();
+  };
+
+  const handleCNPJChange = async (cnpj: string) => {
+    const cnpjFormatado = formatCNPJ(cnpj);
+    setDadosFormulario(prev => ({ ...prev, cnpj: cnpjFormatado }));
+
+    const cnpjLimpo = cleanNumericString(cnpj);
+    if (cnpjLimpo.length === 14) {
+      const dadosCNPJ = await consultarCNPJ(cnpjLimpo);
+
+      if (dadosCNPJ) {
+        setDadosFormulario(prev => ({
+          ...prev,
+          cnpj: formatCNPJ(dadosCNPJ.cnpj),
+          razaoSocial: dadosCNPJ.razao_social,
+          nomeFantasia: dadosCNPJ.nome_fantasia || ''
+        }));
+      }
+    }
   };
 
   const salvarSeguradora = async () => {
@@ -317,7 +342,7 @@ export function ListarSeguradoras() {
         <div className={styles.paginationContainer}>
           <div className={styles.paginationControls}>
             <div className={styles.paginationInfo}>
-              Mostrando {paginacao.startItem} até {paginacao.endItem} de {paginacao.totalItems} seguradoras
+              Mostrando {((paginacao.currentPage - 1) * paginacao.pageSize) + 1} até {Math.min(paginacao.currentPage * paginacao.pageSize, paginacao.totalItems)} de {paginacao.totalItems} seguradoras
             </div>
 
             {paginacao.totalPages > 1 && (
@@ -436,11 +461,17 @@ export function ListarSeguradoras() {
                     <input
                       type="text"
                       value={dadosFormulario.cnpj ? formatCNPJ(dadosFormulario.cnpj) : ''}
-                      onChange={(e) => atualizarCampo('cnpj', cleanNumericString(e.target.value))}
+                      onChange={(e) => handleCNPJChange(e.target.value)}
                       maxLength={18}
                       placeholder="00.000.000/0000-00"
                       required
                     />
+                    {loadingCNPJ && (
+                      <small className={styles.loadingText}>Consultando CNPJ...</small>
+                    )}
+                    {errorCNPJ && (
+                      <small className={styles.errorText}>{errorCNPJ}</small>
+                    )}
                   </div>
                   <div className={styles.modalField}>
                     <label>Razão Social *</label>
@@ -448,6 +479,7 @@ export function ListarSeguradoras() {
                       type="text"
                       value={dadosFormulario.razaoSocial || ''}
                       onChange={(e) => atualizarCampo('razaoSocial', e.target.value)}
+                      maxLength={200}
                       required
                     />
                   </div>
@@ -459,6 +491,7 @@ export function ListarSeguradoras() {
                       type="text"
                       value={dadosFormulario.nomeFantasia || ''}
                       onChange={(e) => atualizarCampo('nomeFantasia', e.target.value)}
+                      maxLength={200}
                     />
                   </div>
                   <div className={styles.modalField}>
@@ -468,6 +501,7 @@ export function ListarSeguradoras() {
                       value={dadosFormulario.apolice || ''}
                       onChange={(e) => atualizarCampo('apolice', e.target.value)}
                       placeholder="Número da apólice"
+                      maxLength={100}
                     />
                   </div>
                 </div>

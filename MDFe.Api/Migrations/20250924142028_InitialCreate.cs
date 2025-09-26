@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace MDFeApi.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialCreateFinal : Migration
+    public partial class InitialCreate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -19,7 +19,6 @@ namespace MDFeApi.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Nome = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
                     Cpf = table.Column<string>(type: "nvarchar(11)", maxLength: 11, nullable: false),
-                    Telefone = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true),
                     Ativo = table.Column<bool>(type: "bit", nullable: false),
                     DataCriacao = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
@@ -46,8 +45,7 @@ namespace MDFeApi.Migrations
                     Municipio = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     Cep = table.Column<string>(type: "nvarchar(8)", maxLength: 8, nullable: false),
                     Uf = table.Column<string>(type: "nvarchar(2)", maxLength: 2, nullable: false),
-                    Telefone = table.Column<string>(type: "nvarchar(15)", maxLength: 15, nullable: true),
-                    Email = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
+                    Ie = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true),
                     Ativo = table.Column<bool>(type: "bit", nullable: false),
                     DataCriacao = table.Column<DateTime>(type: "datetime2", nullable: false),
                     DataUltimaAlteracao = table.Column<DateTime>(type: "datetime2", nullable: true)
@@ -76,13 +74,11 @@ namespace MDFeApi.Migrations
                     Municipio = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     Cep = table.Column<string>(type: "nvarchar(8)", maxLength: 8, nullable: false),
                     Uf = table.Column<string>(type: "nvarchar(2)", maxLength: 2, nullable: false),
-                    Telefone = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true),
-                    Email = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
                     Ativo = table.Column<bool>(type: "bit", nullable: false),
                     TipoEmitente = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
-                    DescricaoEmitente = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
                     CaminhoArquivoCertificado = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
                     SenhaCertificado = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
+                    CaminhoSalvarXml = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
                     Rntrc = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true),
                     AmbienteSefaz = table.Column<int>(type: "int", nullable: false),
                     DataCriacao = table.Column<DateTime>(type: "datetime2", nullable: false),
@@ -102,7 +98,6 @@ namespace MDFeApi.Migrations
                     Codigo = table.Column<int>(type: "int", nullable: false),
                     Nome = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     Uf = table.Column<string>(type: "nvarchar(2)", maxLength: 2, nullable: false),
-                    Ibge = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true),
                     Ativo = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
@@ -155,15 +150,7 @@ namespace MDFeApi.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Cnpj = table.Column<string>(type: "nvarchar(14)", maxLength: 14, nullable: false),
                     RazaoSocial = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
-                    Endereco = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
-                    Numero = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true),
-                    Complemento = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
-                    Bairro = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    CodMunicipio = table.Column<int>(type: "int", nullable: false),
-                    Municipio = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    Cep = table.Column<string>(type: "nvarchar(8)", maxLength: 8, nullable: false),
-                    Uf = table.Column<string>(type: "nvarchar(2)", maxLength: 2, nullable: false),
-                    Telefone = table.Column<string>(type: "nvarchar(15)", maxLength: 15, nullable: true),
+                    NomeFantasia = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
                     Apolice = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
                     Ativo = table.Column<bool>(type: "bit", nullable: false),
                     DataCriacao = table.Column<DateTime>(type: "datetime2", nullable: false),
@@ -212,20 +199,13 @@ namespace MDFeApi.Migrations
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Placa = table.Column<string>(type: "nvarchar(8)", maxLength: 8, nullable: false),
-                    Renavam = table.Column<string>(type: "nvarchar(11)", maxLength: 11, nullable: true),
                     Tara = table.Column<int>(type: "int", nullable: false),
-                    CapacidadeKg = table.Column<int>(type: "int", nullable: true),
                     TipoRodado = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     TipoCarroceria = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     Uf = table.Column<string>(type: "nvarchar(2)", maxLength: 2, nullable: false),
-                    Rntrc = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true),
                     Ativo = table.Column<bool>(type: "bit", nullable: false),
                     DataCriacao = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    Marca = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Modelo = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Ano = table.Column<int>(type: "int", nullable: false),
-                    Cor = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Combustivel = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    Marca = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false)
                 },
                 constraints: table =>
                 {
@@ -344,7 +324,7 @@ namespace MDFeApi.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    EmpresaId = table.Column<int>(type: "int", nullable: false),
+                    EmitenteId = table.Column<int>(type: "int", nullable: false),
                     EmitenteCnpj = table.Column<string>(type: "nvarchar(14)", maxLength: 14, nullable: false),
                     EmitenteCpf = table.Column<string>(type: "nvarchar(11)", maxLength: 11, nullable: true),
                     EmitenteIe = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true),
@@ -383,6 +363,8 @@ namespace MDFeApi.Migrations
                     Serie = table.Column<int>(type: "int", nullable: false),
                     NumeroMdfe = table.Column<int>(type: "int", nullable: false),
                     ChaveAcesso = table.Column<string>(type: "nvarchar(44)", maxLength: 44, nullable: true),
+                    CodigoVerificador = table.Column<string>(type: "nvarchar(1)", maxLength: 1, nullable: true),
+                    CodigoNumericoAleatorio = table.Column<string>(type: "nvarchar(8)", maxLength: 8, nullable: true),
                     UfInicio = table.Column<string>(type: "nvarchar(2)", maxLength: 2, nullable: false),
                     UfFim = table.Column<string>(type: "nvarchar(2)", maxLength: 2, nullable: false),
                     Modal = table.Column<int>(type: "int", nullable: false),
@@ -447,6 +429,11 @@ namespace MDFeApi.Migrations
                     SeguradoraCodigoSusep = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
                     NumeroApoliceSeguro = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
                     NumeroAverbacaoSeguro = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
+                    ComponentesPagamentoJson = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    ValorTotalContrato = table.Column<decimal>(type: "decimal(18,2)", nullable: true),
+                    TipoPagamento = table.Column<string>(type: "nvarchar(1)", maxLength: 1, nullable: true),
+                    ValesPedagioJson = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    SemValePedagio = table.Column<bool>(type: "bit", nullable: false),
                     ProdutoPredominante = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
                     LatitudeCarregamento = table.Column<decimal>(type: "decimal(10,6)", nullable: true),
                     LongitudeCarregamento = table.Column<decimal>(type: "decimal(10,6)", nullable: true),
@@ -464,7 +451,16 @@ namespace MDFeApi.Migrations
                     XmlAutorizado = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     MunicipioIni = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     MunicipioFim = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    PesoBrutoTotal = table.Column<decimal>(type: "decimal(18,3)", nullable: true)
+                    PesoBrutoTotal = table.Column<decimal>(type: "decimal(18,3)", nullable: true),
+                    UsuarioCriacao = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
+                    UsuarioUltimaAlteracao = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
+                    VersaoSistema = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
+                    ObservacoesInternas = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
+                    DadosOriginaisJson = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    DataGeracao = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    NumeroAverbacao = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    CodigoCIOT = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true),
+                    NumeroApolice = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true)
                 },
                 constraints: table =>
                 {
@@ -482,8 +478,8 @@ namespace MDFeApi.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "FK_MDFes_Empresas_EmpresaId",
-                        column: x => x.EmpresaId,
+                        name: "FK_MDFes_Empresas_EmitenteId",
+                        column: x => x.EmitenteId,
                         principalTable: "Empresas",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
@@ -601,9 +597,9 @@ namespace MDFeApi.Migrations
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     MDFeId = table.Column<int>(type: "int", nullable: false),
-                    NumeroLacre = table.Column<string>(type: "nvarchar(60)", maxLength: 60, nullable: false),
-                    DataCriacao = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    Ordem = table.Column<int>(type: "int", nullable: false)
+                    NumeroLacre = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
+                    Ordem = table.Column<int>(type: "int", nullable: false),
+                    DataCriacao = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -851,11 +847,15 @@ namespace MDFeApi.Migrations
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     MDFeId = table.Column<int>(type: "int", nullable: false),
+                    QuantidadeParcial = table.Column<decimal>(type: "decimal(18,3)", nullable: false),
+                    DescricaoEntrega = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
+                    DataEntrega = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    LocalEntrega = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
+                    Ordem = table.Column<int>(type: "int", nullable: false),
+                    QuantidadeTotal = table.Column<decimal>(type: "decimal(18,3)", nullable: true),
                     MDFeCteId = table.Column<int>(type: "int", nullable: true),
                     MDFeNfeId = table.Column<int>(type: "int", nullable: true),
-                    QuantidadeTotal = table.Column<decimal>(type: "decimal(18,3)", nullable: false),
-                    QuantidadeParcial = table.Column<decimal>(type: "decimal(18,3)", nullable: false),
-                    DataCriacao = table.Column<DateTime>(type: "datetime2", nullable: false)
+                    MDFeMdfeTranspId = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -864,6 +864,11 @@ namespace MDFeApi.Migrations
                         name: "FK_MDFeEntregasParciais_MDFeCtes_MDFeCteId",
                         column: x => x.MDFeCteId,
                         principalTable: "MDFeCtes",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_MDFeEntregasParciais_MDFeMdfeTransps_MDFeMdfeTranspId",
+                        column: x => x.MDFeMdfeTranspId,
+                        principalTable: "MDFeMdfeTransps",
                         principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_MDFeEntregasParciais_MDFeNfes_MDFeNfeId",
@@ -885,16 +890,20 @@ namespace MDFeApi.Migrations
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     MDFeId = table.Column<int>(type: "int", nullable: false),
+                    NumeroONU = table.Column<string>(type: "nvarchar(4)", maxLength: 4, nullable: false),
+                    NomeEmbarque = table.Column<string>(type: "nvarchar(150)", maxLength: 150, nullable: false),
+                    ClasseRisco = table.Column<string>(type: "nvarchar(1)", maxLength: 1, nullable: false),
+                    GrupoEmbalagem = table.Column<string>(type: "nvarchar(3)", maxLength: 3, nullable: true),
+                    QuantidadeTotal = table.Column<decimal>(type: "decimal(12,4)", nullable: false),
+                    UnidadeMedida = table.Column<string>(type: "nvarchar(2)", maxLength: 2, nullable: false),
+                    Observacoes = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
+                    Ordem = table.Column<int>(type: "int", nullable: false),
+                    NomeApropriado = table.Column<string>(type: "nvarchar(150)", maxLength: 150, nullable: true),
+                    QuantidadeTotalProduto = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true),
+                    QuantidadeVolumoTipo = table.Column<string>(type: "nvarchar(10)", maxLength: 10, nullable: true),
                     MDFeCteId = table.Column<int>(type: "int", nullable: true),
                     MDFeNfeId = table.Column<int>(type: "int", nullable: true),
-                    MDFeMdfeTranspId = table.Column<int>(type: "int", nullable: true),
-                    NumeroONU = table.Column<string>(type: "nvarchar(4)", maxLength: 4, nullable: false),
-                    NomeApropriado = table.Column<string>(type: "nvarchar(150)", maxLength: 150, nullable: true),
-                    ClasseRisco = table.Column<string>(type: "nvarchar(40)", maxLength: 40, nullable: true),
-                    GrupoEmbalagem = table.Column<string>(type: "nvarchar(6)", maxLength: 6, nullable: true),
-                    QuantidadeTotalProduto = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
-                    QuantidadeVolumoTipo = table.Column<string>(type: "nvarchar(60)", maxLength: 60, nullable: true),
-                    DataCriacao = table.Column<DateTime>(type: "datetime2", nullable: false)
+                    MDFeMdfeTranspId = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -929,13 +938,22 @@ namespace MDFeApi.Migrations
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     MDFeId = table.Column<int>(type: "int", nullable: false),
+                    TipoUnidadeTransporte = table.Column<string>(type: "nvarchar(1)", maxLength: 1, nullable: false),
+                    CodigoInterno = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true),
+                    Placa = table.Column<string>(type: "nvarchar(8)", maxLength: 8, nullable: true),
+                    Renavam = table.Column<string>(type: "nvarchar(11)", maxLength: 11, nullable: true),
+                    Tara = table.Column<decimal>(type: "decimal(10,3)", nullable: true),
+                    CapacidadeKg = table.Column<decimal>(type: "decimal(10,3)", nullable: true),
+                    CapacidadeM3 = table.Column<decimal>(type: "decimal(10,3)", nullable: true),
+                    TipoRodado = table.Column<string>(type: "nvarchar(2)", maxLength: 2, nullable: true),
+                    TipoCarroceria = table.Column<string>(type: "nvarchar(2)", maxLength: 2, nullable: true),
+                    Uf = table.Column<string>(type: "nvarchar(2)", maxLength: 2, nullable: true),
+                    Ordem = table.Column<int>(type: "int", nullable: false),
+                    IdentificacaoUnidadeTransporte = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
+                    QuantidadeRateada = table.Column<decimal>(type: "decimal(18,3)", nullable: true),
                     MDFeCteId = table.Column<int>(type: "int", nullable: true),
                     MDFeNfeId = table.Column<int>(type: "int", nullable: true),
-                    MDFeMdfeTranspId = table.Column<int>(type: "int", nullable: true),
-                    TipoUnidadeTransporte = table.Column<string>(type: "nvarchar(1)", maxLength: 1, nullable: false),
-                    IdentificacaoUnidadeTransporte = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
-                    QuantidadeRateada = table.Column<decimal>(type: "decimal(18,3)", nullable: true),
-                    DataCriacao = table.Column<DateTime>(type: "datetime2", nullable: false)
+                    MDFeMdfeTranspId = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -1101,6 +1119,11 @@ namespace MDFeApi.Migrations
                 column: "MDFeId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_MDFeEntregasParciais_MDFeMdfeTranspId",
+                table: "MDFeEntregasParciais",
+                column: "MDFeMdfeTranspId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_MDFeEntregasParciais_MDFeNfeId",
                 table: "MDFeEntregasParciais",
                 column: "MDFeNfeId",
@@ -1227,9 +1250,9 @@ namespace MDFeApi.Migrations
                 column: "ContratanteId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_MDFes_EmpresaId_Serie_NumeroMdfe",
+                name: "IX_MDFes_EmitenteId_Serie_NumeroMdfe",
                 table: "MDFes",
-                columns: new[] { "EmpresaId", "Serie", "NumeroMdfe" },
+                columns: new[] { "EmitenteId", "Serie", "NumeroMdfe" },
                 unique: true);
 
             migrationBuilder.CreateIndex(

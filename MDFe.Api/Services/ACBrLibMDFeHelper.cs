@@ -39,7 +39,7 @@ namespace MDFeApi.Services
             var buffer = new StringBuilder(BUFFER_SIZE);
             var bufferSize = BUFFER_SIZE;
 
-            var resultado = ACBrLibMDFeNative.MDFe_UltimoRetorno(buffer, ref bufferSize);
+            var resultado = ACBrLibMDFeNative.MDFE_UltimoRetorno(buffer, ref bufferSize);
 
             if (resultado == 0)
                 return buffer.ToString();
@@ -145,7 +145,7 @@ namespace MDFeApi.Services
         /// <param name="valor">Valor a ser configurado</param>
         public static void ConfigurarPropriedade(string secao, string chave, string valor)
         {
-            var resultado = ACBrLibMDFeNative.MDFe_ConfigGravar(
+            var resultado = ACBrLibMDFeNative.MDFE_ConfigGravar(
                 StringParaBuffer(secao),
                 StringParaBuffer(chave),
                 StringParaBuffer(valor)
@@ -163,7 +163,7 @@ namespace MDFeApi.Services
         public static string LerPropriedade(string secao, string chave)
         {
             return ExecutarComBuffer(
-                (buffer, bufferSize) => ACBrLibMDFeNative.MDFe_ConfigLer(
+                (buffer, bufferSize) => ACBrLibMDFeNative.MDFE_ConfigLer(
                     StringParaBuffer(secao),
                     StringParaBuffer(chave),
                     buffer,
@@ -180,7 +180,7 @@ namespace MDFeApi.Services
         public static string ObterVersao()
         {
             return ExecutarComBuffer(
-                (buffer, bufferSize) => ACBrLibMDFeNative.MDFe_Versao(buffer, ref bufferSize),
+                (buffer, bufferSize) => ACBrLibMDFeNative.MDFE_Versao(buffer, ref bufferSize),
                 "Obter versão"
             );
         }
@@ -192,7 +192,7 @@ namespace MDFeApi.Services
         public static string ObterNome()
         {
             return ExecutarComBuffer(
-                (buffer, bufferSize) => ACBrLibMDFeNative.MDFe_Nome(buffer, ref bufferSize),
+                (buffer, bufferSize) => ACBrLibMDFeNative.MDFE_Nome(buffer, ref bufferSize),
                 "Obter nome"
             );
         }

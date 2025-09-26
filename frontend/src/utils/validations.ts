@@ -33,7 +33,6 @@ export const MAX_LENGTHS = {
   // Veículos
   veiculo: {
     placa: 8,
-    renavam: 11,
     marca: 100,
     modelo: 100,
     cor: 50,
@@ -64,7 +63,6 @@ export const MAX_LENGTHS = {
   // Reboques
   reboque: {
     placa: 8,
-    renavam: 11,
     tipoRodado: 50,
     tipoCarroceria: 50,
     uf: 2,

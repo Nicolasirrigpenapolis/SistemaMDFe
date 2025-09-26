@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using MDFeApi.Data;
 using MDFeApi.DTOs;
 using MDFeApi.Models;
+using MDFeApi.Utils;
 
 namespace MDFeApi.Controllers
 {
@@ -55,7 +56,6 @@ namespace MDFeApi.Controllers
                     Municipio = c.Municipio,
                     Cep = c.Cep,
                     Uf = c.Uf,
-                    Ie = c.Ie,
                     Ativo = c.Ativo,
                     DataCriacao = c.DataCriacao
                 })
@@ -90,7 +90,6 @@ namespace MDFeApi.Controllers
                     Municipio = c.Municipio,
                     Cep = c.Cep,
                     Uf = c.Uf,
-                    Ie = c.Ie,
                     Ativo = c.Ativo,
                     DataCriacao = c.DataCriacao,
                     DataUltimaAlteracao = c.DataUltimaAlteracao
@@ -119,35 +118,37 @@ namespace MDFeApi.Controllers
                 return BadRequest(new { message = "CNPJ ou CPF é obrigatório" });
             }
 
-            // Verificar se já existe contratante com mesmo CNPJ ou CPF
+            var contratante = new Contratante
+            {
+                Cnpj = dto.Cnpj,
+                Cpf = dto.Cpf,
+                RazaoSocial = dto.RazaoSocial?.Trim(),
+                NomeFantasia = dto.NomeFantasia?.Trim(),
+                Endereco = dto.Endereco?.Trim(),
+                Numero = dto.Numero?.Trim(),
+                Complemento = dto.Complemento?.Trim(),
+                Bairro = dto.Bairro?.Trim(),
+                CodMunicipio = dto.CodMunicipio,
+                Municipio = dto.Municipio?.Trim(),
+                Cep = dto.Cep,
+                Uf = dto.Uf?.Trim(),
+                Ativo = dto.Ativo,
+                DataCriacao = DateTime.Now
+            };
+
+            // Aplicar limpeza automática de documentos
+            DocumentUtils.LimparDocumentosContratante(contratante);
+
+            // Verificar se já existe contratante com mesmo CNPJ ou CPF (usando dados limpos)
             var existente = await _context.Contratantes
-                .Where(c => (!string.IsNullOrEmpty(dto.Cnpj) && c.Cnpj == dto.Cnpj) ||
-                           (!string.IsNullOrEmpty(dto.Cpf) && c.Cpf == dto.Cpf))
+                .Where(c => (!string.IsNullOrEmpty(contratante.Cnpj) && c.Cnpj == contratante.Cnpj) ||
+                           (!string.IsNullOrEmpty(contratante.Cpf) && c.Cpf == contratante.Cpf))
                 .FirstOrDefaultAsync();
 
             if (existente != null)
             {
                 return BadRequest(new { message = "Já existe um contratante cadastrado com este CNPJ/CPF" });
             }
-
-            var contratante = new Contratante
-            {
-                Cnpj = dto.Cnpj,
-                Cpf = dto.Cpf,
-                RazaoSocial = dto.RazaoSocial,
-                NomeFantasia = dto.NomeFantasia,
-                Endereco = dto.Endereco,
-                Numero = dto.Numero,
-                Complemento = dto.Complemento,
-                Bairro = dto.Bairro,
-                CodMunicipio = dto.CodMunicipio,
-                Municipio = dto.Municipio,
-                Cep = dto.Cep,
-                Uf = dto.Uf,
-                Ie = dto.Ie,
-                Ativo = dto.Ativo,
-                DataCriacao = DateTime.Now
-            };
 
             _context.Contratantes.Add(contratante);
             await _context.SaveChangesAsync();
@@ -167,7 +168,6 @@ namespace MDFeApi.Controllers
                 Municipio = contratante.Municipio,
                 Cep = contratante.Cep,
                 Uf = contratante.Uf,
-                Ie = contratante.Ie,
                 Ativo = contratante.Ativo,
                 DataCriacao = contratante.DataCriacao,
                 DataUltimaAlteracao = contratante.DataUltimaAlteracao
@@ -196,34 +196,36 @@ namespace MDFeApi.Controllers
                 return BadRequest(new { message = "CNPJ ou CPF é obrigatório" });
             }
 
-            // Verificar se já existe outro contratante com mesmo CNPJ ou CPF
+            // Atualizar dados com trim
+            contratante.Cnpj = dto.Cnpj;
+            contratante.Cpf = dto.Cpf;
+            contratante.RazaoSocial = dto.RazaoSocial?.Trim();
+            contratante.NomeFantasia = dto.NomeFantasia?.Trim();
+            contratante.Endereco = dto.Endereco?.Trim();
+            contratante.Numero = dto.Numero?.Trim();
+            contratante.Complemento = dto.Complemento?.Trim();
+            contratante.Bairro = dto.Bairro?.Trim();
+            contratante.CodMunicipio = dto.CodMunicipio;
+            contratante.Municipio = dto.Municipio?.Trim();
+            contratante.Cep = dto.Cep;
+            contratante.Uf = dto.Uf?.Trim();
+            contratante.Ativo = dto.Ativo;
+            contratante.DataUltimaAlteracao = DateTime.Now;
+
+            // Aplicar limpeza automática de documentos
+            DocumentUtils.LimparDocumentosContratante(contratante);
+
+            // Verificar se já existe outro contratante com mesmo CNPJ ou CPF (usando dados limpos)
             var existente = await _context.Contratantes
                 .Where(c => c.Id != id &&
-                           ((!string.IsNullOrEmpty(dto.Cnpj) && c.Cnpj == dto.Cnpj) ||
-                            (!string.IsNullOrEmpty(dto.Cpf) && c.Cpf == dto.Cpf)))
+                           ((!string.IsNullOrEmpty(contratante.Cnpj) && c.Cnpj == contratante.Cnpj) ||
+                            (!string.IsNullOrEmpty(contratante.Cpf) && c.Cpf == contratante.Cpf)))
                 .FirstOrDefaultAsync();
 
             if (existente != null)
             {
                 return BadRequest(new { message = "Já existe outro contratante cadastrado com este CNPJ/CPF" });
             }
-
-            // Atualizar dados
-            contratante.Cnpj = dto.Cnpj;
-            contratante.Cpf = dto.Cpf;
-            contratante.RazaoSocial = dto.RazaoSocial;
-            contratante.NomeFantasia = dto.NomeFantasia;
-            contratante.Endereco = dto.Endereco;
-            contratante.Numero = dto.Numero;
-            contratante.Complemento = dto.Complemento;
-            contratante.Bairro = dto.Bairro;
-            contratante.CodMunicipio = dto.CodMunicipio;
-            contratante.Municipio = dto.Municipio;
-            contratante.Cep = dto.Cep;
-            contratante.Uf = dto.Uf;
-            contratante.Ie = dto.Ie;
-            contratante.Ativo = dto.Ativo;
-            contratante.DataUltimaAlteracao = DateTime.Now;
 
             try
             {

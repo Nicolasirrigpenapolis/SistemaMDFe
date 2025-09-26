@@ -9,11 +9,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
 
-namespace MDFeApi.Data.Migrations
+namespace MDFeApi.Migrations
 {
     [DbContext(typeof(MDFeContext))]
-    [Migration("20250923224934_RemoverCamposOpcionaisEntidades")]
-    partial class RemoverCamposOpcionaisEntidades
+    [Migration("20250924142028_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -164,6 +164,10 @@ namespace MDFeApi.Data.Migrations
                         .HasColumnType("nvarchar(100)");
 
                     b.Property<string>("CaminhoArquivoCertificado")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("CaminhoSalvarXml")
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
 
@@ -1838,14 +1842,8 @@ namespace MDFeApi.Data.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("Ano")
-                        .HasColumnType("int");
-
                     b.Property<bool>("Ativo")
                         .HasColumnType("bit");
-
-                    b.Property<int?>("CapacidadeKg")
-                        .HasColumnType("int");
 
                     b.Property<DateTime>("DataCriacao")
                         .HasColumnType("datetime2");
@@ -1855,19 +1853,10 @@ namespace MDFeApi.Data.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
-                    b.Property<string>("Modelo")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
                     b.Property<string>("Placa")
                         .IsRequired()
                         .HasMaxLength(8)
                         .HasColumnType("nvarchar(8)");
-
-                    b.Property<string>("Rntrc")
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
 
                     b.Property<int>("Tara")
                         .HasColumnType("int");

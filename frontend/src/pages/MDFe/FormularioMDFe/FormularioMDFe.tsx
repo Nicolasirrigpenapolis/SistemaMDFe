@@ -3,7 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { mdfeService } from '../../../services/mdfeService';
 import { entitiesService } from '../../../services/entitiesService';
 import { MDFeData } from '../../../types/mdfe';
-import { MDFeWizard } from '../../../components/UI/Forms/MDFeWizard';
+import { MDFeWizardNovo } from '../../../components/UI/Forms/MDFeWizardNovo';
 import { ErrorDisplay } from '../../../components/UI/ErrorDisplay/ErrorDisplay';
 import styles from './FormularioMDFe.module.css';
 
@@ -12,6 +12,9 @@ export function FormularioMDFe() {
   const { id } = useParams();
   const [salvando, setSalvando] = useState(false);
   const [erro, setErro] = useState<string>('');
+  const [transmitindo, setTransmitindo] = useState(false);
+  const [mensagemSucesso, setMensagemSucesso] = useState<string>('');
+  const [carregandoDados, setCarregandoDados] = useState(false);
 
   const [dados, setDados] = useState<Partial<MDFeData>>({
     ide: {
@@ -20,8 +23,8 @@ export function FormularioMDFe() {
       tpEmit: '1',
       tpTransp: '1',
       mod: '58',
-      serie: '',
-      nMDF: '',
+      serie: '001',
+      nMDF: '700',
       modal: '1',
       dhEmi: '',
       tpEmis: '1',
@@ -72,89 +75,99 @@ export function FormularioMDFe() {
     }
   }, [id]);
 
+  // Cleanup ao desmontar componente
+  useEffect(() => {
+    return () => {
+      setMensagemSucesso('');
+      setErro('');
+    };
+  }, []);
+
   const carregarDadosIniciais = async () => {
     try {
-      // Carregar entidades necessárias para o formulário
-      const resultadoEmitentes = await entitiesService.obterEmitentes();
-      if (resultadoEmitentes && resultadoEmitentes.length > 0) {
-        // Dados carregados com sucesso
-        console.log(`${resultadoEmitentes.length} emitentes carregados`);
+      await entitiesService.obterEmitentes();
+      if (!id) {
+        await gerarProximoNumero();
       }
     } catch (error) {
-      console.error('Erro ao carregar dados iniciais:', error);
       setErro('Erro ao carregar dados necessários para o formulário');
     }
   };
 
-  const carregarMDFe = async (mdfeId: string) => {
+  const gerarProximoNumero = async () => {
     try {
-      const resultado = await mdfeService.obterMDFeWizard(parseInt(mdfeId));
-      if (resultado.sucesso) {
-        setDados(resultado.dados);
-      } else {
-        console.error('Erro ao carregar MDFe:', resultado.mensagem);
-        setErro(`Erro ao carregar MDFe: ${resultado.mensagem}`);
-      }
+      const response = await fetch(`${process.env.REACT_APP_API_URL || 'https://localhost:5001/api'}/mdfe/ultimo-numero`);
+
+      const proximoNumero = response.ok
+        ? ((await response.json()).ultimoNumero || 699) + 1
+        : 700;
+
+      setDados(dadosAtuais => ({
+        ...dadosAtuais,
+        ide: {
+          ...dadosAtuais.ide,
+          serie: '001',
+          nMDF: proximoNumero.toString().padStart(9, '0')
+        }
+      }));
     } catch (error) {
-      console.error('Erro inesperado ao carregar MDFe:', error);
-      setErro('Erro inesperado ao carregar MDFe. Tente novamente.');
+      setDados(dadosAtuais => ({
+        ...dadosAtuais,
+        ide: {
+          ...dadosAtuais.ide,
+          serie: '001',
+          nMDF: '000000700'
+        }
+      }));
     }
   };
 
-  const atualizarCampo = (secao: string, campo: string, valor: any) => {
-    setDados(prev => {
-      const novosDados = { ...prev } as any;
-      if (!novosDados[secao]) {
-        novosDados[secao] = {};
+  const carregarMDFe = async (mdfeId: string) => {
+    setCarregandoDados(true);
+    setErro('');
+
+    try {
+      const resultado = await mdfeService.obterMDFeWizard(parseInt(mdfeId));
+
+      if (resultado.sucesso) {
+        setDados(resultado.dados || {});
+      } else {
+        setErro(`Erro ao carregar MDFe: ${resultado.mensagem}`);
       }
-      novosDados[secao][campo] = valor;
-      return novosDados;
-    });
+    } catch (error) {
+      setErro('Erro inesperado ao carregar MDFe. Tente novamente.');
+    } finally {
+      setCarregandoDados(false);
+    }
   };
 
-  const atualizarSecao = (secao: string, dadosSecao: any) => {
-    setDados(prev => {
-      const novosDados = { ...prev } as any;
-      novosDados[secao] = { ...(novosDados[secao] || {}), ...dadosSecao };
-      return novosDados;
-    });
-  };
 
 
   const salvar = async () => {
     setSalvando(true);
     try {
-      // Definir data/hora de emissão automaticamente no momento do salvamento
-      const agora = new Date();
-      const dataHoraEmissao = agora.toISOString().slice(0, 16); // Formato: YYYY-MM-DDTHH:mm
+      const agora = new Date().toISOString().slice(0, 16);
 
-      const dadosParaSalvar = {
+      // Atualizar apenas campos necessários diretamente
+      const dadosAtualizados = {
         ...dados,
         ide: {
           ...dados.ide,
-          dhEmi: dataHoraEmissao,
-          dhIniViagem: dataHoraEmissao // Data de início da viagem = data de emissão
+          dhEmi: agora,
+          dhIniViagem: agora
         }
-      } as MDFeData;
+      };
 
-      let resultado;
-
-      if (id) {
-        // Atualizar MDFe existente
-        resultado = await mdfeService.atualizarMDFeWizard(parseInt(id), dadosParaSalvar);
-      } else {
-        // Criar novo MDFe
-        resultado = await mdfeService.criarMDFeWizard(dadosParaSalvar);
-      }
+      const resultado = id
+        ? await mdfeService.atualizarMDFeWizard(parseInt(id), dadosAtualizados as MDFeData)
+        : await mdfeService.criarMDFeWizard(dadosAtualizados as MDFeData);
 
       if (resultado.sucesso) {
-        navigate('/mdfes');
+        setMensagemSucesso('MDFe salvo com sucesso! Agora você pode transmitir para a SEFAZ.');
       } else {
-        console.error('Erro ao salvar MDFe:', resultado.mensagem);
         setErro(`Erro ao salvar MDFe: ${resultado.mensagem}`);
       }
     } catch (error) {
-      console.error('Erro inesperado ao salvar MDFe:', error);
       setErro('Erro inesperado ao salvar MDFe. Tente novamente.');
     } finally {
       setSalvando(false);
@@ -165,10 +178,65 @@ export function FormularioMDFe() {
     navigate('/mdfes');
   };
 
+  const transmitir = async () => {
+    if (!window.confirm('Deseja transmitir este MDFe para a SEFAZ?')) {
+      return;
+    }
+
+    setTransmitindo(true);
+    setErro('');
+    setMensagemSucesso('');
+
+    try {
+      await salvar();
+
+      const resultadoCarregamento = await mdfeService.carregarINI(dados);
+      if (!resultadoCarregamento.sucesso) {
+        setErro(`Erro ao carregar dados: ${resultadoCarregamento.mensagem}`);
+        return;
+      }
+
+      const resultadoTransmissao = await mdfeService.enviarAssincrono();
+      if (resultadoTransmissao.sucesso) {
+        setMensagemSucesso('MDFe transmitido com sucesso para a SEFAZ!');
+        setTimeout(() => navigate('/mdfes'), 2000);
+      } else {
+        setErro(`Erro na transmissão: ${resultadoTransmissao.mensagem}`);
+      }
+    } catch (error) {
+      setErro('Erro inesperado ao transmitir MDFe. Tente novamente.');
+    } finally {
+      setTransmitindo(false);
+    }
+  };
+
 
 
   return (
-    <div className={styles.formularioMdfe}>
+    <>
+      {/* Indicador de carregamento */}
+      {carregandoDados && (
+        <div style={{
+          position: 'fixed',
+          top: '20px',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          zIndex: 9999,
+          padding: '1rem 1.5rem',
+          background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)',
+          color: 'white',
+          borderRadius: '12px',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '0.75rem',
+          boxShadow: '0 10px 25px rgba(59, 130, 246, 0.3)',
+          fontSize: '1rem',
+          fontWeight: '500'
+        }}>
+          <i className="fas fa-spinner fa-spin" style={{ fontSize: '1.2rem' }}></i>
+          Carregando dados do MDFe...
+        </div>
+      )}
 
       {erro && (
         <div className={styles.errorContainer}>
@@ -180,14 +248,66 @@ export function FormularioMDFe() {
         </div>
       )}
 
-      <MDFeWizard
+      {/* Mensagem de sucesso */}
+      {mensagemSucesso && (
+        <div style={{
+          position: 'fixed',
+          top: '20px',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          zIndex: 9999,
+          padding: '1.25rem 2rem',
+          background: 'linear-gradient(135deg, #10b981, #059669)',
+          color: 'white',
+          borderRadius: '12px',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '0.75rem',
+          boxShadow: '0 10px 25px rgba(16, 185, 129, 0.3), 0 4px 12px rgba(0, 0, 0, 0.1)',
+          border: '2px solid #34d399',
+          fontSize: '1.1rem',
+          fontWeight: '600',
+          minWidth: '400px',
+          animation: 'slideDown 0.5s ease-out, pulse 2s infinite'
+        }}>
+          <i className="fas fa-check-circle" style={{ fontSize: '1.5rem' }}></i>
+          {mensagemSucesso}
+        </div>
+      )}
+
+      <style>{`
+        @keyframes slideDown {
+          from {
+            opacity: 0;
+            transform: translateX(-50%) translateY(-20px);
+          }
+          to {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+          }
+        }
+
+        @keyframes pulse {
+          0%, 100% {
+            box-shadow: 0 10px 25px rgba(16, 185, 129, 0.3), 0 4px 12px rgba(0, 0, 0, 0.1);
+          }
+          50% {
+            box-shadow: 0 15px 35px rgba(16, 185, 129, 0.5), 0 6px 18px rgba(0, 0, 0, 0.15);
+          }
+        }
+      `}</style>
+
+      <MDFeWizardNovo
         dados={dados}
         onDadosChange={setDados}
         onSalvar={salvar}
         onCancelar={cancelar}
+        onTransmitir={transmitir}
         salvando={salvando}
+        transmitindo={transmitindo}
         isEdicao={!!id}
+        carregandoDados={carregandoDados}
       />
-    </div>
+    </>
   );
 }

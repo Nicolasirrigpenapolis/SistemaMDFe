@@ -2,6 +2,7 @@ import { Routes, Route } from 'react-router-dom';
 import { Dashboard } from '../pages/Dashboard/Dashboard';
 import { ListarMDFe } from '../pages/MDFe/ListarMDFe/ListarMDFe';
 import { FormularioMDFe } from '../pages/MDFe/FormularioMDFe/FormularioMDFe';
+import { DetalhesMDFe } from '../pages/MDFe/DetalhesMDFe/DetalhesMDFe';
 import { ListarEmitentes } from '../pages/Emitentes/ListarEmitentes/ListarEmitentes';
 import { ListarVeiculos } from '../pages/Veiculos/ListarVeiculos/ListarVeiculos';
 import { ListarCondutores } from '../pages/Condutores/ListarCondutores/ListarCondutores';
@@ -20,6 +21,7 @@ export function AppRoutes() {
       <Route path="/mdfes" element={<ListarMDFe />} />
       <Route path="/mdfes/novo" element={<FormularioMDFe />} />
       <Route path="/mdfes/editar/:id" element={<FormularioMDFe />} />
+      <Route path="/mdfes/visualizar/:id" element={<DetalhesMDFe />} />
 
       {/* Outras entidades - apenas listagem, CRUD via modal */}
       <Route path="/emitentes" element={<ListarEmitentes />} />
