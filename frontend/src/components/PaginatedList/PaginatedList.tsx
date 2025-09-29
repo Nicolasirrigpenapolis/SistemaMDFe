@@ -1,7 +1,6 @@
 import React from 'react';
-import Pagination from '../Pagination/Pagination';
+import Pagination from '../UI/Pagination/Pagination';
 import PaginationInfo from '../PaginationInfo/PaginationInfo';
-import './PaginatedList.css';
 
 interface PaginationData {
   totalItems: number;
@@ -45,8 +44,6 @@ const PaginatedList: React.FC<PaginatedListProps> = ({
           currentPage={pagination.currentPage}
           totalPages={pagination.totalPages}
           onPageChange={onPageChange}
-          hasNextPage={pagination.hasNextPage}
-          hasPreviousPage={pagination.hasPreviousPage}
         />
       </div>
     </div>

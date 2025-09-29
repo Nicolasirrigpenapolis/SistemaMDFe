@@ -1,5 +1,4 @@
 import React from 'react';
-import './PaginationInfo.css';
 
 interface PaginationInfoProps {
   startItem: number;

@@ -10,12 +10,8 @@ namespace MDFeApi.Models
         [MaxLength(8)]
         public string Placa { get; set; } = string.Empty;
 
-        [MaxLength(11)]
-        public string? Renavam { get; set; }
 
         public int Tara { get; set; }
-
-        public int CapacidadeKg { get; set; }
 
         [Required]
         [MaxLength(50)]
@@ -35,6 +31,7 @@ namespace MDFeApi.Models
         public bool Ativo { get; set; } = true;
 
         public DateTime DataCriacao { get; set; } = DateTime.Now;
+        public DateTime? DataUltimaAlteracao { get; set; }
 
         // Propriedades computadas
         [System.ComponentModel.DataAnnotations.Schema.NotMapped]

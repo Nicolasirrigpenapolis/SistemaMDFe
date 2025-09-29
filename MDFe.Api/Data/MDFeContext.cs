@@ -13,6 +13,7 @@ namespace MDFeApi.Data
 
         // DbSets das entidades
         public DbSet<Emitente> Emitentes { get; set; }
+        public DbSet<Estado> Estados { get; set; }
         public DbSet<Municipio> Municipios { get; set; }
         public DbSet<Condutor> Condutores { get; set; }
         public DbSet<Veiculo> Veiculos { get; set; }
@@ -30,8 +31,8 @@ namespace MDFeApi.Data
         public DbSet<MDFeValePedagio> MDFeValesPedagio { get; set; }
         public DbSet<Contratante> Contratantes { get; set; }
         public DbSet<Seguradora> Seguradoras { get; set; }
+        public DbSet<Cargo> Cargos { get; set; }
 
-        // Novas entidades de documentos fiscais
         public DbSet<MDFeUnidadeTransporte> MDFeUnidadesTransporte { get; set; }
         public DbSet<MDFeUnidadeCarga> MDFeUnidadesCarga { get; set; }
         public DbSet<MDFeLacreUnidadeTransporte> MDFeLacresUnidadeTransporte { get; set; }
@@ -49,6 +50,18 @@ namespace MDFeApi.Data
             builder.Entity<Usuario>(entity =>
             {
                 entity.ToTable("Usuarios");
+
+                // Relacionamento com Cargo
+                entity.HasOne(u => u.Cargo)
+                    .WithMany(c => c.Usuarios)
+                    .HasForeignKey(u => u.CargoId)
+                    .OnDelete(DeleteBehavior.SetNull);
+            });
+
+            // Configuração do Cargo
+            builder.Entity<Cargo>(entity =>
+            {
+                entity.HasIndex(c => c.Nome).IsUnique();
             });
 
             builder.Entity<IdentityRole<int>>(entity =>
@@ -126,11 +139,9 @@ namespace MDFeApi.Data
                 entity.Property(e => e.PesoBrutoTotal)
                     .HasColumnType("decimal(18,3)");
                     
-                entity.Property(e => e.ValorCarga)
+                entity.Property(e => e.ValorTotal)
                     .HasColumnType("decimal(18,2)");
                     
-                entity.Property(e => e.QuantidadeCarga)
-                    .HasColumnType("decimal(18,3)");
 
                 // Relacionamentos
                 entity.HasOne(m => m.Emitente)
@@ -308,129 +319,6 @@ namespace MDFeApi.Data
                     .HasColumnType("decimal(18,3)");
             });
 
-            // MDFeUnidadeTransporte
-            builder.Entity<MDFeUnidadeTransporte>(entity =>
-            {
-                entity.Property(ut => ut.QuantidadeRateada)
-                    .HasColumnType("decimal(18,3)");
-
-                entity.HasOne(ut => ut.MDFe)
-                    .WithMany(m => m.UnidadesTransporte)
-                    .HasForeignKey(ut => ut.MDFeId)
-                    .OnDelete(DeleteBehavior.Cascade);
-
-                entity.HasOne(ut => ut.MDFeCte)
-                    .WithMany(c => c.UnidadesTransporte)
-                    .HasForeignKey(ut => ut.MDFeCteId)
-                    .OnDelete(DeleteBehavior.NoAction);
-
-                entity.HasOne(ut => ut.MDFeNfe)
-                    .WithMany(n => n.UnidadesTransporte)
-                    .HasForeignKey(ut => ut.MDFeNfeId)
-                    .OnDelete(DeleteBehavior.NoAction);
-
-                entity.HasOne(ut => ut.MDFeMdfeTransp)
-                    .WithMany(mt => mt.UnidadesTransporte)
-                    .HasForeignKey(ut => ut.MDFeMdfeTranspId)
-                    .OnDelete(DeleteBehavior.NoAction);
-            });
-
-            // MDFeUnidadeCarga
-            builder.Entity<MDFeUnidadeCarga>(entity =>
-            {
-                entity.HasOne(uc => uc.UnidadeTransporte)
-                    .WithMany(ut => ut.UnidadesCarga)
-                    .HasForeignKey(uc => uc.MDFeUnidadeTransporteId)
-                    .OnDelete(DeleteBehavior.Cascade);
-
-                entity.Property(uc => uc.QuantidadeRateada)
-                    .HasColumnType("decimal(18,3)");
-            });
-
-            // MDFeLacreUnidadeTransporte
-            builder.Entity<MDFeLacreUnidadeTransporte>(entity =>
-            {
-                entity.HasOne(lut => lut.UnidadeTransporte)
-                    .WithMany(ut => ut.Lacres)
-                    .HasForeignKey(lut => lut.MDFeUnidadeTransporteId)
-                    .OnDelete(DeleteBehavior.Cascade);
-            });
-
-            // MDFeLacreUnidadeCarga
-            builder.Entity<MDFeLacreUnidadeCarga>(entity =>
-            {
-                entity.HasOne(luc => luc.UnidadeCarga)
-                    .WithMany(uc => uc.Lacres)
-                    .HasForeignKey(luc => luc.MDFeUnidadeCargaId)
-                    .OnDelete(DeleteBehavior.Cascade);
-            });
-
-            // MDFeLacreRodoviario
-            builder.Entity<MDFeLacreRodoviario>(entity =>
-            {
-                entity.HasOne(lr => lr.MDFe)
-                    .WithMany(m => m.LacresRodoviarios)
-                    .HasForeignKey(lr => lr.MDFeId)
-                    .OnDelete(DeleteBehavior.Cascade);
-            });
-
-            // MDFeEntregaParcial
-            builder.Entity<MDFeEntregaParcial>(entity =>
-            {
-                entity.Property(ep => ep.QuantidadeTotal)
-                    .HasColumnType("decimal(18,3)");
-
-                entity.Property(ep => ep.QuantidadeParcial)
-                    .HasColumnType("decimal(18,3)");
-
-                entity.HasOne(ep => ep.MDFe)
-                    .WithMany(m => m.EntregasParciais)
-                    .HasForeignKey(ep => ep.MDFeId)
-                    .OnDelete(DeleteBehavior.Cascade);
-
-                entity.HasOne(ep => ep.MDFeCte)
-                    .WithOne(c => c.EntregaParcial)
-                    .HasForeignKey<MDFeEntregaParcial>(ep => ep.MDFeCteId)
-                    .OnDelete(DeleteBehavior.NoAction);
-
-                entity.HasOne(ep => ep.MDFeNfe)
-                    .WithOne(n => n.EntregaParcial)
-                    .HasForeignKey<MDFeEntregaParcial>(ep => ep.MDFeNfeId)
-                    .OnDelete(DeleteBehavior.NoAction);
-            });
-
-            // MDFeProdutoPerigoso - Configurar para evitar ciclos de cascata
-            builder.Entity<MDFeProdutoPerigoso>(entity =>
-            {
-                entity.HasOne(pp => pp.MDFe)
-                    .WithMany(m => m.ProdutosPerigosos)
-                    .HasForeignKey(pp => pp.MDFeId)
-                    .OnDelete(DeleteBehavior.Cascade);
-
-                entity.HasOne(pp => pp.MDFeCte)
-                    .WithMany(c => c.ProdutosPerigosos)
-                    .HasForeignKey(pp => pp.MDFeCteId)
-                    .OnDelete(DeleteBehavior.NoAction);
-
-                entity.HasOne(pp => pp.MDFeNfe)
-                    .WithMany(n => n.ProdutosPerigosos)
-                    .HasForeignKey(pp => pp.MDFeNfeId)
-                    .OnDelete(DeleteBehavior.NoAction);
-
-                entity.HasOne(pp => pp.MDFeMdfeTransp)
-                    .WithMany(mt => mt.ProdutosPerigosos)
-                    .HasForeignKey(pp => pp.MDFeMdfeTranspId)
-                    .OnDelete(DeleteBehavior.NoAction);
-            });
-
-            // MDFeNfePrestacaoParcial
-            builder.Entity<MDFeNfePrestacaoParcial>(entity =>
-            {
-                entity.HasOne(npp => npp.MDFeCte)
-                    .WithMany(c => c.NfesPrestacaoParcial)
-                    .HasForeignKey(npp => npp.MDFeCteId)
-                    .OnDelete(DeleteBehavior.Cascade);
-            });
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

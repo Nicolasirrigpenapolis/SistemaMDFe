@@ -62,6 +62,12 @@
 - Peso total: soma dos documentos
 - Valor total: soma dos valores dos documentos
 
+### 6. Padronização de Unidades de Medida
+- **APENAS QUILOGRAMA (kg)**: Sistema padronizado para usar exclusivamente quilograma
+- Código SEFAZ fixo: '01' = Quilograma
+- Todas as outras unidades (tonelada, litro, etc.) foram removidas para simplificar o sistema
+- Interface mostra "Quilograma (kg)" como padrão fixo do sistema
+
 ## Configuração de ambiente
 
 ### Variáveis de ambiente para Claude

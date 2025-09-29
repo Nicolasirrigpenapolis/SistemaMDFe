@@ -41,16 +41,33 @@ namespace MDFeApi.DTOs
         [MaxLength(100, ErrorMessage = "Município de fim deve ter no máximo 100 caracteres")]
         public string MunicipioFim { get; set; } = string.Empty;
 
+        // === ETAPA CARGA ===
         [Range(0.01, 999999.99, ErrorMessage = "Peso bruto total deve estar entre 0,01 e 999.999,99 kg")]
         public decimal? PesoBrutoTotal { get; set; }
 
         [Range(0.01, 9999999.99, ErrorMessage = "Valor total deve estar entre 0,01 e 9.999.999,99")]
         public decimal? ValorTotal { get; set; }
 
+
         [MaxLength(500, ErrorMessage = "Observações devem ter no máximo 500 caracteres")]
         public string? Observacoes { get; set; }
 
+        // === ETAPA CONTRATAÇÃO ===
+        public int? ContratanteId { get; set; }
+        public int? SeguradoraId { get; set; }
+
+        // === ETAPA DOCUMENTOS ===
+        public List<string>? DocumentosCTe { get; set; }
+        public List<string>? DocumentosNFe { get; set; }
+
         public List<int>? ReboquesIds { get; set; }
+
+        // Localidades de carregamento e descarregamento
+        public List<LocalidadeDto>? LocalidadesCarregamento { get; set; }
+        public List<LocalidadeDto>? LocalidadesDescarregamento { get; set; }
+
+        // Rota de percurso
+        public List<string>? RotaPercurso { get; set; }
     }
 
     // DTO específico para informações de pagamento (vale-pedágio)
@@ -83,7 +100,7 @@ namespace MDFeApi.DTOs
     {
         public ResponsavelSeguroDto ResponsavelSeguro { get; set; } = new();
         public SeguradoraInfoDto? SeguradoraInfo { get; set; }
-        public string? NumeroApolice { get; set; }
+        public string? NumeroApoliceSeguro { get; set; }
         public List<string>? NumerosAverbacao { get; set; }
     }
 
@@ -102,7 +119,6 @@ namespace MDFeApi.DTOs
         public int? SeguradoraId { get; set; }
         public string Cnpj { get; set; } = string.Empty;
         public string RazaoSocial { get; set; } = string.Empty;
-        public string? CodigoSusep { get; set; }
     }
 
     public class MDFeUpdateDto : MDFeCreateDto
@@ -136,7 +152,7 @@ namespace MDFeApi.DTOs
         public int EmitenteId { get; set; }
         public int CondutorId { get; set; }
         public int VeiculoId { get; set; }
-        public string UfInicio { get; set; } = string.Empty;
+        public string UfIni { get; set; } = string.Empty;
         public string UfFim { get; set; } = string.Empty;
         public string MunicipioCarregamento { get; set; } = string.Empty;
         public string MunicipioDescarregamento { get; set; } = string.Empty;
@@ -144,10 +160,27 @@ namespace MDFeApi.DTOs
         public int NumeroMdfe { get; set; } = 1;
         public int Modal { get; set; } = 1;
         public int TipoTransportador { get; set; } = 1;
-        public decimal ValorCarga { get; set; } = 0;
-        public decimal QuantidadeCarga { get; set; } = 0;
-        public string UnidadeMedida { get; set; } = "01";
+        public decimal ValorTotal { get; set; } = 0;
+        public decimal PesoBrutoTotal { get; set; } = 0;
+        public string UnidadeMedida { get; set; } = "01"; // Fixo em '01' = Quilograma (padrão do sistema)
         public string InfoAdicional { get; set; } = string.Empty;
         public List<int>? ReboquesIds { get; set; }
+    }
+
+    // DTO para localidades de carregamento/descarregamento
+    public class LocalidadeDto
+    {
+        [Required(ErrorMessage = "UF é obrigatória")]
+        [RegularExpression(@"^[A-Z]{2}$", ErrorMessage = "UF deve ter 2 letras maiúsculas")]
+        public string UF { get; set; } = string.Empty;
+
+        [Required(ErrorMessage = "Município é obrigatório")]
+        [MinLength(2, ErrorMessage = "Município deve ter pelo menos 2 caracteres")]
+        [MaxLength(100, ErrorMessage = "Município deve ter no máximo 100 caracteres")]
+        public string Municipio { get; set; } = string.Empty;
+
+        [Required(ErrorMessage = "Código IBGE é obrigatório")]
+        [Range(1000000, 9999999, ErrorMessage = "Código IBGE deve ter 7 dígitos")]
+        public int CodigoIBGE { get; set; }
     }
 }

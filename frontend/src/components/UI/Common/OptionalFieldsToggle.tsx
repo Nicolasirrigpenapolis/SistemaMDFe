@@ -1,5 +1,4 @@
 import React from 'react';
-import { useTheme } from '../../../contexts/ThemeContext';
 
 interface OptionalFieldsToggleProps {
   label: string;
@@ -18,62 +17,50 @@ export const OptionalFieldsToggle: React.FC<OptionalFieldsToggleProps> = ({
   icon = 'fas fa-plus-circle',
   className = ''
 }) => {
-  const { theme } = useTheme();
 
   return (
     <div
-      className={`optional-fields-toggle ${className}`}
+      className={`optional-fields-toggle ${className} flex items-center p-4 rounded-xl cursor-pointer mb-4 transition-all duration-300 transform hover:scale-105 ${
+        isExpanded
+          ? 'bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/30 dark:to-indigo-900/30 border-2 border-blue-300 dark:border-blue-600 shadow-lg'
+          : 'bg-gray-50 dark:bg-gray-700 border-2 border-gray-200 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-600 shadow-md hover:shadow-lg'
+      }`}
       onClick={onToggle}
-      style={{
-        display: 'flex',
-        alignItems: 'center',
-        padding: '12px 16px',
-        background: isExpanded ? 'var(--color-primary-light)' : 'var(--color-surface-hover)',
-        border: `1px solid ${isExpanded ? 'var(--color-primary)' : 'var(--color-border)'}`,
-        borderRadius: '8px',
-        cursor: 'pointer',
-        marginBottom: '16px',
-        transition: 'all 0.2s ease',
-        fontSize: '14px',
-        fontWeight: '500'
-      }}
     >
-      <i
-        className={isExpanded ? 'fas fa-minus-circle' : icon}
-        style={{
-          color: isExpanded ? 'var(--color-primary)' : 'var(--color-text-secondary)',
-          marginRight: '12px',
-          fontSize: '16px',
-          transition: 'color 0.2s ease'
-        }}
-      />
-      <div style={{ flex: 1 }}>
-        <div style={{
-          color: 'var(--color-text-primary)',
-          fontWeight: '600',
-          transition: 'color 0.2s ease'
-        }}>
+      <div className={`w-10 h-10 rounded-xl flex items-center justify-center mr-4 transition-all duration-200 ${
+        isExpanded
+          ? 'bg-blue-500 dark:bg-blue-600 text-white'
+          : 'bg-gray-200 dark:bg-gray-600 text-gray-600 dark:text-gray-300'
+      }`}>
+        <i className={`${isExpanded ? 'fas fa-minus' : icon.replace('fas fa-plus-circle', 'fas fa-plus')} text-lg`} />
+      </div>
+
+      <div className="flex-1">
+        <div className={`font-semibold text-lg transition-colors duration-200 ${
+          isExpanded
+            ? 'text-blue-900 dark:text-blue-100'
+            : 'text-gray-900 dark:text-gray-100'
+        }`}>
           {label}
         </div>
         {description && (
-          <div style={{
-            color: 'var(--color-text-secondary)',
-            fontSize: '12px',
-            marginTop: '2px',
-            transition: 'color 0.2s ease'
-          }}>
+          <div className={`text-sm mt-1 transition-colors duration-200 ${
+            isExpanded
+              ? 'text-blue-700 dark:text-blue-300'
+              : 'text-gray-600 dark:text-gray-400'
+          }`}>
             {description}
           </div>
         )}
       </div>
-      <i
-        className={`fas fa-chevron-${isExpanded ? 'up' : 'down'}`}
-        style={{
-          color: 'var(--color-text-secondary)',
-          fontSize: '12px',
-          transition: 'color 0.2s ease'
-        }}
-      />
+
+      <div className={`w-8 h-8 rounded-lg flex items-center justify-center transition-all duration-200 ${
+        isExpanded
+          ? 'bg-blue-100 dark:bg-blue-800 text-blue-600 dark:text-blue-300'
+          : 'bg-gray-100 dark:bg-gray-600 text-gray-500 dark:text-gray-400'
+      }`}>
+        <i className={`fas fa-chevron-${isExpanded ? 'up' : 'down'} text-sm`} />
+      </div>
     </div>
   );
 };
@@ -89,21 +76,12 @@ export const OptionalSection: React.FC<OptionalSectionProps> = ({
   isVisible,
   className = ''
 }) => {
-  const { theme } = useTheme();
 
   if (!isVisible) return null;
 
   return (
     <div
-      className={`optional-section ${className}`}
-      style={{
-        background: 'var(--color-surface)',
-        border: '1px solid var(--color-border)',
-        borderRadius: '8px',
-        padding: '20px',
-        marginBottom: '16px',
-        transition: 'all 0.2s ease'
-      }}
+      className={`optional-section ${className} bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-600 rounded-xl p-6 mb-4 transition-all duration-300 shadow-sm hover:shadow-md`}
     >
       {children}
     </div>

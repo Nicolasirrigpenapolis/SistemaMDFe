@@ -3,21 +3,29 @@ import Icon from '../Icon';
 import { useTheme } from '../../../contexts/ThemeContext';
 
 export function ThemeToggle() {
-  const { theme, toggleTheme } = useTheme();
+  const { themeMode, toggleTheme } = useTheme();
 
   return (
     <button
       onClick={toggleTheme}
-      className="btn btn-secondary btn-sm"
-      title={`Alternar para tema ${theme === 'light' ? 'escuro' : 'claro'}`}
-      style={{
-        padding: 'var(--space-2)',
-        minWidth: 'auto',
-        aspectRatio: '1',
-        fontSize: '1rem'
-      }}
+      className="
+        p-2 rounded-lg border-2 transition-all duration-200 ease-in-out
+        bg-white dark:bg-gray-800
+        border-gray-200 dark:border-gray-600
+        text-gray-700 dark:text-gray-300
+        hover:bg-gray-50 dark:hover:bg-gray-700
+        hover:border-gray-300 dark:hover:border-gray-500
+        focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50
+        shadow-sm hover:shadow-md
+        transform hover:scale-105 active:scale-95
+      "
+      title={`Alternar para tema ${themeMode === 'light' ? 'escuro' : 'claro'}`}
     >
-      <Icon name={theme === 'light' ? 'moon' : 'sun'} />
+      <Icon
+        name={themeMode === 'light' ? 'moon' : 'sun'}
+        size="md"
+        className="transition-transform duration-300"
+      />
     </button>
   );
 }

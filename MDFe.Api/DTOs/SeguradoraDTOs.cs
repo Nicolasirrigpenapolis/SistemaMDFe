@@ -9,7 +9,6 @@ namespace MDFeApi.DTOs
         public string RazaoSocial { get; set; } = string.Empty;
         public string Uf { get; set; } = string.Empty;
         public string? NomeFantasia { get; set; }
-        public string? CodigoSusep { get; set; }
         public string? Apolice { get; set; }
         public bool Ativo { get; set; }
         public DateTime DataCriacao { get; set; }
@@ -33,9 +32,40 @@ namespace MDFeApi.DTOs
         [MaxLength(200)]
         public string? NomeFantasia { get; set; }
 
+        [Required(ErrorMessage = "Endereço é obrigatório")]
+        [MaxLength(200)]
+        public string Endereco { get; set; } = string.Empty;
 
-        [MaxLength(50)]
-        public string? CodigoSusep { get; set; }
+        [MaxLength(20)]
+        public string? Numero { get; set; }
+
+        [MaxLength(100)]
+        public string? Complemento { get; set; }
+
+        [Required(ErrorMessage = "Bairro é obrigatório")]
+        [MaxLength(100)]
+        public string Bairro { get; set; } = string.Empty;
+
+        [Required]
+        public int CodMunicipio { get; set; }
+
+        [Required(ErrorMessage = "Município é obrigatório")]
+        [MaxLength(100)]
+        public string Municipio { get; set; } = string.Empty;
+
+        [Required(ErrorMessage = "CEP é obrigatório")]
+        [MaxLength(8)]
+        public string Cep { get; set; } = string.Empty;
+
+        [Required(ErrorMessage = "UF é obrigatória")]
+        [MaxLength(2)]
+        public string Uf { get; set; } = string.Empty;
+
+        [MaxLength(15)]
+        public string? Telefone { get; set; }
+
+        [MaxLength(200)]
+        public string? Email { get; set; }
 
         [MaxLength(50)]
         public string? Apolice { get; set; }

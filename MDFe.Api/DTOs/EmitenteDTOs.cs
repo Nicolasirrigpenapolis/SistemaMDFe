@@ -51,6 +51,11 @@ namespace MDFeApi.DTOs
         [MaxLength(2, ErrorMessage = "UF deve ter no máximo 2 caracteres")]
         public string Uf { get; set; } = string.Empty;
 
+        [MaxLength(20, ErrorMessage = "Telefone deve ter no máximo 20 caracteres")]
+        public string? Telefone { get; set; }
+
+        [MaxLength(200, ErrorMessage = "Email deve ter no máximo 200 caracteres")]
+        public string? Email { get; set; }
 
         [Required(ErrorMessage = "Tipo Emitente é obrigatório")]
         [MaxLength(50, ErrorMessage = "Tipo Emitente deve ter no máximo 50 caracteres")]
@@ -68,6 +73,14 @@ namespace MDFeApi.DTOs
 
         [MaxLength(20, ErrorMessage = "RNTRC deve ter no máximo 20 caracteres")]
         public string? Rntrc { get; set; }
+
+        public int SerieInicial { get; set; }
+
+        public int TipoTransportador { get; set; }
+
+        public int ModalTransporte { get; set; }
+
+        public int AmbienteSefaz { get; set; }
     }
 
     public class EmitenteUpdateDto : EmitenteCreateDto
@@ -91,12 +104,19 @@ namespace MDFeApi.DTOs
         public string Municipio { get; set; } = string.Empty;
         public string Cep { get; set; } = string.Empty;
         public string Uf { get; set; } = string.Empty;
+        public string? Telefone { get; set; }
+        public string? Email { get; set; }
         public bool Ativo { get; set; }
         public string TipoEmitente { get; set; } = string.Empty;
         public string? CaminhoArquivoCertificado { get; set; }
         public string? CaminhoSalvarXml { get; set; }
         public string? Rntrc { get; set; }
+        public int SerieInicial { get; set; }
+        public int TipoTransportador { get; set; }
+        public int ModalTransporte { get; set; }
+        public int AmbienteSefaz { get; set; }
         public DateTime DataCriacao { get; set; }
+        public DateTime? DataAtualizacao { get; set; }
     }
 
     public class EmitenteListDto

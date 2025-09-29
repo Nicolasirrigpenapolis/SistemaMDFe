@@ -31,7 +31,7 @@ namespace MDFeApi.DTOs.Extensions
         /// </summary>
         public static void LimparDados(this MDFeGerarINIDto dto)
         {
-            dto.UfInicio = dto.UfInicio?.Trim().ToUpper() ?? string.Empty;
+            // UfInicio não existe mais - removido na padronização
             dto.UfFim = dto.UfFim?.Trim().ToUpper() ?? string.Empty;
             dto.MunicipioCarregamento = dto.MunicipioCarregamento?.Trim() ?? string.Empty;
             dto.MunicipioDescarregamento = dto.MunicipioDescarregamento?.Trim() ?? string.Empty;

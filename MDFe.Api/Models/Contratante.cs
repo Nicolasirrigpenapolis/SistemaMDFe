@@ -48,6 +48,12 @@ namespace MDFeApi.Models
         [MaxLength(2)]
         public string Uf { get; set; } = string.Empty;
 
+        [MaxLength(20)]
+        public string? Telefone { get; set; }
+
+        [MaxLength(200)]
+        public string? Email { get; set; }
+
         public bool Ativo { get; set; } = true;
 
         public DateTime DataCriacao { get; set; } = DateTime.Now;

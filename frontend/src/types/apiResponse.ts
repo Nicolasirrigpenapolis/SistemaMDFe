@@ -1,5 +1,9 @@
-// Interfaces TypeScript que correspondem às classes C# do backend
+/**
+ * 🔧 TIPOS UNIFICADOS DA API
+ * Centralização de todos os tipos de resposta e estruturas da API
+ */
 
+// ========== RESPOSTA PADRÃO DA API ==========
 export interface ApiResponse<T> {
   success: boolean;
   message: string;
@@ -10,6 +14,14 @@ export interface ApiResponse<T> {
   timestamp: string;
 }
 
+// Formato alternativo usado em alguns endpoints (para compatibilidade)
+export interface ApiResponseAlternativo<T> {
+  sucesso: boolean;
+  data?: T;
+  mensagem?: string;
+}
+
+// ========== PAGINAÇÃO ==========
 export interface PaginationInfo {
   currentPage: number;
   pageSize: number;
@@ -19,6 +31,15 @@ export interface PaginationInfo {
   hasPreviousPage: boolean;
 }
 
+export interface PaginationRequest {
+  page: number;
+  pageSize: number;
+  search?: string;
+  sortBy?: string;
+  sortDirection?: 'asc' | 'desc';
+}
+
+// ========== TRATAMENTO DE ERROS ==========
 export interface ErrorInfo {
   code: string;
   message: string;
@@ -26,12 +47,103 @@ export interface ErrorInfo {
   details?: any;
 }
 
-// Tipo helper para respostas paginadas
+// ========== AUTENTICAÇÃO ==========
+export interface LoginRequest {
+  username: string;
+  password: string;
+}
+
+export interface RegisterRequest {
+  nome: string;
+  username: string;
+  email: string;
+  password: string;
+  telefone?: string;
+  cargoId?: number;
+}
+
+export interface UserInfo {
+  id: number;
+  nome: string;
+  username: string;
+  email: string;
+  telefone?: string;
+  cargoId?: number;
+  cargoNome?: string;
+}
+
+export interface LoginResponse {
+  token: string;
+  user: UserInfo;
+}
+
+// ========== VALIDAÇÃO DE DOCUMENTOS ==========
+export interface ValidacaoResponse<T> {
+  sucesso: boolean;
+  data?: T;
+  mensagem?: string;
+}
+
+export interface CNPJData {
+  cnpj: string;
+  razaoSocial: string;
+  nomeFantasia?: string;
+  logradouro: string;
+  numero: string;
+  complemento?: string;
+  bairro: string;
+  municipio: string;
+  uf: string;
+  cep: string;
+  codigoMunicipio: number;
+  telefone?: string;
+  email?: string;
+  situacao?: string;
+  dataSituacao?: string;
+}
+
+// ========== LOCALIZAÇÃO ==========
+export interface EstadoDto {
+  sigla: string;
+  nome: string;
+}
+
+export interface MunicipioDto {
+  id: number;
+  codigo: number;
+  nome: string;
+  uf: string;
+  ativo: boolean;
+}
+
+export interface CodigoMunicipioDto {
+  codigo: number;
+  municipio: string;
+  uf: string;
+}
+
+// ========== TIPOS HELPER ==========
 export type PaginatedApiResponse<T> = ApiResponse<T[]> & {
   pagination: PaginationInfo;
 };
 
-// Tipo para resposta de erro
 export type ErrorApiResponse = ApiResponse<null> & {
   errors: ErrorInfo[];
 };
+
+// ========== ENTIDADES COMUNS ==========
+export interface EntityOption {
+  id: number;
+  label: string;
+  description?: string;
+}
+
+export interface ImportResultDto {
+  sucesso: boolean;
+  totalEstados: number;
+  totalInseridos: number;
+  totalAtualizados: number;
+  totalIgnorados: number;
+  tempoProcessamento?: string;
+  erros: string[];
+}

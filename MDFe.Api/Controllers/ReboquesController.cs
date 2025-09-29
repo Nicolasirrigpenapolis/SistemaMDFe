@@ -7,154 +7,140 @@ using MDFeApi.Utils;
 
 namespace MDFeApi.Controllers
 {
-    [ApiController]
     [Route("api/[controller]")]
-    public class ReboquesController : ControllerBase
+    public class ReboquesController : BaseController<Reboque, ReboqueListDto, ReboqueResponseDto, ReboqueCreateDto, ReboqueUpdateDto>
     {
-        private readonly MDFeContext _context;
-
-        public ReboquesController(MDFeContext context)
+        public ReboquesController(MDFeContext context, ILogger<ReboquesController> logger)
+            : base(context, logger)
         {
-            _context = context;
         }
 
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<Reboque>>> GetReboques()
-        {
-            return await _context.Reboques
-                .Where(r => r.Ativo)
-                .OrderBy(r => r.Placa)
-                .ToListAsync();
-        }
+        protected override DbSet<Reboque> GetDbSet() => _context.Reboques;
 
-        [HttpGet("{id}")]
-        public async Task<ActionResult<Reboque>> GetReboque(int id)
+        protected override ReboqueListDto EntityToListDto(Reboque entity)
         {
-            var reboque = await _context.Reboques
-                .Where(r => r.Ativo)
-                .FirstOrDefaultAsync(r => r.Id == id);
-
-            if (reboque == null)
+            return new ReboqueListDto
             {
-                return NotFound();
-            }
-
-            return reboque;
+                Id = entity.Id,
+                Placa = entity.Placa,
+                Tara = entity.Tara,
+                TipoRodado = entity.TipoRodado,
+                TipoCarroceria = entity.TipoCarroceria,
+                Uf = entity.Uf,
+                Rntrc = entity.Rntrc,
+                Ativo = entity.Ativo,
+                DataCriacao = entity.DataCriacao
+            };
         }
 
-        [HttpPost]
-        public async Task<ActionResult<Reboque>> PostReboque(ReboqueCreateDto reboqueDto)
+        protected override ReboqueResponseDto EntityToDetailDto(Reboque entity)
+        {
+            return new ReboqueResponseDto
+            {
+                Id = entity.Id,
+                Placa = entity.Placa,
+                Tara = entity.Tara,
+                TipoRodado = entity.TipoRodado,
+                TipoCarroceria = entity.TipoCarroceria,
+                Uf = entity.Uf,
+                Rntrc = entity.Rntrc,
+                Ativo = entity.Ativo,
+                DataCriacao = entity.DataCriacao,
+                DataUltimaAlteracao = entity.DataUltimaAlteracao
+            };
+        }
+
+        protected override Reboque CreateDtoToEntity(ReboqueCreateDto dto)
         {
             var reboque = new Reboque
             {
-                Placa = reboqueDto.Placa,
-                Renavam = reboqueDto.Renavam,
-                Tara = reboqueDto.Tara,
-                CapacidadeKg = reboqueDto.CapacidadeKg,
-                TipoRodado = reboqueDto.TipoRodado?.Trim(),
-                TipoCarroceria = reboqueDto.TipoCarroceria?.Trim(),
-                Uf = reboqueDto.Uf?.Trim(),
-                Rntrc = reboqueDto.Rntrc?.Trim(),
-                Ativo = true,
-                DataCriacao = DateTime.UtcNow
+                Placa = dto.Placa,
+                Tara = dto.Tara,
+                TipoRodado = dto.TipoRodado?.Trim(),
+                TipoCarroceria = dto.TipoCarroceria?.Trim(),
+                Uf = dto.Uf?.Trim(),
+                Rntrc = dto.Rntrc?.Trim()
             };
 
-            // Aplicar limpeza automática de documentos
             DocumentUtils.LimparDocumentosReboque(reboque);
+            return reboque;
+        }
 
-            // Validar se placa já existe (usando dados limpos)
+        protected override void UpdateEntityFromDto(Reboque entity, ReboqueUpdateDto dto)
+        {
+            entity.Placa = dto.Placa;
+            entity.Tara = dto.Tara;
+            entity.TipoRodado = dto.TipoRodado?.Trim();
+            entity.TipoCarroceria = dto.TipoCarroceria?.Trim();
+            entity.Uf = dto.Uf?.Trim();
+            entity.Rntrc = dto.Rntrc?.Trim();
+
+            DocumentUtils.LimparDocumentosReboque(entity);
+        }
+
+        protected override IQueryable<Reboque> ApplySearchFilter(IQueryable<Reboque> query, string search)
+        {
+            var searchTerm = search.ToLower();
+            return query.Where(r =>
+                (r.Placa != null && r.Placa.ToLower().Contains(searchTerm)) ||
+                (r.Rntrc != null && r.Rntrc.ToLower().Contains(searchTerm))
+            );
+        }
+
+        protected override IQueryable<Reboque> ApplyOrdering(IQueryable<Reboque> query, string? sortBy, string? sortDirection)
+        {
+            var isDesc = sortDirection?.ToLower() == "desc";
+
+            return sortBy?.ToLower() switch
+            {
+                "tara" => isDesc ? query.OrderByDescending(r => r.Tara) : query.OrderBy(r => r.Tara),
+                "uf" => isDesc ? query.OrderByDescending(r => r.Uf) : query.OrderBy(r => r.Uf),
+                "datacriacao" => isDesc ? query.OrderByDescending(r => r.DataCriacao) : query.OrderBy(r => r.DataCriacao),
+                _ => isDesc ? query.OrderByDescending(r => r.Placa) : query.OrderBy(r => r.Placa)
+            };
+        }
+
+        protected override async Task<(bool canDelete, string errorMessage)> CanDeleteAsync(Reboque entity)
+        {
+            // Verificar se reboque está sendo usado em algum MDFe
+            var temMdfe = await _context.MDFeReboques.AnyAsync(mr => mr.ReboqueId == entity.Id);
+            if (temMdfe)
+            {
+                return (false, "Não é possível excluir reboque com MDF-e vinculados");
+            }
+            return (true, string.Empty);
+        }
+
+        protected override async Task<(bool isValid, string errorMessage)> ValidateCreateAsync(ReboqueCreateDto dto)
+        {
+            var reboqueTemp = new Reboque { Placa = dto.Placa };
+            DocumentUtils.LimparDocumentosReboque(reboqueTemp);
+
             var existingPlaca = await _context.Reboques
-                .AnyAsync(r => r.Placa == reboque.Placa && r.Ativo);
+                .AnyAsync(r => r.Placa == reboqueTemp.Placa && r.Ativo);
             if (existingPlaca)
             {
-                return BadRequest(new { message = "Placa já cadastrada" });
+                return (false, "Placa já cadastrada");
             }
-
-            _context.Reboques.Add(reboque);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction(nameof(GetReboque), new { id = reboque.Id }, reboque);
+            return (true, string.Empty);
         }
 
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutReboque(int id, ReboqueCreateDto reboqueDto)
+        protected override async Task<(bool isValid, string errorMessage)> ValidateUpdateAsync(Reboque entity, ReboqueUpdateDto dto)
         {
-            var reboque = await _context.Reboques
-                .Where(r => r.Ativo)
-                .FirstOrDefaultAsync(r => r.Id == id);
+            var placaOriginal = entity.Placa;
+            var reboqueTemp = new Reboque { Placa = dto.Placa };
+            DocumentUtils.LimparDocumentosReboque(reboqueTemp);
 
-            if (reboque == null)
-            {
-                return NotFound();
-            }
-
-            // Salvar placa original
-            var placaOriginal = reboque.Placa;
-
-            // Atualizar dados com trim
-            reboque.Placa = reboqueDto.Placa;
-            reboque.Renavam = reboqueDto.Renavam;
-            reboque.Tara = reboqueDto.Tara;
-            reboque.CapacidadeKg = reboqueDto.CapacidadeKg;
-            reboque.TipoRodado = reboqueDto.TipoRodado?.Trim();
-            reboque.TipoCarroceria = reboqueDto.TipoCarroceria?.Trim();
-            reboque.Uf = reboqueDto.Uf?.Trim();
-            reboque.Rntrc = reboqueDto.Rntrc?.Trim();
-
-            // Aplicar limpeza automática de documentos
-            DocumentUtils.LimparDocumentosReboque(reboque);
-
-            // Validar se placa já existe (exceto para o próprio reboque, usando dados limpos)
-            if (reboque.Placa != placaOriginal)
+            if (reboqueTemp.Placa != placaOriginal)
             {
                 var existingPlaca = await _context.Reboques
-                    .AnyAsync(r => r.Placa == reboque.Placa && r.Id != id && r.Ativo);
+                    .AnyAsync(r => r.Placa == reboqueTemp.Placa && r.Id != entity.Id && r.Ativo);
                 if (existingPlaca)
                 {
-                    return BadRequest(new { message = "Placa já cadastrada" });
+                    return (false, "Placa já cadastrada");
                 }
             }
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!ReboqueExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            return NoContent();
-        }
-
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteReboque(int id)
-        {
-            var reboque = await _context.Reboques
-                .Where(r => r.Ativo)
-                .FirstOrDefaultAsync(r => r.Id == id);
-
-            if (reboque == null)
-            {
-                return NotFound();
-            }
-
-            reboque.Ativo = false;
-            await _context.SaveChangesAsync();
-
-            return NoContent();
-        }
-
-        private bool ReboqueExists(int id)
-        {
-            return _context.Reboques.Any(e => e.Id == id && e.Ativo);
+            return (true, string.Empty);
         }
     }
 }

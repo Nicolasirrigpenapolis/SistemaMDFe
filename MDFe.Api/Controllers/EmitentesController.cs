@@ -1,526 +1,341 @@
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MDFeApi.Data;
 using MDFeApi.Models;
 using MDFeApi.DTOs;
-using MDFeApi.Services;
+using MDFeApi.Interfaces;
 using MDFeApi.Utils;
 using MDFeApi.Helpers;
-using MDFeApi.Extensions;
 
 namespace MDFeApi.Controllers
 {
-    [ApiController]
     [Route("api/[controller]")]
-    // [Authorize] // Temporariamente removido para testes
-    public class EmitentesController : ControllerBase
+    public class EmitentesController : BaseController<Emitente, EmitenteListDto, EmitenteResponseDto, EmitenteCreateDto, EmitenteUpdateDto>
     {
-        private readonly MDFeContext _context;
         private readonly ICertificadoService _certificadoService;
-        private readonly ILogger<EmitentesController> _logger;
 
         public EmitentesController(
             MDFeContext context,
             ICertificadoService certificadoService,
             ILogger<EmitentesController> logger)
+            : base(context, logger)
         {
-            _context = context;
             _certificadoService = certificadoService;
-            _logger = logger;
         }
 
+        protected override DbSet<Emitente> GetDbSet() => _context.Emitentes;
 
-        [HttpGet]
-        public async Task<ActionResult<PaginationResult<EmitenteResponseDto>>> GetEmitentes([FromQuery] PaginationRequest request)
+        protected override EmitenteListDto EntityToListDto(Emitente entity)
         {
-            try
+            return new EmitenteListDto
             {
-                var query = _context.Emitentes
-                    .Where(e => e.Ativo)
-                    .AsQueryable();
-
-                // Filtrar por busca se fornecido
-                if (!string.IsNullOrWhiteSpace(request.Search))
-                {
-                    var searchTerm = request.Search.ToLower();
-                    query = query.Where(e =>
-                        e.RazaoSocial.ToLower().Contains(searchTerm) ||
-                        (e.Cnpj != null && e.Cnpj.Contains(searchTerm)) ||
-                        (e.NomeFantasia != null && e.NomeFantasia.ToLower().Contains(searchTerm)) ||
-                        (e.Cpf != null && e.Cpf.Contains(searchTerm))
-                    );
-                }
-
-                // Aplicar ordenação
-                switch (request.SortBy?.ToLower())
-                {
-                    case "cnpj":
-                        query = request.SortDirection?.ToLower() == "desc" ?
-                            query.OrderByDescending(e => e.Cnpj) :
-                            query.OrderBy(e => e.Cnpj);
-                        break;
-                    case "datacriacao":
-                        query = request.SortDirection?.ToLower() == "desc" ?
-                            query.OrderByDescending(e => e.DataCriacao) :
-                            query.OrderBy(e => e.DataCriacao);
-                        break;
-                    default:
-                        query = request.SortDirection?.ToLower() == "desc" ?
-                            query.OrderByDescending(e => e.RazaoSocial) :
-                            query.OrderBy(e => e.RazaoSocial);
-                        break;
-                }
-
-                var queryProjected = query.Select(e => new EmitenteResponseDto
-                {
-                    Id = e.Id,
-                    Cnpj = e.Cnpj,
-                    Cpf = e.Cpf,
-                    Ie = e.Ie,
-                    RazaoSocial = e.RazaoSocial,
-                    NomeFantasia = e.NomeFantasia,
-                    Endereco = e.Endereco,
-                    Numero = e.Numero,
-                    Complemento = e.Complemento,
-                    Bairro = e.Bairro,
-                    CodMunicipio = e.CodMunicipio,
-                    Municipio = e.Municipio,
-                    Cep = e.Cep,
-                    Uf = e.Uf,
-                    Ativo = e.Ativo,
-                    TipoEmitente = e.TipoEmitente,
-                    CaminhoArquivoCertificado = e.CaminhoArquivoCertificado,
-                    Rntrc = e.Rntrc,
-                    DataCriacao = e.DataCriacao
-                });
-
-                var result = await queryProjected.ToPaginatedListAsync(request);
-                return Ok(result);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Erro ao obter emitentes paginados");
-                return StatusCode(500, new { message = "Erro interno do servidor", error = ex.Message });
-            }
+                Id = entity.Id,
+                RazaoSocial = entity.RazaoSocial,
+                NomeFantasia = entity.NomeFantasia,
+                Cnpj = entity.Cnpj,
+                Cpf = entity.Cpf,
+                TipoEmitente = entity.TipoEmitente,
+                TemCertificado = !string.IsNullOrEmpty(entity.CaminhoArquivoCertificado),
+                AmbienteSefaz = entity.AmbienteSefaz,
+                Uf = entity.Uf
+            };
         }
 
-        [HttpGet("{id}")]
-        public async Task<ActionResult<ApiResponse<EmitenteResponseDto>>> GetEmitente(int id)
+        protected override EmitenteResponseDto EntityToDetailDto(Emitente entity)
         {
-            var emitente = await _context.Emitentes.FindAsync(id);
-
-            if (emitente == null || !emitente.Ativo)
+            return new EmitenteResponseDto
             {
-                return NotFound(ApiResponseHelper.NotFound("Emitente não encontrado"));
-            }
+                Id = entity.Id,
+                Cnpj = entity.Cnpj,
+                Cpf = entity.Cpf,
+                Ie = entity.Ie,
+                RazaoSocial = entity.RazaoSocial,
+                NomeFantasia = entity.NomeFantasia,
+                Endereco = entity.Endereco,
+                Numero = entity.Numero,
+                Complemento = entity.Complemento,
+                Bairro = entity.Bairro,
+                CodMunicipio = entity.CodMunicipio,
+                Municipio = entity.Municipio,
+                Cep = entity.Cep,
+                Uf = entity.Uf,
+                Telefone = entity.Telefone,
+                Email = entity.Email,
+                Ativo = entity.Ativo,
+                TipoEmitente = entity.TipoEmitente,
+                CaminhoArquivoCertificado = entity.CaminhoArquivoCertificado,
+                CaminhoSalvarXml = entity.CaminhoSalvarXml,
+                Rntrc = entity.Rntrc,
+                SerieInicial = entity.SerieInicial,
+                TipoTransportador = entity.TipoTransportador,
+                ModalTransporte = entity.ModalTransporte,
+                AmbienteSefaz = entity.AmbienteSefaz,
+                DataCriacao = entity.DataCriacao,
+                DataAtualizacao = entity.DataUltimaAlteracao
+            };
+        }
 
-            var responseDto = new EmitenteResponseDto
+        protected override Emitente CreateDtoToEntity(EmitenteCreateDto dto)
+        {
+            var emitente = new Emitente
             {
-                Id = emitente.Id,
-                Cnpj = emitente.Cnpj,
-                Cpf = emitente.Cpf,
-                Ie = emitente.Ie,
-                RazaoSocial = emitente.RazaoSocial,
-                NomeFantasia = emitente.NomeFantasia,
-                Endereco = emitente.Endereco,
-                Numero = emitente.Numero,
-                Complemento = emitente.Complemento,
-                Bairro = emitente.Bairro,
-                CodMunicipio = emitente.CodMunicipio,
-                Municipio = emitente.Municipio,
-                Cep = emitente.Cep,
-                Uf = emitente.Uf,
-                Ativo = emitente.Ativo,
-                TipoEmitente = emitente.TipoEmitente,
-                CaminhoArquivoCertificado = emitente.CaminhoArquivoCertificado,
-                Rntrc = emitente.Rntrc,
-                DataCriacao = emitente.DataCriacao
+                Cnpj = dto.Cnpj?.Trim(),
+                Cpf = dto.Cpf?.Trim(),
+                Ie = dto.Ie?.Trim(),
+                RazaoSocial = dto.RazaoSocial?.Trim(),
+                NomeFantasia = dto.NomeFantasia?.Trim(),
+                Endereco = dto.Endereco?.Trim(),
+                Numero = dto.Numero?.Trim(),
+                Complemento = dto.Complemento?.Trim(),
+                Bairro = dto.Bairro?.Trim(),
+                CodMunicipio = dto.CodMunicipio,
+                Municipio = dto.Municipio?.Trim(),
+                Cep = dto.Cep?.Trim(),
+                Uf = dto.Uf?.Trim(),
+                Telefone = dto.Telefone?.Trim(),
+                Email = dto.Email?.Trim(),
+                TipoEmitente = dto.TipoEmitente?.Trim(),
+                CaminhoArquivoCertificado = dto.CaminhoArquivoCertificado?.Trim(),
+                SenhaCertificado = dto.SenhaCertificado?.Trim(),
+                CaminhoSalvarXml = dto.CaminhoSalvarXml?.Trim(),
+                Rntrc = dto.Rntrc?.Trim(),
+                SerieInicial = dto.SerieInicial,
+                TipoTransportador = dto.TipoTransportador,
+                ModalTransporte = dto.ModalTransporte,
+                AmbienteSefaz = dto.AmbienteSefaz
             };
 
-            var response = ApiResponseHelper.Success(responseDto, "Emitente obtido com sucesso");
-            return Ok(response);
+            // Aplicar limpeza automática de documentos
+            DocumentUtils.LimparDocumentosEmitente(emitente);
+            return emitente;
         }
 
-        [HttpPost]
-        public async Task<ActionResult<EmitenteResponseDto>> CreateEmitente(EmitenteCreateDto emitenteDto)
+        protected override void UpdateEntityFromDto(Emitente entity, EmitenteUpdateDto dto)
+        {
+            entity.Cnpj = dto.Cnpj?.Trim();
+            entity.Cpf = dto.Cpf?.Trim();
+            entity.Ie = dto.Ie?.Trim();
+            entity.RazaoSocial = dto.RazaoSocial?.Trim();
+            entity.NomeFantasia = dto.NomeFantasia?.Trim();
+            entity.Endereco = dto.Endereco?.Trim();
+            entity.Numero = dto.Numero?.Trim();
+            entity.Complemento = dto.Complemento?.Trim();
+            entity.Bairro = dto.Bairro?.Trim();
+            entity.CodMunicipio = dto.CodMunicipio;
+            entity.Municipio = dto.Municipio?.Trim();
+            entity.Cep = dto.Cep?.Trim();
+            entity.Uf = dto.Uf?.Trim();
+            entity.Telefone = dto.Telefone?.Trim();
+            entity.Email = dto.Email?.Trim();
+            entity.TipoEmitente = dto.TipoEmitente?.Trim();
+            entity.CaminhoArquivoCertificado = dto.CaminhoArquivoCertificado?.Trim();
+            entity.SenhaCertificado = dto.SenhaCertificado?.Trim();
+            entity.CaminhoSalvarXml = dto.CaminhoSalvarXml?.Trim();
+            entity.Rntrc = dto.Rntrc?.Trim();
+            entity.SerieInicial = dto.SerieInicial;
+            entity.TipoTransportador = dto.TipoTransportador;
+            entity.ModalTransporte = dto.ModalTransporte;
+            entity.AmbienteSefaz = dto.AmbienteSefaz;
+
+            // Aplicar limpeza automática de documentos
+            DocumentUtils.LimparDocumentosEmitente(entity);
+        }
+
+        protected override IQueryable<Emitente> ApplySearchFilter(IQueryable<Emitente> query, string search)
+        {
+            var searchTerm = search.ToLower();
+            return query.Where(e =>
+                e.RazaoSocial.ToLower().Contains(searchTerm) ||
+                (e.Cnpj != null && e.Cnpj.Contains(searchTerm)) ||
+                (e.NomeFantasia != null && e.NomeFantasia.ToLower().Contains(searchTerm)) ||
+                (e.Cpf != null && e.Cpf.Contains(searchTerm))
+            );
+        }
+
+        protected override IQueryable<Emitente> ApplyOrdering(IQueryable<Emitente> query, string? sortBy, string? sortDirection)
+        {
+            var isDesc = sortDirection?.ToLower() == "desc";
+
+            return sortBy?.ToLower() switch
+            {
+                "cnpj" => isDesc ? query.OrderByDescending(e => e.Cnpj) : query.OrderBy(e => e.Cnpj),
+                "cpf" => isDesc ? query.OrderByDescending(e => e.Cpf) : query.OrderBy(e => e.Cpf),
+                "uf" => isDesc ? query.OrderByDescending(e => e.Uf) : query.OrderBy(e => e.Uf),
+                "tipoemitente" => isDesc ? query.OrderByDescending(e => e.TipoEmitente) : query.OrderBy(e => e.TipoEmitente),
+                "datacriacao" => isDesc ? query.OrderByDescending(e => e.DataCriacao) : query.OrderBy(e => e.DataCriacao),
+                _ => isDesc ? query.OrderByDescending(e => e.RazaoSocial) : query.OrderBy(e => e.RazaoSocial)
+            };
+        }
+
+        protected override async Task<(bool canDelete, string errorMessage)> CanDeleteAsync(Emitente entity)
+        {
+            var temMdfe = await _context.MDFes.AnyAsync(m => m.EmitenteId == entity.Id);
+            if (temMdfe)
+            {
+                return (false, "Não é possível excluir emitente com MDF-e vinculados");
+            }
+            return (true, string.Empty);
+        }
+
+        protected override async Task<(bool isValid, string errorMessage)> ValidateCreateAsync(EmitenteCreateDto dto)
+        {
+            // Validar se CNPJ ou CPF é obrigatório
+            if (string.IsNullOrEmpty(dto.Cnpj) && string.IsNullOrEmpty(dto.Cpf))
+            {
+                return (false, "CNPJ ou CPF é obrigatório");
+            }
+
+            var emitenteTemp = new Emitente { Cnpj = dto.Cnpj?.Trim(), Cpf = dto.Cpf?.Trim() };
+            DocumentUtils.LimparDocumentosEmitente(emitenteTemp);
+
+            // Verificar se já existe emitente com mesmo CNPJ ou CPF
+            var existente = await _context.Emitentes
+                .AnyAsync(e => (!string.IsNullOrEmpty(emitenteTemp.Cnpj) && e.Cnpj == emitenteTemp.Cnpj) ||
+                              (!string.IsNullOrEmpty(emitenteTemp.Cpf) && e.Cpf == emitenteTemp.Cpf));
+
+            if (existente)
+            {
+                return (false, "Já existe um emitente cadastrado com este CNPJ/CPF");
+            }
+
+            return (true, string.Empty);
+        }
+
+        protected override async Task<(bool isValid, string errorMessage)> ValidateUpdateAsync(Emitente entity, EmitenteUpdateDto dto)
+        {
+            // Validar se CNPJ ou CPF é obrigatório
+            if (string.IsNullOrEmpty(dto.Cnpj) && string.IsNullOrEmpty(dto.Cpf))
+            {
+                return (false, "CNPJ ou CPF é obrigatório");
+            }
+
+            var emitenteTemp = new Emitente { Cnpj = dto.Cnpj?.Trim(), Cpf = dto.Cpf?.Trim() };
+            DocumentUtils.LimparDocumentosEmitente(emitenteTemp);
+
+            // Verificar se já existe outro emitente com mesmo CNPJ ou CPF
+            var existente = await _context.Emitentes
+                .AnyAsync(e => e.Id != entity.Id &&
+                              ((!string.IsNullOrEmpty(emitenteTemp.Cnpj) && e.Cnpj == emitenteTemp.Cnpj) ||
+                               (!string.IsNullOrEmpty(emitenteTemp.Cpf) && e.Cpf == emitenteTemp.Cpf)));
+
+            if (existente)
+            {
+                return (false, "Já existe outro emitente cadastrado com este CNPJ/CPF");
+            }
+
+            return (true, string.Empty);
+        }
+
+        #region Métodos específicos de Certificado
+
+        /// <summary>
+        /// Configurar certificado do emitente
+        /// </summary>
+        [HttpPost("{id}/certificado")]
+        public async Task<IActionResult> ConfigurarCertificado(int id, [FromBody] ConfigurarCertificadoRequest request)
         {
             try
             {
-                // Validar se CNPJ ou CPF já existe (usando documentos limpos)
-                if (!string.IsNullOrWhiteSpace(emitenteDto.Cnpj))
-                {
-                    var cnpjLimpo = DocumentUtils.LimparCnpj(emitenteDto.Cnpj);
-                    var existingCnpj = await _context.Emitentes
-                        .AnyAsync(e => e.Cnpj == cnpjLimpo && e.Ativo);
-                    if (existingCnpj)
-                    {
-                        return BadRequest(new { message = "CNPJ já cadastrado" });
-                    }
-                }
-
-                if (!string.IsNullOrWhiteSpace(emitenteDto.Cpf))
-                {
-                    var cpfLimpo = DocumentUtils.LimparCpf(emitenteDto.Cpf);
-                    var existingCpf = await _context.Emitentes
-                        .AnyAsync(e => e.Cpf == cpfLimpo && e.Ativo);
-                    if (existingCpf)
-                    {
-                        return BadRequest(new { message = "CPF já cadastrado" });
-                    }
-                }
-
-                var emitente = new Emitente
-                {
-                    Cnpj = string.IsNullOrWhiteSpace(emitenteDto.Cnpj) ? null : emitenteDto.Cnpj,
-                    Cpf = string.IsNullOrWhiteSpace(emitenteDto.Cpf) ? null : emitenteDto.Cpf,
-                    Ie = string.IsNullOrWhiteSpace(emitenteDto.Ie) ? null : emitenteDto.Ie,
-                    RazaoSocial = emitenteDto.RazaoSocial,
-                    NomeFantasia = string.IsNullOrWhiteSpace(emitenteDto.NomeFantasia) ? null : emitenteDto.NomeFantasia,
-                    Endereco = emitenteDto.Endereco,
-                    Numero = string.IsNullOrWhiteSpace(emitenteDto.Numero) ? null : emitenteDto.Numero,
-                    Complemento = string.IsNullOrWhiteSpace(emitenteDto.Complemento) ? null : emitenteDto.Complemento,
-                    Bairro = emitenteDto.Bairro,
-                    CodMunicipio = emitenteDto.CodMunicipio,
-                    Municipio = emitenteDto.Municipio,
-                    Cep = emitenteDto.Cep,
-                    Uf = emitenteDto.Uf,
-                    Ativo = true,
-                    TipoEmitente = emitenteDto.TipoEmitente,
-                    CaminhoArquivoCertificado = string.IsNullOrWhiteSpace(emitenteDto.CaminhoArquivoCertificado) ? null : emitenteDto.CaminhoArquivoCertificado,
-                    SenhaCertificado = string.IsNullOrWhiteSpace(emitenteDto.SenhaCertificado) ? null : emitenteDto.SenhaCertificado,
-                    Rntrc = string.IsNullOrWhiteSpace(emitenteDto.Rntrc) ? null : emitenteDto.Rntrc,
-                };
-
-                // Limpar documentos antes de salvar
-                DocumentUtils.LimparDocumentosEmitente(emitente);
-
-                _context.Emitentes.Add(emitente);
-                await _context.SaveChangesAsync();
-
-                var responseDto = new EmitenteResponseDto
-                {
-                    Id = emitente.Id,
-                    Cnpj = emitente.Cnpj,
-                    Cpf = emitente.Cpf,
-                    Ie = emitente.Ie,
-                    RazaoSocial = emitente.RazaoSocial,
-                    NomeFantasia = emitente.NomeFantasia,
-                    Endereco = emitente.Endereco,
-                    Numero = emitente.Numero,
-                    Complemento = emitente.Complemento,
-                    Bairro = emitente.Bairro,
-                    CodMunicipio = emitente.CodMunicipio,
-                    Municipio = emitente.Municipio,
-                    Cep = emitente.Cep,
-                    Uf = emitente.Uf,
-                    Ativo = emitente.Ativo,
-                    TipoEmitente = emitente.TipoEmitente,
-                    CaminhoArquivoCertificado = emitente.CaminhoArquivoCertificado,
-                    Rntrc = emitente.Rntrc,
-                    DataCriacao = emitente.DataCriacao
-                };
-
-                return CreatedAtAction(nameof(GetEmitente), new { id = emitente.Id }, responseDto);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Erro ao criar emitente");
-                return StatusCode(500, new { message = "Erro interno do servidor", error = ex.Message });
-            }
-        }
-
-        [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateEmitente(int id, EmitenteUpdateDto emitenteDto)
-        {
-            var emitente = await _context.Emitentes.FindAsync(id);
-            if (emitente == null || !emitente.Ativo)
-            {
-                return NotFound();
-            }
-
-            try
-            {
-                // Validar se CNPJ ou CPF já existe (exceto para o próprio emitente, usando documentos limpos)
-                if (!string.IsNullOrWhiteSpace(emitenteDto.Cnpj))
-                {
-                    var cnpjLimpo = DocumentUtils.LimparCnpj(emitenteDto.Cnpj);
-                    if (cnpjLimpo != emitente.Cnpj)
-                    {
-                        var existingCnpj = await _context.Emitentes
-                            .AnyAsync(e => e.Cnpj == cnpjLimpo && e.Id != id && e.Ativo);
-                        if (existingCnpj)
-                        {
-                            return BadRequest(new { message = "CNPJ já cadastrado" });
-                        }
-                    }
-                }
-
-                if (!string.IsNullOrWhiteSpace(emitenteDto.Cpf))
-                {
-                    var cpfLimpo = DocumentUtils.LimparCpf(emitenteDto.Cpf);
-                    if (cpfLimpo != emitente.Cpf)
-                    {
-                        var existingCpf = await _context.Emitentes
-                            .AnyAsync(e => e.Cpf == cpfLimpo && e.Id != id && e.Ativo);
-                        if (existingCpf)
-                        {
-                            return BadRequest(new { message = "CPF já cadastrado" });
-                        }
-                    }
-                }
-
-                emitente.Cnpj = string.IsNullOrWhiteSpace(emitenteDto.Cnpj) ? null : emitenteDto.Cnpj;
-                emitente.Cpf = string.IsNullOrWhiteSpace(emitenteDto.Cpf) ? null : emitenteDto.Cpf;
-                emitente.Ie = string.IsNullOrWhiteSpace(emitenteDto.Ie) ? null : emitenteDto.Ie;
-                emitente.RazaoSocial = emitenteDto.RazaoSocial;
-                emitente.NomeFantasia = string.IsNullOrWhiteSpace(emitenteDto.NomeFantasia) ? null : emitenteDto.NomeFantasia;
-                emitente.Endereco = emitenteDto.Endereco;
-                emitente.Numero = string.IsNullOrWhiteSpace(emitenteDto.Numero) ? null : emitenteDto.Numero;
-                emitente.Complemento = string.IsNullOrWhiteSpace(emitenteDto.Complemento) ? null : emitenteDto.Complemento;
-                emitente.Bairro = emitenteDto.Bairro;
-                emitente.CodMunicipio = emitenteDto.CodMunicipio;
-                emitente.Municipio = emitenteDto.Municipio;
-                emitente.Cep = emitenteDto.Cep;
-                emitente.Uf = emitenteDto.Uf;
-                emitente.TipoEmitente = emitenteDto.TipoEmitente;
-                
-                if (!string.IsNullOrWhiteSpace(emitenteDto.CaminhoArquivoCertificado))
-                    emitente.CaminhoArquivoCertificado = emitenteDto.CaminhoArquivoCertificado;
-                
-                if (!string.IsNullOrWhiteSpace(emitenteDto.SenhaCertificado))
-                    emitente.SenhaCertificado = emitenteDto.SenhaCertificado;
-
-                emitente.Rntrc = string.IsNullOrWhiteSpace(emitenteDto.Rntrc) ? null : emitenteDto.Rntrc;
-                emitente.DataAtualizacao = DateTime.Now;
-
-                // Limpar documentos antes de salvar
-                DocumentUtils.LimparDocumentosEmitente(emitente);
-
-                await _context.SaveChangesAsync();
-
-                return NoContent();
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Erro ao atualizar emitente {EmitenteId}", id);
-                return StatusCode(500, new { message = "Erro interno do servidor", error = ex.Message });
-            }
-        }
-
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteEmitente(int id)
-        {
-            var emitente = await _context.Emitentes.FindAsync(id);
-            if (emitente == null)
-            {
-                return NotFound(new { message = "Emitente não encontrado" });
-            }
-
-            if (!emitente.Ativo)
-            {
-                return BadRequest(new { message = "Emitente já está inativo" });
-            }
-
-            try
-            {
-                // Verificar se tem MDF-e vinculados
-                var temMdfe = await _context.MDFes.AnyAsync(m => m.EmitenteId == id);
-                if (temMdfe)
-                {
-                    return BadRequest(new { message = "Não é possível excluir emitente com MDF-e vinculados. Exclua ou transfira os MDF-e primeiro." });
-                }
-
-                // Soft delete
-                emitente.Ativo = false;
-                emitente.DataAtualizacao = DateTime.Now;
-                await _context.SaveChangesAsync();
-
-                _logger.LogInformation("Emitente {EmitenteId} ({RazaoSocial}) foi inativado com sucesso", id, emitente.RazaoSocial);
-                return Ok(new { message = "Emitente excluído com sucesso" });
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Erro ao deletar emitente {EmitenteId}", id);
-                return StatusCode(500, new { message = "Erro interno do servidor ao excluir emitente", error = ex.Message });
-            }
-        }
-
-        // ##### METHODS MOVED FROM EMITENTESCONTROLLER #####
-
-        [HttpGet("listar")]
-        public async Task<ActionResult<IEnumerable<EmitenteListDto>>> ListarEmitentes()
-        {
-            try
-            {
-                var emitentes = await _context.Emitentes
-                    .Select(e => new EmitenteListDto
-                    {
-                        Id = e.Id,
-                        RazaoSocial = e.RazaoSocial,
-                        NomeFantasia = e.NomeFantasia,
-                        Cnpj = e.Cnpj,
-                        Cpf = e.Cpf,
-                        TipoEmitente = e.TipoEmitente,
-                        TemCertificado = !string.IsNullOrEmpty(e.CaminhoArquivoCertificado),
-                        AmbienteSefaz = e.AmbienteSefaz,
-                        Uf = e.Uf
-                    })
-                    .OrderBy(e => e.TipoEmitente)
-                    .ThenBy(e => e.RazaoSocial)
-                    .ToListAsync();
-
-                return Ok(emitentes);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Erro ao listar emitentes");
-                return StatusCode(500, new { message = "Erro ao listar emitentes", error = ex.Message });
-            }
-        }
-
-        [HttpGet("por-tipo/{tipoEmitente}")]
-        public async Task<ActionResult<IEnumerable<EmitenteListDto>>> ListarEmitentesPorTipo(string tipoEmitente)
-        {
-            try
-            {
-                var emitentes = await _context.Emitentes
-                    .Where(e => e.Ativo && e.TipoEmitente == tipoEmitente)
-                    .Select(e => new EmitenteListDto
-                    {
-                        Id = e.Id,
-                        RazaoSocial = e.RazaoSocial,
-                        NomeFantasia = e.NomeFantasia,
-                        Cnpj = e.Cnpj,
-                        Cpf = e.Cpf,
-                        TipoEmitente = e.TipoEmitente,
-                        TemCertificado = !string.IsNullOrEmpty(e.CaminhoArquivoCertificado),
-                        AmbienteSefaz = e.AmbienteSefaz,
-                        Uf = e.Uf
-                    })
-                    .OrderBy(e => e.RazaoSocial)
-                    .ToListAsync();
-
-                return Ok(emitentes);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Erro ao listar emitentes por tipo");
-                return StatusCode(500, new { message = "Erro ao listar emitentes", error = ex.Message });
-            }
-        }
-
-        [HttpPost("{emitenteId}/certificado")]
-        public async Task<IActionResult> ConfigurarCertificado(int emitenteId, [FromBody] ConfigurarCertificadoRequest request)
-        {
-            try
-            {
-                if (!System.IO.File.Exists(request.CaminhoArquivoCertificado))
-                {
-                    return BadRequest(new { message = "Arquivo de certificado não encontrado" });
-                }
-
-                var certificadoValido = await _certificadoService.ValidarCertificadoAsync(
-                    request.CaminhoArquivoCertificado, 
-                    request.SenhaCertificado);
-
-                if (!certificadoValido)
-                {
-                    return BadRequest(new { message = "Certificado inválido ou senha incorreta" });
-                }
-
-                var emitente = await _context.Emitentes.FindAsync(emitenteId);
-                if (emitente == null)
+                var emitente = await _context.Emitentes.FindAsync(id);
+                if (emitente == null || !emitente.Ativo)
                 {
                     return NotFound(new { message = "Emitente não encontrado" });
                 }
 
+                // Validar certificado
+                var isValid = await _certificadoService.ValidarCertificadoAsync(
+                    request.CaminhoArquivoCertificado,
+                    request.SenhaCertificado);
+
+                if (!isValid)
+                {
+                    return BadRequest(new { message = "Certificado inválido ou senha incorreta" });
+                }
+
+                // Atualizar dados do certificado
                 emitente.CaminhoArquivoCertificado = request.CaminhoArquivoCertificado;
                 emitente.SenhaCertificado = request.SenhaCertificado;
+                emitente.DataUltimaAlteracao = DateTime.Now;
 
-                _context.Entry(emitente).State = EntityState.Modified;
                 await _context.SaveChangesAsync();
 
-                return Ok(new 
-                { 
-                    message = "Certificado configurado com sucesso",
-                    emitente = emitente.RazaoSocial
-                });
+                return Ok(new { message = "Certificado configurado com sucesso" });
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Erro ao configurar certificado para o emitente {EmitenteId}", emitenteId);
-                return StatusCode(500, new { message = "Erro ao configurar certificado", error = ex.Message });
+                _logger.LogError(ex, "Erro ao configurar certificado do emitente {EmitenteId}", id);
+                return StatusCode(500, new { message = "Erro interno do servidor", error = ex.Message });
             }
         }
 
-        [HttpGet("com-certificados")]
-        public async Task<ActionResult<IEnumerable<EmitenteComCertificadoDto>>> ListarEmitentesComCertificados()
+        /// <summary>
+        /// Obter emitentes com certificado válido
+        /// </summary>
+        [HttpGet("com-certificado")]
+        public async Task<ActionResult<IEnumerable<EmitenteComCertificadoDto>>> GetEmitentesComCertificado()
         {
             try
             {
                 var emitentes = await _context.Emitentes
-                    .Where(e => !string.IsNullOrEmpty(e.CaminhoArquivoCertificado))
+                    .Where(e => e.Ativo && !string.IsNullOrEmpty(e.CaminhoArquivoCertificado))
+                    .Select(e => new EmitenteComCertificadoDto
+                    {
+                        Id = e.Id,
+                        RazaoSocial = e.RazaoSocial,
+                        TipoEmitente = e.TipoEmitente,
+                        CaminhoArquivoCertificado = e.CaminhoArquivoCertificado,
+                        CertificadoValido = false, // Será validado pelo service
+                        ValidadeCertificado = null // Será preenchido pelo service
+                    })
                     .ToListAsync();
 
-                var resultado = new List<EmitenteComCertificadoDto>();
-
+                // Validar certificados
                 foreach (var emitente in emitentes)
                 {
-                    var senha = emitente.SenhaCertificado ?? string.Empty;
-                    var certificadoValido = false;
-                    DateTime? validadeCertificado = null;
-
-                    if (!string.IsNullOrEmpty(emitente.SenhaCertificado))
+                    if (!string.IsNullOrEmpty(emitente.CaminhoArquivoCertificado))
                     {
-                        try
-                        {
-                            certificadoValido = await _certificadoService.ValidarCertificadoAsync(
-                                emitente.CaminhoArquivoCertificado!, senha);
-
-                            if (certificadoValido && System.IO.File.Exists(emitente.CaminhoArquivoCertificado))
-                            {
-                                var certificadoBytes = await System.IO.File.ReadAllBytesAsync(emitente.CaminhoArquivoCertificado);
-                                var certificado = new System.Security.Cryptography.X509Certificates.X509Certificate2(
-                                    certificadoBytes, senha);
-                                validadeCertificado = certificado.NotAfter;
-                            }
-                        }
-                        catch (Exception ex)
-                        {
-                            _logger.LogWarning(ex, $"Erro ao validar certificado do emitente {emitente.RazaoSocial}");
-                        }
+                        emitente.CertificadoValido = await _certificadoService.CertificadoValidoAsync(
+                            emitente.CaminhoArquivoCertificado);
                     }
-
-                    resultado.Add(new EmitenteComCertificadoDto
-                    {
-                        Id = emitente.Id,
-                        RazaoSocial = emitente.RazaoSocial,
-                        TipoEmitente = emitente.TipoEmitente,
-                        CaminhoArquivoCertificado = emitente.CaminhoArquivoCertificado,
-                        CertificadoValido = certificadoValido,
-                        ValidadeCertificado = validadeCertificado
-                    });
                 }
 
-                return Ok(resultado);
+                return Ok(emitentes);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Erro ao listar emitentes com certificados");
-                return StatusCode(500, new { message = "Erro ao listar emitentes", error = ex.Message });
+                _logger.LogError(ex, "Erro ao obter emitentes com certificado");
+                return StatusCode(500, new { message = "Erro interno do servidor", error = ex.Message });
             }
         }
 
-        [HttpGet("tipos-emitente")]
-        public IActionResult ListarTiposEmitente()
+        /// <summary>
+        /// Selecionar emitente ativo
+        /// </summary>
+        [HttpPost("selecionar")]
+        public async Task<IActionResult> SelecionarEmitente([FromBody] SelecionarEmitenteRequest request)
         {
-            return Ok(new[]
+            try
             {
-                new { valor = "PrestadorServico", descricao = "Prestador de Serviço de Transporte" },
-                new { valor = "EntregaPropria", descricao = "Transporte de Entrega Própria" }
-            });
+                var emitente = await _context.Emitentes.FindAsync(request.EmitenteId);
+                if (emitente == null || !emitente.Ativo)
+                {
+                    return NotFound(new { message = "Emitente não encontrado" });
+                }
+
+                // Aqui poderia implementar lógica de sessão/contexto do emitente selecionado
+                // Por ora, apenas retorna sucesso
+                return Ok(new {
+                    message = "Emitente selecionado com sucesso",
+                    emitente = new { emitente.Id, emitente.RazaoSocial, emitente.TipoEmitente }
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erro ao selecionar emitente {EmitenteId}", request.EmitenteId);
+                return StatusCode(500, new { message = "Erro interno do servidor", error = ex.Message });
+            }
         }
 
+        #endregion
     }
 }

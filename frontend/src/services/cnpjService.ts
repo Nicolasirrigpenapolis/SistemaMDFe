@@ -1,127 +1,144 @@
-export interface CNPJData {
-  cnpj: string;
-  razao_social: string;
-  nome_fantasia?: string;
-  logradouro: string;
-  numero: string;
-  complemento?: string;
-  bairro: string;
-  municipio: string;
-  uf: string;
-  cep: string;
-  codigo_municipio?: number;
-  telefone?: string;
-  email?: string;
-  situacao?: string;
-  data_situacao?: string;
-}
+/**
+ * 🎯 SERVIÇO DE VALIDAÇÃO AUTOMÁTICA
+ * Integração completa com ValidationController para validação e preenchimento automático
+ */
 
-export interface CNPJResponse {
-  success: boolean;
-  data?: CNPJData;
-  error?: string;
-}
+// ✅ IMPORTANDO TIPOS CENTRALIZADOS
+import { CNPJData, ValidacaoResponse } from '../types/apiResponse';
 
-class CNPJService {
-  private readonly baseUrl = 'https://brasilapi.com.br/api/cnpj/v1';
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://localhost:5001/api';
 
-  async consultarCNPJ(cnpj: string): Promise<CNPJResponse> {
+// Re-exportando para compatibilidade
+export type { CNPJData, ValidacaoResponse };
+
+class ValidationService {
+  /**
+   * 🔍 Consultar e validar CNPJ com preenchimento automático
+   */
+  async consultarCNPJ(cnpj: string): Promise<ValidacaoResponse<CNPJData>> {
     try {
-      // Remove formatação do CNPJ
+      // Limpar CNPJ
       const cnpjLimpo = cnpj.replace(/\D/g, '');
 
       if (cnpjLimpo.length !== 14) {
         return {
-          success: false,
-          error: 'CNPJ deve conter 14 dígitos'
+          sucesso: false,
+          mensagem: 'CNPJ deve conter 14 dígitos'
         };
       }
 
-      const response = await fetch(`${this.baseUrl}/${cnpjLimpo}`);
+      const response = await fetch(`${API_BASE_URL}/validation/cnpj/${cnpjLimpo}`);
+      const result = await response.json();
 
       if (!response.ok) {
-        if (response.status === 404) {
-          return {
-            success: false,
-            error: 'CNPJ não encontrado'
-          };
-        }
-        throw new Error(`Erro na consulta: ${response.status}`);
+        return {
+          sucesso: false,
+          mensagem: result.mensagem || 'Erro ao consultar CNPJ'
+        };
       }
 
-      const data = await response.json();
-
       return {
-        success: true,
-        data: {
-          cnpj: data.cnpj,
-          razao_social: data.razao_social || '',
-          nome_fantasia: data.nome_fantasia || '',
-          logradouro: data.logradouro || '',
-          numero: data.numero || '',
-          complemento: data.complemento || '',
-          bairro: data.bairro || '',
-          municipio: data.municipio || '',
-          uf: data.uf || '',
-          cep: data.cep?.replace(/\D/g, '') || '',
-          codigo_municipio: parseInt(data.codigo_municipio) || 0,
-          telefone: data.ddd_telefone_1 ? `(${data.ddd_telefone_1.substring(0, 2)}) ${data.ddd_telefone_1.substring(2)}` : '',
-          email: data.email || '',
-          situacao: data.situacao || '',
-          data_situacao: data.data_situacao || ''
-        }
+        sucesso: result.sucesso,
+        data: result.data,
+        mensagem: result.mensagem
       };
-
     } catch (error) {
       console.error('Erro ao consultar CNPJ:', error);
       return {
-        success: false,
-        error: error instanceof Error ? error.message : 'Erro desconhecido ao consultar CNPJ'
+        sucesso: false,
+        mensagem: 'Erro de conexão com o servidor'
       };
     }
   }
 
-  formatarCNPJ(cnpj: string): string {
-    const cnpjLimpo = cnpj.replace(/\D/g, '');
-    return cnpjLimpo.replace(/^(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})$/, '$1.$2.$3/$4-$5');
+  /**
+   * ✅ Validar CNPJ simples (sem consulta)
+   */
+  async validarCNPJ(cnpj: string): Promise<ValidacaoResponse<boolean>> {
+    try {
+      const response = await fetch(`${API_BASE_URL}/validation/cnpj`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ documento: cnpj })
+      });
+
+      const result = await response.json();
+
+      return {
+        sucesso: result.sucesso,
+        data: result.data,
+        mensagem: result.mensagem
+      };
+    } catch (error) {
+      console.error('Erro ao validar CNPJ:', error);
+      return {
+        sucesso: false,
+        mensagem: 'Erro de conexão com o servidor'
+      };
+    }
   }
 
-  validarCNPJ(cnpj: string): boolean {
-    const cnpjLimpo = cnpj.replace(/\D/g, '');
+  /**
+   * ✅ Validar CPF
+   */
+  async validarCPF(cpf: string): Promise<ValidacaoResponse<boolean>> {
+    try {
+      const response = await fetch(`${API_BASE_URL}/validation/cpf`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ documento: cpf })
+      });
 
-    if (cnpjLimpo.length !== 14) return false;
+      const result = await response.json();
 
-    // Verifica se todos os dígitos são iguais
-    if (/^(\d)\1+$/.test(cnpjLimpo)) return false;
-
-    // Validação do primeiro dígito verificador
-    let soma = 0;
-    let peso = 5;
-
-    for (let i = 0; i < 12; i++) {
-      soma += parseInt(cnpjLimpo[i]) * peso;
-      peso = peso === 2 ? 9 : peso - 1;
+      return {
+        sucesso: result.sucesso,
+        data: result.data,
+        mensagem: result.mensagem
+      };
+    } catch (error) {
+      console.error('Erro ao validar CPF:', error);
+      return {
+        sucesso: false,
+        mensagem: 'Erro de conexão com o servidor'
+      };
     }
+  }
 
-    const resto1 = soma % 11;
-    const dv1 = resto1 < 2 ? 0 : 11 - resto1;
+  /**
+   * 🎯 Formatação automática de documentos
+   */
+  formatarCNPJ(cnpj: string): string {
+    const limpo = cnpj.replace(/\D/g, '');
+    return limpo.replace(/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/, '$1.$2.$3/$4-$5');
+  }
 
-    if (parseInt(cnpjLimpo[12]) !== dv1) return false;
+  formatarCPF(cpf: string): string {
+    const limpo = cpf.replace(/\D/g, '');
+    return limpo.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
+  }
 
-    // Validação do segundo dígito verificador
-    soma = 0;
-    peso = 6;
+  formatarCEP(cep: string): string {
+    const limpo = cep.replace(/\D/g, '');
+    return limpo.replace(/(\d{5})(\d{3})/, '$1-$2');
+  }
 
-    for (let i = 0; i < 13; i++) {
-      soma += parseInt(cnpjLimpo[i]) * peso;
-      peso = peso === 2 ? 9 : peso - 1;
+  formatarTelefone(telefone: string): string {
+    const limpo = telefone.replace(/\D/g, '');
+    if (limpo.length === 11) {
+      return limpo.replace(/(\d{2})(\d{5})(\d{4})/, '($1) $2-$3');
+    } else if (limpo.length === 10) {
+      return limpo.replace(/(\d{2})(\d{4})(\d{4})/, '($1) $2-$3');
     }
-
-    const resto2 = soma % 11;
-    const dv2 = resto2 < 2 ? 0 : 11 - resto2;
-
-    return parseInt(cnpjLimpo[13]) === dv2;
+    return telefone;
   }
 }
 
-export const cnpjService = new CNPJService();
+export const validationService = new ValidationService();
+
+// Manter compatibilidade
+export const cnpjService = validationService;

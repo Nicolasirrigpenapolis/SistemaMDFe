@@ -1,11 +1,12 @@
 using MDFeApi.Models;
+using MDFeApi.DTOs;
 using Microsoft.EntityFrameworkCore;
 
 namespace MDFeApi.Extensions
 {
     public static class QueryableExtensions
     {
-        public static async Task<PaginationResult<T>> ToPaginatedListAsync<T>(
+        public static async Task<PagedResult<T>> ToPaginatedListAsync<T>(
             this IQueryable<T> query,
             int page,
             int pageSize)
@@ -18,17 +19,19 @@ namespace MDFeApi.Extensions
                 .Take(pageSize)
                 .ToListAsync();
 
-            return new PaginationResult<T>
+            return new PagedResult<T>
             {
                 Items = items,
                 TotalItems = totalItems,
                 TotalPages = totalPages,
-                CurrentPage = page,
-                PageSize = pageSize
+                Page = page,
+                PageSize = pageSize,
+                HasNextPage = page * pageSize < totalItems,
+                HasPreviousPage = page > 1
             };
         }
 
-        public static async Task<PaginationResult<T>> ToPaginatedListAsync<T>(
+        public static async Task<PagedResult<T>> ToPaginatedListAsync<T>(
             this IQueryable<T> query,
             PaginationRequest request)
         {

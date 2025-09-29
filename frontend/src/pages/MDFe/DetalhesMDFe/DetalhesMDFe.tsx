@@ -1,16 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { mdfeService } from '../../../services/mdfeService';
-import styles from './DetalhesMDFe.module.css';
+import Icon from '../../../components/UI/Icon';
 
 interface MDFeDetalhado {
   id: number;
   numero: string;
   serie: string;
   dataEmissao: string;
-  ufInicio: string;
+  ufIni: string;
   ufFim: string;
-  valorCarga: number;
+  valorTotal: number;
   status: 'Autorizado' | 'Pendente' | 'Cancelado' | 'Rejeitado' | 'Rascunho';
   chaveAcesso?: string;
   emitenteNome: string;
@@ -55,16 +54,16 @@ export function DetalhesMDFe() {
         numero: data.numeroMdfe?.toString().padStart(9, '0') || '',
         serie: data.serie?.toString() || '001',
         dataEmissao: data.dataEmissao,
-        ufInicio: data.ufInicio || '',
+        ufIni: data.ufIni || '',
         ufFim: data.ufFim || '',
-        valorCarga: data.valorCarga || 0,
+        valorTotal: data.valorTotal || 0,
         status: mapearStatus(data.statusSefaz),
         chaveAcesso: data.chaveAcesso,
-        emitenteNome: data.emitente?.razaoSocial || '',
-        emitenteCnpj: data.emitente?.cnpj || '',
-        veiculoPlaca: data.veiculo?.placa || '',
-        condutorNome: data.condutor?.nome || '',
-        observacoes: data.infoAdicional,
+        emitenteNome: data.emitenteRazaoSocial || '',
+        emitenteCnpj: data.emitenteCnpj || '',
+        veiculoPlaca: data.veiculoPlaca || '',
+        condutorNome: data.condutorNome || '',
+        observacoes: data.observacoes,
         dataTransmissao: data.dataTransmissao,
         protocoloSefaz: data.numeroProtocolo,
         motivoRejeicao: data.motivoRejeicao
@@ -175,49 +174,11 @@ export function DetalhesMDFe() {
     }
   };
 
-  const handleDownloadPDF = async () => {
+  const handleGerarMDFe = async () => {
     try {
-      setProcessando('download');
+      setProcessando('gerar');
 
-      const response = await fetch(`${process.env.REACT_APP_API_URL || 'https://localhost:5001/api'}/mdfe/${id}/imprimir`, {
-        method: 'GET',
-        headers: {
-          'Accept': 'application/pdf'
-        }
-      });
-
-      if (!response.ok) {
-        throw new Error('Erro ao gerar PDF');
-      }
-
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = `DAMDFE_${mdfe?.numero}_${new Date().toISOString().split('T')[0]}.pdf`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      window.URL.revokeObjectURL(url);
-
-      exibirMensagem('sucesso', 'PDF baixado com sucesso!');
-    } catch (error) {
-      console.error('Erro ao baixar PDF:', error);
-      exibirMensagem('erro', 'Erro ao baixar PDF');
-    } finally {
-      setProcessando(null);
-    }
-  };
-
-  const handleDuplicar = async () => {
-    if (!window.confirm('Deseja criar um novo MDFe baseado neste?')) {
-      return;
-    }
-
-    try {
-      setProcessando('duplicar');
-
-      const response = await fetch(`${process.env.REACT_APP_API_URL || 'https://localhost:5001/api'}/mdfe/${id}/duplicar`, {
+      const response = await fetch(`${process.env.REACT_APP_API_URL || 'https://localhost:5001/api'}/mdfe/${id}/gerar`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -227,16 +188,47 @@ export function DetalhesMDFe() {
       const resultado = await response.json();
 
       if (response.ok) {
-        exibirMensagem('sucesso', 'MDFe duplicado com sucesso!');
-        setTimeout(() => {
-          navigate(`/mdfes/editar/${resultado.id}`);
-        }, 1500);
+        exibirMensagem('sucesso', 'MDFe gerado com sucesso!');
+        await carregarMDFe(parseInt(id!));
       } else {
-        exibirMensagem('erro', resultado.message || 'Erro ao duplicar MDFe');
+        exibirMensagem('erro', resultado.mensagem || 'Erro ao gerar MDFe');
       }
     } catch (error) {
-      console.error('Erro ao duplicar:', error);
-      exibirMensagem('erro', 'Erro ao duplicar MDFe');
+      console.error('Erro ao gerar MDFe:', error);
+      exibirMensagem('erro', 'Erro ao gerar MDFe');
+    } finally {
+      setProcessando(null);
+    }
+  };
+
+  const handleConsultarStatus = async () => {
+    if (!mdfe?.chaveAcesso) {
+      exibirMensagem('erro', 'Chave de acesso não disponível');
+      return;
+    }
+
+    try {
+      setProcessando('consultar');
+
+      const response = await fetch(`${process.env.REACT_APP_API_URL || 'https://localhost:5001/api'}/mdfe/consultar-status`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ chaveAcesso: mdfe.chaveAcesso })
+      });
+
+      const resultado = await response.json();
+
+      if (response.ok) {
+        exibirMensagem('sucesso', 'Status consultado com sucesso!');
+        await carregarMDFe(parseInt(id!));
+      } else {
+        exibirMensagem('erro', resultado.mensagem || 'Erro ao consultar status');
+      }
+    } catch (error) {
+      console.error('Erro ao consultar status:', error);
+      exibirMensagem('erro', 'Erro ao consultar status');
     } finally {
       setProcessando(null);
     }
@@ -255,7 +247,7 @@ export function DetalhesMDFe() {
 
   if (carregando) {
     return (
-      <div className={styles.loading}>
+      <div className="flex items-center justify-center min-h-[400px]">
         <i className="fas fa-spinner fa-spin"></i>
         <span>Carregando detalhes do MDFe...</span>
       </div>
@@ -264,10 +256,10 @@ export function DetalhesMDFe() {
 
   if (!mdfe) {
     return (
-      <div className={styles.error}>
+      <div className="flex flex-col items-center justify-center min-h-[400px] text-center">
         <i className="fas fa-exclamation-triangle"></i>
         <span>MDFe não encontrado</span>
-        <button onClick={() => navigate('/mdfes')} className={styles.backButton}>
+        <button onClick={() => navigate('/mdfes')} className="px-4 py-2 border border-border-primary rounded-lg bg-bg-surface text-text-primary hover:bg-bg-tertiary transition-colors duration-200">
           Voltar à Listagem
         </button>
       </div>
@@ -275,16 +267,22 @@ export function DetalhesMDFe() {
   }
 
   return (
-    <div className={styles.detalhesMdfe}>
+    <div className="max-w-7xl mx-auto px-6 py-8">
       {/* Mensagem de Feedback */}
       {mensagem && (
-        <div className={`${styles.mensagem} ${styles[mensagem.tipo]}`}>
-          <i className={`fas ${
-            mensagem.tipo === 'sucesso' ? 'fa-check-circle' : 'fa-exclamation-circle'
-          }`}></i>
-          {mensagem.texto}
+        <div className={`mb-6 p-4 rounded-lg border flex items-center justify-between ${
+          mensagem.tipo === 'sucesso'
+            ? 'bg-green-50 border-green-200 text-green-800 dark:bg-green-900/20 dark:border-green-800 dark:text-green-300'
+            : 'bg-red-50 border-red-200 text-red-800 dark:bg-red-900/20 dark:border-red-800 dark:text-red-300'
+        }`}>
+          <div className="flex items-center gap-3">
+            <i className={`fas ${
+              mensagem.tipo === 'sucesso' ? 'fa-check-circle' : 'fa-exclamation-circle'
+            }`}></i>
+            <span>{mensagem.texto}</span>
+          </div>
           <button
-            className={styles.fecharMensagem}
+            className="text-current hover:opacity-70 transition-opacity duration-200"
             onClick={() => setMensagem(null)}
           >
             <i className="fas fa-times"></i>
@@ -293,19 +291,19 @@ export function DetalhesMDFe() {
       )}
 
       {/* Header */}
-      <header className={styles.header}>
-        <div className={styles.headerLeft}>
+      <header className="flex items-center justify-between mb-8 bg-bg-surface rounded-xl border border-border-primary p-6">
+        <div className="flex items-center gap-4">
           <button
             onClick={() => navigate('/mdfes')}
-            className={styles.backButton}
+            className="px-4 py-2 border border-border-primary rounded-lg bg-bg-surface text-text-primary hover:bg-bg-tertiary transition-colors duration-200"
           >
             <i className="fas fa-arrow-left"></i>
             Voltar
           </button>
-          <div className={styles.titleSection}>
+          <div className="space-y-2">
             <h1>MDFe #{mdfe.numero}</h1>
             <div
-              className={styles.statusBadge}
+              className="px-3 py-1 rounded-full text-sm font-medium"
               style={{ backgroundColor: getStatusColor(mdfe.status) }}
             >
               {mdfe.status}
@@ -313,13 +311,13 @@ export function DetalhesMDFe() {
           </div>
         </div>
 
-        <div className={styles.headerActions}>
+        <div className="flex items-center gap-2">
           {/* Ações condicionais por status */}
           {mdfe.status === 'Rascunho' && (
             <>
               <button
                 onClick={() => navigate(`/mdfes/editar/${mdfe.id}`)}
-                className={`${styles.actionBtn} ${styles.edit}`}
+                className="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-lg font-medium transition-colors duration-200 flex items-center gap-2"
                 disabled={!!processando}
               >
                 <i className="fas fa-edit"></i>
@@ -327,7 +325,7 @@ export function DetalhesMDFe() {
               </button>
               <button
                 onClick={handleTransmitir}
-                className={`${styles.actionBtn} ${styles.transmit}`}
+                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors duration-200 flex items-center gap-2"
                 disabled={!!processando}
               >
                 {processando === 'transmitir' ? (
@@ -344,7 +342,7 @@ export function DetalhesMDFe() {
             <>
               <button
                 onClick={() => navigate(`/mdfes/editar/${mdfe.id}`)}
-                className={`${styles.actionBtn} ${styles.edit}`}
+                className="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-lg font-medium transition-colors duration-200 flex items-center gap-2"
                 disabled={!!processando}
               >
                 <i className="fas fa-edit"></i>
@@ -352,7 +350,7 @@ export function DetalhesMDFe() {
               </button>
               <button
                 onClick={handleTransmitir}
-                className={`${styles.actionBtn} ${styles.transmit}`}
+                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors duration-200 flex items-center gap-2"
                 disabled={!!processando}
               >
                 {processando === 'transmitir' ? (
@@ -368,20 +366,20 @@ export function DetalhesMDFe() {
           {(mdfe.status === 'Autorizado' || mdfe.status === 'Pendente') && (
             <>
               <button
-                onClick={handleDownloadPDF}
-                className={`${styles.actionBtn} ${styles.download}`}
+                onClick={handleConsultarStatus}
+                className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium transition-colors duration-200 flex items-center gap-2"
                 disabled={!!processando}
               >
-                {processando === 'download' ? (
+                {processando === 'consultar' ? (
                   <i className="fas fa-spinner fa-spin"></i>
                 ) : (
-                  <i className="fas fa-download"></i>
+                  <i className="fas fa-search"></i>
                 )}
-                PDF
+                Consultar Status
               </button>
               <button
                 onClick={handleCancelar}
-                className={`${styles.actionBtn} ${styles.cancel}`}
+                className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg font-medium transition-colors duration-200 flex items-center gap-2"
                 disabled={!!processando}
               >
                 {processando === 'cancelar' ? (
@@ -394,99 +392,99 @@ export function DetalhesMDFe() {
             </>
           )}
 
-          {/* Duplicar sempre disponível (exceto cancelados) */}
-          {mdfe.status !== 'Cancelado' && (
+          {/* Gerar MDFe para rascunhos */}
+          {mdfe.status === 'Rascunho' && (
             <button
-              onClick={handleDuplicar}
-              className={`${styles.actionBtn} ${styles.duplicate}`}
+              onClick={handleGerarMDFe}
+              className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg font-medium transition-colors duration-200 flex items-center gap-2"
               disabled={!!processando}
             >
-              {processando === 'duplicar' ? (
+              {processando === 'gerar' ? (
                 <i className="fas fa-spinner fa-spin"></i>
               ) : (
-                <i className="fas fa-copy"></i>
+                <i className="fas fa-cog"></i>
               )}
-              Duplicar
+              Gerar MDFe
             </button>
           )}
         </div>
       </header>
 
       {/* Conteúdo Principal */}
-      <div className={styles.content}>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Informações Básicas */}
-        <div className={styles.section}>
-          <h2>
+        <div className="bg-bg-surface rounded-xl border border-border-primary p-6">
+          <h2 className="text-lg font-semibold text-text-primary mb-4 flex items-center gap-2">
             <i className="fas fa-info-circle"></i>
             Informações Básicas
           </h2>
-          <div className={styles.infoGrid}>
-            <div className={styles.infoItem}>
-              <label>Número:</label>
-              <span>{mdfe.numero}</span>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-1">
+              <label className="text-sm font-medium text-text-secondary">Número:</label>
+              <span className="block text-text-primary">{mdfe.numero}</span>
             </div>
-            <div className={styles.infoItem}>
-              <label>Série:</label>
-              <span>{mdfe.serie}</span>
+            <div className="space-y-1">
+              <label className="text-sm font-medium text-text-secondary">Série:</label>
+              <span className="block text-text-primary">{mdfe.serie}</span>
             </div>
-            <div className={styles.infoItem}>
-              <label>Data Emissão:</label>
-              <span>{new Date(mdfe.dataEmissao).toLocaleString('pt-BR')}</span>
+            <div className="space-y-1">
+              <label className="text-sm font-medium text-text-secondary">Data Emissão:</label>
+              <span className="block text-text-primary">{new Date(mdfe.dataEmissao).toLocaleString('pt-BR')}</span>
             </div>
-            <div className={styles.infoItem}>
-              <label>UF Origem:</label>
-              <span>{mdfe.ufInicio}</span>
+            <div className="space-y-1">
+              <label className="text-sm font-medium text-text-secondary">UF Origem:</label>
+              <span className="block text-text-primary">{mdfe.ufIni}</span>
             </div>
-            <div className={styles.infoItem}>
-              <label>UF Destino:</label>
-              <span>{mdfe.ufFim}</span>
+            <div className="space-y-1">
+              <label className="text-sm font-medium text-text-secondary">UF Destino:</label>
+              <span className="block text-text-primary">{mdfe.ufFim}</span>
             </div>
-            <div className={styles.infoItem}>
-              <label>Valor da Carga:</label>
-              <span>R$ {mdfe.valorCarga.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
+            <div className="space-y-1">
+              <label className="text-sm font-medium text-text-secondary">Valor da Carga:</label>
+              <span className="block text-text-primary">R$ {mdfe.valorTotal.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
             </div>
             {mdfe.chaveAcesso && (
-              <div className={styles.infoItem} style={{ gridColumn: '1 / -1' }}>
-                <label>Chave de Acesso:</label>
-                <span className={styles.chaveAcesso}>{mdfe.chaveAcesso}</span>
+              <div className="space-y-1 md:col-span-2">
+                <label className="text-sm font-medium text-text-secondary">Chave de Acesso:</label>
+                <span className="block font-mono text-sm bg-bg-tertiary px-2 py-1 rounded text-text-primary">{mdfe.chaveAcesso}</span>
               </div>
             )}
           </div>
         </div>
 
         {/* Emitente */}
-        <div className={styles.section}>
-          <h2>
+        <div className="bg-bg-surface rounded-xl border border-border-primary p-6">
+          <h2 className="text-lg font-semibold text-text-primary mb-4 flex items-center gap-2">
             <i className="fas fa-building"></i>
             Emitente
           </h2>
-          <div className={styles.infoGrid}>
-            <div className={styles.infoItem}>
-              <label>Razão Social:</label>
-              <span>{mdfe.emitenteNome}</span>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-1">
+              <label className="text-sm font-medium text-text-secondary">Razão Social:</label>
+              <span className="block text-text-primary">{mdfe.emitenteNome}</span>
             </div>
-            <div className={styles.infoItem}>
-              <label>CNPJ:</label>
-              <span>{mdfe.emitenteCnpj}</span>
+            <div className="space-y-1">
+              <label className="text-sm font-medium text-text-secondary">CNPJ:</label>
+              <span className="block text-text-primary">{mdfe.emitenteCnpj}</span>
             </div>
           </div>
         </div>
 
         {/* Transporte */}
-        <div className={styles.section}>
-          <h2>
+        <div className="bg-bg-surface rounded-xl border border-border-primary p-6">
+          <h2 className="text-lg font-semibold text-text-primary mb-4 flex items-center gap-2">
             <i className="fas fa-truck"></i>
             Transporte
           </h2>
-          <div className={styles.infoGrid}>
-            <div className={styles.infoItem}>
-              <label>Veículo:</label>
-              <span>{mdfe.veiculoPlaca}</span>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-1">
+              <label className="text-sm font-medium text-text-secondary">Veículo:</label>
+              <span className="block text-text-primary">{mdfe.veiculoPlaca}</span>
             </div>
             {mdfe.condutorNome && (
-              <div className={styles.infoItem}>
-                <label>Condutor:</label>
-                <span>{mdfe.condutorNome}</span>
+              <div className="space-y-1">
+                <label className="text-sm font-medium text-text-secondary">Condutor:</label>
+                <span className="block text-text-primary">{mdfe.condutorNome}</span>
               </div>
             )}
           </div>
@@ -494,28 +492,28 @@ export function DetalhesMDFe() {
 
         {/* Status e Protocolo */}
         {(mdfe.dataTransmissao || mdfe.protocoloSefaz || mdfe.motivoRejeicao) && (
-          <div className={styles.section}>
-            <h2>
+          <div className="bg-bg-surface rounded-xl border border-border-primary p-6">
+            <h2 className="text-lg font-semibold text-text-primary mb-4 flex items-center gap-2">
               <i className="fas fa-exchange-alt"></i>
               Status SEFAZ
             </h2>
-            <div className={styles.infoGrid}>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {mdfe.dataTransmissao && (
-                <div className={styles.infoItem}>
-                  <label>Data Transmissão:</label>
-                  <span>{new Date(mdfe.dataTransmissao).toLocaleString('pt-BR')}</span>
+                <div className="space-y-1">
+                  <label className="text-sm font-medium text-text-secondary">Data Transmissão:</label>
+                  <span className="block text-text-primary">{new Date(mdfe.dataTransmissao).toLocaleString('pt-BR')}</span>
                 </div>
               )}
               {mdfe.protocoloSefaz && (
-                <div className={styles.infoItem}>
-                  <label>Protocolo:</label>
-                  <span>{mdfe.protocoloSefaz}</span>
+                <div className="space-y-1">
+                  <label className="text-sm font-medium text-text-secondary">Protocolo:</label>
+                  <span className="block text-text-primary">{mdfe.protocoloSefaz}</span>
                 </div>
               )}
               {mdfe.motivoRejeicao && (
-                <div className={styles.infoItem} style={{ gridColumn: '1 / -1' }}>
-                  <label>Motivo Rejeição:</label>
-                  <span className={styles.motivoRejeicao}>{mdfe.motivoRejeicao}</span>
+                <div className="space-y-1 md:col-span-2">
+                  <label className="text-sm font-medium text-text-secondary">Motivo Rejeição:</label>
+                  <span className="block text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 p-3 rounded-lg">{mdfe.motivoRejeicao}</span>
                 </div>
               )}
             </div>
@@ -524,12 +522,12 @@ export function DetalhesMDFe() {
 
         {/* Observações */}
         {mdfe.observacoes && (
-          <div className={styles.section}>
-            <h2>
+          <div className="bg-bg-surface rounded-xl border border-border-primary p-6">
+            <h2 className="text-lg font-semibold text-text-primary mb-4 flex items-center gap-2">
               <i className="fas fa-sticky-note"></i>
               Observações
             </h2>
-            <div className={styles.observacoes}>
+            <div className="text-text-secondary bg-bg-tertiary p-4 rounded-lg">
               {mdfe.observacoes}
             </div>
           </div>

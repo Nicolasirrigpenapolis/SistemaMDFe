@@ -1,5 +1,4 @@
 import React from 'react';
-import styles from './Pagination.module.css';
 
 interface PaginationProps {
   currentPage: number;
@@ -18,34 +17,50 @@ const Pagination: React.FC<PaginationProps> = ({
   }
 
   return (
-    <nav className={styles.paginationContainer}>
-      <ul className={styles.pagination}>
-        <li className={`${styles.pageItem} ${currentPage === 1 ? styles.disabled : ''}`}>
+    <nav className="flex justify-center">
+      <ul className="flex items-center space-x-1">
+        <li>
           <button
             onClick={() => onPageChange(currentPage - 1)}
-            className={styles.pageLink}
             disabled={currentPage === 1}
+            className={`
+              px-3 py-2 text-sm font-medium rounded-md transition-colors duration-200
+              ${currentPage === 1
+                ? 'text-gray-400 cursor-not-allowed bg-gray-100 dark:bg-gray-800'
+                : 'text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-600'
+              }
+            `}
           >
             Anterior
           </button>
         </li>
         {pageNumbers.map((number) => (
-          <li
-            key={number}
-            className={`${styles.pageItem} ${number === currentPage ? styles.active : ''}`}
-          >
-            <button onClick={() => onPageChange(number)} className={styles.pageLink}>
+          <li key={number}>
+            <button
+              onClick={() => onPageChange(number)}
+              className={`
+                px-3 py-2 text-sm font-medium rounded-md transition-colors duration-200
+                ${number === currentPage
+                  ? 'bg-blue-600 text-white border border-blue-600'
+                  : 'text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-600'
+                }
+              `}
+            >
               {number}
             </button>
           </li>
         ))}
-        <li
-          className={`${styles.pageItem} ${currentPage === totalPages ? styles.disabled : ''}`}
-        >
+        <li>
           <button
             onClick={() => onPageChange(currentPage + 1)}
-            className={styles.pageLink}
             disabled={currentPage === totalPages}
+            className={`
+              px-3 py-2 text-sm font-medium rounded-md transition-colors duration-200
+              ${currentPage === totalPages
+                ? 'text-gray-400 cursor-not-allowed bg-gray-100 dark:bg-gray-800'
+                : 'text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-600'
+              }
+            `}
           >
             Próximo
           </button>

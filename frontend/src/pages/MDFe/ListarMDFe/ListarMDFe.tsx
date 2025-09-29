@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import styles from './ListarMDFe.module.css';
+import Icon from '../../../components/UI/Icon';
 import Pagination from '../../../components/UI/Pagination/Pagination';
 import { MDFeViewModal } from '../../../components/UI/Modal/MDFeViewModal';
 
@@ -9,9 +9,9 @@ interface MDFe {
   numero: string;
   serie: string;
   dataEmissao: string;
-  ufInicio: string;
+  ufIni: string;
   ufFim: string;
-  valorCarga: number;
+  valorTotal: number;
   status: 'Autorizado' | 'Pendente' | 'Cancelado' | 'Rejeitado' | 'Rascunho';
   chave: string;
   emitenteNome?: string;
@@ -47,14 +47,14 @@ export function ListarMDFe() {
       // Mapear os dados da API para o formato esperado pelo componente
       const mdfesMapeados: MDFe[] = data.itens?.map((item: any) => ({
         id: item.id,
-        numero: item.numero?.toString().padStart(9, '0') || '',
-        serie: item.serie || '001',
+        numero: item.numeroMdfe?.toString().padStart(9, '0') || '',
+        serie: item.serie?.toString() || '001',
         dataEmissao: item.dataEmissao,
-        ufInicio: item.ufIni || '',
+        ufIni: item.ufIni || '',
         ufFim: item.ufFim || '',
-        valorCarga: item.valorTotal || 0,
-        status: mapearStatus(item.status),
-        chave: item.chave || '',
+        valorTotal: item.valorTotal || 0,
+        status: mapearStatus(item.statusSefaz),
+        chave: item.chaveAcesso || '',
         emitenteNome: item.emitenteRazaoSocial || '',
         veiculoPlaca: item.veiculoPlaca || ''
       })) || [];
@@ -89,51 +89,12 @@ export function ListarMDFe() {
     setTimeout(() => setMensagem(null), 5000);
   };
 
-  // Download do PDF/DAMDFE
-  const handleDownloadPDF = async (mdfeId: number, numero: string) => {
+  // Função para gerar MDFe (backend endpoint disponível)
+  const handleGerarMDFe = async (mdfeId: number, numero: string) => {
     try {
       setProcessando(mdfeId);
 
-      const response = await fetch(`${process.env.REACT_APP_API_URL || 'https://localhost:5001/api'}/mdfe/${mdfeId}/imprimir`, {
-        method: 'GET',
-        headers: {
-          'Accept': 'application/pdf'
-        }
-      });
-
-      if (!response.ok) {
-        throw new Error('Erro ao gerar PDF');
-      }
-
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = `DAMDFE_${numero}_${new Date().toISOString().split('T')[0]}.pdf`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      window.URL.revokeObjectURL(url);
-
-      exibirMensagem('sucesso', `PDF do MDFe ${numero} baixado com sucesso!`);
-    } catch (error) {
-      console.error('Erro ao baixar PDF:', error);
-      exibirMensagem('erro', `Erro ao baixar PDF do MDFe ${numero}`);
-    } finally {
-      setProcessando(null);
-    }
-  };
-
-  // Duplicar MDFe
-  const handleDuplicar = async (mdfeId: number, numero: string) => {
-    if (!window.confirm(`Deseja criar um novo MDFe baseado no MDFe ${numero}?`)) {
-      return;
-    }
-
-    try {
-      setProcessando(mdfeId);
-
-      const response = await fetch(`${process.env.REACT_APP_API_URL || 'https://localhost:5001/api'}/mdfe/${mdfeId}/duplicar`, {
+      const response = await fetch(`${process.env.REACT_APP_API_URL || 'https://localhost:5001/api'}/mdfe/${mdfeId}/gerar`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -143,16 +104,47 @@ export function ListarMDFe() {
       const resultado = await response.json();
 
       if (response.ok) {
-        exibirMensagem('sucesso', `MDFe duplicado com sucesso!`);
-        setTimeout(() => {
-          navigate(`/mdfes/editar/${resultado.id}`);
-        }, 1500);
+        exibirMensagem('sucesso', `MDFe ${numero} gerado com sucesso!`);
       } else {
-        exibirMensagem('erro', resultado.message || `Erro ao duplicar MDFe ${numero}`);
+        exibirMensagem('erro', resultado.mensagem || `Erro ao gerar MDFe ${numero}`);
       }
     } catch (error) {
-      console.error('Erro ao duplicar MDFe:', error);
-      exibirMensagem('erro', `Erro ao duplicar MDFe ${numero}`);
+      console.error('Erro ao gerar MDFe:', error);
+      exibirMensagem('erro', `Erro ao gerar MDFe ${numero}`);
+    } finally {
+      setProcessando(null);
+    }
+  };
+
+  // Função para transmitir MDFe (backend endpoint disponível)
+  const handleTransmitir = async (mdfeId: number, numero: string) => {
+    if (!window.confirm(`Deseja transmitir o MDFe ${numero} para a SEFAZ?`)) {
+      return;
+    }
+
+    try {
+      setProcessando(mdfeId);
+
+      const response = await fetch(`${process.env.REACT_APP_API_URL || 'https://localhost:5001/api'}/mdfe/${mdfeId}/transmitir`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+
+      const resultado = await response.json();
+
+      if (response.ok) {
+        exibirMensagem('sucesso', `MDFe ${numero} transmitido com sucesso!`);
+        setTimeout(() => {
+          carregarMDFes(); // Recarregar lista para atualizar status
+        }, 1500);
+      } else {
+        exibirMensagem('erro', resultado.mensagem || `Erro ao transmitir MDFe ${numero}`);
+      }
+    } catch (error) {
+      console.error('Erro ao transmitir MDFe:', error);
+      exibirMensagem('erro', `Erro ao transmitir MDFe ${numero}`);
     } finally {
       setProcessando(null);
     }
@@ -188,16 +180,22 @@ export function ListarMDFe() {
 
 
   return (
-    <div className={styles.container}>
+    <div className="max-w-7xl mx-auto px-6 py-8">
       {/* Mensagem de Feedback */}
       {mensagem && (
-        <div className={`${styles.mensagem} ${styles[mensagem.tipo]}`}>
-          <i className={`fas ${
-            mensagem.tipo === 'sucesso' ? 'fa-check-circle' : 'fa-exclamation-circle'
-          }`}></i>
-          {mensagem.texto}
+        <div className={`mb-6 p-4 rounded-lg border flex items-center justify-between ${
+          mensagem.tipo === 'sucesso'
+            ? 'bg-green-50 border-green-200 text-green-800 dark:bg-green-900/20 dark:border-green-800 dark:text-green-300'
+            : 'bg-red-50 border-red-200 text-red-800 dark:bg-red-900/20 dark:border-red-800 dark:text-red-300'
+        }`}>
+          <div className="flex items-center gap-3">
+            <i className={`fas ${
+              mensagem.tipo === 'sucesso' ? 'fa-check-circle' : 'fa-exclamation-circle'
+            }`}></i>
+            <span>{mensagem.texto}</span>
+          </div>
           <button
-            className={styles.fecharMensagem}
+            className="text-current hover:opacity-70 transition-opacity duration-200"
             onClick={() => setMensagem(null)}
           >
             <i className="fas fa-times"></i>
@@ -206,14 +204,14 @@ export function ListarMDFe() {
       )}
 
       {/* Header */}
-      <div className={styles.header}>
+      <div className="flex items-center justify-between mb-8">
         <h1>
           <i className="fas fa-file-alt"></i>
           Manifestos Eletrônicos (MDFe)
         </h1>
         <button
           onClick={() => navigate('/mdfes/novo')}
-          className={styles.btnNovo}
+          className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-hover font-medium transition-colors duration-200 flex items-center gap-2"
         >
           <i className="fas fa-plus"></i>
           Novo MDFe
@@ -221,70 +219,71 @@ export function ListarMDFe() {
       </div>
 
       {/* Estatísticas */}
-      <div className={styles.dashboardStats}>
-        <div className={styles.statCard}>
-          <div className={styles.statHeader}>
-            <div className={`${styles.statIcon} ${styles.success}`}>
-              <i className="fas fa-check-circle"></i>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+        <div className="bg-bg-surface rounded-xl border border-border-primary p-6">
+          <div className="flex items-center justify-between mb-4">
+            <div className="p-3 bg-green-100 dark:bg-green-900/30 rounded-lg">
+              <i className="fas fa-check-circle text-green-600 dark:text-green-400 text-xl"></i>
             </div>
-            <div className={styles.statTrend}>
+            <div className="text-green-600 dark:text-green-400">
               <i className="fas fa-arrow-up"></i>
             </div>
           </div>
-          <div className={styles.statContent}>
-            <div className={styles.statNumber}>{mdfes.filter(m => m.status === 'Autorizado').length}</div>
-            <div className={styles.statLabel}>Autorizados</div>
+          <div>
+            <div className="text-2xl font-bold text-text-primary">{mdfes.filter(m => m.status === 'Autorizado').length}</div>
+            <div className="text-text-secondary">Autorizados</div>
           </div>
         </div>
 
-        <div className={styles.statCard}>
-          <div className={styles.statHeader}>
-            <div className={`${styles.statIcon} ${styles.warning}`}>
-              <i className="fas fa-clock"></i>
+        <div className="bg-bg-surface rounded-xl border border-border-primary p-6">
+          <div className="flex items-center justify-between mb-4">
+            <div className="p-3 bg-yellow-100 dark:bg-yellow-900/30 rounded-lg">
+              <i className="fas fa-clock text-yellow-600 dark:text-yellow-400 text-xl"></i>
             </div>
-            <div className={styles.statTrend}>
+            <div className="text-yellow-600 dark:text-yellow-400">
               <i className="fas fa-arrow-up"></i>
             </div>
           </div>
-          <div className={styles.statContent}>
-            <div className={styles.statNumber}>{mdfes.filter(m => m.status === 'Pendente' || m.status === 'Rascunho').length}</div>
-            <div className={styles.statLabel}>Pendentes</div>
+          <div>
+            <div className="text-2xl font-bold text-text-primary">{mdfes.filter(m => m.status === 'Pendente' || m.status === 'Rascunho').length}</div>
+            <div className="text-text-secondary">Pendentes</div>
           </div>
         </div>
 
-        <div className={styles.statCard}>
-          <div className={styles.statHeader}>
-            <div className={`${styles.statIcon} ${styles.danger}`}>
-              <i className="fas fa-times-circle"></i>
+        <div className="bg-bg-surface rounded-xl border border-border-primary p-6">
+          <div className="flex items-center justify-between mb-4">
+            <div className="p-3 bg-red-100 dark:bg-red-900/30 rounded-lg">
+              <i className="fas fa-times-circle text-red-600 dark:text-red-400 text-xl"></i>
             </div>
-            <div className={styles.statTrend}>
+            <div className="text-red-600 dark:text-red-400">
               <i className="fas fa-arrow-down"></i>
             </div>
           </div>
-          <div className={styles.statContent}>
-            <div className={styles.statNumber}>{mdfes.filter(m => m.status === 'Rejeitado' || m.status === 'Cancelado').length}</div>
-            <div className={styles.statLabel}>Rejeitados/Cancelados</div>
+          <div>
+            <div className="text-2xl font-bold text-text-primary">{mdfes.filter(m => m.status === 'Rejeitado' || m.status === 'Cancelado').length}</div>
+            <div className="text-text-secondary">Rejeitados/Cancelados</div>
           </div>
         </div>
       </div>
 
       {/* Filtros */}
-      <div className={styles.filters}>
-        <div className={styles.filtersRow}>
-          <div className={styles.filterField}>
+      <div className="bg-bg-surface rounded-xl border border-border-primary p-6 mb-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="space-y-2">
             <input
               type="text"
               placeholder="Buscar por número, emitente ou veículo..."
               value={filtro}
               onChange={(e) => setFiltro(e.target.value)}
-              className={styles.searchInput}
+              className="w-full px-3 py-2 border border-border-primary rounded-lg bg-bg-surface text-text-primary focus:outline-none focus:ring-2 focus:ring-primary"
             />
           </div>
 
-          <div className={styles.filterField}>
+          <div className="space-y-2">
             <select
               value={statusFiltro}
               onChange={(e) => setStatusFiltro(e.target.value)}
+              className="w-full px-3 py-2 border border-border-primary rounded-lg bg-bg-surface text-text-primary focus:outline-none focus:ring-2 focus:ring-primary"
             >
               <option value="todos">Todos os Status</option>
               <option value="Autorizado">Autorizado</option>
@@ -295,10 +294,11 @@ export function ListarMDFe() {
             </select>
           </div>
 
-          <div className={styles.filterField}>
+          <div className="space-y-2">
             <select
               value={itensPorPagina}
               onChange={(e) => handleItemsPerPageChange(Number(e.target.value))}
+              className="w-full px-3 py-2 border border-border-primary rounded-lg bg-bg-surface text-text-primary focus:outline-none focus:ring-2 focus:ring-primary"
             >
               <option value={5}>5 por página</option>
               <option value={10}>10 por página</option>
@@ -310,22 +310,22 @@ export function ListarMDFe() {
       </div>
 
       {/* Lista de MDFes */}
-      <div className={styles.list}>
+      <div className="bg-bg-surface rounded-xl border border-border-primary shadow-sm">
         {totalItems > 0 && (
-          <div className={styles.paginationInfo}>
-            <span>
+          <div className="px-6 py-3 border-b border-border-primary bg-bg-tertiary">
+            <span className="text-sm text-text-secondary">
               Mostrando {startIndex + 1} a {Math.min(endIndex, totalItems)} de {totalItems} MDFes
             </span>
           </div>
         )}
 
         {itensAtuais.length === 0 ? (
-          <div className={styles.emptyState}>
-            <div className={styles.emptyIcon}>
-              <i className="fas fa-file-alt"></i>
+          <div className="flex flex-col items-center justify-center py-16 px-6">
+            <div className="w-16 h-16 bg-bg-tertiary rounded-full flex items-center justify-center mb-4">
+              <i className="fas fa-file-alt text-2xl text-text-tertiary"></i>
             </div>
-            <h3>Nenhum MDFe encontrado</h3>
-            <p>
+            <h3 className="text-lg font-semibold text-text-primary mb-2">Nenhum MDFe encontrado</h3>
+            <p className="text-text-secondary text-center mb-6">
               {filtro || statusFiltro !== 'todos'
                 ? 'Tente ajustar os filtros para encontrar o que procura.'
                 : 'Comece criando seu primeiro manifesto eletrônico.'
@@ -334,7 +334,7 @@ export function ListarMDFe() {
             {(!filtro && statusFiltro === 'todos') && (
               <button
                 onClick={() => navigate('/mdfes/novo')}
-                className={styles.btnPrimaryLarge}
+                className="px-6 py-3 bg-primary text-white rounded-lg hover:bg-primary-hover font-medium transition-colors duration-200 flex items-center gap-2"
               >
                 <i className="fas fa-plus"></i>
                 Criar Primeiro MDFe
@@ -342,9 +342,9 @@ export function ListarMDFe() {
             )}
           </div>
         ) : (
-          <div className={styles.table}>
+          <div className="overflow-x-auto">
             {/* Header da Tabela */}
-            <div className={styles.tableHeader}>
+            <div className="grid grid-cols-8 gap-4 p-4 bg-bg-tertiary border-b border-border-primary font-semibold text-text-primary">
               <div>Número/Série</div>
               <div>Emitente</div>
               <div>Data</div>
@@ -357,49 +357,49 @@ export function ListarMDFe() {
 
             {/* Linhas da Tabela */}
             {itensAtuais.map((mdfe) => (
-              <div key={mdfe.id} className={styles.tableRow}>
+              <div key={mdfe.id} className="grid grid-cols-8 gap-4 p-4 border-b border-border-primary hover:bg-bg-surface-hover transition-colors duration-200">
                 <div>
-                  <strong>#{mdfe.numero}</strong>
-                  <div className={styles.subtext}>Série {mdfe.serie}</div>
+                  <strong className="text-text-primary">#{mdfe.numero}</strong>
+                  <div className="text-sm text-text-secondary">Série {mdfe.serie}</div>
                 </div>
 
                 <div>
-                  <span>{mdfe.emitenteNome || 'N/A'}</span>
+                  <span className="text-text-primary">{mdfe.emitenteNome || 'N/A'}</span>
                 </div>
 
                 <div>
-                  <span>{new Date(mdfe.dataEmissao).toLocaleDateString('pt-BR')}</span>
+                  <span className="text-text-primary">{new Date(mdfe.dataEmissao).toLocaleDateString('pt-BR')}</span>
                 </div>
 
                 <div>
-                  <span>{mdfe.ufInicio} → {mdfe.ufFim}</span>
+                  <span className="text-text-primary">{mdfe.ufIni} → {mdfe.ufFim}</span>
                 </div>
 
                 <div>
-                  <span>{mdfe.veiculoPlaca || 'N/A'}</span>
+                  <span className="text-text-primary">{mdfe.veiculoPlaca || 'N/A'}</span>
                 </div>
 
                 <div>
-                  <span>R$ {mdfe.valorCarga.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
+                  <span className="text-text-primary">R$ {mdfe.valorTotal.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
                 </div>
 
                 <div>
                   <span
-                    className={`${styles.status} ${
-                      mdfe.status === 'Autorizado' ? styles.ativo :
-                      mdfe.status === 'Rascunho' || mdfe.status === 'Pendente' ? styles.pendente :
-                      styles.inativo
+                    className={`px-2 py-1 rounded-full text-xs font-medium ${
+                      mdfe.status === 'Autorizado' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300' :
+                      mdfe.status === 'Rascunho' || mdfe.status === 'Pendente' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300' :
+                      'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300'
                     }`}
                   >
                     {mdfe.status}
                   </span>
                 </div>
 
-                <div className={styles.actions}>
+                <div className="flex items-center gap-1">
                   {/* Ação principal por status */}
                   {(mdfe.status === 'Rascunho' || mdfe.status === 'Rejeitado') ? (
                     <button
-                      className={styles.btnEdit}
+                      className="p-2 text-amber-600 hover:bg-amber-50 dark:hover:bg-amber-900/20 rounded transition-colors duration-200"
                       title={mdfe.status === 'Rejeitado' ? 'Corrigir & Editar' : 'Continuar Editando'}
                       onClick={() => navigate(`/mdfes/editar/${mdfe.id}`)}
                     >
@@ -407,7 +407,7 @@ export function ListarMDFe() {
                     </button>
                   ) : (
                     <button
-                      className={styles.btnView}
+                      className="p-2 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded transition-colors duration-200"
                       title="Ver Detalhes"
                       onClick={() => navigate(`/mdfes/visualizar/${mdfe.id}`)}
                     >
@@ -418,9 +418,9 @@ export function ListarMDFe() {
                   {/* Download rápido apenas para autorizados/pendentes */}
                   {(mdfe.status === 'Autorizado' || mdfe.status === 'Pendente') && (
                     <button
-                      className={styles.btnView}
+                      className="p-2 text-green-600 hover:bg-green-50 dark:hover:bg-green-900/20 rounded transition-colors duration-200"
                       title="Download PDF"
-                      onClick={() => handleDownloadPDF(mdfe.id, mdfe.numero)}
+                      onClick={() => handleGerarMDFe(mdfe.id, mdfe.numero)}
                       disabled={processando === mdfe.id}
                     >
                       {processando === mdfe.id ? (
@@ -434,9 +434,9 @@ export function ListarMDFe() {
                   {/* Duplicar sempre disponível (exceto cancelados) */}
                   {mdfe.status !== 'Cancelado' && (
                     <button
-                      className={styles.btnEdit}
+                      className="p-2 text-purple-600 hover:bg-purple-50 dark:hover:bg-purple-900/20 rounded transition-colors duration-200"
                       title="Duplicar MDFe"
-                      onClick={() => handleDuplicar(mdfe.id, mdfe.numero)}
+                      onClick={() => handleTransmitir(mdfe.id, mdfe.numero)}
                       disabled={processando === mdfe.id}
                     >
                       {processando === mdfe.id ? (

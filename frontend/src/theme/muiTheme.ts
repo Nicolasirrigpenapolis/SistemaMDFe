@@ -1,9 +1,9 @@
-import { createTheme } from '@mui/material/styles';
+import { createTheme, ThemeOptions } from '@mui/material/styles';
 
-// Tema customizado para o sistema MDFe
-export const theme = createTheme({
+// Função para criar tema baseado no modo
+const createMDFeTheme = (mode: 'light' | 'dark'): ThemeOptions => ({
   palette: {
-    mode: 'light',
+    mode,
     primary: {
       main: '#2196f3', // Azul principal
       light: '#64b5f6',
@@ -37,12 +37,20 @@ export const theme = createTheme({
       dark: '#1976d2',
     },
     background: {
-      default: '#f5f5f5',
-      paper: '#ffffff',
+      default: mode === 'light' ? '#f5f5f5' : '#121212',
+      paper: mode === 'light' ? '#ffffff' : '#1e1e1e',
     },
     text: {
-      primary: '#212121',
-      secondary: '#757575',
+      primary: mode === 'light' ? '#212121' : '#ffffff',
+      secondary: mode === 'light' ? '#757575' : '#b0b0b0',
+    },
+    divider: mode === 'light' ? '#e0e0e0' : '#424242',
+    action: {
+      active: mode === 'light' ? '#1976d2' : '#90caf9',
+      hover: mode === 'light' ? 'rgba(0, 0, 0, 0.04)' : 'rgba(255, 255, 255, 0.08)',
+      selected: mode === 'light' ? 'rgba(0, 0, 0, 0.08)' : 'rgba(255, 255, 255, 0.12)',
+      disabled: mode === 'light' ? 'rgba(0, 0, 0, 0.26)' : 'rgba(255, 255, 255, 0.3)',
+      disabledBackground: mode === 'light' ? 'rgba(0, 0, 0, 0.12)' : 'rgba(255, 255, 255, 0.12)',
     },
   },
   typography: {
@@ -100,17 +108,23 @@ export const theme = createTheme({
     MuiButton: {
       styleOverrides: {
         root: {
-          borderRadius: 8,
+          borderRadius: 12,
           textTransform: 'none',
-          fontWeight: 500,
+          fontWeight: 600,
           boxShadow: 'none',
+          transition: 'all 0.3s ease',
           '&:hover': {
-            boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.1)',
+            boxShadow: mode === 'light'
+              ? '0px 4px 12px rgba(0, 0, 0, 0.15)'
+              : '0px 4px 12px rgba(0, 0, 0, 0.3)',
+            transform: 'translateY(-2px)',
           },
         },
         contained: {
           '&:hover': {
-            boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.15)',
+            boxShadow: mode === 'light'
+              ? '0px 6px 20px rgba(0, 0, 0, 0.2)'
+              : '0px 6px 20px rgba(0, 0, 0, 0.4)',
           },
         },
       },
@@ -118,10 +132,16 @@ export const theme = createTheme({
     MuiCard: {
       styleOverrides: {
         root: {
-          borderRadius: 12,
-          boxShadow: '0px 2px 8px rgba(0, 0, 0, 0.08)',
+          borderRadius: 16,
+          boxShadow: mode === 'light'
+            ? '0px 2px 8px rgba(0, 0, 0, 0.08)'
+            : '0px 2px 8px rgba(0, 0, 0, 0.3)',
+          transition: 'all 0.3s ease',
           '&:hover': {
-            boxShadow: '0px 4px 16px rgba(0, 0, 0, 0.12)',
+            boxShadow: mode === 'light'
+              ? '0px 8px 24px rgba(0, 0, 0, 0.15)'
+              : '0px 8px 24px rgba(0, 0, 0, 0.4)',
+            transform: 'translateY(-4px)',
           },
         },
       },
@@ -160,8 +180,11 @@ export const theme = createTheme({
     MuiTableContainer: {
       styleOverrides: {
         root: {
-          borderRadius: 12,
-          boxShadow: '0px 2px 8px rgba(0, 0, 0, 0.08)',
+          borderRadius: 16,
+          boxShadow: mode === 'light'
+            ? '0px 2px 8px rgba(0, 0, 0, 0.08)'
+            : '0px 2px 8px rgba(0, 0, 0, 0.3)',
+          overflow: 'hidden',
         },
       },
     },
@@ -169,11 +192,13 @@ export const theme = createTheme({
       styleOverrides: {
         root: {
           '& .MuiTableCell-head': {
-            backgroundColor: '#f8f9fa',
-            fontWeight: 600,
+            backgroundColor: mode === 'light' ? '#f8f9fa' : '#2d2d2d',
+            fontWeight: 700,
             fontSize: '0.875rem',
-            color: '#495057',
-            borderBottom: '2px solid #dee2e6',
+            color: mode === 'light' ? '#495057' : '#ffffff',
+            borderBottom: `2px solid ${mode === 'light' ? '#dee2e6' : '#424242'}`,
+            textTransform: 'uppercase',
+            letterSpacing: '0.5px',
           },
         },
       },
@@ -182,10 +207,14 @@ export const theme = createTheme({
       styleOverrides: {
         root: {
           '&:nth-of-type(even)': {
-            backgroundColor: '#fafafa',
+            backgroundColor: mode === 'light' ? '#fafafa' : '#1a1a1a',
           },
           '&:hover': {
-            backgroundColor: '#f0f0f0 !important',
+            backgroundColor: mode === 'light'
+              ? '#e3f2fd !important'
+              : '#333333 !important',
+            transform: 'scale(1.01)',
+            transition: 'all 0.2s ease',
           },
         },
       },
@@ -193,9 +222,13 @@ export const theme = createTheme({
     MuiIconButton: {
       styleOverrides: {
         root: {
-          borderRadius: 8,
+          borderRadius: 12,
+          transition: 'all 0.3s ease',
           '&:hover': {
-            backgroundColor: 'rgba(0, 0, 0, 0.04)',
+            backgroundColor: mode === 'light'
+              ? 'rgba(0, 0, 0, 0.08)'
+              : 'rgba(255, 255, 255, 0.12)',
+            transform: 'scale(1.1)',
           },
         },
       },
@@ -203,11 +236,27 @@ export const theme = createTheme({
     MuiAlert: {
       styleOverrides: {
         root: {
-          borderRadius: 8,
+          borderRadius: 12,
+          fontWeight: 500,
+          '& .MuiAlert-icon': {
+            fontSize: '1.25rem',
+          },
         },
       },
     },
   },
 });
+
+// Temas pré-definidos
+export const lightTheme = createTheme(createMDFeTheme('light'));
+export const darkTheme = createTheme(createMDFeTheme('dark'));
+
+// Tema padrão (light)
+export const theme = lightTheme;
+
+// Função para obter tema baseado no modo
+export const getTheme = (mode: 'light' | 'dark') => {
+  return mode === 'dark' ? darkTheme : lightTheme;
+};
 
 export default theme;

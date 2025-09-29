@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { ConfirmDeleteModal } from '../../../components/UI/Modal/ConfirmDeleteModal';
 import { formatCPF, cleanNumericString } from '../../../utils/formatters';
 import { entitiesService } from '../../../services/entitiesService';
-import styles from './ListarCondutores.module.css';
+import Icon from '../../../components/UI/Icon';
 
 interface Condutor {
   id?: number;
@@ -199,44 +199,45 @@ export function ListarCondutores() {
 
   if (carregando) {
     return (
-      <div className={styles.loadingContainer}>
-        <div className={styles.loadingSpinner}></div>
-        <p>Carregando condutores...</p>
+      <div className="flex flex-col items-center justify-center min-h-[400px] gap-4">
+        <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+        <p className="text-text-secondary">Carregando condutores...</p>
       </div>
     );
   }
 
   return (
-    <div className={styles.container}>
+    <div className="max-w-7xl mx-auto px-6 py-8">
       {/* Header */}
-      <div className={styles.header}>
-        <h1>
-          <i className="fas fa-user-tie"></i>
+      <div className="flex items-center justify-between mb-8">
+        <h1 className="text-3xl font-bold text-text-primary flex items-center gap-3">
+          <Icon name="user-tie" className="text-primary" />
           Condutores
         </h1>
-        <button className={styles.btnNovo} onClick={abrirModalNovo}>
-          <i className="fas fa-plus"></i>
+        <button className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-hover transition-colors duration-200 flex items-center gap-2" onClick={abrirModalNovo}>
+          <Icon name="plus" />
           Novo Condutor
         </button>
       </div>
 
         {/* Filtros */}
-      <div className={styles.filters}>
-        <div className={styles.filtersRow}>
-          <div className={styles.filterField}>
+      <div className="bg-bg-surface rounded-xl border border-border-primary p-6 mb-6">
+        <div className="flex flex-col md:flex-row gap-4">
+          <div className="flex-1">
             <input
               type="text"
               placeholder="Buscar por nome ou CPF..."
               value={filtro}
               onChange={(e) => setFiltro(e.target.value)}
-              className={styles.searchInput}
+              className="w-full px-3 py-2 border border-border-primary rounded-lg bg-bg-surface focus:outline-none focus:ring-2 focus:ring-primary/20"
             />
           </div>
 
-          <div className={styles.filterField}>
+          <div className="flex-1">
             <select
               value={filtroStatus}
               onChange={(e) => setFiltroStatus(e.target.value)}
+              className="w-full px-3 py-2 border border-border-primary rounded-lg bg-bg-surface focus:outline-none focus:ring-2 focus:ring-primary/20"
             >
               <option value="todos">Todos os Status</option>
               <option value="ativo">Ativo</option>
@@ -247,30 +248,30 @@ export function ListarCondutores() {
       </div>
 
       {/* Lista de Condutores */}
-      <div className={styles.list}>
+      <div className="bg-bg-surface rounded-xl border border-border-primary shadow-sm">
         {condutoresFiltrados.length === 0 ? (
-          <div className={styles.emptyState}>
-            <div className={styles.emptyIcon}>
-              <i className="fas fa-users"></i>
+          <div className="flex flex-col items-center justify-center py-16 px-6">
+            <div className="text-6xl text-text-tertiary mb-4">
+              <Icon name="users" />
             </div>
-            <h3>Nenhum condutor encontrado</h3>
-            <p>
+            <h3 className="text-xl font-semibold text-text-primary mb-2">Nenhum condutor encontrado</h3>
+            <p className="text-text-secondary text-center mb-6">
               {condutores.length === 0
                 ? "Você ainda não possui nenhum condutor cadastrado."
                 : "Nenhum condutor corresponde aos filtros selecionados."
               }
             </p>
             {condutores.length === 0 && (
-              <button className={styles.btnPrimary} onClick={abrirModalNovo}>
-                <i className="fas fa-plus"></i>
+              <button className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-hover transition-colors duration-200 flex items-center gap-2" onClick={abrirModalNovo}>
+                <Icon name="plus" />
                 Cadastrar primeiro condutor
               </button>
             )}
           </div>
         ) : (
-          <div className={styles.table}>
+          <div className="overflow-x-auto">
             {/* Header da Tabela */}
-            <div className={styles.tableHeader}>
+            <div className="grid grid-cols-6 gap-4 p-4 bg-bg-tertiary border-b border-border-primary font-semibold text-text-primary">
               <div>ID</div>
               <div>Nome</div>
               <div>CPF</div>
@@ -281,54 +282,54 @@ export function ListarCondutores() {
 
             {/* Linhas da Tabela */}
             {condutoresFiltrados.map((condutor) => (
-              <div key={condutor.id} className={styles.tableRow}>
+              <div key={condutor.id} className="grid grid-cols-6 gap-4 p-4 border-b border-border-primary hover:bg-bg-tertiary transition-colors duration-200">
                 <div>
-                  <strong>#{condutor.id}</strong>
+                  <strong className="text-primary">#{condutor.id}</strong>
                 </div>
 
                 <div>
-                  <span>{condutor.nome}</span>
+                  <span className="text-text-primary font-medium">{condutor.nome}</span>
                 </div>
 
                 <div>
-                  <span>{formatCPF(condutor.cpf)}</span>
+                  <span className="text-text-secondary font-mono">{formatCPF(condutor.cpf)}</span>
                 </div>
 
                 <div>
-                  <span className={`${styles.status} ${condutor.ativo ? styles.ativo : styles.inativo}`}>
+                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${condutor.ativo ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
                     {condutor.ativo ? 'Ativo' : 'Inativo'}
                   </span>
                 </div>
 
                 <div>
-                  <span className={styles.subtext}>
+                  <span className="text-text-tertiary text-sm">
                     {new Date().toLocaleDateString('pt-BR')}
                   </span>
                 </div>
 
-                <div className={styles.actions}>
+                <div className="flex items-center gap-2">
                   <button
-                    className={styles.btnView}
+                    className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors duration-200"
                     onClick={() => abrirModalVisualizacao(condutor)}
                     title="Visualizar"
                   >
-                    <i className="fas fa-eye"></i>
+                    <Icon name="eye" />
                   </button>
 
                   <button
-                    className={styles.btnEdit}
+                    className="p-2 text-amber-600 hover:bg-amber-50 rounded-lg transition-colors duration-200"
                     onClick={() => abrirModalEdicao(condutor)}
                     title="Editar"
                   >
-                    <i className="fas fa-edit"></i>
+                    <Icon name="edit" />
                   </button>
 
                   <button
-                    className={styles.btnDelete}
+                    className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors duration-200"
                     onClick={() => abrirModalExclusao(condutor)}
                     title="Excluir"
                   >
-                    <i className="fas fa-trash"></i>
+                    <Icon name="trash" />
                   </button>
                 </div>
               </div>
@@ -339,12 +340,12 @@ export function ListarCondutores() {
 
       {/* Paginação */}
       {paginacao && paginacao.totalItems > 0 && (
-        <div className={styles.paginationContainer}>
-          <div className={styles.paginationControls}>
-            <div className={styles.pageSizeSelector}>
-              <label>Itens por página:</label>
+        <div className="mt-6 border-t border-border-primary pt-6">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+            <div className="flex items-center gap-2">
+              <label className="text-text-secondary text-sm">Itens por página:</label>
               <select
-                className={styles.pageSizeSelect}
+                className="px-3 py-1 border border-border-primary rounded-lg bg-bg-surface focus:outline-none focus:ring-2 focus:ring-primary/20"
                 value={paginacao.pageSize}
                 onChange={(e) => alterarTamanhoPagina(Number(e.target.value))}
               >
@@ -355,21 +356,21 @@ export function ListarCondutores() {
               </select>
             </div>
 
-            <div className={styles.pagination}>
+            <div className="flex items-center gap-4">
               <button
-                className={styles.paginationBtn}
+                className="px-4 py-2 border border-border-primary rounded-lg bg-bg-surface hover:bg-bg-tertiary transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
                 onClick={() => alterarPagina(paginacao.currentPage - 1)}
                 disabled={paginacao.currentPage === 1}
               >
                 Anterior
               </button>
 
-              <span className={styles.pageInfo}>
+              <span className="text-text-secondary text-sm px-4">
                 Página {paginacao.currentPage} de {paginacao.totalPages}
               </span>
 
               <button
-                className={styles.paginationBtn}
+                className="px-4 py-2 border border-border-primary rounded-lg bg-bg-surface hover:bg-bg-tertiary transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
                 onClick={() => alterarPagina(paginacao.currentPage + 1)}
                 disabled={paginacao.currentPage === paginacao.totalPages}
               >
@@ -377,7 +378,7 @@ export function ListarCondutores() {
               </button>
             </div>
 
-            <div className={styles.paginationInfo}>
+            <div className="text-text-tertiary text-sm">
               Mostrando {((paginacao.currentPage - 1) * paginacao.pageSize) + 1} a {Math.min(paginacao.currentPage * paginacao.pageSize, paginacao.totalItems)} de {paginacao.totalItems} condutores
             </div>
           </div>
@@ -386,20 +387,20 @@ export function ListarCondutores() {
 
       {/* Modal de Cadastro/Edição */}
       {modalAberto && (
-        <div className={styles.modalOverlay}>
-          <div className={styles.modal}>
-            <div className={styles.modalHeader}>
-              <h2>{condutorSelecionado ? 'Editar Condutor' : 'Novo Condutor'}</h2>
-              <button className={styles.closeBtn} onClick={fecharModal}>×</button>
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-bg-surface rounded-xl border border-border-primary shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between p-6 border-b border-border-primary">
+              <h2 className="text-xl font-semibold text-text-primary">{condutorSelecionado ? 'Editar Condutor' : 'Novo Condutor'}</h2>
+              <button className="text-text-tertiary hover:text-text-primary transition-colors duration-200 text-2xl" onClick={fecharModal}>×</button>
             </div>
 
-            <div className={styles.modalContent}>
-              <div className={styles.modalSection}>
-                <h3>Dados do Condutor</h3>
+            <div className="p-6">
+              <div className="space-y-6">
+                <h3 className="text-lg font-medium text-text-primary">Dados do Condutor</h3>
 
-                <div className={styles.modalRow}>
-                  <div className={styles.modalField}>
-                    <label>Nome *</label>
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-text-primary">Nome *</label>
                     <input
                       type="text"
                       value={dadosFormulario.nome || ''}
@@ -407,13 +408,14 @@ export function ListarCondutores() {
                       placeholder="Nome completo do condutor"
                       maxLength={200}
                       required
+                      className="w-full px-3 py-2 border border-border-primary rounded-lg bg-bg-surface focus:outline-none focus:ring-2 focus:ring-primary/20"
                     />
                   </div>
                 </div>
 
-                <div className={styles.modalRow}>
-                  <div className={styles.modalField}>
-                    <label>CPF *</label>
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-text-primary">CPF *</label>
                     <input
                       type="text"
                       value={formatCPF(dadosFormulario.cpf || '')}
@@ -421,17 +423,19 @@ export function ListarCondutores() {
                       placeholder="000.000.000-00"
                       maxLength={14}
                       required
+                      className="w-full px-3 py-2 border border-border-primary rounded-lg bg-bg-surface focus:outline-none focus:ring-2 focus:ring-primary/20"
                     />
                   </div>
                 </div>
 
                 {condutorSelecionado && (
-                  <div className={styles.modalRow}>
-                    <div className={styles.modalField}>
-                      <label>Status</label>
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium text-text-primary">Status</label>
                       <select
                         value={dadosFormulario.ativo ? 'true' : 'false'}
                         onChange={(e) => atualizarCampo('ativo', e.target.value === 'true')}
+                        className="w-full px-3 py-2 border border-border-primary rounded-lg bg-bg-surface focus:outline-none focus:ring-2 focus:ring-primary/20"
                       >
                         <option value="true">Ativo</option>
                         <option value="false">Inativo</option>
@@ -442,11 +446,11 @@ export function ListarCondutores() {
               </div>
             </div>
 
-            <div className={styles.modalActions}>
+            <div className="flex items-center justify-end gap-4 p-6 border-t border-border-primary">
               <button
                 type="button"
                 onClick={fecharModal}
-                className={styles.btnCancel}
+                className="px-4 py-2 border border-border-primary rounded-lg bg-bg-surface text-text-primary hover:bg-bg-tertiary transition-colors duration-200"
                 disabled={salvando}
               >
                 Cancelar
@@ -454,7 +458,7 @@ export function ListarCondutores() {
               <button
                 type="button"
                 onClick={salvarCondutor}
-                className={styles.btnSave}
+                className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-hover transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
                 disabled={salvando || !dadosFormulario.nome || !dadosFormulario.cpf}
               >
                 {salvando ? 'Salvando...' : condutorSelecionado ? 'Atualizar' : 'Salvar'}
@@ -466,28 +470,28 @@ export function ListarCondutores() {
 
       {/* Modal de Visualização */}
       {modalVisualizacao && condutorSelecionado && (
-        <div className={styles.modalOverlay}>
-          <div className={styles.modal}>
-            <div className={styles.modalHeader}>
-              <h2>Visualizar Condutor</h2>
-              <button className={styles.closeBtn} onClick={fecharModalVisualizacao}>×</button>
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-bg-surface rounded-xl border border-border-primary shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between p-6 border-b border-border-primary">
+              <h2 className="text-xl font-semibold text-text-primary">Visualizar Condutor</h2>
+              <button className="text-text-tertiary hover:text-text-primary transition-colors duration-200 text-2xl" onClick={fecharModalVisualizacao}>×</button>
             </div>
 
-            <div className={styles.modalContent}>
-              <div className={styles.modalSection}>
-                <h3>Dados do Condutor</h3>
-                <div className={styles.viewGrid}>
-                  <div className={styles.viewField}>
-                    <label>Nome:</label>
-                    <span>{condutorSelecionado.nome}</span>
+            <div className="p-6">
+              <div className="space-y-6">
+                <h3 className="text-lg font-medium text-text-primary">Dados do Condutor</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-text-secondary">Nome:</label>
+                    <span className="text-text-primary font-medium">{condutorSelecionado.nome}</span>
                   </div>
-                  <div className={styles.viewField}>
-                    <label>CPF:</label>
-                    <span>{formatCPF(condutorSelecionado.cpf)}</span>
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-text-secondary">CPF:</label>
+                    <span className="text-text-primary font-mono">{formatCPF(condutorSelecionado.cpf)}</span>
                   </div>
-                  <div className={styles.viewField}>
-                    <label>Status:</label>
-                    <span className={`${styles.statusBadge} ${condutorSelecionado.ativo ? styles.ativo : styles.inativo}`}>
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-text-secondary">Status:</label>
+                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${condutorSelecionado.ativo ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
                       {condutorSelecionado.ativo ? 'Ativo' : 'Inativo'}
                     </span>
                   </div>
@@ -495,8 +499,8 @@ export function ListarCondutores() {
               </div>
             </div>
 
-            <div className={styles.modalActions}>
-              <button onClick={fecharModalVisualizacao} className={styles.btnCancel}>
+            <div className="flex items-center justify-end gap-4 p-6 border-t border-border-primary">
+              <button onClick={fecharModalVisualizacao} className="px-4 py-2 border border-border-primary rounded-lg bg-bg-surface text-text-primary hover:bg-bg-tertiary transition-colors duration-200">
                 Fechar
               </button>
             </div>

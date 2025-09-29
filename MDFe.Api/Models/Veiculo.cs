@@ -11,9 +11,8 @@ namespace MDFeApi.Models
         [MaxLength(8)]
         public string Placa { get; set; } = string.Empty;
 
+        [Required]
         public int Tara { get; set; }
-
-
 
         [Required]
         [MaxLength(50)]
@@ -31,11 +30,7 @@ namespace MDFeApi.Models
         public bool Ativo { get; set; } = true;
 
         public DateTime DataCriacao { get; set; } = DateTime.Now;
-
-        // Propriedades auxiliares
-        [Required]
-        [MaxLength(100)]
-        public string Marca { get; set; } = string.Empty;
+        public DateTime? DataUltimaAlteracao { get; set; }
 
 
 

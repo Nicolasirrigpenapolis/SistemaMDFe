@@ -21,6 +21,7 @@
   },
   "scripts": {
     "start": "react-scripts start",
+    "start:fast": "FAST_REFRESH=true react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
@@ -47,5 +48,9 @@
     "nth-check": "^2.1.1",
     "postcss": "^8.4.31",
     "webpack-dev-server": "^4.15.1"
+  },
+  "devDependencies": {
+    "autoprefixer": "^10.4.21",
+    "tailwindcss": "^3.4.17"
   }
 }

@@ -17,6 +17,8 @@ namespace MDFeApi.DTOs
         public string Municipio { get; set; } = string.Empty;
         public string Cep { get; set; } = string.Empty;
         public string Uf { get; set; } = string.Empty;
+        public string? Telefone { get; set; }
+        public string? Email { get; set; }
         public bool Ativo { get; set; }
         public DateTime DataCriacao { get; set; }
     }
@@ -64,6 +66,12 @@ namespace MDFeApi.DTOs
         [Required]
         [MaxLength(2)]
         public string Uf { get; set; } = string.Empty;
+
+        [MaxLength(20)]
+        public string? Telefone { get; set; }
+
+        [MaxLength(200)]
+        public string? Email { get; set; }
 
         public bool Ativo { get; set; } = true;
     }

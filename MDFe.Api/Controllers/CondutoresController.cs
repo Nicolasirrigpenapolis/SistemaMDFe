@@ -1,223 +1,122 @@
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MDFeApi.Data;
 using MDFeApi.Models;
 using MDFeApi.DTOs;
-using MDFeApi.Extensions;
 using MDFeApi.Utils;
 
 namespace MDFeApi.Controllers
 {
-    [ApiController]
     [Route("api/[controller]")]
-    public class CondutoresController : ControllerBase
+    public class CondutoresController : BaseController<Condutor, CondutorListDto, CondutorResponseDto, CondutorCreateDto, CondutorUpdateDto>
     {
-        private readonly MDFeContext _context;
-
-        public CondutoresController(MDFeContext context)
+        public CondutoresController(MDFeContext context, ILogger<CondutoresController> logger)
+            : base(context, logger)
         {
-            _context = context;
         }
 
-        [HttpGet("test")]
-        public async Task<ActionResult> TestConnection()
+        protected override DbSet<Condutor> GetDbSet() => _context.Condutores;
+
+        protected override CondutorListDto EntityToListDto(Condutor entity)
         {
-            try
+            return new CondutorListDto
             {
-                var count = await _context.Condutores.CountAsync();
-                return Ok(new { success = true, message = $"Conexão OK. {count} condutores encontrados." });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { success = false, message = "Erro de conexão", error = ex.Message });
-            }
+                Id = entity.Id,
+                Nome = entity.Nome,
+                Cpf = entity.Cpf,
+                Ativo = entity.Ativo
+            };
         }
 
-        [HttpGet]
-        public async Task<ActionResult> GetCondutores([FromQuery] PaginationRequest request)
+        protected override CondutorResponseDto EntityToDetailDto(Condutor entity)
         {
-            try
+            return new CondutorResponseDto
             {
-                var query = _context.Condutores
-                    .Where(c => c.Ativo)
-                    .AsQueryable();
+                Id = entity.Id,
+                Nome = entity.Nome,
+                Cpf = entity.Cpf,
+                Telefone = entity.Telefone,
+                Ativo = entity.Ativo,
+                DataCriacao = entity.DataCriacao
+            };
+        }
 
-                // Filtrar por busca se fornecido
-                if (!string.IsNullOrWhiteSpace(request.Search))
+        protected override Condutor CreateDtoToEntity(CondutorCreateDto dto)
+        {
+            return new Condutor
+            {
+                Nome = dto.Nome?.Trim(),
+                Cpf = DocumentUtils.LimparCpf(dto.Cpf) ?? string.Empty,
+                Telefone = dto.Telefone?.Trim()
+            };
+        }
+
+        protected override void UpdateEntityFromDto(Condutor entity, CondutorUpdateDto dto)
+        {
+            entity.Nome = dto.Nome?.Trim();
+            entity.Cpf = DocumentUtils.LimparCpf(dto.Cpf) ?? string.Empty;
+            entity.Telefone = dto.Telefone?.Trim();
+        }
+
+        protected override IQueryable<Condutor> ApplySearchFilter(IQueryable<Condutor> query, string search)
+        {
+            var searchTerm = search.ToLower();
+            return query.Where(c =>
+                c.Nome.ToLower().Contains(searchTerm) ||
+                (c.Cpf != null && c.Cpf.Contains(searchTerm))
+            );
+        }
+
+        protected override IQueryable<Condutor> ApplyOrdering(IQueryable<Condutor> query, string? sortBy, string? sortDirection)
+        {
+            var isDesc = sortDirection?.ToLower() == "desc";
+
+            return sortBy?.ToLower() switch
+            {
+                "cpf" => isDesc ? query.OrderByDescending(c => c.Cpf) : query.OrderBy(c => c.Cpf),
+                "datacriacao" => isDesc ? query.OrderByDescending(c => c.DataCriacao) : query.OrderBy(c => c.DataCriacao),
+                _ => isDesc ? query.OrderByDescending(c => c.Nome) : query.OrderBy(c => c.Nome)
+            };
+        }
+
+        protected override async Task<(bool canDelete, string errorMessage)> CanDeleteAsync(Condutor entity)
+        {
+            var temMdfe = await _context.MDFes.AnyAsync(m => m.CondutorId == entity.Id);
+            if (temMdfe)
+            {
+                return (false, "Não é possível excluir condutor com MDF-e vinculados");
+            }
+            return (true, string.Empty);
+        }
+
+        protected override async Task<(bool isValid, string errorMessage)> ValidateCreateAsync(CondutorCreateDto dto)
+        {
+            if (!string.IsNullOrWhiteSpace(dto.Cpf))
+            {
+                var cpfLimpo = DocumentUtils.LimparCpf(dto.Cpf);
+                var existingCpf = await _context.Condutores
+                    .AnyAsync(c => c.Cpf == cpfLimpo && c.Ativo);
+                if (existingCpf)
                 {
-                    var searchTerm = request.Search.ToLower();
-                    query = query.Where(c =>
-                        c.Nome.ToLower().Contains(searchTerm) ||
-                        (c.Cpf != null && c.Cpf.Contains(searchTerm))
-                    );
+                    return (false, "CPF já cadastrado");
                 }
-
-                // Aplicar ordenação
-                switch (request.SortBy?.ToLower())
-                {
-                    case "cpf":
-                        query = request.SortDirection?.ToLower() == "desc" ?
-                            query.OrderByDescending(c => c.Cpf) :
-                            query.OrderBy(c => c.Cpf);
-                        break;
-                    case "datacriacao":
-                        query = request.SortDirection?.ToLower() == "desc" ?
-                            query.OrderByDescending(c => c.DataCriacao) :
-                            query.OrderBy(c => c.DataCriacao);
-                        break;
-                    default:
-                        query = request.SortDirection?.ToLower() == "desc" ?
-                            query.OrderByDescending(c => c.Nome) :
-                            query.OrderBy(c => c.Nome);
-                        break;
-                }
-
-                // Implementação simples da paginação
-                var totalItems = await query.CountAsync();
-                var items = await query
-                    .Skip((request.Page - 1) * request.PageSize)
-                    .Take(request.PageSize)
-                    .ToListAsync();
-
-                var result = new
-                {
-                    items = items,
-                    totalItems = totalItems,
-                    totalPages = (int)Math.Ceiling((double)totalItems / request.PageSize),
-                    currentPage = request.Page,
-                    pageSize = request.PageSize,
-                    hasNextPage = request.Page * request.PageSize < totalItems,
-                    hasPreviousPage = request.Page > 1
-                };
-
-                return Ok(result);
             }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { message = "Erro ao obter condutores", error = ex.Message });
-            }
+            return (true, string.Empty);
         }
 
-        [HttpGet("{id}")]
-        public async Task<ActionResult<Condutor>> GetCondutor(int id)
+        protected override async Task<(bool isValid, string errorMessage)> ValidateUpdateAsync(Condutor entity, CondutorUpdateDto dto)
         {
-            var condutor = await _context.Condutores.FindAsync(id);
-
-            if (condutor == null || !condutor.Ativo)
+            var cpfLimpo = DocumentUtils.LimparCpf(dto.Cpf);
+            if (!string.IsNullOrWhiteSpace(cpfLimpo) && cpfLimpo != entity.Cpf)
             {
-                return NotFound();
-            }
-
-            return condutor;
-        }
-
-        [HttpPost]
-        public async Task<ActionResult<Condutor>> CreateCondutor(CondutorSimpleDto condutorDto)
-        {
-            if (condutorDto == null)
-            {
-                return BadRequest(new { message = "Dados do condutor são obrigatórios" });
-            }
-
-            try
-            {
-                // Validar se CPF já existe (usando CPF limpo)
-                if (!string.IsNullOrWhiteSpace(condutorDto.Cpf))
+                var existingCpf = await _context.Condutores
+                    .AnyAsync(c => c.Cpf == cpfLimpo && c.Id != entity.Id && c.Ativo);
+                if (existingCpf)
                 {
-                    var cpfLimpo = DocumentUtils.LimparCpf(condutorDto.Cpf);
-                    var existingCpf = await _context.Condutores
-                        .AnyAsync(c => c.Cpf == cpfLimpo && c.Ativo);
-                    if (existingCpf)
-                    {
-                        return BadRequest(new { message = "CPF já cadastrado" });
-                    }
+                    return (false, "CPF já cadastrado");
                 }
-
-                var condutor = new Condutor
-                {
-                    Nome = condutorDto.Nome?.Trim(),
-                    Cpf = DocumentUtils.LimparCpf(condutorDto.Cpf) ?? string.Empty,
-                    Ativo = true
-                };
-
-                _context.Condutores.Add(condutor);
-                await _context.SaveChangesAsync();
-
-                return CreatedAtAction(nameof(GetCondutor), new { id = condutor.Id }, condutor);
             }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { message = "Erro interno do servidor", error = ex.Message });
-            }
-        }
-
-        [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateCondutor(int id, CondutorUpdateDto condutorDto)
-        {
-            var condutor = await _context.Condutores.FindAsync(id);
-            if (condutor == null || !condutor.Ativo)
-            {
-                return NotFound();
-            }
-
-            try
-            {
-                // Limpar CPF do DTO para comparação
-                var cpfLimpo = DocumentUtils.LimparCpf(condutorDto.Cpf);
-
-                // Validar se CPF já existe (exceto para o próprio condutor)
-                if (!string.IsNullOrWhiteSpace(cpfLimpo) && cpfLimpo != condutor.Cpf)
-                {
-                    var existingCpf = await _context.Condutores
-                        .AnyAsync(c => c.Cpf == cpfLimpo && c.Id != id && c.Ativo);
-                    if (existingCpf)
-                    {
-                        return BadRequest(new { message = "CPF já cadastrado" });
-                    }
-                }
-
-                condutor.Nome = condutorDto.Nome?.Trim();
-                condutor.Cpf = cpfLimpo ?? string.Empty;
-
-                await _context.SaveChangesAsync();
-
-                return NoContent();
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { message = "Erro interno do servidor", error = ex.Message });
-            }
-        }
-
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteCondutor(int id)
-        {
-            var condutor = await _context.Condutores.FindAsync(id);
-            if (condutor == null)
-            {
-                return NotFound();
-            }
-
-            try
-            {
-                // Verificar se tem MDF-e vinculados
-                var temMdfe = await _context.MDFes.AnyAsync(m => m.CondutorId == id);
-                if (temMdfe)
-                {
-                    return BadRequest(new { message = "Não é possível excluir condutor com MDF-e vinculados" });
-                }
-
-                // Soft delete
-                condutor.Ativo = false;
-                await _context.SaveChangesAsync();
-
-                return NoContent();
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { message = "Erro interno do servidor", error = ex.Message });
-            }
+            return (true, string.Empty);
         }
     }
 }

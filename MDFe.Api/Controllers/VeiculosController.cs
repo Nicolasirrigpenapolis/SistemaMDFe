@@ -1,193 +1,140 @@
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MDFeApi.Data;
 using MDFeApi.Models;
 using MDFeApi.DTOs;
-using MDFeApi.Extensions;
 using MDFeApi.Utils;
 
 namespace MDFeApi.Controllers
 {
-    [ApiController]
     [Route("api/[controller]")]
-    public class VeiculosController : ControllerBase
+    public class VeiculosController : BaseController<Veiculo, VeiculoListDto, VeiculoResponseDto, VeiculoCreateDto, VeiculoUpdateDto>
     {
-        private readonly MDFeContext _context;
-
-        public VeiculosController(MDFeContext context)
+        public VeiculosController(MDFeContext context, ILogger<VeiculosController> logger)
+            : base(context, logger)
         {
-            _context = context;
         }
 
-        [HttpGet]
-        public async Task<ActionResult<PaginationResult<Veiculo>>> GetVeiculos([FromQuery] PaginationRequest request)
+        protected override DbSet<Veiculo> GetDbSet() => _context.Veiculos;
+
+        protected override VeiculoListDto EntityToListDto(Veiculo entity)
         {
-            try
+            return new VeiculoListDto
             {
-                var query = _context.Veiculos
-                    .Where(v => v.Ativo)
-                    .AsQueryable();
-
-                // Filtrar por busca se fornecido
-                if (!string.IsNullOrWhiteSpace(request.Search))
-                {
-                    var searchTerm = request.Search.ToLower();
-                    query = query.Where(v =>
-                        (v.Placa != null && v.Placa.ToLower().Contains(searchTerm)) ||
-                        (v.Marca != null && v.Marca.ToLower().Contains(searchTerm))
-                    );
-                }
-
-                // Aplicar ordenação
-                switch (request.SortBy?.ToLower())
-                {
-                    case "marca":
-                        query = request.SortDirection?.ToLower() == "desc" ?
-                            query.OrderByDescending(v => v.Marca) :
-                            query.OrderBy(v => v.Marca);
-                        break;
-                    default:
-                        query = request.SortDirection?.ToLower() == "desc" ?
-                            query.OrderByDescending(v => v.Placa) :
-                            query.OrderBy(v => v.Placa);
-                        break;
-                }
-
-                var result = await query.ToPaginatedListAsync(request);
-                return Ok(result);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { message = "Erro ao obter veículos", error = ex.Message });
-            }
+                Id = entity.Id,
+                Placa = entity.Placa,
+                Tara = entity.Tara,
+                TipoRodado = entity.TipoRodado,
+                TipoCarroceria = entity.TipoCarroceria,
+                Uf = entity.Uf,
+                Ativo = entity.Ativo
+            };
         }
 
-        [HttpGet("{id}")]
-        public async Task<ActionResult<Veiculo>> GetVeiculo(int id)
+        protected override VeiculoResponseDto EntityToDetailDto(Veiculo entity)
         {
-            var veiculo = await _context.Veiculos.FindAsync(id);
-
-            if (veiculo == null || !veiculo.Ativo)
+            return new VeiculoResponseDto
             {
-                return NotFound();
-            }
+                Id = entity.Id,
+                Placa = entity.Placa,
+                Tara = entity.Tara,
+                TipoRodado = entity.TipoRodado,
+                TipoCarroceria = entity.TipoCarroceria,
+                Uf = entity.Uf,
+                Ativo = entity.Ativo,
+                DataCriacao = entity.DataCriacao
+            };
+        }
 
+        protected override Veiculo CreateDtoToEntity(VeiculoCreateDto dto)
+        {
+            var veiculo = new Veiculo
+            {
+                Placa = dto.Placa,
+                Tara = dto.Tara,
+                TipoRodado = dto.TipoRodado?.Trim(),
+                TipoCarroceria = dto.TipoCarroceria?.Trim(),
+                Uf = dto.Uf?.Trim()
+            };
+
+            // Aplicar limpeza automática de documentos
+            DocumentUtils.LimparDocumentosVeiculo(veiculo);
             return veiculo;
         }
 
-        [HttpPost]
-        public async Task<ActionResult<Veiculo>> CreateVeiculo(VeiculoCreateDto veiculoDto)
+        protected override void UpdateEntityFromDto(Veiculo entity, VeiculoUpdateDto dto)
         {
-            try
+            entity.Placa = dto.Placa;
+            entity.Tara = dto.Tara;
+            entity.TipoRodado = dto.TipoRodado?.Trim();
+            entity.TipoCarroceria = dto.TipoCarroceria?.Trim();
+            entity.Uf = dto.Uf?.Trim();
+
+            // Aplicar limpeza automática de documentos
+            DocumentUtils.LimparDocumentosVeiculo(entity);
+        }
+
+        protected override IQueryable<Veiculo> ApplySearchFilter(IQueryable<Veiculo> query, string search)
+        {
+            var searchTerm = search.ToLower();
+            return query.Where(v =>
+                (v.Placa != null && v.Placa.ToLower().Contains(searchTerm))
+            );
+        }
+
+        protected override IQueryable<Veiculo> ApplyOrdering(IQueryable<Veiculo> query, string? sortBy, string? sortDirection)
+        {
+            var isDesc = sortDirection?.ToLower() == "desc";
+
+            return sortBy?.ToLower() switch
             {
-                var veiculo = new Veiculo
-                {
-                    Placa = veiculoDto.Placa,
-                    Marca = veiculoDto.Marca?.Trim(),
-                    Tara = veiculoDto.Tara,
-                    TipoRodado = veiculoDto.TipoRodado?.Trim(),
-                    TipoCarroceria = veiculoDto.TipoCarroceria?.Trim(),
-                    Uf = veiculoDto.Uf?.Trim(),
-                    Ativo = true
-                };
+                "tara" => isDesc ? query.OrderByDescending(v => v.Tara) : query.OrderBy(v => v.Tara),
+                "uf" => isDesc ? query.OrderByDescending(v => v.Uf) : query.OrderBy(v => v.Uf),
+                "datacriacao" => isDesc ? query.OrderByDescending(v => v.DataCriacao) : query.OrderBy(v => v.DataCriacao),
+                _ => isDesc ? query.OrderByDescending(v => v.Placa) : query.OrderBy(v => v.Placa)
+            };
+        }
 
-                // Aplicar limpeza automática de documentos
-                DocumentUtils.LimparDocumentosVeiculo(veiculo);
+        protected override async Task<(bool canDelete, string errorMessage)> CanDeleteAsync(Veiculo entity)
+        {
+            var temMdfe = await _context.MDFes.AnyAsync(m => m.VeiculoId == entity.Id);
+            if (temMdfe)
+            {
+                return (false, "Não é possível excluir veículo com MDF-e vinculados");
+            }
+            return (true, string.Empty);
+        }
 
-                // Validar se placa já existe (usando dados limpos)
+        protected override async Task<(bool isValid, string errorMessage)> ValidateCreateAsync(VeiculoCreateDto dto)
+        {
+            var veiculo = new Veiculo { Placa = dto.Placa };
+            DocumentUtils.LimparDocumentosVeiculo(veiculo);
+
+            var existingPlaca = await _context.Veiculos
+                .AnyAsync(v => v.Placa == veiculo.Placa && v.Ativo);
+            if (existingPlaca)
+            {
+                return (false, "Placa já cadastrada");
+            }
+            return (true, string.Empty);
+        }
+
+        protected override async Task<(bool isValid, string errorMessage)> ValidateUpdateAsync(Veiculo entity, VeiculoUpdateDto dto)
+        {
+            var placaOriginal = entity.Placa;
+            var veiculoTemp = new Veiculo { Placa = dto.Placa };
+            DocumentUtils.LimparDocumentosVeiculo(veiculoTemp);
+
+            if (veiculoTemp.Placa != placaOriginal)
+            {
                 var existingPlaca = await _context.Veiculos
-                    .AnyAsync(v => v.Placa == veiculo.Placa && v.Ativo);
+                    .AnyAsync(v => v.Placa == veiculoTemp.Placa && v.Id != entity.Id && v.Ativo);
                 if (existingPlaca)
                 {
-                    return BadRequest(new { message = "Placa já cadastrada" });
+                    return (false, "Placa já cadastrada");
                 }
-
-                _context.Veiculos.Add(veiculo);
-                await _context.SaveChangesAsync();
-
-                return CreatedAtAction(nameof(GetVeiculo), new { id = veiculo.Id }, veiculo);
             }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { message = "Erro interno do servidor", error = ex.Message });
-            }
-        }
-
-        [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateVeiculo(int id, VeiculoUpdateDto veiculoDto)
-        {
-            var veiculo = await _context.Veiculos.FindAsync(id);
-            if (veiculo == null || !veiculo.Ativo)
-            {
-                return NotFound(new { message = "Veículo não encontrado" });
-            }
-
-            try
-            {
-                // Salvar placa original
-                var placaOriginal = veiculo.Placa;
-
-                // Atualizar dados com trim
-                veiculo.Placa = veiculoDto.Placa;
-                veiculo.Marca = veiculoDto.Marca?.Trim();
-                veiculo.Tara = veiculoDto.Tara;
-                veiculo.TipoRodado = veiculoDto.TipoRodado?.Trim();
-                veiculo.TipoCarroceria = veiculoDto.TipoCarroceria?.Trim();
-                veiculo.Uf = veiculoDto.Uf?.Trim();
-
-                // Aplicar limpeza automática de documentos
-                DocumentUtils.LimparDocumentosVeiculo(veiculo);
-
-                // Validar se placa já existe (exceto para o próprio veículo, usando dados limpos)
-                if (veiculo.Placa != placaOriginal)
-                {
-                    var existingPlaca = await _context.Veiculos
-                        .AnyAsync(v => v.Placa == veiculo.Placa && v.Id != id && v.Ativo);
-                    if (existingPlaca)
-                    {
-                        return BadRequest(new { message = "Placa já cadastrada" });
-                    }
-                }
-
-                await _context.SaveChangesAsync();
-
-                return NoContent();
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { message = "Erro ao atualizar veículo", error = ex.Message });
-            }
-        }
-
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteVeiculo(int id)
-        {
-            var veiculo = await _context.Veiculos.FindAsync(id);
-            if (veiculo == null)
-            {
-                return NotFound();
-            }
-
-            try
-            {
-                // Verificar se tem MDF-e vinculados
-                var temMdfe = await _context.MDFes.AnyAsync(m => m.VeiculoId == id);
-                if (temMdfe)
-                {
-                    return BadRequest(new { message = "Não é possível excluir veículo com MDF-e vinculados" });
-                }
-
-                // Soft delete
-                veiculo.Ativo = false;
-                await _context.SaveChangesAsync();
-
-                return NoContent();
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { message = "Erro interno do servidor", error = ex.Message });
-            }
+            return (true, string.Empty);
         }
     }
 }

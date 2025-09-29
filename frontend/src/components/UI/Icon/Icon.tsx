@@ -1,5 +1,4 @@
 import React from 'react';
-import './Icon.css';
 
 interface IconProps {
   name: string;
@@ -17,10 +16,10 @@ const Icon: React.FC<IconProps> = ({
   style = {}
 }) => {
   const sizeClasses = {
-    sm: 'fa-sm',
-    md: '',
-    lg: 'fa-lg',
-    xl: 'fa-xl'
+    sm: 'text-sm',
+    md: 'text-base',
+    lg: 'text-lg',
+    xl: 'text-xl'
   };
 
   const iconClasses = `fas fa-${name} ${sizeClasses[size]} ${className}`.trim();

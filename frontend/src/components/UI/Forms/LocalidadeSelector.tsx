@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { localidadeService, Estado, Municipio, LocalCarregamento, RotaCalculada, OpcaoRota } from '../../../services/localidadeService';
-import { useTheme } from '../../../contexts/ThemeContext';
 import Icon from '../Icon';
 
 interface LocalidadeSelectorProps {
@@ -13,11 +12,8 @@ interface LocalidadeSelectorProps {
 }
 
 export function LocalidadeSelector({ locais, onChange, title, tipo, onRotaChange, locaisOrigem }: LocalidadeSelectorProps) {
-  const { theme } = useTheme();
   const [estados, setEstados] = useState<Estado[]>([]);
   const [municipiosPorUF, setMunicipiosPorUF] = useState<{ [key: string]: Municipio[] }>({});
-  const [rotaCalculada, setRotaCalculada] = useState<RotaCalculada[]>([]);
-  const [estadosPercurso, setEstadosPercurso] = useState<string[]>([]);
   const [opcoesRotas, setOpcoesRotas] = useState<OpcaoRota[]>([]);
   const [rotaSelecionada, setRotaSelecionada] = useState<string>('');
   const [rotaCustomizada, setRotaCustomizada] = useState<string[]>([]);
@@ -74,8 +70,7 @@ export function LocalidadeSelector({ locais, onChange, title, tipo, onRotaChange
     if (locais.length >= 2) {
       calcularRota();
     } else {
-      setRotaCalculada([]);
-      setEstadosPercurso([]);
+      // Rota limpa
     }
   }, [locais]);
 
@@ -108,13 +103,10 @@ export function LocalidadeSelector({ locais, onChange, title, tipo, onRotaChange
     }
   };
 
-  const calcularRota = () => {
+  const calcularRota = async () => {
     // Para gerar rotas, precisamos ter pelo menos 1 local no componente atual
     // E para componente de descarregamento, precisamos ter locaisOrigem também
     if (locais.length > 0) {
-      const rotas = localidadeService.calcularRotaCompleta(locais);
-      const todosEstados = localidadeService.obterEstadosPercursoTotal(rotas);
-
       // Gerar opções de rotas quando temos locais de origem e destino válidos
       if (tipo === 'descarregamento' && locaisOrigem && locaisOrigem.length > 0 && locais.length > 0) {
         // Buscar primeiro local válido de cada tipo (com UF E município preenchidos)
@@ -122,17 +114,23 @@ export function LocalidadeSelector({ locais, onChange, title, tipo, onRotaChange
         const primeiroDescarregamento = locais.find(local => local.uf && local.municipio && local.uf.trim() !== '' && local.municipio.trim() !== '');
 
         if (primeiroCarregamento && primeiroDescarregamento) {
-          // Gerar rotas mesmo se for no mesmo estado (rota direta)
-          const opcoesGeradas = localidadeService.gerarOpcoesRotas(primeiroCarregamento.uf, primeiroDescarregamento.uf);
+          try {
+            // Buscar rotas do backend
+            const opcoesGeradas = await localidadeService.gerarOpcoesRotas(primeiroCarregamento.uf, primeiroDescarregamento.uf);
 
-          setOpcoesRotas(opcoesGeradas);
+            setOpcoesRotas(opcoesGeradas);
 
-          // Selecionar automaticamente a primeira rota (recomendada) se ainda não foi selecionada
-          if (!rotaSelecionada && opcoesGeradas.length > 0) {
-            setRotaSelecionada(opcoesGeradas[0].id);
-            if (onRotaChange) {
-              onRotaChange(opcoesGeradas[0].percurso);
+            // Selecionar automaticamente a primeira rota (recomendada) se ainda não foi selecionada
+            if (!rotaSelecionada && opcoesGeradas.length > 0) {
+              setRotaSelecionada(opcoesGeradas[0].id);
+              if (onRotaChange) {
+                onRotaChange(opcoesGeradas[0].percurso);
+              }
             }
+          } catch (error) {
+            console.error('Erro ao calcular rotas:', error);
+            setOpcoesRotas([]);
+            setRotaSelecionada('');
           }
         } else {
           setOpcoesRotas([]);
@@ -142,9 +140,6 @@ export function LocalidadeSelector({ locais, onChange, title, tipo, onRotaChange
         setOpcoesRotas([]);
         setRotaSelecionada('');
       }
-
-      setRotaCalculada(rotas);
-      setEstadosPercurso(todosEstados);
     } else {
       setOpcoesRotas([]);
       setRotaSelecionada('');
@@ -179,6 +174,11 @@ export function LocalidadeSelector({ locais, onChange, title, tipo, onRotaChange
   const ativarModoCustomizado = () => {
     setModoCustomizado(true);
     setRotaSelecionada(''); // Limpar seleção de rota automática
+
+    // Notificar que a rota foi limpa
+    if (onRotaChange) {
+      onRotaChange([]);
+    }
 
     // Inicializar com origem e destino se disponíveis
     if (locaisOrigem && locaisOrigem.length > 0 && locais.length > 0) {
@@ -247,19 +247,33 @@ export function LocalidadeSelector({ locais, onChange, title, tipo, onRotaChange
     const novosLocais = [...locais];
     novosLocais[index] = { ...novosLocais[index], [campo]: valor };
 
+    // Atualizar imediatamente o estado para que o combobox mostre o valor selecionado
+    onChange(novosLocais);
+
     if (campo === 'uf') {
       // Reset município quando UF mudar
       novosLocais[index].municipio = '';
       novosLocais[index].codigoIBGE = 0;
+      // Atualizar novamente após reset
+      onChange([...novosLocais]);
       // Carregar municípios da nova UF
-      await carregarMunicipios(valor);
-    } else if (campo === 'municipio' && novosLocais[index].uf) {
+      if (valor) {
+        await carregarMunicipios(valor);
+      }
+    } else if (campo === 'municipio' && novosLocais[index].uf && valor) {
       // Buscar código IBGE real do backend quando município for selecionado
-      const codigoIBGE = await localidadeService.obterCodigoMunicipio(valor, novosLocais[index].uf);
-      novosLocais[index].codigoIBGE = codigoIBGE;
+      try {
+        const codigoIBGE = await localidadeService.obterCodigoMunicipio(valor, novosLocais[index].uf);
+        novosLocais[index].codigoIBGE = codigoIBGE;
+        // Atualizar com o código IBGE
+        onChange([...novosLocais]);
+      } catch (error) {
+        console.error('Erro ao obter código IBGE:', error);
+        // Se falhar, manter sem código IBGE mas com o município selecionado
+        novosLocais[index].codigoIBGE = 0;
+        onChange([...novosLocais]);
+      }
     }
-
-    onChange(novosLocais);
   };
 
   return (
@@ -393,16 +407,16 @@ export function LocalidadeSelector({ locais, onChange, title, tipo, onRotaChange
                     Estado (UF) *
                   </label>
                   <select
-                    value={local.uf}
+                    value={local.uf || ''}
                     onChange={(e) => atualizarLocal(index, 'uf', e.target.value)}
                     style={{
                       width: '100%',
                       padding: '0.75rem',
-                      border: `2px solid ${theme === 'dark' ? '#374151' : '#d1d5db'}`,
+                      border: `2px solid ${'#d1d5db'}`,
                       borderRadius: '8px',
                       fontSize: '0.875rem',
-                      background: theme === 'dark' ? '#374151' : 'white',
-                      color: theme === 'dark' ? '#f9fafb' : '#1f2937'
+                      background: 'white',
+                      color: '#1f2937'
                     }}
                     required
                   >
@@ -426,17 +440,17 @@ export function LocalidadeSelector({ locais, onChange, title, tipo, onRotaChange
                     Município *
                   </label>
                   <select
-                    value={local.municipio}
+                    value={local.municipio || ''}
                     onChange={(e) => atualizarLocal(index, 'municipio', e.target.value)}
                     disabled={!local.uf}
                     style={{
                       width: '100%',
                       padding: '0.75rem',
-                      border: `2px solid ${theme === 'dark' ? '#374151' : '#d1d5db'}`,
+                      border: `2px solid ${'#d1d5db'}`,
                       borderRadius: '8px',
                       fontSize: '0.875rem',
-                      background: theme === 'dark' ? '#374151' : 'white',
-                      color: theme === 'dark' ? '#f9fafb' : '#1f2937',
+                      background: 'white',
+                      color: '#1f2937',
                       cursor: !local.uf ? 'not-allowed' : 'pointer',
                       opacity: !local.uf ? 0.6 : 1
                     }}
@@ -514,18 +528,18 @@ export function LocalidadeSelector({ locais, onChange, title, tipo, onRotaChange
       {/* Opções de Rotas Disponíveis */}
       {opcoesRotas.length > 0 && (
         <div style={{
-          marginTop: '2rem',
-          padding: '2rem',
-          background: theme === 'dark'
+          marginTop: '1.5rem',
+          padding: '1.25rem',
+          background: false
             ? 'linear-gradient(135deg, #1f2937 0%, #111827 100%)'
             : 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
-          borderRadius: '16px',
-          border: theme === 'dark'
+          borderRadius: '12px',
+          border: false
             ? '2px solid rgba(55, 65, 81, 0.8)'
             : '2px solid rgba(229, 231, 235, 0.8)',
-          boxShadow: theme === 'dark'
-            ? '0 8px 32px rgba(0, 0, 0, 0.3)'
-            : '0 8px 32px rgba(0, 0, 0, 0.1)',
+          boxShadow: false
+            ? '0 4px 20px rgba(0, 0, 0, 0.2)'
+            : '0 4px 20px rgba(0, 0, 0, 0.08)',
           position: 'relative',
           overflow: 'hidden'
         }}>
@@ -533,29 +547,29 @@ export function LocalidadeSelector({ locais, onChange, title, tipo, onRotaChange
           <div style={{
             display: 'flex',
             alignItems: 'center',
-            gap: '1rem',
-            marginBottom: '1.5rem',
-            paddingBottom: '1rem',
-            borderBottom: `2px solid ${theme === 'dark' ? '#374151' : '#e5e7eb'}`
+            gap: '0.75rem',
+            marginBottom: '1rem',
+            paddingBottom: '0.75rem',
+            borderBottom: `2px solid ${false ? '#374151' : '#e5e7eb'}`
           }}>
             <div style={{
-              width: '48px',
-              height: '48px',
+              width: '36px',
+              height: '36px',
               background: 'linear-gradient(135deg, #059669, #047857)',
-              borderRadius: '12px',
+              borderRadius: '8px',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               color: 'white',
-              fontSize: '1.25rem',
-              boxShadow: '0 4px 12px rgba(5, 150, 105, 0.3)'
+              fontSize: '1rem',
+              boxShadow: '0 2px 8px rgba(5, 150, 105, 0.3)'
             }}>
               <Icon name="route" />
             </div>
             <div>
               <h6 style={{
                 margin: 0,
-                fontSize: '1.125rem',
+                fontSize: '1rem',
                 fontWeight: '700',
                 color: 'var(--color-text-primary)',
                 letterSpacing: '-0.025em'
@@ -564,30 +578,30 @@ export function LocalidadeSelector({ locais, onChange, title, tipo, onRotaChange
               </h6>
               <p style={{
                 margin: '0.25rem 0 0 0',
-                fontSize: '0.875rem',
+                fontSize: '0.8rem',
                 color: 'var(--color-text-secondary)',
                 fontWeight: '500'
               }}>
-                Configure o trajeto para emissão do Manifesto Eletrônico de Documentos Fiscais
+                Configure o trajeto para emissão do MDF-e
               </p>
             </div>
           </div>
 
           <div style={{
-            background: theme === 'dark'
+            background: false
               ? 'rgba(16, 185, 129, 0.1)'
               : 'rgba(16, 185, 129, 0.05)',
-            border: `1px solid ${theme === 'dark' ? 'rgba(16, 185, 129, 0.3)' : 'rgba(16, 185, 129, 0.2)'}`,
-            borderRadius: '8px',
-            padding: '0.75rem 1rem',
-            marginBottom: '1.5rem',
+            border: `1px solid ${false ? 'rgba(16, 185, 129, 0.3)' : 'rgba(16, 185, 129, 0.2)'}`,
+            borderRadius: '6px',
+            padding: '0.6rem 0.8rem',
+            marginBottom: '1rem',
             display: 'flex',
             alignItems: 'center',
-            gap: '0.75rem'
+            gap: '0.6rem'
           }}>
             <div style={{
-              width: '24px',
-              height: '24px',
+              width: '20px',
+              height: '20px',
               background: '#10b981',
               borderRadius: '50%',
               display: 'flex',
@@ -599,45 +613,45 @@ export function LocalidadeSelector({ locais, onChange, title, tipo, onRotaChange
             </div>
             <p style={{
               margin: 0,
-              fontSize: '0.875rem',
+              fontSize: '0.8rem',
               color: 'var(--color-text-primary)',
               fontWeight: '500',
-              lineHeight: '1.4'
+              lineHeight: '1.3'
             }}>
-              <strong>Importante:</strong> Selecione o percurso que será utilizado para o transporte. Esta informação será registrada no MDF-e conforme legislação fiscal vigente.
+              <strong>Importante:</strong> Selecione o percurso que será utilizado para o transporte.
             </p>
           </div>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
             {opcoesRotas.map((opcao) => (
               <div
                 key={opcao.id}
                 onClick={() => selecionarRota(opcao.id)}
                 style={{
-                  padding: '1.25rem',
+                  padding: '1rem',
                   border: rotaSelecionada === opcao.id
                     ? '2px solid #059669'
-                    : `2px solid ${theme === 'dark' ? '#374151' : '#e5e7eb'}`,
-                  borderRadius: '12px',
+                    : `2px solid ${false ? '#374151' : '#e5e7eb'}`,
+                  borderRadius: '8px',
                   background: rotaSelecionada === opcao.id
-                    ? theme === 'dark'
+                    ? false
                       ? 'rgba(5, 150, 105, 0.15)'
                       : 'rgba(5, 150, 105, 0.08)'
-                    : theme === 'dark'
+                    : false
                       ? 'rgba(55, 65, 81, 0.3)'
                       : 'rgba(255, 255, 255, 0.8)',
                   cursor: 'pointer',
                   transition: 'all 0.3s ease',
                   position: 'relative',
                   boxShadow: rotaSelecionada === opcao.id
-                    ? '0 4px 20px rgba(5, 150, 105, 0.2)'
-                    : theme === 'dark'
-                      ? '0 2px 8px rgba(0, 0, 0, 0.3)'
-                      : '0 2px 8px rgba(0, 0, 0, 0.08)'
+                    ? '0 2px 12px rgba(5, 150, 105, 0.2)'
+                    : false
+                      ? '0 1px 4px rgba(0, 0, 0, 0.3)'
+                      : '0 1px 4px rgba(0, 0, 0, 0.08)'
                 }}
                 onMouseEnter={(e) => {
                   if (rotaSelecionada !== opcao.id) {
-                    e.currentTarget.style.background = theme === 'dark'
+                    e.currentTarget.style.background = false
                       ? 'rgba(55, 65, 81, 0.5)'
                       : 'rgba(249, 250, 251, 1)';
                     e.currentTarget.style.borderColor = '#059669';
@@ -647,11 +661,11 @@ export function LocalidadeSelector({ locais, onChange, title, tipo, onRotaChange
                 }}
                 onMouseLeave={(e) => {
                   if (rotaSelecionada !== opcao.id) {
-                    e.currentTarget.style.background = theme === 'dark'
+                    e.currentTarget.style.background = false
                       ? 'rgba(55, 65, 81, 0.3)'
                       : 'rgba(255, 255, 255, 0.8)';
-                    e.currentTarget.style.borderColor = theme === 'dark' ? '#374151' : '#e5e7eb';
-                    e.currentTarget.style.boxShadow = theme === 'dark'
+                    e.currentTarget.style.borderColor = false ? '#374151' : '#e5e7eb';
+                    e.currentTarget.style.boxShadow = false
                       ? '0 2px 8px rgba(0, 0, 0, 0.3)'
                       : '0 2px 8px rgba(0, 0, 0, 0.08)';
                     e.currentTarget.style.transform = 'translateY(0)';
@@ -680,17 +694,17 @@ export function LocalidadeSelector({ locais, onChange, title, tipo, onRotaChange
                   display: 'flex',
                   justifyContent: 'space-between',
                   alignItems: 'flex-start',
-                  marginBottom: '0.75rem'
+                  marginBottom: '0.5rem'
                 }}>
                   <div>
                     <div style={{
                       margin: 0,
-                      fontSize: '0.9rem',
+                      fontSize: '0.85rem',
                       fontWeight: '700',
                       color: 'var(--color-text-primary)',
                       display: 'flex',
                       alignItems: 'center',
-                      gap: '0.5rem'
+                      gap: '0.4rem'
                     }}>
                       {rotaSelecionada === opcao.id && <Icon name="check-circle" style={{ color: '#10b981' }} />}
                       {opcao.nome}
@@ -698,8 +712,8 @@ export function LocalidadeSelector({ locais, onChange, title, tipo, onRotaChange
                   </div>
                   <div style={{
                     display: 'flex',
-                    gap: '1rem',
-                    fontSize: '0.75rem',
+                    gap: '0.75rem',
+                    fontSize: '0.7rem',
                     color: 'var(--color-text-secondary)'
                   }}>
                     <span>~{opcao.distancia.toLocaleString()} km</span>
@@ -710,24 +724,24 @@ export function LocalidadeSelector({ locais, onChange, title, tipo, onRotaChange
                 <div style={{
                   display: 'flex',
                   flexWrap: 'wrap',
-                  gap: '0.5rem'
+                  gap: '0.4rem'
                 }}>
                   {opcao.percurso.map((uf, index) => (
                     <span
                       key={`${opcao.id}_${uf}_${index}`}
                       style={{
-                        padding: '0.375rem 1rem',
+                        padding: '0.3rem 0.75rem',
                         background: index === 0 ? 'rgba(16, 185, 129, 0.2)' :
                                    index === opcao.percurso.length - 1 ? 'rgba(239, 68, 68, 0.2)' :
                                    'rgba(59, 130, 246, 0.2)',
                         color: 'var(--color-text-primary)',
-                        borderRadius: '20px',
-                        fontSize: '0.875rem',
+                        borderRadius: '16px',
+                        fontSize: '0.8rem',
                         fontWeight: '700',
                         display: 'flex',
                         alignItems: 'center',
-                        gap: '0.375rem',
-                        minWidth: '3rem',
+                        gap: '0.3rem',
+                        minWidth: '2.5rem',
                         justifyContent: 'center'
                       }}
                     >
@@ -746,7 +760,7 @@ export function LocalidadeSelector({ locais, onChange, title, tipo, onRotaChange
 
           {/* Botão para ativar modo customizado */}
           {!modoCustomizado && (
-            <div style={{ marginTop: '1rem', textAlign: 'center' }}>
+            <div style={{ marginTop: '0.75rem', textAlign: 'center' }}>
               <button
                 type="button"
                 onClick={ativarModoCustomizado}
@@ -755,7 +769,7 @@ export function LocalidadeSelector({ locais, onChange, title, tipo, onRotaChange
                   alignItems: 'center',
                   gap: '0.5rem',
                   padding: '0.75rem 1.5rem',
-                  background: theme === 'dark'
+                  background: false
                     ? 'linear-gradient(135deg, #7c3aed, #5b21b6)'
                     : 'linear-gradient(135deg, #8b5cf6, #7c3aed)',
                   color: 'white',
@@ -788,10 +802,10 @@ export function LocalidadeSelector({ locais, onChange, title, tipo, onRotaChange
             <div style={{
               marginTop: '1.5rem',
               padding: '1.5rem',
-              background: theme === 'dark'
+              background: false
                 ? 'rgba(124, 58, 237, 0.1)'
                 : 'rgba(139, 92, 246, 0.05)',
-              border: `2px solid ${theme === 'dark' ? 'rgba(124, 58, 237, 0.3)' : 'rgba(139, 92, 246, 0.2)'}`,
+              border: `2px solid ${false ? 'rgba(124, 58, 237, 0.3)' : 'rgba(139, 92, 246, 0.2)'}`,
               borderRadius: '12px'
             }}>
               <div style={{
@@ -800,7 +814,7 @@ export function LocalidadeSelector({ locais, onChange, title, tipo, onRotaChange
                 gap: '1rem',
                 marginBottom: '1rem',
                 paddingBottom: '1rem',
-                borderBottom: `1px solid ${theme === 'dark' ? 'rgba(124, 58, 237, 0.3)' : 'rgba(139, 92, 246, 0.2)'}`
+                borderBottom: `1px solid ${false ? 'rgba(124, 58, 237, 0.3)' : 'rgba(139, 92, 246, 0.2)'}`
               }}>
                 <div style={{
                   width: '32px',
@@ -841,9 +855,9 @@ export function LocalidadeSelector({ locais, onChange, title, tipo, onRotaChange
                   gap: '0.5rem',
                   minHeight: '2.5rem',
                   padding: '0.75rem',
-                  border: `2px solid ${theme === 'dark' ? '#4b5563' : '#e5e7eb'}`,
+                  border: `2px solid ${false ? '#4b5563' : '#e5e7eb'}`,
                   borderRadius: '8px',
-                  background: theme === 'dark' ? '#374151' : '#f9fafb'
+                  background: false ? '#374151' : '#f9fafb'
                 }}>
                   {rotaCustomizada.length > 0 ? (
                     rotaCustomizada.map((uf, index) => (
@@ -914,11 +928,11 @@ export function LocalidadeSelector({ locais, onChange, title, tipo, onRotaChange
                   style={{
                     flex: 1,
                     padding: '0.75rem',
-                    border: `2px solid ${theme === 'dark' ? '#4b5563' : '#e5e7eb'}`,
+                    border: `2px solid ${false ? '#4b5563' : '#e5e7eb'}`,
                     borderRadius: '8px',
                     fontSize: '0.875rem',
-                    background: theme === 'dark' ? '#374151' : 'white',
-                    color: theme === 'dark' ? '#f9fafb' : '#1f2937'
+                    background: 'white',
+                    color: '#1f2937'
                   }}
                 >
                   <option value="">Selecione um estado para adicionar</option>
@@ -966,7 +980,7 @@ export function LocalidadeSelector({ locais, onChange, title, tipo, onRotaChange
                     padding: '0.75rem 1.5rem',
                     background: 'transparent',
                     color: 'var(--color-text-secondary)',
-                    border: `2px solid ${theme === 'dark' ? '#4b5563' : '#e5e7eb'}`,
+                    border: `2px solid ${false ? '#4b5563' : '#e5e7eb'}`,
                     borderRadius: '8px',
                     cursor: 'pointer',
                     fontWeight: '600',
@@ -1004,10 +1018,10 @@ export function LocalidadeSelector({ locais, onChange, title, tipo, onRotaChange
           <div style={{
             marginTop: '1.5rem',
             padding: '1rem',
-            background: theme === 'dark'
+            background: false
               ? 'rgba(55, 65, 81, 0.3)'
               : 'rgba(249, 250, 251, 0.8)',
-            border: `1px solid ${theme === 'dark' ? '#4b5563' : '#d1d5db'}`,
+            border: `1px solid ${false ? '#4b5563' : '#d1d5db'}`,
             borderRadius: '8px',
             display: 'flex',
             alignItems: 'flex-start',

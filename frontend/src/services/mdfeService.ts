@@ -4,12 +4,16 @@ import { ErrorMessageHelper } from '../utils/errorMessages';
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://localhost:5001/api';
 
 class MDFeService {
+  // ⚠️ MAPEAMENTO REMOVIDO: Backend agora aceita dados diretos do frontend
+
   private async request(
     endpoint: string,
     options: RequestInit = {}
   ): Promise<RespostaACBr> {
+    const fullUrl = `${API_BASE_URL}${endpoint}`;
+
     try {
-      const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+      const response = await fetch(fullUrl, {
         headers: {
           'Content-Type': 'application/json',
           ...options.headers,
@@ -17,122 +21,148 @@ class MDFeService {
         ...options,
       });
 
-      const data = await response.json();
+      let data;
+      try {
+        data = await response.json();
+      } catch (jsonError) {
+        console.error('❌ JSON Parse Error:', jsonError);
+        // Se não conseguir fazer parse do JSON, é um erro de servidor
+        return {
+          sucesso: false,
+          mensagem: `Erro no servidor (${response.status}): ${response.statusText}`,
+          codigoErro: response.status.toString()
+        };
+      }
 
       if (!response.ok) {
-        const errorMessage = data.mensagem ||
-                           ErrorMessageHelper.getApiErrorMessage({
-                             ...data,
-                             status: response.status
-                           });
+        const errorMessage = ErrorMessageHelper.getApiErrorMessage({
+          detail: data?.message || data?.error || `${response.status} ${response.statusText}`,
+          status: response.status
+        });
 
         return {
           sucesso: false,
           mensagem: errorMessage,
-          codigoErro: data.codigoErro || response.status.toString(),
-          detalhesValidacao: data.errors || undefined
+          codigoErro: response.status.toString(),
+          detalhesValidacao: data?.errors || data?.details || {}
         };
       }
 
       return {
         sucesso: true,
-        mensagem: data.mensagem || 'Operação realizada com sucesso',
-        dados: data.dados || data
+        mensagem: data?.message || 'Operação realizada com sucesso',
+        dados: data
       };
-    } catch (error) {
-      const errorMessage = error instanceof Error ?
-        error.message :
-        ErrorMessageHelper.getGenericErrorMessage('NETWORK_ERROR');
-
+    } catch (error: any) {
+      console.error('❌ Network Error:', error);
       return {
         sucesso: false,
-        mensagem: errorMessage,
+        mensagem: 'Erro de conexão com o servidor. Verifique sua internet.',
         codigoErro: 'NETWORK_ERROR'
       };
     }
   }
 
-  async carregarINI(mdfeData: MDFeData): Promise<RespostaACBr> {
-    return this.request('/mdfe/carregar-ini', {
+  // ===== MÉTODOS PRINCIPAIS =====
+
+  /**
+   * ✅ Criar MDFe - dados diretos
+   */
+  async criarMDFe(mdfeData: MDFeData): Promise<RespostaACBr> {
+    return this.request('/mdfe', {
       method: 'POST',
       body: JSON.stringify(mdfeData)
     });
   }
 
+  /**
+   * ✅ Atualizar MDFe - dados diretos
+   */
+  async atualizarMDFe(id: number, mdfeData: MDFeData): Promise<RespostaACBr> {
+    return this.request(`/mdfe/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(mdfeData)
+    });
+  }
+
+  /**
+   * Obter dados completos do MDFe para edição
+   */
+  async obterMDFeCompleto(id: number): Promise<RespostaACBr> {
+    return this.request(`/mdfe/data/wizard-complete/${id}`, {
+      method: 'GET'
+    });
+  }
+
+  /**
+   * Carregar arquivo INI do MDFe
+   */
+  async carregarINI(mdfeData: MDFeData): Promise<RespostaACBr> {
+    try {
+      const response = await this.request('/mdfe/carregar-ini', {
+        method: 'POST',
+        body: JSON.stringify(mdfeData)
+      });
+
+      return response;
+    } catch (error) {
+      console.error('❌ MDFeService.carregarINI - ERRO:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Carregar INI simplificado
+   */
   async carregarINISimples(dados: {
     emitenteId: number;
     condutorId: number;
     veiculoId: number;
-    ufInicio: string;
+    ufIni: string;
     ufFim: string;
     municipioCarregamento?: string;
     municipioDescarregamento?: string;
-    serie?: number;
-    numero?: number;
-    reboquesIds?: number[];
+    valorTotal?: number;
+    pesoBrutoTotal?: number;
+    infoAdicional?: string;
   }): Promise<RespostaACBr> {
-    return this.request('/mdfe/carregar-ini-simples', {
+    return this.request('/mdfe/gerar-ini', {
       method: 'POST',
       body: JSON.stringify(dados)
     });
   }
 
-  async assinar(): Promise<RespostaACBr> {
-    return this.request('/mdfe/assinar', {
-      method: 'POST'
-    });
-  }
-
-  async validar(): Promise<RespostaACBr> {
-    return this.request('/mdfe/validar', {
-      method: 'POST'
-    });
-  }
-
-  async enviarSincrono(): Promise<RespostaACBr> {
-    return this.request('/mdfe/enviar', {
-      method: 'POST',
-      body: JSON.stringify({ sincrono: true })
-    });
-  }
-
-  async enviarAssincrono(): Promise<RespostaACBr> {
-    return this.request('/mdfe/enviar', {
-      method: 'POST',
-      body: JSON.stringify({ sincrono: false })
-    });
-  }
-
-  async consultarRecibo(numeroRecibo: string): Promise<RespostaACBr> {
-    return this.request(`/mdfe/consultar-recibo/${encodeURIComponent(numeroRecibo)}`, {
-      method: 'GET'
-    });
-  }
-
+  /**
+   * Consultar status do MDFe na SEFAZ
+   */
   async consultarMDFe(chaveAcesso: string): Promise<RespostaACBr> {
-    return this.request(`/mdfe/consultar/${encodeURIComponent(chaveAcesso)}`, {
-      method: 'GET'
+    return this.request('/mdfe/consultar-status', {
+      method: 'POST',
+      body: JSON.stringify({ chaveAcesso })
     });
   }
 
-  async imprimir(): Promise<RespostaACBr> {
-    return this.request('/mdfe/imprimir', {
+  /**
+   * Gerar MDFe
+   */
+  async gerarMDFe(id: number): Promise<RespostaACBr> {
+    return this.request(`/mdfe/${id}/gerar`, {
       method: 'POST'
     });
   }
 
-  async cancelar(): Promise<RespostaACBr> {
-    return this.request('/mdfe/cancelar', {
+  /**
+   * Transmitir MDFe
+   */
+  async transmitirMDFe(id: number): Promise<RespostaACBr> {
+    return this.request(`/mdfe/${id}/transmitir`, {
       method: 'POST'
     });
   }
 
-  async encerrar(): Promise<RespostaACBr> {
-    return this.request('/mdfe/encerrar', {
-      method: 'POST'
-    });
-  }
-
+  /**
+   * Salvar rascunho
+   */
   async salvarRascunho(mdfeData: MDFeData): Promise<RespostaACBr> {
     return this.request('/mdfe/salvar-rascunho', {
       method: 'POST',
@@ -140,58 +170,21 @@ class MDFeService {
     });
   }
 
+  /**
+   * Carregar rascunho
+   */
   async carregarRascunho(id: string): Promise<RespostaACBr> {
     return this.request(`/mdfe/carregar-rascunho/${encodeURIComponent(id)}`, {
       method: 'GET'
     });
   }
 
+  /**
+   * Obter status do serviço
+   */
   async obterStatus(): Promise<RespostaACBr> {
     return this.request('/mdfe/status', {
       method: 'GET'
-    });
-  }
-
-  // ===== NOVOS MÉTODOS PARA COMPATIBILIDADE COM O WIZARD =====
-
-  /**
-   * Criar MDFe usando o wizard inteligente
-   * Suporte a auto-preenchimento e cálculos automáticos
-   */
-  async criarMDFeWizard(mdfeData: MDFeData): Promise<RespostaACBr> {
-    return this.request('/mdfe/wizard', {
-      method: 'POST',
-      body: JSON.stringify(mdfeData)
-    });
-  }
-
-
-  /**
-   * Atualizar MDFe usando o wizard
-   */
-  async atualizarMDFeWizard(id: number, mdfeData: MDFeData): Promise<RespostaACBr> {
-    return this.request(`/mdfe/wizard/${id}`, {
-      method: 'PUT',
-      body: JSON.stringify(mdfeData)
-    });
-  }
-
-  /**
-   * Obter MDFe no formato do wizard
-   */
-  async obterMDFeWizard(id: number): Promise<RespostaACBr> {
-    return this.request(`/mdfe/wizard/${id}`, {
-      method: 'GET'
-    });
-  }
-
-  /**
-   * Salvar rascunho do MDFe (compatível com wizard)
-   */
-  async salvarRascunhoWizard(mdfeData: Partial<MDFeData>): Promise<RespostaACBr> {
-    return this.request('/mdfe/salvar-rascunho', {
-      method: 'POST',
-      body: JSON.stringify(mdfeData)
     });
   }
 
@@ -216,30 +209,32 @@ class MDFeService {
     }
 
     const queryString = searchParams.toString();
-    const url = queryString ? `/mdfe?${queryString}` : '/mdfe';
+    const endpoint = queryString ? `/mdfe?${queryString}` : '/mdfe';
 
-    return this.request(url, {
+    return this.request(endpoint, {
       method: 'GET'
     });
   }
 
   /**
-   * Obter próximo número do MDFe
+   * Obter MDFe por ID
    */
-  async obterProximoNumero(emitenteCnpj?: string): Promise<RespostaACBr> {
-    const searchParams = new URLSearchParams();
-
-    if (emitenteCnpj) {
-      searchParams.append('emitenteCnpj', emitenteCnpj);
-    }
-
-    const queryString = searchParams.toString();
-    const url = queryString ? `/mdfe/proximo-numero?${queryString}` : '/mdfe/proximo-numero';
-
-    return this.request(url, {
+  async obterMDFe(id: number): Promise<RespostaACBr> {
+    return this.request(`/mdfe/${id}`, {
       method: 'GET'
+    });
+  }
+
+  /**
+   * Excluir MDFe
+   */
+  async excluirMDFe(id: number): Promise<RespostaACBr> {
+    return this.request(`/mdfe/${id}`, {
+      method: 'DELETE'
     });
   }
 }
 
+// Exportar instância única
 export const mdfeService = new MDFeService();
+export default mdfeService;

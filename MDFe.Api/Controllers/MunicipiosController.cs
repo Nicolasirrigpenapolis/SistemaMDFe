@@ -3,164 +3,194 @@ using Microsoft.EntityFrameworkCore;
 using MDFeApi.Data;
 using MDFeApi.Models;
 using MDFeApi.DTOs;
-using MDFeApi.Services;
+using MDFeApi.Interfaces;
 using System.Diagnostics;
 
 namespace MDFeApi.Controllers
 {
-    [ApiController]
     [Route("api/[controller]")]
-    public class MunicipiosController : ControllerBase
+    public class MunicipiosController : BaseController<Municipio, MunicipioListDto, MunicipioDetailDto, MunicipioCreateDto, MunicipioUpdateDto>
     {
-        private readonly MDFeContext _context;
         private readonly IIBGEService _ibgeService;
-        private readonly ILogger<MunicipiosController> _logger;
 
         public MunicipiosController(MDFeContext context, IIBGEService ibgeService, ILogger<MunicipiosController> logger)
+            : base(context, logger)
         {
-            _context = context;
             _ibgeService = ibgeService;
-            _logger = logger;
         }
 
-        [HttpGet]
-        public async Task<ActionResult<ResultadoPaginado<Municipio>>> GetMunicipios([FromQuery] string? uf = null, [FromQuery] int pagina = 1, [FromQuery] int tamanhoPagina = 10)
+        protected override DbSet<Municipio> GetDbSet() => _context.Municipios;
+
+        protected override MunicipioListDto EntityToListDto(Municipio entity)
         {
-            var query = _context.Municipios.Where(m => m.Ativo).AsQueryable();
-
-            if (!string.IsNullOrEmpty(uf))
+            return new MunicipioListDto
             {
-                query = query.Where(m => m.Uf == uf);
-            }
-
-            var totalItens = await query.CountAsync();
-
-            var itens = await query
-                .OrderBy(m => m.Nome)
-                .Skip((pagina - 1) * tamanhoPagina)
-                .Take(tamanhoPagina)
-                .ToListAsync();
-
-            var resultadoPaginado = new ResultadoPaginado<Municipio>
-            {
-                Itens = itens,
-                TotalItens = totalItens,
-                Pagina = pagina,
-                TamanhoPagina = tamanhoPagina
+                Id = entity.Id,
+                Codigo = entity.Codigo,
+                Nome = entity.Nome,
+                Uf = entity.Uf,
+                Ativo = entity.Ativo
             };
-
-            return Ok(resultadoPaginado);
         }
 
-        [HttpGet("{id}")]
-        public async Task<ActionResult<Municipio>> GetMunicipio(int id)
+        protected override MunicipioDetailDto EntityToDetailDto(Municipio entity)
         {
-            var municipio = await _context.Municipios
-                .Where(m => m.Ativo)
-                .FirstOrDefaultAsync(m => m.Id == id);
-
-            if (municipio == null)
+            return new MunicipioDetailDto
             {
-                return NotFound();
-            }
-
-            return municipio;
-        }
-
-        [HttpGet("codigo/{codigo}")]
-        public async Task<ActionResult<Municipio>> GetMunicipioByCodigo(int codigo)
-        {
-            var municipio = await _context.Municipios
-                .Where(m => m.Ativo)
-                .FirstOrDefaultAsync(m => m.Codigo == codigo);
-
-            if (municipio == null)
-            {
-                return NotFound();
-            }
-
-            return municipio;
-        }
-
-        [HttpPost]
-        public async Task<ActionResult<DTOs.MunicipioDto>> PostMunicipio(MunicipioCreateDto municipioDto)
-        {
-            var municipioExistente = await _context.Municipios
-                .FirstOrDefaultAsync(m => m.Codigo == municipioDto.Codigo);
-
-            if (municipioExistente != null)
-            {
-                return BadRequest($"Já existe um município com o código {municipioDto.Codigo}");
-            }
-
-            var municipio = new Municipio
-            {
-                Codigo = municipioDto.Codigo,
-                Nome = municipioDto.Nome,
-                Uf = municipioDto.Uf.ToUpper(),
-                Ativo = true
+                Id = entity.Id,
+                Codigo = entity.Codigo,
+                Nome = entity.Nome,
+                Uf = entity.Uf,
+                Ativo = entity.Ativo
             };
-
-            _context.Municipios.Add(municipio);
-            await _context.SaveChangesAsync();
-
-            var resultado = new DTOs.MunicipioDto
-            {
-                Id = municipio.Id,
-                Codigo = municipio.Codigo,
-                Nome = municipio.Nome,
-                Uf = municipio.Uf,
-                Ativo = municipio.Ativo
-            };
-
-            return CreatedAtAction(nameof(GetMunicipio), new { id = municipio.Id }, resultado);
         }
 
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutMunicipio(int id, MunicipioUpdateDto municipioDto)
+        protected override Municipio CreateDtoToEntity(MunicipioCreateDto dto)
         {
-            var municipio = await _context.Municipios.FindAsync(id);
-
-            if (municipio == null)
+            return new Municipio
             {
-                return NotFound();
+                Codigo = dto.Codigo,
+                Nome = dto.Nome?.Trim(),
+                Uf = dto.Uf?.Trim().ToUpper()
+            };
+        }
+
+        protected override void UpdateEntityFromDto(Municipio entity, MunicipioUpdateDto dto)
+        {
+            entity.Nome = dto.Nome?.Trim();
+            entity.Uf = dto.Uf?.Trim().ToUpper();
+            entity.Ativo = dto.Ativo;
+        }
+
+        protected override IQueryable<Municipio> ApplySearchFilter(IQueryable<Municipio> query, string search)
+        {
+            return query.Where(m =>
+                m.Nome.Contains(search) ||
+                m.Uf.Contains(search) ||
+                m.Codigo.ToString().Contains(search)
+            );
+        }
+
+        protected override IQueryable<Municipio> ApplyOrdering(IQueryable<Municipio> query, string? sortBy, string? sortDirection)
+        {
+            var isDesc = sortDirection?.ToLower() == "desc";
+
+            return sortBy?.ToLower() switch
+            {
+                "codigo" => isDesc ? query.OrderByDescending(m => m.Codigo) : query.OrderBy(m => m.Codigo),
+                "uf" => isDesc ? query.OrderByDescending(m => m.Uf) : query.OrderBy(m => m.Uf),
+                _ => isDesc ? query.OrderByDescending(m => m.Nome) : query.OrderBy(m => m.Nome)
+            };
+        }
+
+        protected override async Task<(bool canDelete, string errorMessage)> CanDeleteAsync(Municipio entity)
+        {
+            // Verificar se município está sendo usado em algum MDFe ou outro local
+            var temUso = await _context.MDFes.AnyAsync(m => m.EmitenteCodMunicipio == entity.Codigo);
+            if (temUso)
+            {
+                return (false, "Não é possível excluir município que está sendo usado");
             }
+            return (true, string.Empty);
+        }
 
-            municipio.Nome = municipioDto.Nome;
-            municipio.Uf = municipioDto.Uf.ToUpper();
-            municipio.Ativo = municipioDto.Ativo;
+        protected override async Task<(bool isValid, string errorMessage)> ValidateCreateAsync(MunicipioCreateDto dto)
+        {
+            var existente = await _context.Municipios.AnyAsync(m => m.Codigo == dto.Codigo);
+            if (existente)
+            {
+                return (false, $"Já existe um município com o código {dto.Codigo}");
+            }
+            return (true, string.Empty);
+        }
 
+        protected override async Task<(bool isValid, string errorMessage)> ValidateUpdateAsync(Municipio entity, MunicipioUpdateDto dto)
+        {
+            // Para update de município, normalmente não alteramos o código
+            return (true, string.Empty);
+        }
+
+        #region Métodos específicos de Município
+
+        /// <summary>
+        /// Obter municípios por UF (método personalizado)
+        /// </summary>
+        [HttpGet("por-uf/{uf}")]
+        public async Task<ActionResult<PagedResult<MunicipioDto>>> GetMunicipiosPorUf(
+            string uf,
+            [FromQuery] PaginationRequest request)
+        {
             try
             {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!MunicipioExists(id))
+                var query = _context.Municipios
+                    .Where(m => m.Ativo && m.Uf == uf.ToUpper())
+                    .AsQueryable();
+
+                // Aplicar busca se fornecida
+                if (!string.IsNullOrWhiteSpace(request.Search))
                 {
-                    return NotFound();
+                    query = ApplySearchFilter(query, request.Search);
                 }
-                throw;
+
+                // Aplicar ordenação
+                query = ApplyOrdering(query, request.SortBy, request.SortDirection);
+
+                // Aplicar paginação
+                var totalItems = await query.CountAsync();
+                var items = await query
+                    .Skip((request.Page - 1) * request.PageSize)
+                    .Take(request.PageSize)
+                    .ToListAsync();
+
+                var result = new PagedResult<MunicipioListDto>
+                {
+                    Items = items.Select(EntityToListDto).ToList(),
+                    TotalItems = totalItems,
+                    Page = request.Page,
+                    PageSize = request.PageSize,
+                    TotalPages = (int)Math.Ceiling((double)totalItems / request.PageSize),
+                    HasNextPage = request.Page * request.PageSize < totalItems,
+                    HasPreviousPage = request.Page > 1
+                };
+
+                return Ok(result);
             }
-
-            return NoContent();
-        }
-
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteMunicipio(int id)
-        {
-            var municipio = await _context.Municipios.FindAsync(id);
-            if (municipio == null)
+            catch (Exception ex)
             {
-                return NotFound();
+                _logger.LogError(ex, "Erro ao obter municípios por UF: {UF}", uf);
+                return StatusCode(500, new { message = "Erro interno do servidor", error = ex.Message });
             }
-
-            municipio.Ativo = false;
-            await _context.SaveChangesAsync();
-
-            return NoContent();
         }
 
+        /// <summary>
+        /// Obter município por código IBGE
+        /// </summary>
+        [HttpGet("codigo/{codigo}")]
+        public async Task<ActionResult<MunicipioDto>> GetMunicipioByCodigo(int codigo)
+        {
+            try
+            {
+                var municipio = await _context.Municipios
+                    .Where(m => m.Ativo)
+                    .FirstOrDefaultAsync(m => m.Codigo == codigo);
+
+                if (municipio == null)
+                {
+                    return NotFound(new { message = "Município não encontrado" });
+                }
+
+                return Ok(EntityToDetailDto(municipio));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erro ao obter município por código: {Codigo}", codigo);
+                return StatusCode(500, new { message = "Erro interno do servidor", error = ex.Message });
+            }
+        }
+
+        /// <summary>
+        /// Importar todos os municípios do IBGE
+        /// </summary>
         [HttpPost("importar-todos-ibge")]
         public async Task<ActionResult<ImportResultDto>> ImportarTodosMunicipiosIBGE()
         {
@@ -172,7 +202,7 @@ namespace MDFeApi.Controllers
                 _logger.LogInformation("Iniciando import completo de municípios do IBGE");
 
                 var municipiosIBGE = await _ibgeService.ImportarTodosMunicipiosAsync();
-                
+
                 if (!municipiosIBGE.Any())
                 {
                     resultado.Sucesso = false;
@@ -195,8 +225,8 @@ namespace MDFeApi.Controllers
                     {
                         if (municipiosExistentes.TryGetValue(municipioIBGE.Id, out var existente))
                         {
-                            if (existente.Nome != municipioIBGE.Nome || 
-                                existente.Uf != municipioIBGE.UF || 
+                            if (existente.Nome != municipioIBGE.Nome ||
+                                existente.Uf != municipioIBGE.UF ||
                                 !existente.Ativo)
                             {
                                 existente.Nome = municipioIBGE.Nome;
@@ -230,7 +260,8 @@ namespace MDFeApi.Controllers
                     await _context.SaveChangesAsync();
                     await transaction.CommitAsync();
 
-                    _logger.LogInformation($"Import concluído: {resultado.TotalInseridos} inseridos, {resultado.TotalAtualizados} atualizados, {resultado.TotalIgnorados} ignorados");
+                    _logger.LogInformation("Import concluído: {TotalInseridos} inseridos, {TotalAtualizados} atualizados, {TotalIgnorados} ignorados",
+                        resultado.TotalInseridos, resultado.TotalAtualizados, resultado.TotalIgnorados);
                 }
                 catch (Exception ex)
                 {
@@ -255,9 +286,74 @@ namespace MDFeApi.Controllers
             return Ok(resultado);
         }
 
-        private bool MunicipioExists(int id)
+        /// <summary>
+        /// Obter lista de estados (UFs) distintos - MIGRADO DE LocalidadeController
+        /// </summary>
+        [HttpGet("estados")]
+        public async Task<ActionResult<List<EstadoDto>>> GetEstados()
         {
-            return _context.Municipios.Any(e => e.Id == id);
+            try
+            {
+                var estados = await _context.Municipios
+                    .Where(m => m.Ativo)
+                    .Select(m => m.Uf)
+                    .Distinct()
+                    .OrderBy(uf => uf)
+                    .Select(uf => new EstadoDto
+                    {
+                        Sigla = uf,
+                        Nome = uf // Pode ser expandido com nomes completos se necessário
+                    })
+                    .ToListAsync();
+
+                return Ok(estados);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erro ao buscar estados");
+                return StatusCode(500, new { message = "Erro interno do servidor" });
+            }
         }
+
+        /// <summary>
+        /// Buscar código IBGE de um município específico - MIGRADO DE LocalidadeController
+        /// </summary>
+        [HttpGet("codigo-municipio")]
+        public async Task<ActionResult<CodigoMunicipioDto>> GetCodigoMunicipio([FromQuery] string municipio, [FromQuery] string uf)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(municipio) || string.IsNullOrWhiteSpace(uf))
+                {
+                    return BadRequest(new { message = "Município e UF são obrigatórios" });
+                }
+
+                var municipioEncontrado = await _context.Municipios
+                    .FirstOrDefaultAsync(m => m.Nome.ToUpper() == municipio.ToUpper() &&
+                                            m.Uf.ToUpper() == uf.ToUpper() &&
+                                            m.Ativo);
+
+                if (municipioEncontrado == null)
+                {
+                    return NotFound(new { message = "Município não encontrado" });
+                }
+
+                return Ok(new CodigoMunicipioDto
+                {
+                    Codigo = municipioEncontrado.Codigo,
+                    Municipio = municipioEncontrado.Nome,
+                    Uf = municipioEncontrado.Uf
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erro ao buscar código do município: {municipio}/{uf}", municipio, uf);
+                return StatusCode(500, new { message = "Erro interno do servidor" });
+            }
+        }
+
+        #endregion
     }
+
+    // ✅ DTOs movidos para CommonDTOs.cs para evitar duplicação
 }

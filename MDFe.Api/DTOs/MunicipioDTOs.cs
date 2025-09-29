@@ -2,6 +2,24 @@ using System.ComponentModel.DataAnnotations;
 
 namespace MDFeApi.DTOs
 {
+    public class MunicipioListDto
+    {
+        public int Id { get; set; }
+        public int Codigo { get; set; }
+        public string Nome { get; set; } = string.Empty;
+        public string Uf { get; set; } = string.Empty;
+        public bool Ativo { get; set; }
+    }
+
+    public class MunicipioDetailDto
+    {
+        public int Id { get; set; }
+        public int Codigo { get; set; }
+        public string Nome { get; set; } = string.Empty;
+        public string Uf { get; set; } = string.Empty;
+        public bool Ativo { get; set; }
+    }
+
     public class MunicipioDto
     {
         public int Id { get; set; }

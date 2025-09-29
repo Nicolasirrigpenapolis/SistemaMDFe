@@ -2,16 +2,18 @@ namespace MDFeApi.DTOs
 {
     public class LoginRequest
     {
-        public string Email { get; set; } = string.Empty;
+        public string Username { get; set; } = string.Empty;
         public string Password { get; set; } = string.Empty;
     }
 
     public class RegisterRequest
     {
         public string Nome { get; set; } = string.Empty;
+        public string Username { get; set; } = string.Empty;
         public string Email { get; set; } = string.Empty;
         public string Password { get; set; } = string.Empty;
         public string? Telefone { get; set; }
+        public int? CargoId { get; set; }
     }
 
     public class LoginResponse
@@ -24,7 +26,10 @@ namespace MDFeApi.DTOs
     {
         public int Id { get; set; }
         public string Nome { get; set; } = string.Empty;
+        public string Username { get; set; } = string.Empty;
         public string Email { get; set; } = string.Empty;
         public string? Telefone { get; set; }
+        public int? CargoId { get; set; }
+        public string? CargoNome { get; set; }
     }
 }

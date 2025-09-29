@@ -6,6 +6,9 @@ using System.Security.Claims;
 using System.Text;
 using MDFeApi.Models;
 using MDFeApi.DTOs;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.EntityFrameworkCore;
+using MDFeApi.Data;
 
 namespace MDFeApi.Controllers
 {
@@ -16,15 +19,18 @@ namespace MDFeApi.Controllers
         private readonly UserManager<Usuario> _userManager;
         private readonly SignInManager<Usuario> _signInManager;
         private readonly IConfiguration _configuration;
+        private readonly MDFeContext _context;
 
         public AuthController(
             UserManager<Usuario> userManager,
             SignInManager<Usuario> signInManager,
-            IConfiguration configuration)
+            IConfiguration configuration,
+            MDFeContext context)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _configuration = configuration;
+            _context = context;
         }
 
         [HttpPost("login")]
@@ -32,7 +38,10 @@ namespace MDFeApi.Controllers
         {
             try
             {
-                var user = await _userManager.FindByEmailAsync(request.Email);
+                var user = await _context.Users
+                    .Include(u => u.Cargo)
+                    .FirstOrDefaultAsync(u => u.UserName == request.Username);
+
                 if (user == null || !user.Ativo)
                 {
                     return BadRequest(new { message = "Credenciais inválidas" });
@@ -57,8 +66,11 @@ namespace MDFeApi.Controllers
                     {
                         Id = user.Id,
                         Nome = user.Nome,
+                        Username = user.UserName ?? "",
                         Email = user.Email ?? "",
-                        Telefone = user.Telefone
+                        Telefone = user.Telefone,
+                        CargoId = user.CargoId,
+                        CargoNome = user.Cargo?.Nome
                     }
                 });
             }
@@ -69,22 +81,46 @@ namespace MDFeApi.Controllers
         }
 
         [HttpPost("register")]
+        [Authorize]
         public async Task<IActionResult> Register([FromBody] RegisterRequest request)
         {
             try
             {
-                var existingUser = await _userManager.FindByEmailAsync(request.Email);
+                // Verificar se o usuário atual é Master ou Admin
+                var currentUserId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (currentUserId == null)
+                {
+                    return Unauthorized(new { message = "Usuário não autenticado" });
+                }
+
+                var currentUser = await _context.Users
+                    .Include(u => u.Cargo)
+                    .FirstOrDefaultAsync(u => u.Id.ToString() == currentUserId);
+
+                if (currentUser == null || currentUser.Cargo?.Nome != "Programador")
+                {
+                    return Forbid("Apenas usuários com cargo 'Programador' podem criar novos usuários");
+                }
+
+                var existingUser = await _userManager.FindByNameAsync(request.Username);
                 if (existingUser != null)
+                {
+                    return BadRequest(new { message = "Nome de usuário já está em uso" });
+                }
+
+                var existingEmail = await _userManager.FindByEmailAsync(request.Email);
+                if (existingEmail != null)
                 {
                     return BadRequest(new { message = "Email já está em uso" });
                 }
 
                 var user = new Usuario
                 {
-                    UserName = request.Email,
+                    UserName = request.Username,
                     Email = request.Email,
                     Nome = request.Nome,
                     Telefone = request.Telefone,
+                    CargoId = request.CargoId,
                     EmailConfirmed = true,
                     Ativo = true
                 };
@@ -114,6 +150,14 @@ namespace MDFeApi.Controllers
                 new(ClaimTypes.Name, user.Nome),
                 new(ClaimTypes.Email, user.Email ?? "")
             };
+
+            // Adicionar cargo se tiver
+            if (user.Cargo != null)
+            {
+                claims.Add(new Claim(ClaimTypes.Role, user.Cargo.Nome));
+                claims.Add(new Claim("cargo", user.Cargo.Nome));
+                claims.Add(new Claim("cargoId", user.CargoId.ToString() ?? ""));
+            }
 
             var roles = await _userManager.GetRolesAsync(user);
             claims.AddRange(roles.Select(role => new Claim(ClaimTypes.Role, role)));

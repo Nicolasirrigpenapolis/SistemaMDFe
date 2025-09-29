@@ -52,6 +52,11 @@ namespace MDFeApi.Models
         [MaxLength(2)]
         public string Uf { get; set; } = string.Empty;
 
+        [MaxLength(20)]
+        public string? Telefone { get; set; }
+
+        [MaxLength(200)]
+        public string? Email { get; set; }
 
         public bool Ativo { get; set; } = true;
 
@@ -76,11 +81,22 @@ namespace MDFeApi.Models
         [MaxLength(20)]
         public string? Rntrc { get; set; }
 
+        // Configurações MDFe
+        public int SerieInicial { get; set; } // Série inicial para numeração MDFe
+
+        // Tipo de Transportador (1=ETC, 2=TAC, 3=CTC)
+        public int TipoTransportador { get; set; } // Definido pelo usuário no cadastro
+
+        // Modal de Transporte (1=Rodoviário, 2=Aéreo, 3=Aquaviário, 4=Ferroviário)
+        public int ModalTransporte { get; set; } // Definido pelo usuário no cadastro
+
+        // Unidade de Medida fixo em Quilograma (01) - decisão arquitetural do sistema
+
         // Ambiente SEFAZ (1=Produção, 2=Homologação)
-        public int AmbienteSefaz { get; set; } = 2;
+        public int AmbienteSefaz { get; set; } // Definido pelo usuário no cadastro
 
         public DateTime DataCriacao { get; set; } = DateTime.Now;
-        public DateTime? DataAtualizacao { get; set; }
+        public DateTime? DataUltimaAlteracao { get; set; }
 
         // Relacionamentos
         public virtual ICollection<MDFe> MDFes { get; set; } = new List<MDFe>();

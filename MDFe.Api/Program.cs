@@ -6,12 +6,21 @@ using System.Text;
 using MDFeApi.Data;
 using MDFeApi.Models;
 using MDFeApi.Services;
+using MDFeApi.Repositories;
+using MDFeApi.Interfaces;
+using MDFeApi.HealthChecks;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddMemoryCache();
-builder.Services.AddControllers();
+
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
+        options.JsonSerializerOptions.WriteIndented = true;
+    });
 
 // Configure Entity Framework
 builder.Services.AddDbContext<MDFeContext>(options =>
@@ -60,18 +69,28 @@ builder.Services.AddAuthentication(options =>
 
 // Register application services
 builder.Services.AddScoped<IMDFeService, MDFeService>();
-builder.Services.AddScoped<IACBrMDFeService, ACBrMDFeService>();
-builder.Services.AddScoped<MDFeServiceCompleto>();
+builder.Services.AddScoped<IMDFeBusinessService, MDFeBusinessService>();
 builder.Services.AddScoped<ICertificadoService, CertificadoService>();
 builder.Services.AddScoped<IIBGEService, IBGEService>();
-builder.Services.AddScoped<ISefazMappingService, SefazMappingService>();
+
+// Register repositories
+builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
 
 // Register HttpClient for IBGE service
-builder.Services.AddHttpClient<IBGEService>();
+builder.Services.AddHttpClient<IIBGEService, IBGEService>();
 
-// Configure ACBr settings
-builder.Services.Configure<ACBrMDFeConfiguration>(
-    builder.Configuration.GetSection("ACBrMDFe"));
+// Register HttpClient for validation services (CNPJ lookup)
+builder.Services.AddHttpClient();
+
+// Configure Health Checks
+builder.Services.AddHealthChecks()
+    .AddCheck<DatabaseHealthCheck>("database", tags: new[] { "db", "ready" })
+    .AddCheck<IBGEServiceHealthCheck>("ibge_service", tags: new[] { "external", "ready" });
+
+// Register health check dependencies
+builder.Services.AddHttpClient<IBGEServiceHealthCheck>();
+
+// ACBr configuration removed - will be reintegrated in future versions
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
@@ -109,14 +128,16 @@ builder.Services.AddSwaggerGen(c =>
 // Configure CORS for frontend
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowAll", policy =>
+    options.AddPolicy("Production", policy =>
     {
+        // Em produção, especificar domínios exatos
         policy
-            .AllowAnyOrigin()
-            .AllowAnyMethod()
-            .AllowAnyHeader();
+            .WithOrigins("https://seu-dominio-frontend.com") // Substituir pelo domínio real
+            .WithMethods("GET", "POST", "PUT", "DELETE", "PATCH")
+            .WithHeaders("Content-Type", "Authorization")
+            .AllowCredentials();
     });
-    
+
     options.AddPolicy("Development", policy =>
     {
         policy
@@ -150,13 +171,65 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+// Add security middlewares (comentado temporariamente - middlewares não encontrados)
+// app.UseMiddleware<MDFeApi.Middleware.RateLimitingMiddleware>();
+// app.UseMiddleware<MDFeApi.Middleware.InputValidationMiddleware>();
+
 // Add custom validation middleware
 app.UseMiddleware<MDFeApi.Middleware.ValidationExceptionMiddleware>();
 
-app.UseCors("AllowAll");
+// Usar política CORS apropriada baseada no ambiente
+if (app.Environment.IsDevelopment())
+{
+    app.UseCors("Development");
+}
+else
+{
+    app.UseCors("Production");
+}
 
 app.UseAuthentication();
 app.UseAuthorization();
+
+// Configure Health Check endpoints
+app.MapHealthChecks("/health", new Microsoft.AspNetCore.Diagnostics.HealthChecks.HealthCheckOptions
+{
+    ResponseWriter = async (context, report) =>
+    {
+        context.Response.ContentType = "application/json";
+        var result = System.Text.Json.JsonSerializer.Serialize(new
+        {
+            status = report.Status.ToString(),
+            timestamp = DateTime.UtcNow,
+            duration = report.TotalDuration.TotalMilliseconds,
+            checks = report.Entries.Select(x => new
+            {
+                name = x.Key,
+                status = x.Value.Status.ToString(),
+                duration = x.Value.Duration.TotalMilliseconds,
+                description = x.Value.Description,
+                data = x.Value.Data,
+                exception = x.Value.Exception?.Message
+            })
+        }, new System.Text.Json.JsonSerializerOptions
+        {
+            WriteIndented = true,
+            PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase
+        });
+        await context.Response.WriteAsync(result);
+    }
+});
+
+// Health check endpoints específicos
+app.MapHealthChecks("/health/ready", new Microsoft.AspNetCore.Diagnostics.HealthChecks.HealthCheckOptions
+{
+    Predicate = check => check.Tags.Contains("ready")
+});
+
+app.MapHealthChecks("/health/live", new Microsoft.AspNetCore.Diagnostics.HealthChecks.HealthCheckOptions
+{
+    Predicate = check => check.Tags.Contains("live")
+});
 
 app.MapControllers();
 

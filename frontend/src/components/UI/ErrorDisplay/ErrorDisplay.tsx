@@ -1,7 +1,6 @@
 import React from 'react';
 import { ErrorMessageHelper } from '../../../utils/errorMessages';
 import Icon from '../Icon';
-import './ErrorDisplay.css';
 
 interface ErrorDisplayProps {
   error?: string | any;
@@ -49,13 +48,28 @@ export const ErrorDisplay: React.FC<ErrorDisplayProps> = ({
   const validationErrors = getValidationErrors();
   const hasMultipleErrors = validationErrors.length > 1;
 
-  const baseClassName = `error-display error-display--${type} ${className}`;
+  const getTypeClasses = () => {
+    switch (type) {
+      case 'inline':
+        return 'text-sm text-red-600 dark:text-red-400 mt-1';
+      case 'toast':
+        return 'fixed top-4 right-4 z-50 max-w-md';
+      default: // block
+        return 'w-full';
+    }
+  };
 
   return (
-    <div className={baseClassName} role="alert">
+    <div
+      className={`
+        bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800
+        rounded-lg p-4 flex gap-3 items-start ${getTypeClasses()} ${className}
+      `}
+      role="alert"
+    >
       {onClose && (
         <button
-          className="error-display__close"
+          className="absolute top-2 right-2 text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 text-lg leading-none"
           onClick={onClose}
           aria-label="Fechar erro"
         >
@@ -63,26 +77,27 @@ export const ErrorDisplay: React.FC<ErrorDisplayProps> = ({
         </button>
       )}
 
-      <div className="error-display__icon">
+      <div className="flex-shrink-0 mt-0.5">
         <Icon name="exclamation-triangle" color="#dc3545" />
       </div>
 
-      <div className="error-display__content">
+      <div className="flex-1 min-w-0">
         {hasMultipleErrors ? (
           <div>
-            <div className="error-display__title">
+            <div className="text-sm font-medium text-red-800 dark:text-red-200 mb-2">
               Foram encontrados erros de validação:
             </div>
-            <ul className="error-display__list">
+            <ul className="text-sm text-red-700 dark:text-red-300 space-y-1">
               {validationErrors.map((err, index) => (
-                <li key={index} className="error-display__item">
-                  <strong>{err.field}:</strong> {err.message}
+                <li key={index} className="flex gap-1">
+                  <span className="font-medium">{err.field}:</span>
+                  <span>{err.message}</span>
                 </li>
               ))}
             </ul>
           </div>
         ) : (
-          <div className="error-display__message">
+          <div className="text-sm text-red-800 dark:text-red-200">
             {errorMessage}
           </div>
         )}
@@ -103,8 +118,8 @@ export const FieldError: React.FC<FieldErrorProps> = ({ error, field }) => {
   const message = field ? `${friendlyField}: ${error}` : error;
 
   return (
-    <div className="field-error" role="alert">
-      <span className="field-error__message">{message}</span>
+    <div className="text-sm text-red-600 dark:text-red-400 mt-1" role="alert">
+      <span>{message}</span>
     </div>
   );
 };
@@ -139,14 +154,16 @@ export const ToastError: React.FC<ToastErrorProps> = ({
   const message = typeof error === 'string' ? error : ErrorMessageHelper.processApiResponse(error);
 
   return (
-    <div className="toast-error">
-      <div className="toast-error__content">
-        <span className="toast-error__icon">
+    <div className="fixed top-4 right-4 z-50 max-w-md animate-slide-in-right">
+      <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4 shadow-lg flex gap-3 items-start">
+        <div className="flex-shrink-0 mt-0.5">
           <Icon name="exclamation-triangle" color="#dc3545" />
-        </span>
-        <span className="toast-error__message">{message}</span>
+        </div>
+        <div className="flex-1 min-w-0 text-sm text-red-800 dark:text-red-200">
+          {message}
+        </div>
         <button
-          className="toast-error__close"
+          className="flex-shrink-0 text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 text-lg leading-none"
           onClick={onClose}
           aria-label="Fechar"
         >

@@ -72,68 +72,82 @@ export const Combobox: React.FC<ComboboxProps> = ({
   };
 
   return (
-    <div className="combobox-container" ref={comboboxRef}>
+    <div className="relative w-full" ref={comboboxRef}>
       {label && (
-        <label className="combobox-label">
+        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
           {label}
-          {required && <span className="required">*</span>}
+          {required && <span className="text-red-500 ml-0.5">*</span>}
         </label>
       )}
 
-      <div className={`combobox ${isOpen ? 'open' : ''} ${disabled ? 'disabled' : ''}`}>
-        <div className="combobox-trigger" onClick={handleToggle}>
-          <div className="combobox-value">
+      <div className="relative w-full">
+        <div
+          className={`
+            flex items-center justify-between px-4 py-3 bg-white dark:bg-gray-800
+            border-2 border-gray-300 dark:border-gray-600 rounded-lg cursor-pointer
+            transition-colors duration-200 min-h-[48px]
+            ${isOpen ? 'border-slate-500 ring-2 ring-slate-500/10' : 'hover:border-gray-400 dark:hover:border-gray-500'}
+            ${disabled ? 'bg-gray-50 dark:bg-gray-900 text-gray-400 cursor-not-allowed' : ''}
+          `}
+          onClick={handleToggle}
+        >
+          <div className="flex-1 min-w-0">
             {selectedOption ? (
-              <div className="selected-option">
-                {selectedOption.icon && <i className={selectedOption.icon}></i>}
-                <span className="option-label">{selectedOption.label}</span>
+              <div className="flex items-center gap-2">
+                {selectedOption.icon && <i className={`${selectedOption.icon} text-slate-500 w-4 text-center`}></i>}
+                <span className="font-medium text-gray-900 dark:text-white">{selectedOption.label}</span>
                 {selectedOption.sublabel && (
-                  <span className="option-sublabel">{selectedOption.sublabel}</span>
+                  <span className="text-xs text-gray-500 ml-1">{selectedOption.sublabel}</span>
                 )}
               </div>
             ) : (
-              <span className="placeholder">{placeholder}</span>
+              <span className="text-gray-400">{placeholder}</span>
             )}
           </div>
-          <i className={`fas fa-chevron-down chevron ${isOpen ? 'rotated' : ''}`}></i>
+          <i className={`fas fa-chevron-down text-gray-500 transition-transform duration-200 text-xs ${isOpen ? 'rotate-180' : ''}`}></i>
         </div>
 
         {isOpen && (
-          <div className="combobox-dropdown">
-            <div className="combobox-search">
-              <i className="fas fa-search search-icon"></i>
+          <div className="absolute top-full left-0 right-0 z-50 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-xl mt-1 max-h-80 overflow-hidden">
+            <div className="relative p-3 border-b border-gray-100 dark:border-gray-700">
+              <i className="fas fa-search absolute left-6 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm"></i>
               <input
                 type="text"
                 placeholder={searchPlaceholder}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full pl-9 pr-3 py-2 border border-gray-200 dark:border-gray-600 rounded-md text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-slate-500/20 focus:border-slate-500"
                 autoFocus
               />
             </div>
 
-            <div className="combobox-options">
+            <div className="max-h-60 overflow-y-auto">
               {filteredOptions.length > 0 ? (
                 filteredOptions.map((option) => (
                   <div
                     key={option.id}
-                    className={`combobox-option ${selectedValue === option.id ? 'selected' : ''}`}
+                    className={`
+                      flex items-center gap-3 px-4 py-3 cursor-pointer transition-colors duration-150
+                      hover:bg-gray-50 dark:hover:bg-gray-700
+                      ${selectedValue === option.id ? 'bg-gray-50 dark:bg-gray-700 text-slate-600 dark:text-slate-400' : ''}
+                    `}
                     onClick={() => handleOptionSelect(option)}
                   >
-                    {option.icon && <i className={option.icon}></i>}
-                    <div className="option-content">
-                      <span className="option-label">{option.label}</span>
+                    {option.icon && <i className={`${option.icon} text-slate-500 w-4 text-center`}></i>}
+                    <div className="flex-1 min-w-0">
+                      <div className="font-medium text-gray-900 dark:text-white">{option.label}</div>
                       {option.sublabel && (
-                        <span className="option-sublabel">{option.sublabel}</span>
+                        <div className="text-xs text-gray-500 mt-0.5">{option.sublabel}</div>
                       )}
                     </div>
                     {selectedValue === option.id && (
-                      <i className="fas fa-check check-icon"></i>
+                      <i className="fas fa-check text-slate-600 text-xs"></i>
                     )}
                   </div>
                 ))
               ) : (
-                <div className="combobox-empty">
-                  <i className="fas fa-search"></i>
+                <div className="flex flex-col items-center gap-2 py-6 text-gray-400 text-sm">
+                  <i className="fas fa-search text-2xl opacity-50"></i>
                   <span>{emptyMessage}</span>
                 </div>
               )}
@@ -141,212 +155,6 @@ export const Combobox: React.FC<ComboboxProps> = ({
           </div>
         )}
       </div>
-
-      <style>{`
-        .combobox-container {
-          position: relative;
-          width: 100%;
-        }
-
-        .combobox-label {
-          display: block;
-          font-size: 14px;
-          font-weight: 500;
-          color: #374151;
-          margin-bottom: 6px;
-        }
-
-        .combobox-label .required {
-          color: #ef4444;
-          margin-left: 2px;
-        }
-
-        .combobox {
-          position: relative;
-          width: 100%;
-        }
-
-        .combobox-trigger {
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          padding: 12px 16px;
-          background: #ffffff;
-          border: 2px solid #e5e7eb;
-          border-radius: 8px;
-          cursor: pointer;
-          transition: border-color 0.2s ease;
-          min-height: 48px;
-        }
-
-        .combobox-trigger:hover {
-          border-color: #d1d5db;
-        }
-
-        .combobox.open .combobox-trigger {
-          border-color: #64748b;
-          box-shadow: 0 0 0 3px rgba(100, 116, 139, 0.1);
-        }
-
-        .combobox.disabled .combobox-trigger {
-          background: #ffffff;
-          color: #9ca3af;
-          cursor: not-allowed;
-        }
-
-        .combobox-value {
-          flex: 1;
-          min-width: 0;
-        }
-
-        .selected-option {
-          display: flex;
-          align-items: center;
-          gap: 8px;
-        }
-
-        .selected-option i {
-          color: #64748b;
-          width: 16px;
-          text-align: center;
-        }
-
-        .option-label {
-          font-weight: 500;
-          color: #1f2937;
-        }
-
-        .option-sublabel {
-          font-size: 12px;
-          color: #6b7280;
-          margin-left: 4px;
-        }
-
-        .placeholder {
-          color: #9ca3af;
-        }
-
-        .chevron {
-          color: #6b7280;
-          transition: transform 0.2s ease;
-          font-size: 12px;
-        }
-
-        .chevron.rotated {
-          transform: rotate(180deg);
-        }
-
-        .combobox-dropdown {
-          position: absolute;
-          top: 100%;
-          left: 0;
-          right: 0;
-          z-index: 1000;
-          background: #ffffff;
-          border: 1px solid #e5e7eb;
-          border-radius: 8px;
-          box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-          margin-top: 4px;
-          max-height: 300px;
-          overflow: hidden;
-        }
-
-        .combobox-search {
-          position: relative;
-          padding: 12px;
-          border-bottom: 1px solid #f3f4f6;
-        }
-
-        .search-icon {
-          position: absolute;
-          left: 24px;
-          top: 50%;
-          transform: translateY(-50%);
-          color: #9ca3af;
-          font-size: 14px;
-        }
-
-        .combobox-search input {
-          width: 100%;
-          padding: 8px 12px 8px 36px;
-          border: 1px solid #e5e7eb;
-          border-radius: 6px;
-          font-size: 14px;
-          outline: none;
-        }
-
-        .combobox-search input:focus {
-          border-color: #64748b;
-          box-shadow: 0 0 0 2px rgba(100, 116, 139, 0.1);
-        }
-
-        .combobox-options {
-          max-height: 240px;
-          overflow-y: auto;
-        }
-
-        .combobox-option {
-          display: flex;
-          align-items: center;
-          gap: 12px;
-          padding: 12px 16px;
-          cursor: pointer;
-          transition: background-color 0.15s ease;
-        }
-
-        .combobox-option:hover {
-          background: transparent;
-        }
-
-        .combobox-option.selected {
-          background: transparent;
-          color: #475569;
-        }
-
-        .combobox-option i {
-          color: #64748b;
-          width: 16px;
-          text-align: center;
-        }
-
-        .option-content {
-          flex: 1;
-          min-width: 0;
-        }
-
-        .combobox-option .option-label {
-          display: block;
-          font-weight: 500;
-          color: #1f2937;
-        }
-
-        .combobox-option .option-sublabel {
-          display: block;
-          font-size: 12px;
-          color: #6b7280;
-          margin-top: 2px;
-        }
-
-        .check-icon {
-          color: #475569;
-          font-size: 12px;
-        }
-
-        .combobox-empty {
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          gap: 8px;
-          padding: 24px;
-          color: #9ca3af;
-          font-size: 14px;
-        }
-
-        .combobox-empty i {
-          font-size: 24px;
-          opacity: 0.5;
-        }
-      `}</style>
     </div>
   );
 };

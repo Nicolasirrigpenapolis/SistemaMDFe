@@ -3,7 +3,7 @@ import { ConfirmDeleteModal } from '../../../components/UI/Modal/ConfirmDeleteMo
 import { formatCNPJ, formatCPF, cleanNumericString, applyMask } from '../../../utils/formatters';
 import { entitiesService } from '../../../services/entitiesService';
 import { useCNPJLookup } from '../../../hooks/useCNPJLookup';
-import styles from './ListarContratantes.module.css';
+import Icon from '../../../components/UI/Icon';
 
 interface Contratante {
   id?: number;
@@ -85,7 +85,6 @@ export function ListarContratantes() {
       }
 
       const data = await response.json();
-      console.log('Dados recebidos da API de contratantes:', data);
 
       const contratantesMapeados: Contratante[] = (data.itens || data.items || data.Itens || []).map((contratante: any) => ({
         id: contratante.id || contratante.Id,
@@ -104,7 +103,6 @@ export function ListarContratantes() {
         ativo: contratante.ativo !== undefined ? contratante.ativo : (contratante.Ativo !== undefined ? contratante.Ativo : true)
       }));
 
-      console.log('Contratantes mapeados:', contratantesMapeados);
       setContratantes(contratantesMapeados);
       setPaginacao({
         totalItems: data.totalItens || data.totalItems || data.TotalItens || contratantesMapeados.length,
@@ -170,13 +168,13 @@ export function ListarContratantes() {
         setDadosFormulario(prev => ({
           ...prev,
           cnpj: formatCNPJ(dadosCNPJ.cnpj),
-          razaoSocial: dadosCNPJ.razao_social,
-          nomeFantasia: dadosCNPJ.nome_fantasia || '',
+          razaoSocial: dadosCNPJ.razaoSocial,
+          nomeFantasia: dadosCNPJ.nomeFantasia || '',
           endereco: dadosCNPJ.logradouro,
           numero: dadosCNPJ.numero,
           complemento: dadosCNPJ.complemento || '',
           bairro: dadosCNPJ.bairro,
-          codMunicipio: dadosCNPJ.codigo_municipio || 0,
+          codMunicipio: dadosCNPJ.codigoMunicipio || 0,
           municipio: dadosCNPJ.municipio,
           cep: dadosCNPJ.cep,
           uf: dadosCNPJ.uf
@@ -276,35 +274,37 @@ export function ListarContratantes() {
   };
 
   return (
-    <div className={styles.container}>
-      <div className={styles.header}>
-        <h1>
-          <i className="fas fa-handshake"></i>
+    <div className="max-w-7xl mx-auto px-6 py-8">
+      <div className="flex items-center justify-between mb-8">
+        <h1 className="text-3xl font-bold text-text-primary flex items-center gap-3">
+          <Icon name="handshake" className="text-primary" />
           Contratantes
         </h1>
-        <button className={styles.btnNovo} onClick={() => abrirModalEdicao()}>
+        <button className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-hover transition-colors duration-200 flex items-center gap-2" onClick={() => abrirModalEdicao()}>
+          <Icon name="plus" />
           Novo Contratante
         </button>
       </div>
 
-      <div className={styles.filters}>
-        <div className={styles.filtersRow}>
-          <div className={styles.filterField}>
-            <label>Buscar</label>
+      <div className="bg-bg-surface rounded-xl border border-border-primary p-6 mb-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-text-primary">Buscar</label>
             <input
               type="text"
-              className={styles.searchInput}
+              className="w-full px-3 py-2 border border-border-primary rounded-lg bg-bg-surface focus:outline-none focus:ring-2 focus:ring-primary/20"
               placeholder="Buscar por razão social, CNPJ, CPF..."
               value={filtro}
               onChange={(e) => setFiltro(e.target.value)}
             />
           </div>
 
-          <div className={styles.filterField}>
-            <label>Tipo</label>
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-text-primary">Tipo</label>
             <select
               value={filtroTipo}
               onChange={(e) => setFiltroTipo(e.target.value)}
+              className="w-full px-3 py-2 border border-border-primary rounded-lg bg-bg-surface focus:outline-none focus:ring-2 focus:ring-primary/20"
             >
               <option value="">Todos</option>
               <option value="PJ">Pessoa Jurídica</option>
@@ -312,11 +312,12 @@ export function ListarContratantes() {
             </select>
           </div>
 
-          <div className={styles.filterField}>
-            <label>Status</label>
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-text-primary">Status</label>
             <select
               value={filtroStatus}
               onChange={(e) => setFiltroStatus(e.target.value)}
+              className="w-full px-3 py-2 border border-border-primary rounded-lg bg-bg-surface focus:outline-none focus:ring-2 focus:ring-primary/20"
             >
               <option value="">Todos</option>
               <option value="ativo">Ativo</option>
@@ -324,11 +325,12 @@ export function ListarContratantes() {
             </select>
           </div>
 
-          <div className={styles.filterField}>
-            <label>UF</label>
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-text-primary">UF</label>
             <select
               value={filtroUf}
               onChange={(e) => setFiltroUf(e.target.value)}
+              className="w-full px-3 py-2 border border-border-primary rounded-lg bg-bg-surface focus:outline-none focus:ring-2 focus:ring-primary/20"
             >
               <option value="">Todas</option>
               <option value="AC">AC</option>
@@ -361,23 +363,29 @@ export function ListarContratantes() {
             </select>
           </div>
 
-          <button className={styles.btnClearFilters} onClick={limparFiltros}>
+          <button className="px-4 py-2 border border-border-primary rounded-lg bg-bg-surface text-text-primary hover:bg-bg-tertiary transition-colors duration-200 col-span-full md:col-span-1 flex items-center justify-center gap-2" onClick={limparFiltros}>
+            <Icon name="times" />
             Limpar Filtros
           </button>
         </div>
       </div>
 
-      <div className={styles.list}>
+      <div className="bg-bg-surface rounded-xl border border-border-primary shadow-sm">
         {carregando ? (
-          <div className={styles.loading}>Carregando contratantes...</div>
+          <div className="flex items-center justify-center py-16">
+            <div className="flex items-center gap-4">
+              <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+              <span className="text-text-secondary">Carregando contratantes...</span>
+            </div>
+          </div>
         ) : contratantes.length === 0 ? (
-          <div className={styles.emptyState}>
+          <div className="flex flex-col items-center justify-center py-16 px-6">
             <h3>Nenhum contratante encontrado</h3>
             <p>Adicione um novo contratante para começar.</p>
           </div>
         ) : (
-          <div className={styles.table}>
-            <div className={styles.tableHeader}>
+          <div className="overflow-x-auto">
+            <div className="grid grid-cols-6 gap-4 p-4 bg-bg-tertiary border-b border-border-primary font-semibold text-text-primary">
               <div>CNPJ/CPF</div>
               <div>Razão Social</div>
               <div>Tipo</div>
@@ -386,7 +394,7 @@ export function ListarContratantes() {
               <div>Ações</div>
             </div>
             {contratantes.map((contratante) => (
-              <div key={contratante.id} className={styles.tableRow}>
+              <div key={contratante.id} className="grid grid-cols-6 gap-4 p-4 border-b border-border-primary hover:bg-bg-tertiary transition-colors duration-200">
                 <div>
                   <strong>
                     {contratante.cnpj ? formatCNPJ(contratante.cnpj) : formatCPF(contratante.cpf || '')}
@@ -394,34 +402,38 @@ export function ListarContratantes() {
                 </div>
                 <div>
                   <strong>{contratante.razaoSocial}</strong>
-                  {contratante.nomeFantasia && <div className={styles.subtext}>{contratante.nomeFantasia}</div>}
+                  {contratante.nomeFantasia && <div className="text-sm text-text-secondary">{contratante.nomeFantasia}</div>}
                 </div>
                 <div>
-                  <span className={styles.tipoContratante}>{tipoContratante(contratante)}</span>
+                  <span className="px-2 py-1 bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300 rounded text-xs font-medium">{tipoContratante(contratante)}</span>
                 </div>
                 <div>
                   <strong>{contratante.municipio}/{contratante.uf}</strong>
                 </div>
                 <div>
-                  <span className={`${styles.status} ${contratante.ativo ? styles.ativo : styles.inativo}`}>
+                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                    contratante.ativo
+                      ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300'
+                      : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300'
+                  }`}>
                     {contratante.ativo ? 'Ativo' : 'Inativo'}
                   </span>
                 </div>
-                <div className={styles.actions}>
+                <div className="flex items-center gap-2">
                   <button
-                    className={styles.btnView}
+                    className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors duration-200"
                     onClick={() => abrirModalVisualizacao(contratante)}
                   >
                     Visualizar
                   </button>
                   <button
-                    className={styles.btnEdit}
+                    className="p-2 text-amber-600 hover:bg-amber-50 rounded-lg transition-colors duration-200"
                     onClick={() => abrirModalEdicao(contratante)}
                   >
                     Editar
                   </button>
                   <button
-                    className={styles.btnDelete}
+                    className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors duration-200"
                     onClick={() => abrirModalExclusao(contratante)}
                   >
                     Excluir
@@ -434,45 +446,45 @@ export function ListarContratantes() {
       </div>
 
       {paginacao && paginacao.totalItems > 0 && (
-        <div className={styles.paginationContainer}>
-          <div className={styles.paginationControls}>
-            <div className={styles.paginationInfo}>
+        <div className="mt-6 bg-bg-surface border-t border-border-primary p-4">
+          <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
+            <div className="text-sm text-text-secondary">
               Mostrando {((paginacao.currentPage - 1) * paginacao.pageSize) + 1} até {Math.min(paginacao.currentPage * paginacao.pageSize, paginacao.totalItems)} de {paginacao.totalItems} contratantes
             </div>
 
             {paginacao.totalPages > 1 && (
-              <div className={styles.pagination}>
+              <div className="flex items-center gap-2">
                 <button
                   onClick={() => setPaginaAtual(paginacao.currentPage - 1)}
                   disabled={!paginacao.hasPreviousPage}
-                  className={styles.paginationBtn}
+                  className="px-4 py-2 border border-border-primary rounded-lg bg-bg-surface text-text-primary hover:bg-bg-surface-hover disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
                 >
                   ← Anterior
                 </button>
 
-                <span className={styles.pageInfo}>
+                <span className="px-4 py-2 text-text-primary">
                   Página {paginacao.currentPage} de {paginacao.totalPages}
                 </span>
 
                 <button
                   onClick={() => setPaginaAtual(paginacao.currentPage + 1)}
                   disabled={!paginacao.hasNextPage}
-                  className={styles.paginationBtn}
+                  className="px-4 py-2 border border-border-primary rounded-lg bg-bg-surface text-text-primary hover:bg-bg-surface-hover disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
                 >
                   Próxima →
                 </button>
               </div>
             )}
 
-            <div className={styles.pageSizeSelector}>
-              <label>Itens por página:</label>
+            <div className="flex items-center gap-2">
+              <label className="text-sm text-text-primary">Itens por página:</label>
               <select
                 value={tamanhoPagina}
                 onChange={(e) => {
                   setTamanhoPagina(Number(e.target.value));
                   setPaginaAtual(1);
                 }}
-                className={styles.pageSizeSelect}
+                className="px-3 py-1 border border-border-primary rounded bg-bg-surface text-text-primary focus:outline-none focus:ring-2 focus:ring-primary"
               >
                 <option value={1}>1</option>
                 <option value={2}>2</option>
@@ -486,90 +498,96 @@ export function ListarContratantes() {
       )}
 
       {modalVisualizacao && contratanteSelecionado && (
-        <div className={styles.modalOverlay} onClick={fecharModais}>
-          <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
-            <div className={styles.modalHeader}>
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4" onClick={fecharModais}>
+          <div className="bg-bg-surface rounded-xl border border-border-primary shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between p-6 border-b border-border-primary">
               <h2>Visualizar Contratante</h2>
-              <button className={styles.closeBtn} onClick={fecharModais}>×</button>
+              <button className="text-text-tertiary hover:text-text-primary transition-colors duration-200 text-2xl" onClick={fecharModais}>&times;</button>
             </div>
-            <div className={styles.modalContent}>
-              <div className={styles.modalSection}>
-                <h3>Dados Principais</h3>
-                <div className={styles.viewGrid}>
-                  <div className={styles.viewField}>
-                    <label>Razão Social:</label>
-                    <span>{contratanteSelecionado.razaoSocial}</span>
-                  </div>
-                  {contratanteSelecionado.nomeFantasia && (
-                    <div className={styles.viewField}>
-                      <label>Nome Fantasia:</label>
-                      <span>{contratanteSelecionado.nomeFantasia}</span>
+            <div className="p-6">
+              <div className="space-y-6">
+                <div>
+                  <h3 className="text-lg font-medium text-text-primary mb-4">Dados Principais</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-1">
+                      <label className="text-sm font-medium text-text-secondary">Razão Social:</label>
+                      <span className="block text-text-primary">{contratanteSelecionado.razaoSocial}</span>
                     </div>
-                  )}
-                  <div className={styles.viewField}>
-                    <label>{contratanteSelecionado.cnpj ? 'CNPJ:' : 'CPF:'}</label>
-                    <span>
-                      {contratanteSelecionado.cnpj
-                        ? formatCNPJ(contratanteSelecionado.cnpj)
-                        : formatCPF(contratanteSelecionado.cpf || '')}
-                    </span>
-                  </div>
-                  <div className={styles.viewField}>
-                    <label>Tipo:</label>
-                    <span>{tipoContratante(contratanteSelecionado)}</span>
-                  </div>
-                  <div className={styles.viewField}>
-                    <label>Status:</label>
-                    <span className={`${styles.statusBadge} ${contratanteSelecionado.ativo ? styles.ativo : styles.inativo}`}>
-                      {contratanteSelecionado.ativo ? 'Ativo' : 'Inativo'}
-                    </span>
-                  </div>
+                    {contratanteSelecionado.nomeFantasia && (
+                      <div className="space-y-1">
+                        <label className="text-sm font-medium text-text-secondary">Nome Fantasia:</label>
+                        <span className="block text-text-primary">{contratanteSelecionado.nomeFantasia}</span>
+                      </div>
+                    )}
+                    <div className="space-y-1">
+                      <label className="text-sm font-medium text-text-secondary">{contratanteSelecionado.cnpj ? 'CNPJ:' : 'CPF:'}</label>
+                      <span className="block text-text-primary">
+                        {contratanteSelecionado.cnpj
+                          ? formatCNPJ(contratanteSelecionado.cnpj)
+                          : formatCPF(contratanteSelecionado.cpf || '')}
+                      </span>
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-sm font-medium text-text-secondary">Tipo:</label>
+                      <span className="block text-text-primary">{tipoContratante(contratanteSelecionado)}</span>
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-sm font-medium text-text-secondary">Status:</label>
+                      <span className={`inline-block px-2 py-1 rounded-full text-xs font-medium ${
+                        contratanteSelecionado.ativo
+                          ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300'
+                          : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300'
+                      }`}>
+                        {contratanteSelecionado.ativo ? 'Ativo' : 'Inativo'}
+                      </span>
+                    </div>
                 </div>
-              </div>
 
-              <div className={styles.modalSection}>
-                <h3>Endereço</h3>
-                <div className={styles.viewGrid}>
-                  <div className={styles.viewField}>
-                    <label>Logradouro:</label>
-                    <span>{contratanteSelecionado.endereco}</span>
+                <div>
+                  <h3 className="text-lg font-medium text-text-primary mb-4">Endereço</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-1">
+                    <label className="text-sm font-medium text-text-secondary">Logradouro:</label>
+                    <span className="text-text-primary">{contratanteSelecionado.endereco}</span>
                   </div>
                   {contratanteSelecionado.numero && (
-                    <div className={styles.viewField}>
-                      <label>Número:</label>
-                      <span>{contratanteSelecionado.numero}</span>
+                    <div className="space-y-1">
+                      <label className="text-sm font-medium text-text-secondary">Número:</label>
+                      <span className="text-text-primary">{contratanteSelecionado.numero}</span>
                     </div>
                   )}
-                  <div className={styles.viewField}>
-                    <label>Bairro:</label>
-                    <span>{contratanteSelecionado.bairro}</span>
+                  <div className="space-y-1">
+                    <label className="text-sm font-medium text-text-secondary">Bairro:</label>
+                    <span className="text-text-primary">{contratanteSelecionado.bairro}</span>
                   </div>
                   {contratanteSelecionado.complemento && (
-                    <div className={styles.viewField}>
-                      <label>Complemento:</label>
-                      <span>{contratanteSelecionado.complemento}</span>
+                    <div className="space-y-1">
+                      <label className="text-sm font-medium text-text-secondary">Complemento:</label>
+                      <span className="text-text-primary">{contratanteSelecionado.complemento}</span>
                     </div>
                   )}
-                  <div className={styles.viewField}>
-                    <label>Município:</label>
-                    <span>{contratanteSelecionado.municipio}</span>
+                  <div className="space-y-1">
+                    <label className="text-sm font-medium text-text-secondary">Município:</label>
+                    <span className="text-text-primary">{contratanteSelecionado.municipio}</span>
                   </div>
-                  <div className={styles.viewField}>
-                    <label>UF:</label>
-                    <span>{contratanteSelecionado.uf}</span>
+                  <div className="space-y-1">
+                    <label className="text-sm font-medium text-text-secondary">UF:</label>
+                    <span className="text-text-primary">{contratanteSelecionado.uf}</span>
                   </div>
-                  <div className={styles.viewField}>
-                    <label>CEP:</label>
-                    <span>{applyMask(contratanteSelecionado.cep, 'cep')}</span>
+                  <div className="space-y-1">
+                    <label className="text-sm font-medium text-text-secondary">CEP:</label>
+                    <span className="text-text-primary">{applyMask(contratanteSelecionado.cep, 'cep')}</span>
                   </div>
+                </div>
                 </div>
               </div>
             </div>
-            <div className={styles.modalActions}>
-              <button className={styles.btnCancel} onClick={fecharModais}>
+            </div>
+            <div className="flex items-center justify-end gap-4 p-6 border-t border-border-primary">
+              <button className="px-4 py-2 border border-border-primary rounded-lg bg-bg-surface text-text-primary hover:bg-bg-tertiary transition-colors duration-200" onClick={fecharModais}>
                 Fechar
               </button>
-              <button className={styles.btnEdit} onClick={() => {
+              <button className="p-2 text-amber-600 hover:bg-amber-50 rounded-lg transition-colors duration-200" onClick={() => {
                 setModalVisualizacao(false);
                 abrirModalEdicao(contratanteSelecionado);
               }}>
@@ -581,19 +599,19 @@ export function ListarContratantes() {
       )}
 
       {modalEdicao && (
-        <div className={styles.modalOverlay} onClick={fecharModais}>
-          <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
-            <div className={styles.modalHeader}>
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4" onClick={fecharModais}>
+          <div className="bg-bg-surface rounded-xl border border-border-primary shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between p-6 border-b border-border-primary">
               <h2>{contratanteSelecionado ? 'Editar Contratante' : 'Novo Contratante'}</h2>
-              <button className={styles.closeBtn} onClick={fecharModais}>×</button>
+              <button className="text-text-tertiary hover:text-text-primary transition-colors duration-200 text-2xl" onClick={fecharModais}>&times;</button>
             </div>
-            <form className={styles.modalForm} onSubmit={(e) => { e.preventDefault(); salvarContratante(); }}>
-              <div className={styles.modalSection}>
+            <form className="p-6" onSubmit={(e) => { e.preventDefault(); salvarContratante(); }}>
+              <div className="space-y-4">
                 <h3>Dados Principais</h3>
 
                 {/* Primeira linha: CNPJ com busca automática */}
-                <div className={styles.modalRow}>
-                  <div className={styles.modalField}>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
                     <label>CNPJ *</label>
                     <input
                       type="text"
@@ -603,13 +621,13 @@ export function ListarContratantes() {
                       placeholder="00.000.000/0000-00"
                     />
                     {loadingCNPJ && (
-                      <small className={styles.loadingText}>Consultando CNPJ...</small>
+                      <small className="text-sm text-blue-600">Consultando CNPJ...</small>
                     )}
                     {errorCNPJ && (
-                      <small className={styles.errorText}>{errorCNPJ}</small>
+                      <small className="text-sm text-red-600">{errorCNPJ}</small>
                     )}
                   </div>
-                  <div className={styles.modalField}>
+                  <div>
                     <label>CPF</label>
                     <input
                       type="text"
@@ -622,8 +640,8 @@ export function ListarContratantes() {
                 </div>
 
                 {/* Segunda linha: Razão Social e Nome Fantasia */}
-                <div className={styles.modalRow}>
-                  <div className={styles.modalField}>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
                     <label>Razão Social *</label>
                     <input
                       type="text"
@@ -633,7 +651,7 @@ export function ListarContratantes() {
                       required
                     />
                   </div>
-                  <div className={styles.modalField}>
+                  <div>
                     <label>Nome Fantasia</label>
                     <input
                       type="text"
@@ -646,10 +664,10 @@ export function ListarContratantes() {
 
               </div>
 
-              <div className={styles.modalSection}>
+              <div className="space-y-4">
                 <h3>Endereço</h3>
-                <div className={styles.modalRow}>
-                  <div className={styles.modalField}>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
                     <label>Logradouro *</label>
                     <input
                       type="text"
@@ -659,7 +677,7 @@ export function ListarContratantes() {
                       required
                     />
                   </div>
-                  <div className={styles.modalFieldSmall}>
+                  <div>
                     <label>Número</label>
                     <input
                       type="text"
@@ -669,8 +687,8 @@ export function ListarContratantes() {
                     />
                   </div>
                 </div>
-                <div className={styles.modalRow}>
-                  <div className={styles.modalField}>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
                     <label>Bairro *</label>
                     <input
                       type="text"
@@ -680,7 +698,7 @@ export function ListarContratantes() {
                       required
                     />
                   </div>
-                  <div className={styles.modalField}>
+                  <div>
                     <label>Complemento</label>
                     <input
                       type="text"
@@ -690,8 +708,8 @@ export function ListarContratantes() {
                     />
                   </div>
                 </div>
-                <div className={styles.modalRow}>
-                  <div className={styles.modalField}>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
                     <label>Município *</label>
                     <input
                       type="text"
@@ -701,7 +719,7 @@ export function ListarContratantes() {
                       required
                     />
                   </div>
-                  <div className={styles.modalFieldSmall}>
+                  <div>
                     <label>UF *</label>
                     <select
                       value={dadosFormulario.uf || ''}
@@ -738,7 +756,7 @@ export function ListarContratantes() {
                       <option value="TO">TO</option>
                     </select>
                   </div>
-                  <div className={styles.modalFieldSmall}>
+                  <div>
                     <label>CEP *</label>
                     <input
                       type="text"
@@ -752,11 +770,11 @@ export function ListarContratantes() {
                 </div>
               </div>
 
-              <div className={styles.modalActions}>
-                <button type="button" className={styles.btnCancel} onClick={fecharModais}>
+              <div className="flex items-center justify-end gap-4 p-6 border-t border-border-primary">
+                <button type="button" className="px-4 py-2 border border-border-primary rounded-lg bg-bg-surface text-text-primary hover:bg-bg-tertiary transition-colors duration-200" onClick={fecharModais}>
                   Cancelar
                 </button>
-                <button type="submit" className={styles.btnSave} disabled={salvando}>
+                <button type="submit" className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-hover transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed" disabled={salvando}>
                   {salvando ? 'Salvando...' : 'Salvar'}
                 </button>
               </div>
@@ -769,7 +787,7 @@ export function ListarContratantes() {
         isOpen={modalExclusao}
         title="Excluir Contratante"
         message="Tem certeza de que deseja excluir este contratante?"
-        itemName={contratanteExclusao ? `${contratanteExclusao.razaoSocial}${contratanteExclusao.cnpj ? ` (${formatCNPJ(contratanteExclusao.cnpj)})` : contratanteExclusao.cpf ? ` (${formatCPF(contratanteExclusao.cpf)})` : ''}` : ''}
+        itemName={contratanteExclusao ? contratanteExclusao.razaoSocial : ''}
         onConfirm={confirmarExclusao}
         onCancel={fecharModalExclusao}
         loading={excludindo}

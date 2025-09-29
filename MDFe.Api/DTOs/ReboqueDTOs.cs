@@ -8,13 +8,10 @@ namespace MDFeApi.DTOs
         [StringLength(8)]
         public string Placa { get; set; } = string.Empty;
 
-        [StringLength(11)]
-        public string? Renavam { get; set; }
 
         [Required]
         public int Tara { get; set; }
 
-        public int CapacidadeKg { get; set; }
 
         [Required]
         [StringLength(50)]
@@ -37,18 +34,30 @@ namespace MDFeApi.DTOs
         // Herda todas as propriedades de ReboqueCreateDto
     }
 
-    public class ReboqueResponseDto
+    public class ReboqueListDto
     {
         public int Id { get; set; }
         public string Placa { get; set; } = string.Empty;
-        public string? Renavam { get; set; }
         public int Tara { get; set; }
-        public int CapacidadeKg { get; set; }
         public string TipoRodado { get; set; } = string.Empty;
         public string TipoCarroceria { get; set; } = string.Empty;
         public string Uf { get; set; } = string.Empty;
         public string? Rntrc { get; set; }
         public bool Ativo { get; set; }
         public DateTime DataCriacao { get; set; }
+    }
+
+    public class ReboqueResponseDto
+    {
+        public int Id { get; set; }
+        public string Placa { get; set; } = string.Empty;
+        public int Tara { get; set; }
+        public string TipoRodado { get; set; } = string.Empty;
+        public string TipoCarroceria { get; set; } = string.Empty;
+        public string Uf { get; set; } = string.Empty;
+        public string? Rntrc { get; set; }
+        public bool Ativo { get; set; }
+        public DateTime DataCriacao { get; set; }
+        public DateTime? DataUltimaAlteracao { get; set; }
     }
 }

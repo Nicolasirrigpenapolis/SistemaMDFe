@@ -1,3 +1,6 @@
+// ✅ MENSAGENS DE ERRO SIMPLIFICADAS
+// Versão estática sem chamadas API desnecessárias
+
 interface ValidationError {
   field: string;
   message: string;
@@ -10,127 +13,93 @@ interface ApiError {
   status?: number;
 }
 
+// 🎯 Mapeamento de campos para nomes amigáveis (estático)
+const FIELD_TRANSLATIONS: Record<string, string> = {
+  // Campos comuns
+  'cnpj': 'CNPJ',
+  'cpf': 'CPF',
+  'razaoSocial': 'Razão Social',
+  'nomeFantasia': 'Nome Fantasia',
+  'inscricaoEstadual': 'Inscrição Estadual',
+  'telefone': 'Telefone',
+  'email': 'E-mail',
+  'cep': 'CEP',
+  'logradouro': 'Logradouro',
+  'numero': 'Número',
+  'bairro': 'Bairro',
+  'municipio': 'Município',
+  'uf': 'UF',
+
+  // MDFe específicos
+  'emitenteId': 'Emitente',
+  'condutorId': 'Condutor',
+  'veiculoId': 'Veículo',
+  'contratanteId': 'Contratante',
+  'seguradoraId': 'Seguradora',
+  'ufIni': 'UF de Origem',
+  'ufFim': 'UF de Destino',
+  'municipioCarregamento': 'Município de Carregamento',
+  'municipioDescarregamento': 'Município de Descarregamento',
+  'valorTotal': 'Valor Total',
+  'pesoBrutoTotal': 'Peso Bruto Total',
+
+  // Campos de veículo
+  'placa': 'Placa',
+  'renavam': 'RENAVAM',
+  'tara': 'Tara',
+  'tipoRodado': 'Tipo de Rodado',
+  'tipoCarroceria': 'Tipo de Carroceria',
+
+  // Campos de condutor
+  'nome': 'Nome',
+  'rg': 'RG',
+  'cnh': 'CNH'
+};
+
+// 🎯 Mensagens de erro padrão (estáticas)
+const ERROR_MESSAGES: Record<string, string> = {
+  // Erros de rede
+  'NETWORK_ERROR': 'Erro de conexão com o servidor. Verifique sua internet.',
+  'TIMEOUT_ERROR': 'Tempo limite excedido. Tente novamente.',
+
+  // Erros HTTP
+  '400': 'Dados inválidos. Verifique as informações e tente novamente.',
+  '401': 'Você precisa estar autenticado para realizar esta operação.',
+  '403': 'Você não tem permissão para realizar esta operação.',
+  '404': 'Recurso não encontrado.',
+  '409': 'Conflito: o recurso já existe ou está sendo usado.',
+  '422': 'Dados inválidos. Verifique as informações fornecidas.',
+  '500': 'Erro interno do servidor. Tente novamente em alguns instantes.',
+  '503': 'Serviço temporariamente indisponível. Tente novamente mais tarde.',
+
+  // Erros de validação
+  'REQUIRED': 'Este campo é obrigatório.',
+  'INVALID_FORMAT': 'Formato inválido.',
+  'ALREADY_EXISTS': 'Este registro já existe.',
+  'NOT_FOUND': 'Registro não encontrado.',
+  'INVALID_CNPJ': 'CNPJ inválido.',
+  'INVALID_CPF': 'CPF inválido.',
+  'INVALID_EMAIL': 'E-mail inválido.',
+  'INVALID_PHONE': 'Telefone inválido.',
+
+  // Erros específicos MDFe
+  'INVALID_UF': 'UF inválida.',
+  'INVALID_MUNICIPIO': 'Município inválido.',
+  'INVALID_VALOR': 'Valor deve ser maior que zero.',
+  'INVALID_PESO': 'Peso deve ser maior que zero.',
+  'SAME_UF_ORIGIN_DESTINATION': 'UF de origem e destino não podem ser iguais.'
+};
+
 export class ErrorMessageHelper {
-  private static fieldTranslations: Record<string, string> = {
-    // Campos do Emitente
-    'cnpj': 'CNPJ',
-    'cpf': 'CPF',
-    'ie': 'Inscrição Estadual',
-    'razaoSocial': 'Razão Social',
-    'nomeFantasia': 'Nome Fantasia',
-    'endereco': 'Endereço',
-    'numero': 'Número',
-    'complemento': 'Complemento',
-    'bairro': 'Bairro',
-    'municipio': 'Município',
-    'cep': 'CEP',
-    'uf': 'UF',
-    'telefone': 'Telefone',
-    'email': 'Email',
-
-    // Campos do Veículo
-    'placa': 'Placa',
-    'marca': 'Marca',
-    'modelo': 'Modelo',
-    'ano': 'Ano',
-    'cor': 'Cor',
-    'combustivel': 'Combustível',
-    'tara': 'Tara',
-    'tipoRodado': 'Tipo de Rodado',
-    'tipoCarroceria': 'Tipo de Carroceria',
-    'rntrc': 'RNTRC',
-
-    // Campos do Condutor
-    'nome': 'Nome',
-
-    // Campos do MDFe
-    'ufIni': 'UF de Início',
-    'ufFim': 'UF de Fim',
-    'dataEmissao': 'Data de Emissão',
-    'dataInicioViagem': 'Data de Início da Viagem',
-    'valorCarga': 'Valor da Carga',
-    'quantidadeCarga': 'Quantidade da Carga',
-    'serie': 'Série',
-    'modal': 'Modal',
-    'tpTransp': 'Tipo de Transportador',
-
-    // Campos específicos wizard
-    'UFIni': 'UF de Início',
-    'UFFim': 'UF de Fim',
-    'VCarga': 'Valor da Carga',
-    'QCarga': 'Quantidade da Carga',
-    'CUnid': 'Unidade de Medida',
-    'QCTe': 'Quantidade de CTe',
-    'QNFe': 'Quantidade de NFe',
-    'QMDFe': 'Quantidade de MDFe',
-
-    // Campos de validação específicos
-    'EmitenteId': 'Emitente',
-    'VeiculoId': 'Veículo',
-    'CondutorId': 'Condutor',
-    'MunicipioIni': 'Município de Início',
-    'MunicipioFim': 'Município de Fim',
-    'PesoBrutoTotal': 'Peso Bruto Total',
-    'ValorTotal': 'Valor Total',
-    'Observacoes': 'Observações',
-    'TipoEmitente': 'Tipo de Emitente',
-    'DescricaoEmitente': 'Descrição do Emitente',
-    'CaminhoArquivoCertificado': 'Caminho do Certificado',
-    'SenhaCertificado': 'Senha do Certificado',
-    'CodMunicipio': 'Código do Município',
-  };
-
-  private static errorMessages: Record<string, string> = {
-    // Erros de rede
-    'NETWORK_ERROR': 'Erro de conexão com o servidor. Verifique sua internet e tente novamente.',
-    'TIMEOUT_ERROR': 'A operação demorou muito para responder. Tente novamente.',
-    'SERVER_ERROR': 'Erro interno do servidor. Tente novamente em alguns instantes.',
-
-    // Erros de validação comuns
-    'REQUIRED_FIELD': 'Este campo é obrigatório.',
-    'INVALID_FORMAT': 'Formato inválido.',
-    'INVALID_EMAIL': 'Email deve ter um formato válido.',
-    'INVALID_PHONE': 'Telefone deve ter um formato válido.',
-    'INVALID_CPF': 'CPF deve ser válido (verifique os dígitos verificadores).',
-    'INVALID_CNPJ': 'CNPJ deve ser válido (verifique os dígitos verificadores).',
-    'INVALID_CEP': 'CEP deve conter exatamente 8 dígitos.',
-    'INVALID_UF': 'UF deve conter exatamente 2 letras maiúsculas.',
-    'INVALID_PLACA': 'Placa deve estar no formato ABC1234 ou ABC1A23 (Mercosul).',
-    'INVALID_DOCUMENTO_FISCAL': 'Chave do documento fiscal deve conter exatamente 44 dígitos.',
-    'INVALID_MUNICIPIO_CODE': 'Código do município deve ser válido (código IBGE).',
-    'INVALID_YEAR': 'Ano deve estar entre 1900 e 2030.',
-    'VALUE_TOO_SMALL': 'Valor deve ser maior que zero.',
-    'VALUE_TOO_LARGE': 'Valor excede o limite máximo permitido.',
-    'STRING_TOO_SHORT': 'Texto muito curto.',
-    'STRING_TOO_LONG': 'Texto muito longo.',
-    'DUPLICATE_ENTRY': 'Este registro já existe no sistema.',
-    'DATA_TRUNCATED': 'Um ou mais campos excedem o tamanho máximo permitido.',
-
-    // Erros específicos do MDFe
-    'EMITENTE_NOT_FOUND': 'Emitente não encontrado ou inativo.',
-    'VEICULO_NOT_FOUND': 'Veículo não encontrado ou inativo.',
-    'CONDUTOR_NOT_FOUND': 'Condutor não encontrado ou inativo.',
-    'INVALID_SEQUENCE': 'Sequência de numeração inválida.',
-    'MDFE_ALREADY_EXISTS': 'Já existe um MDFe com essa numeração.',
-    'CERTIFICATE_ERROR': 'Erro no certificado digital.',
-    'SEFAZ_ERROR': 'Erro na comunicação com a SEFAZ.',
-
-    // Erros de autorização
-    'UNAUTHORIZED': 'Você não tem permissão para realizar esta operação.',
-    'FORBIDDEN': 'Acesso negado.',
-    'NOT_FOUND': 'Recurso não encontrado.',
-  };
-
   /**
-   * Converte um nome de campo técnico para um nome amigável
+   * ✅ Traduz nome de campo (estático, sem API)
    */
   static translateFieldName(fieldName: string): string {
-    const cleanField = fieldName.toLowerCase();
-    return this.fieldTranslations[cleanField] || fieldName;
+    return FIELD_TRANSLATIONS[fieldName] || fieldName;
   }
 
   /**
-   * Formata uma mensagem de erro de validação
+   * ✅ Formata erro de validação (estático)
    */
   static formatValidationError(field: string, message: string): string {
     const friendlyField = this.translateFieldName(field);
@@ -138,26 +107,34 @@ export class ErrorMessageHelper {
   }
 
   /**
-   * Processa erros de validação do backend (.NET)
+   * ✅ Processa erros de validação (estático)
    */
   static processValidationErrors(errors: Record<string, string[]>): ValidationError[] {
     const validationErrors: ValidationError[] = [];
 
-    Object.entries(errors).forEach(([field, messages]) => {
+    for (const [field, messages] of Object.entries(errors)) {
       const friendlyField = this.translateFieldName(field);
-      messages.forEach(message => {
+
+      for (const message of messages) {
         validationErrors.push({
           field: friendlyField,
-          message: message
+          message: `${friendlyField}: ${message}`
         });
-      });
-    });
+      }
+    }
 
     return validationErrors;
   }
 
   /**
-   * Converte erro da API para mensagem amigável
+   * ✅ Obtém mensagem de erro genérica (estático)
+   */
+  static getGenericErrorMessage(errorCode: string): string {
+    return ERROR_MESSAGES[errorCode] || 'Ocorreu um erro inesperado.';
+  }
+
+  /**
+   * ✅ Converte erro da API para mensagem amigável (simplificado)
    */
   static getApiErrorMessage(error: ApiError): string {
     // Se tem erros de validação específicos
@@ -180,30 +157,15 @@ export class ErrorMessageHelper {
     }
 
     // Mensagens baseadas no status HTTP
-    switch (error.status) {
-      case 400:
-        return 'Dados inválidos. Verifique as informações e tente novamente.';
-      case 401:
-        return 'Você precisa estar autenticado para realizar esta operação.';
-      case 403:
-        return 'Você não tem permissão para realizar esta operação.';
-      case 404:
-        return 'Recurso não encontrado.';
-      case 409:
-        return 'Conflito: o recurso já existe ou está sendo usado.';
-      case 422:
-        return 'Dados inválidos. Verifique as informações fornecidas.';
-      case 500:
-        return 'Erro interno do servidor. Tente novamente em alguns instantes.';
-      case 503:
-        return 'Serviço temporariamente indisponível. Tente novamente mais tarde.';
-      default:
-        return 'Ocorreu um erro inesperado. Tente novamente.';
+    if (error.status) {
+      return this.getGenericErrorMessage(error.status.toString());
     }
+
+    return 'Ocorreu um erro inesperado.';
   }
 
   /**
-   * Formata múltiplos erros de validação para exibição
+   * ✅ Formata múltiplos erros de validação para exibição
    */
   static formatValidationErrors(errors: ValidationError[]): string {
     if (errors.length === 0) return '';
@@ -216,14 +178,7 @@ export class ErrorMessageHelper {
   }
 
   /**
-   * Obtém uma mensagem de erro genérica baseada no código
-   */
-  static getGenericErrorMessage(errorCode: string): string {
-    return this.errorMessages[errorCode] || 'Ocorreu um erro inesperado.';
-  }
-
-  /**
-   * Processa resposta de erro da API e retorna mensagem amigável
+   * ✅ Processa resposta de erro da API (simplificado)
    */
   static processApiResponse(response: any): string {
     // Se é uma resposta ACBr
@@ -251,7 +206,7 @@ export class ErrorMessageHelper {
 }
 
 /**
- * Hook para usar mensagens de erro amigáveis em componentes React
+ * ✅ Hook simplificado para usar mensagens de erro em componentes React
  */
 export const useErrorMessages = () => {
   const formatError = (error: any): string => {
@@ -269,3 +224,7 @@ export const useErrorMessages = () => {
     getGenericMessage: ErrorMessageHelper.getGenericErrorMessage
   };
 };
+
+// ✅ Exportar constantes para uso direto
+export { FIELD_TRANSLATIONS, ERROR_MESSAGES };
+export type { ValidationError, ApiError };

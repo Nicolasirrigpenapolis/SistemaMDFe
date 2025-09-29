@@ -7,121 +7,71 @@ using MDFeApi.Utils;
 
 namespace MDFeApi.Controllers
 {
-    [ApiController]
     [Route("api/[controller]")]
-    public class ContratantesController : ControllerBase
+    public class ContratantesController : BaseController<Contratante, ContratanteListDto, ContratanteDetailDto, ContratanteCreateDto, ContratanteUpdateDto>
     {
-        private readonly MDFeContext _context;
-
-        public ContratantesController(MDFeContext context)
+        public ContratantesController(MDFeContext context, ILogger<ContratantesController> logger)
+            : base(context, logger)
         {
-            _context = context;
         }
 
-        [HttpGet]
-        public async Task<ActionResult<ResultadoPaginado<ContratanteListDto>>> Get(
-            [FromQuery] int pagina = 1,
-            [FromQuery] int tamanhoPagina = 10,
-            [FromQuery] string? search = null)
+        protected override DbSet<Contratante> GetDbSet() => _context.Contratantes;
+
+        protected override ContratanteListDto EntityToListDto(Contratante entity)
         {
-            var query = _context.Contratantes.AsQueryable();
-
-            if (!string.IsNullOrEmpty(search))
+            return new ContratanteListDto
             {
-                query = query.Where(c =>
-                    c.RazaoSocial.Contains(search) ||
-                    c.NomeFantasia!.Contains(search) ||
-                    c.Cnpj!.Contains(search) ||
-                    c.Cpf!.Contains(search));
-            }
-
-            var totalItens = await query.CountAsync();
-
-            var contratantes = await query
-                .OrderBy(c => c.RazaoSocial)
-                .Skip((pagina - 1) * tamanhoPagina)
-                .Take(tamanhoPagina)
-                .Select(c => new ContratanteListDto
-                {
-                    Id = c.Id,
-                    Cnpj = c.Cnpj,
-                    Cpf = c.Cpf,
-                    RazaoSocial = c.RazaoSocial,
-                    NomeFantasia = c.NomeFantasia,
-                    Endereco = c.Endereco,
-                    Numero = c.Numero,
-                    Complemento = c.Complemento,
-                    Bairro = c.Bairro,
-                    CodMunicipio = c.CodMunicipio,
-                    Municipio = c.Municipio,
-                    Cep = c.Cep,
-                    Uf = c.Uf,
-                    Ativo = c.Ativo,
-                    DataCriacao = c.DataCriacao
-                })
-                .ToListAsync();
-
-            return Ok(new ResultadoPaginado<ContratanteListDto>
-            {
-                Itens = contratantes,
-                TotalItens = totalItens,
-                Pagina = pagina,
-                TamanhoPagina = tamanhoPagina
-            });
+                Id = entity.Id,
+                Cnpj = entity.Cnpj,
+                Cpf = entity.Cpf,
+                RazaoSocial = entity.RazaoSocial,
+                NomeFantasia = entity.NomeFantasia,
+                Endereco = entity.Endereco,
+                Numero = entity.Numero,
+                Complemento = entity.Complemento,
+                Bairro = entity.Bairro,
+                CodMunicipio = entity.CodMunicipio,
+                Municipio = entity.Municipio,
+                Cep = entity.Cep,
+                Uf = entity.Uf,
+                Telefone = entity.Telefone,
+                Email = entity.Email,
+                Ativo = entity.Ativo,
+                DataCriacao = entity.DataCriacao
+            };
         }
 
-        [HttpGet("{id}")]
-        public async Task<ActionResult<ContratanteDetailDto>> Get(int id)
+        protected override ContratanteDetailDto EntityToDetailDto(Contratante entity)
         {
-            var contratante = await _context.Contratantes
-                .Where(c => c.Id == id)
-                .Select(c => new ContratanteDetailDto
-                {
-                    Id = c.Id,
-                    Cnpj = c.Cnpj,
-                    Cpf = c.Cpf,
-                    RazaoSocial = c.RazaoSocial,
-                    NomeFantasia = c.NomeFantasia,
-                    Endereco = c.Endereco,
-                    Numero = c.Numero,
-                    Complemento = c.Complemento,
-                    Bairro = c.Bairro,
-                    CodMunicipio = c.CodMunicipio,
-                    Municipio = c.Municipio,
-                    Cep = c.Cep,
-                    Uf = c.Uf,
-                    Ativo = c.Ativo,
-                    DataCriacao = c.DataCriacao,
-                    DataUltimaAlteracao = c.DataUltimaAlteracao
-                })
-                .FirstOrDefaultAsync();
-
-            if (contratante == null)
+            return new ContratanteDetailDto
             {
-                return NotFound(new { message = "Contratante não encontrado" });
-            }
-
-            return Ok(contratante);
+                Id = entity.Id,
+                Cnpj = entity.Cnpj,
+                Cpf = entity.Cpf,
+                RazaoSocial = entity.RazaoSocial,
+                NomeFantasia = entity.NomeFantasia,
+                Endereco = entity.Endereco,
+                Numero = entity.Numero,
+                Complemento = entity.Complemento,
+                Bairro = entity.Bairro,
+                CodMunicipio = entity.CodMunicipio,
+                Municipio = entity.Municipio,
+                Cep = entity.Cep,
+                Uf = entity.Uf,
+                Telefone = entity.Telefone,
+                Email = entity.Email,
+                Ativo = entity.Ativo,
+                DataCriacao = entity.DataCriacao,
+                DataUltimaAlteracao = entity.DataUltimaAlteracao
+            };
         }
 
-        [HttpPost]
-        public async Task<ActionResult<ContratanteDetailDto>> Post([FromBody] ContratanteCreateDto dto)
+        protected override Contratante CreateDtoToEntity(ContratanteCreateDto dto)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
-            // Validações de negócio
-            if (string.IsNullOrEmpty(dto.Cnpj) && string.IsNullOrEmpty(dto.Cpf))
-            {
-                return BadRequest(new { message = "CNPJ ou CPF é obrigatório" });
-            }
-
             var contratante = new Contratante
             {
-                Cnpj = dto.Cnpj,
-                Cpf = dto.Cpf,
+                Cnpj = dto.Cnpj?.Trim(),
+                Cpf = dto.Cpf?.Trim(),
                 RazaoSocial = dto.RazaoSocial?.Trim(),
                 NomeFantasia = dto.NomeFantasia?.Trim(),
                 Endereco = dto.Endereco?.Trim(),
@@ -130,151 +80,111 @@ namespace MDFeApi.Controllers
                 Bairro = dto.Bairro?.Trim(),
                 CodMunicipio = dto.CodMunicipio,
                 Municipio = dto.Municipio?.Trim(),
-                Cep = dto.Cep,
+                Cep = dto.Cep?.Trim(),
                 Uf = dto.Uf?.Trim(),
-                Ativo = dto.Ativo,
-                DataCriacao = DateTime.Now
+                Telefone = dto.Telefone?.Trim(),
+                Email = dto.Email?.Trim()
             };
 
-            // Aplicar limpeza automática de documentos
             DocumentUtils.LimparDocumentosContratante(contratante);
+            return contratante;
+        }
 
-            // Verificar se já existe contratante com mesmo CNPJ ou CPF (usando dados limpos)
-            var existente = await _context.Contratantes
-                .Where(c => (!string.IsNullOrEmpty(contratante.Cnpj) && c.Cnpj == contratante.Cnpj) ||
-                           (!string.IsNullOrEmpty(contratante.Cpf) && c.Cpf == contratante.Cpf))
-                .FirstOrDefaultAsync();
+        protected override void UpdateEntityFromDto(Contratante entity, ContratanteUpdateDto dto)
+        {
+            entity.Cnpj = dto.Cnpj?.Trim();
+            entity.Cpf = dto.Cpf?.Trim();
+            entity.RazaoSocial = dto.RazaoSocial?.Trim();
+            entity.NomeFantasia = dto.NomeFantasia?.Trim();
+            entity.Endereco = dto.Endereco?.Trim();
+            entity.Numero = dto.Numero?.Trim();
+            entity.Complemento = dto.Complemento?.Trim();
+            entity.Bairro = dto.Bairro?.Trim();
+            entity.CodMunicipio = dto.CodMunicipio;
+            entity.Municipio = dto.Municipio?.Trim();
+            entity.Cep = dto.Cep?.Trim();
+            entity.Uf = dto.Uf?.Trim();
+            entity.Telefone = dto.Telefone?.Trim();
+            entity.Email = dto.Email?.Trim();
 
-            if (existente != null)
+            DocumentUtils.LimparDocumentosContratante(entity);
+        }
+
+        protected override IQueryable<Contratante> ApplySearchFilter(IQueryable<Contratante> query, string search)
+        {
+            return query.Where(c =>
+                c.RazaoSocial.Contains(search) ||
+                (c.NomeFantasia != null && c.NomeFantasia.Contains(search)) ||
+                (c.Cnpj != null && c.Cnpj.Contains(search)) ||
+                (c.Cpf != null && c.Cpf.Contains(search))
+            );
+        }
+
+        protected override IQueryable<Contratante> ApplyOrdering(IQueryable<Contratante> query, string? sortBy, string? sortDirection)
+        {
+            var isDesc = sortDirection?.ToLower() == "desc";
+
+            return sortBy?.ToLower() switch
             {
-                return BadRequest(new { message = "Já existe um contratante cadastrado com este CNPJ/CPF" });
-            }
-
-            _context.Contratantes.Add(contratante);
-            await _context.SaveChangesAsync();
-
-            var result = new ContratanteDetailDto
-            {
-                Id = contratante.Id,
-                Cnpj = contratante.Cnpj,
-                Cpf = contratante.Cpf,
-                RazaoSocial = contratante.RazaoSocial,
-                NomeFantasia = contratante.NomeFantasia,
-                Endereco = contratante.Endereco,
-                Numero = contratante.Numero,
-                Complemento = contratante.Complemento,
-                Bairro = contratante.Bairro,
-                CodMunicipio = contratante.CodMunicipio,
-                Municipio = contratante.Municipio,
-                Cep = contratante.Cep,
-                Uf = contratante.Uf,
-                Ativo = contratante.Ativo,
-                DataCriacao = contratante.DataCriacao,
-                DataUltimaAlteracao = contratante.DataUltimaAlteracao
+                "cnpj" => isDesc ? query.OrderByDescending(c => c.Cnpj) : query.OrderBy(c => c.Cnpj),
+                "cpf" => isDesc ? query.OrderByDescending(c => c.Cpf) : query.OrderBy(c => c.Cpf),
+                "uf" => isDesc ? query.OrderByDescending(c => c.Uf) : query.OrderBy(c => c.Uf),
+                "datacriacao" => isDesc ? query.OrderByDescending(c => c.DataCriacao) : query.OrderBy(c => c.DataCriacao),
+                _ => isDesc ? query.OrderByDescending(c => c.RazaoSocial) : query.OrderBy(c => c.RazaoSocial)
             };
-
-            return CreatedAtAction(nameof(Get), new { id = contratante.Id }, result);
         }
 
-        [HttpPut("{id}")]
-        public async Task<IActionResult> Put(int id, [FromBody] ContratanteUpdateDto dto)
+        protected override async Task<(bool canDelete, string errorMessage)> CanDeleteAsync(Contratante entity)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
-            var contratante = await _context.Contratantes.FindAsync(id);
-            if (contratante == null)
-            {
-                return NotFound(new { message = "Contratante não encontrado" });
-            }
-
-            // Validações de negócio
-            if (string.IsNullOrEmpty(dto.Cnpj) && string.IsNullOrEmpty(dto.Cpf))
-            {
-                return BadRequest(new { message = "CNPJ ou CPF é obrigatório" });
-            }
-
-            // Atualizar dados com trim
-            contratante.Cnpj = dto.Cnpj;
-            contratante.Cpf = dto.Cpf;
-            contratante.RazaoSocial = dto.RazaoSocial?.Trim();
-            contratante.NomeFantasia = dto.NomeFantasia?.Trim();
-            contratante.Endereco = dto.Endereco?.Trim();
-            contratante.Numero = dto.Numero?.Trim();
-            contratante.Complemento = dto.Complemento?.Trim();
-            contratante.Bairro = dto.Bairro?.Trim();
-            contratante.CodMunicipio = dto.CodMunicipio;
-            contratante.Municipio = dto.Municipio?.Trim();
-            contratante.Cep = dto.Cep;
-            contratante.Uf = dto.Uf?.Trim();
-            contratante.Ativo = dto.Ativo;
-            contratante.DataUltimaAlteracao = DateTime.Now;
-
-            // Aplicar limpeza automática de documentos
-            DocumentUtils.LimparDocumentosContratante(contratante);
-
-            // Verificar se já existe outro contratante com mesmo CNPJ ou CPF (usando dados limpos)
-            var existente = await _context.Contratantes
-                .Where(c => c.Id != id &&
-                           ((!string.IsNullOrEmpty(contratante.Cnpj) && c.Cnpj == contratante.Cnpj) ||
-                            (!string.IsNullOrEmpty(contratante.Cpf) && c.Cpf == contratante.Cpf)))
-                .FirstOrDefaultAsync();
-
-            if (existente != null)
-            {
-                return BadRequest(new { message = "Já existe outro contratante cadastrado com este CNPJ/CPF" });
-            }
-
-            try
-            {
-                await _context.SaveChangesAsync();
-                return Ok(new { message = "Contratante atualizado com sucesso" });
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!ContratanteExists(id))
-                {
-                    return NotFound(new { message = "Contratante não encontrado" });
-                }
-                throw;
-            }
-        }
-
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(int id)
-        {
-            var contratante = await _context.Contratantes.FindAsync(id);
-            if (contratante == null)
-            {
-                return NotFound(new { message = "Contratante não encontrado" });
-            }
-
-            // Verificar se o contratante está sendo usado em algum MDFe
-            var temMdfeVinculado = await _context.MDFes
-                .AnyAsync(m => m.ContratanteId == id);
-
+            var temMdfeVinculado = await _context.MDFes.AnyAsync(m => m.ContratanteId == entity.Id);
             if (temMdfeVinculado)
             {
-                // Desativar ao invés de excluir
-                contratante.Ativo = false;
-                contratante.DataUltimaAlteracao = DateTime.Now;
-                await _context.SaveChangesAsync();
-                return Ok(new { message = "Contratante desativado com sucesso (estava sendo usado em MDFes)" });
+                return (false, "Não é possível excluir contratante com MDF-e vinculados");
             }
-            else
-            {
-                // Pode excluir fisicamente
-                _context.Contratantes.Remove(contratante);
-                await _context.SaveChangesAsync();
-                return Ok(new { message = "Contratante excluído com sucesso" });
-            }
+            return (true, string.Empty);
         }
 
-        private bool ContratanteExists(int id)
+        protected override async Task<(bool isValid, string errorMessage)> ValidateCreateAsync(ContratanteCreateDto dto)
         {
-            return _context.Contratantes.Any(e => e.Id == id);
+            if (string.IsNullOrEmpty(dto.Cnpj) && string.IsNullOrEmpty(dto.Cpf))
+            {
+                return (false, "CNPJ ou CPF é obrigatório");
+            }
+
+            var contratanteTemp = new Contratante { Cnpj = dto.Cnpj?.Trim(), Cpf = dto.Cpf?.Trim() };
+            DocumentUtils.LimparDocumentosContratante(contratanteTemp);
+
+            var existenteCpfCnpj = await _context.Contratantes
+                .AnyAsync(c => (!string.IsNullOrEmpty(contratanteTemp.Cnpj) && c.Cnpj == contratanteTemp.Cnpj) ||
+                              (!string.IsNullOrEmpty(contratanteTemp.Cpf) && c.Cpf == contratanteTemp.Cpf));
+
+            if (existenteCpfCnpj)
+            {
+                return (false, "Já existe um contratante cadastrado com este CNPJ/CPF");
+            }
+            return (true, string.Empty);
+        }
+
+        protected override async Task<(bool isValid, string errorMessage)> ValidateUpdateAsync(Contratante entity, ContratanteUpdateDto dto)
+        {
+            if (string.IsNullOrEmpty(dto.Cnpj) && string.IsNullOrEmpty(dto.Cpf))
+            {
+                return (false, "CNPJ ou CPF é obrigatório");
+            }
+
+            var contratanteTemp = new Contratante { Cnpj = dto.Cnpj?.Trim(), Cpf = dto.Cpf?.Trim() };
+            DocumentUtils.LimparDocumentosContratante(contratanteTemp);
+
+            var existenteCpfCnpj = await _context.Contratantes
+                .AnyAsync(c => c.Id != entity.Id &&
+                              ((!string.IsNullOrEmpty(contratanteTemp.Cnpj) && c.Cnpj == contratanteTemp.Cnpj) ||
+                               (!string.IsNullOrEmpty(contratanteTemp.Cpf) && c.Cpf == contratanteTemp.Cpf)));
+
+            if (existenteCpfCnpj)
+            {
+                return (false, "Já existe outro contratante cadastrado com este CNPJ/CPF");
+            }
+            return (true, string.Empty);
         }
     }
 }

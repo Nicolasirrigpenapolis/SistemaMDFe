@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { ConfirmDeleteModal } from '../../../components/UI/Modal/ConfirmDeleteModal';
-import { formatCNPJ, cleanNumericString, applyMask } from '../../../utils/formatters';
+import { formatCNPJ, cleanNumericString } from '../../../utils/formatters';
 import { entitiesService } from '../../../services/entitiesService';
 import { useCNPJLookup } from '../../../hooks/useCNPJLookup';
-import styles from './ListarSeguradoras.module.css';
+import Icon from '../../../components/UI/Icon';
 
 interface Seguradora {
   id?: number;
@@ -75,7 +75,6 @@ export function ListarSeguradoras() {
       }
 
       const data = await response.json();
-      console.log('Dados recebidos da API de seguradoras:', data);
 
       const seguradorasMapeadas: Seguradora[] = (data.itens || data.items || data.Itens || []).map((seguradora: any) => ({
         id: seguradora.id || seguradora.Id,
@@ -151,8 +150,8 @@ export function ListarSeguradoras() {
         setDadosFormulario(prev => ({
           ...prev,
           cnpj: formatCNPJ(dadosCNPJ.cnpj),
-          razaoSocial: dadosCNPJ.razao_social,
-          nomeFantasia: dadosCNPJ.nome_fantasia || ''
+          razaoSocial: dadosCNPJ.razaoSocial,
+          nomeFantasia: dadosCNPJ.nomeFantasia || ''
         }));
       }
     }
@@ -236,35 +235,36 @@ export function ListarSeguradoras() {
   };
 
   return (
-    <div className={styles.container}>
-      <div className={styles.header}>
+    <div className="max-w-7xl mx-auto px-6 py-8">
+      <div className="flex items-center justify-between mb-8">
         <h1>
           <i className="fas fa-shield-alt"></i>
           Seguradoras
         </h1>
-        <button className={styles.btnNovo} onClick={() => abrirModalEdicao()}>
+        <button className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-hover font-medium transition-colors duration-200" onClick={() => abrirModalEdicao()}>
           Nova Seguradora
         </button>
       </div>
 
-      <div className={styles.filters}>
-        <div className={styles.filtersRow}>
-          <div className={styles.filterField}>
-            <label>Buscar</label>
+      <div className="bg-bg-surface rounded-xl border border-border-primary p-6 mb-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-text-primary">Buscar</label>
             <input
               type="text"
-              className={styles.searchInput}
+              className="w-full px-3 py-2 border border-border-primary rounded-lg bg-bg-surface text-text-primary focus:outline-none focus:ring-2 focus:ring-primary"
               placeholder="Buscar por razão social ou CNPJ..."
               value={filtro}
               onChange={(e) => setFiltro(e.target.value)}
             />
           </div>
 
-          <div className={styles.filterField}>
-            <label>Status</label>
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-text-primary">Status</label>
             <select
               value={filtroStatus}
               onChange={(e) => setFiltroStatus(e.target.value)}
+              className="w-full px-3 py-2 border border-border-primary rounded-lg bg-bg-surface text-text-primary focus:outline-none focus:ring-2 focus:ring-primary"
             >
               <option value="">Todos</option>
               <option value="ativo">Ativo</option>
@@ -272,23 +272,31 @@ export function ListarSeguradoras() {
             </select>
           </div>
 
-          <button className={styles.btnClearFilters} onClick={limparFiltros}>
+          <button className="px-4 py-2 border border-border-primary rounded-lg bg-bg-surface text-text-primary hover:bg-bg-surface-hover transition-colors duration-200" onClick={limparFiltros}>
             Limpar Filtros
           </button>
         </div>
       </div>
 
-      <div className={styles.list}>
+      <div className="bg-bg-surface rounded-xl border border-border-primary shadow-sm">
         {carregando ? (
-          <div className={styles.loading}>Carregando seguradoras...</div>
+          <div className="flex items-center justify-center py-16">
+            <div className="flex items-center gap-4">
+              <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+              <span className="text-text-secondary">Carregando seguradoras...</span>
+            </div>
+          </div>
         ) : seguradoras.length === 0 ? (
-          <div className={styles.emptyState}>
-            <h3>Nenhuma seguradora encontrada</h3>
-            <p>Adicione uma nova seguradora para começar.</p>
+          <div className="flex flex-col items-center justify-center py-16 px-6">
+            <div className="w-16 h-16 bg-bg-tertiary rounded-full flex items-center justify-center mb-4">
+              <i className="fas fa-shield-alt text-2xl text-text-tertiary"></i>
+            </div>
+            <h3 className="text-lg font-semibold text-text-primary mb-2">Nenhuma seguradora encontrada</h3>
+            <p className="text-text-secondary text-center">Adicione uma nova seguradora para começar.</p>
           </div>
         ) : (
-          <div className={styles.table}>
-            <div className={styles.tableHeader}>
+          <div className="overflow-x-auto">
+            <div className="grid grid-cols-5 gap-4 p-4 bg-bg-tertiary border-b border-border-primary font-semibold text-text-primary">
               <div>CNPJ</div>
               <div>Razão Social</div>
               <div>Apólice</div>
@@ -296,37 +304,41 @@ export function ListarSeguradoras() {
               <div>Ações</div>
             </div>
             {seguradoras.map((seguradora) => (
-              <div key={seguradora.id} className={styles.tableRow}>
+              <div key={seguradora.id} className="grid grid-cols-5 gap-4 p-4 border-b border-border-primary hover:bg-bg-surface-hover transition-colors duration-200">
                 <div>
-                  <strong>{formatCNPJ(seguradora.cnpj)}</strong>
+                  <strong className="text-text-primary">{formatCNPJ(seguradora.cnpj)}</strong>
                 </div>
                 <div>
-                  <strong>{seguradora.razaoSocial}</strong>
-                  {seguradora.nomeFantasia && <div className={styles.subtext}>{seguradora.nomeFantasia}</div>}
+                  <strong className="text-text-primary">{seguradora.razaoSocial}</strong>
+                  {seguradora.nomeFantasia && <div className="text-sm text-text-secondary">{seguradora.nomeFantasia}</div>}
                 </div>
                 <div>
-                  <span className={styles.apolice}>{seguradora.apolice || 'N/A'}</span>
+                  <span className="text-text-primary">{seguradora.apolice || 'N/A'}</span>
                 </div>
                 <div>
-                  <span className={`${styles.status} ${seguradora.ativo ? styles.ativo : styles.inativo}`}>
+                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                    seguradora.ativo
+                      ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300'
+                      : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300'
+                  }`}>
                     {seguradora.ativo ? 'Ativo' : 'Inativo'}
                   </span>
                 </div>
-                <div className={styles.actions}>
+                <div className="flex items-center gap-2">
                   <button
-                    className={styles.btnView}
+                    className="px-3 py-1 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded transition-colors duration-200"
                     onClick={() => abrirModalVisualizacao(seguradora)}
                   >
                     Visualizar
                   </button>
                   <button
-                    className={styles.btnEdit}
+                    className="px-3 py-1 text-amber-600 hover:bg-amber-50 dark:hover:bg-amber-900/20 rounded transition-colors duration-200"
                     onClick={() => abrirModalEdicao(seguradora)}
                   >
                     Editar
                   </button>
                   <button
-                    className={styles.btnDelete}
+                    className="px-3 py-1 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded transition-colors duration-200"
                     onClick={() => abrirModalExclusao(seguradora)}
                   >
                     Excluir
@@ -339,45 +351,45 @@ export function ListarSeguradoras() {
       </div>
 
       {paginacao && paginacao.totalItems > 0 && (
-        <div className={styles.paginationContainer}>
-          <div className={styles.paginationControls}>
-            <div className={styles.paginationInfo}>
+        <div className="mt-6 bg-bg-surface border-t border-border-primary p-4">
+          <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
+            <div className="text-sm text-text-secondary">
               Mostrando {((paginacao.currentPage - 1) * paginacao.pageSize) + 1} até {Math.min(paginacao.currentPage * paginacao.pageSize, paginacao.totalItems)} de {paginacao.totalItems} seguradoras
             </div>
 
             {paginacao.totalPages > 1 && (
-              <div className={styles.pagination}>
+              <div className="flex items-center gap-2">
                 <button
                   onClick={() => setPaginaAtual(paginacao.currentPage - 1)}
                   disabled={!paginacao.hasPreviousPage}
-                  className={styles.paginationBtn}
+                  className="px-4 py-2 border border-border-primary rounded-lg bg-bg-surface text-text-primary hover:bg-bg-surface-hover disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
                 >
                   ← Anterior
                 </button>
 
-                <span className={styles.pageInfo}>
+                <span className="px-4 py-2 text-text-primary">
                   Página {paginacao.currentPage} de {paginacao.totalPages}
                 </span>
 
                 <button
                   onClick={() => setPaginaAtual(paginacao.currentPage + 1)}
                   disabled={!paginacao.hasNextPage}
-                  className={styles.paginationBtn}
+                  className="px-4 py-2 border border-border-primary rounded-lg bg-bg-surface text-text-primary hover:bg-bg-surface-hover disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
                 >
                   Próxima →
                 </button>
               </div>
             )}
 
-            <div className={styles.pageSizeSelector}>
-              <label>Itens por página:</label>
+            <div className="flex items-center gap-2">
+              <label className="text-sm text-text-primary">Itens por página:</label>
               <select
                 value={tamanhoPagina}
                 onChange={(e) => {
                   setTamanhoPagina(Number(e.target.value));
                   setPaginaAtual(1);
                 }}
-                className={styles.pageSizeSelect}
+                className="px-3 py-1 border border-border-primary rounded bg-bg-surface text-text-primary focus:outline-none focus:ring-2 focus:ring-primary"
               >
                 <option value={1}>1</option>
                 <option value={2}>2</option>
@@ -391,50 +403,56 @@ export function ListarSeguradoras() {
       )}
 
       {modalVisualizacao && seguradoraSelecionada && (
-        <div className={styles.modalOverlay} onClick={fecharModais}>
-          <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
-            <div className={styles.modalHeader}>
-              <h2>Visualizar Seguradora</h2>
-              <button className={styles.closeBtn} onClick={fecharModais}>×</button>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm" onClick={fecharModais}>
+          <div className="bg-bg-surface rounded-xl border border-border-primary shadow-xl max-w-md w-full mx-4" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between p-6 border-b border-border-primary">
+              <h2 className="text-xl font-semibold text-text-primary">Visualizar Seguradora</h2>
+              <button className="text-text-tertiary hover:text-text-primary transition-colors duration-200 text-2xl" onClick={fecharModais}>×</button>
             </div>
-            <div className={styles.modalContent}>
-              <div className={styles.modalSection}>
-                <h3>Dados Principais</h3>
-                <div className={styles.viewGrid}>
-                  <div className={styles.viewField}>
-                    <label>CNPJ:</label>
-                    <span>{formatCNPJ(seguradoraSelecionada.cnpj)}</span>
-                  </div>
-                  <div className={styles.viewField}>
-                    <label>Razão Social:</label>
-                    <span>{seguradoraSelecionada.razaoSocial}</span>
-                  </div>
-                  {seguradoraSelecionada.nomeFantasia && (
-                    <div className={styles.viewField}>
-                      <label>Nome Fantasia:</label>
-                      <span>{seguradoraSelecionada.nomeFantasia}</span>
+            <div className="p-6">
+              <div className="space-y-6">
+                <div>
+                  <h3 className="text-lg font-medium text-text-primary mb-4">Dados Principais</h3>
+                  <div className="grid grid-cols-1 gap-4">
+                    <div className="space-y-1">
+                      <label className="text-sm font-medium text-text-secondary">CNPJ:</label>
+                      <span className="block text-text-primary">{formatCNPJ(seguradoraSelecionada.cnpj)}</span>
                     </div>
-                  )}
-                  {seguradoraSelecionada.apolice && (
-                    <div className={styles.viewField}>
-                      <label>Apólice:</label>
-                      <span>{seguradoraSelecionada.apolice}</span>
+                    <div className="space-y-1">
+                      <label className="text-sm font-medium text-text-secondary">Razão Social:</label>
+                      <span className="block text-text-primary">{seguradoraSelecionada.razaoSocial}</span>
                     </div>
-                  )}
-                  <div className={styles.viewField}>
-                    <label>Status:</label>
-                    <span className={`${styles.statusBadge} ${seguradoraSelecionada.ativo ? styles.ativo : styles.inativo}`}>
-                      {seguradoraSelecionada.ativo ? 'Ativo' : 'Inativo'}
-                    </span>
+                    {seguradoraSelecionada.nomeFantasia && (
+                      <div className="space-y-1">
+                        <label className="text-sm font-medium text-text-secondary">Nome Fantasia:</label>
+                        <span className="block text-text-primary">{seguradoraSelecionada.nomeFantasia}</span>
+                      </div>
+                    )}
+                    {seguradoraSelecionada.apolice && (
+                      <div className="space-y-1">
+                        <label className="text-sm font-medium text-text-secondary">Apólice:</label>
+                        <span className="block text-text-primary">{seguradoraSelecionada.apolice}</span>
+                      </div>
+                    )}
+                    <div className="space-y-1">
+                      <label className="text-sm font-medium text-text-secondary">Status:</label>
+                      <span className={`inline-block px-2 py-1 rounded-full text-xs font-medium ${
+                        seguradoraSelecionada.ativo
+                          ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300'
+                          : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300'
+                      }`}>
+                        {seguradoraSelecionada.ativo ? 'Ativo' : 'Inativo'}
+                      </span>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
-            <div className={styles.modalActions}>
-              <button className={styles.btnCancel} onClick={fecharModais}>
+            <div className="flex items-center justify-end gap-4 p-6 border-t border-border-primary">
+              <button className="px-4 py-2 border border-border-primary rounded-lg bg-bg-surface text-text-primary hover:bg-bg-surface-hover transition-colors duration-200" onClick={fecharModais}>
                 Fechar
               </button>
-              <button className={styles.btnEdit} onClick={() => {
+              <button className="px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white rounded-lg font-medium transition-colors duration-200" onClick={() => {
                 setModalVisualizacao(false);
                 abrirModalEdicao(seguradoraSelecionada);
               }}>
@@ -446,72 +464,78 @@ export function ListarSeguradoras() {
       )}
 
       {modalEdicao && (
-        <div className={styles.modalOverlay} onClick={fecharModais}>
-          <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
-            <div className={styles.modalHeader}>
-              <h2>{seguradoraSelecionada ? 'Editar Seguradora' : 'Nova Seguradora'}</h2>
-              <button className={styles.closeBtn} onClick={fecharModais}>×</button>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm" onClick={fecharModais}>
+          <div className="bg-bg-surface rounded-xl border border-border-primary shadow-xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between p-6 border-b border-border-primary">
+              <h2 className="text-xl font-semibold text-text-primary">{seguradoraSelecionada ? 'Editar Seguradora' : 'Nova Seguradora'}</h2>
+              <button className="text-text-tertiary hover:text-text-primary transition-colors duration-200 text-2xl" onClick={fecharModais}>×</button>
             </div>
-            <form className={styles.modalForm} onSubmit={(e) => { e.preventDefault(); salvarSeguradora(); }}>
-              <div className={styles.modalSection}>
-                <h3>Dados Principais</h3>
-                <div className={styles.modalRow}>
-                  <div className={styles.modalField}>
-                    <label>CNPJ *</label>
-                    <input
-                      type="text"
-                      value={dadosFormulario.cnpj ? formatCNPJ(dadosFormulario.cnpj) : ''}
-                      onChange={(e) => handleCNPJChange(e.target.value)}
-                      maxLength={18}
-                      placeholder="00.000.000/0000-00"
-                      required
-                    />
-                    {loadingCNPJ && (
-                      <small className={styles.loadingText}>Consultando CNPJ...</small>
-                    )}
-                    {errorCNPJ && (
-                      <small className={styles.errorText}>{errorCNPJ}</small>
-                    )}
+            <form className="p-6" onSubmit={(e) => { e.preventDefault(); salvarSeguradora(); }}>
+              <div className="space-y-6">
+                <div>
+                  <h3 className="text-lg font-medium text-text-primary mb-4">Dados Principais</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium text-text-primary">CNPJ *</label>
+                      <input
+                        type="text"
+                        value={dadosFormulario.cnpj ? formatCNPJ(dadosFormulario.cnpj) : ''}
+                        onChange={(e) => handleCNPJChange(e.target.value)}
+                        maxLength={18}
+                        placeholder="00.000.000/0000-00"
+                        required
+                        className="w-full px-3 py-2 border border-border-primary rounded-lg bg-bg-surface text-text-primary focus:outline-none focus:ring-2 focus:ring-primary"
+                      />
+                      {loadingCNPJ && (
+                        <small className="text-blue-600">Consultando CNPJ...</small>
+                      )}
+                      {errorCNPJ && (
+                        <small className="text-red-600">{errorCNPJ}</small>
+                      )}
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium text-text-primary">Razão Social *</label>
+                      <input
+                        type="text"
+                        value={dadosFormulario.razaoSocial || ''}
+                        onChange={(e) => atualizarCampo('razaoSocial', e.target.value)}
+                        maxLength={200}
+                        required
+                        className="w-full px-3 py-2 border border-border-primary rounded-lg bg-bg-surface text-text-primary focus:outline-none focus:ring-2 focus:ring-primary"
+                      />
+                    </div>
                   </div>
-                  <div className={styles.modalField}>
-                    <label>Razão Social *</label>
-                    <input
-                      type="text"
-                      value={dadosFormulario.razaoSocial || ''}
-                      onChange={(e) => atualizarCampo('razaoSocial', e.target.value)}
-                      maxLength={200}
-                      required
-                    />
-                  </div>
-                </div>
-                <div className={styles.modalRow}>
-                  <div className={styles.modalField}>
-                    <label>Nome Fantasia</label>
-                    <input
-                      type="text"
-                      value={dadosFormulario.nomeFantasia || ''}
-                      onChange={(e) => atualizarCampo('nomeFantasia', e.target.value)}
-                      maxLength={200}
-                    />
-                  </div>
-                  <div className={styles.modalField}>
-                    <label>Apólice</label>
-                    <input
-                      type="text"
-                      value={dadosFormulario.apolice || ''}
-                      onChange={(e) => atualizarCampo('apolice', e.target.value)}
-                      placeholder="Número da apólice"
-                      maxLength={100}
-                    />
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium text-text-primary">Nome Fantasia</label>
+                      <input
+                        type="text"
+                        value={dadosFormulario.nomeFantasia || ''}
+                        onChange={(e) => atualizarCampo('nomeFantasia', e.target.value)}
+                        maxLength={200}
+                        className="w-full px-3 py-2 border border-border-primary rounded-lg bg-bg-surface text-text-primary focus:outline-none focus:ring-2 focus:ring-primary"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium text-text-primary">Apólice</label>
+                      <input
+                        type="text"
+                        value={dadosFormulario.apolice || ''}
+                        onChange={(e) => atualizarCampo('apolice', e.target.value)}
+                        placeholder="Número da apólice"
+                        maxLength={100}
+                        className="w-full px-3 py-2 border border-border-primary rounded-lg bg-bg-surface text-text-primary focus:outline-none focus:ring-2 focus:ring-primary"
+                      />
+                    </div>
                   </div>
                 </div>
               </div>
 
-              <div className={styles.modalActions}>
-                <button type="button" className={styles.btnCancel} onClick={fecharModais}>
+              <div className="flex items-center justify-end gap-4 mt-6 pt-6 border-t border-border-primary">
+                <button type="button" className="px-4 py-2 border border-border-primary rounded-lg bg-bg-surface text-text-primary hover:bg-bg-surface-hover transition-colors duration-200" onClick={fecharModais}>
                   Cancelar
                 </button>
-                <button type="submit" className={styles.btnSave} disabled={salvando}>
+                <button type="submit" className="px-4 py-2 bg-primary hover:bg-primary-hover text-white rounded-lg font-medium transition-colors duration-200" disabled={salvando}>
                   {salvando ? 'Salvando...' : 'Salvar'}
                 </button>
               </div>

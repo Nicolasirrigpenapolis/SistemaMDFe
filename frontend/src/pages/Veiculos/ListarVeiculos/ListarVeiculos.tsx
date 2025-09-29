@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { OptionalFieldsToggle, OptionalSection } from '../../../components/UI/Common/OptionalFieldsToggle';
 import { ConfirmDeleteModal } from '../../../components/UI/Modal/ConfirmDeleteModal';
-import { formatCNPJ, cleanNumericString, formatPlaca, cleanPlaca } from '../../../utils/formatters';
+import { formatPlaca, cleanPlaca } from '../../../utils/formatters';
 import { entitiesService } from '../../../services/entitiesService';
-import PaginatedList from '../../../components/PaginatedList/PaginatedList';
-import styles from './ListarVeiculos.module.css';
+import Icon from '../../../components/UI/Icon';
 
 interface Veiculo {
   id?: number;
@@ -14,7 +13,6 @@ interface Veiculo {
   tipoCarroceria: string;
   uf: string;
   ativo?: boolean;
-  marca: string;
 }
 
 interface PaginationData {
@@ -64,7 +62,6 @@ export function ListarVeiculos() {
     tipoRodado: '',
     tipoCarroceria: '',
     uf: '',
-    marca: '',
     ativo: true
   });
 
@@ -129,8 +126,7 @@ export function ListarVeiculos() {
       tipoRodado: '',
       tipoCarroceria: '',
       uf: '',
-      marca: '',
-      ativo: true
+        ativo: true
     });
     setModalAberto(true);
   };
@@ -177,7 +173,6 @@ export function ListarVeiculos() {
       const dadosLimpos = {
         ...dadosModal,
         placa: dadosModal.placa.trim().toUpperCase(),
-        marca: dadosModal.marca.trim(),
         uf: dadosModal.uf.toUpperCase()
       };
 
@@ -263,20 +258,20 @@ export function ListarVeiculos() {
     if (!modalAberto) return null;
 
     return (
-      <div className={styles.modalOverlay}>
-        <div className={styles.modal}>
-          <div className={styles.modalHeader}>
-            <h2>{veiculoEdicao ? 'Editar Veículo' : 'Novo Veículo'}</h2>
-            <button className={styles.closeBtn} onClick={fecharModal}>×</button>
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm">
+        <div className="bg-bg-surface rounded-xl border border-border-primary shadow-xl max-w-md w-full mx-4 max-h-[90vh] overflow-y-auto">
+          <div className="flex items-center justify-between p-6 border-b border-border-primary">
+            <h2 className="text-xl font-semibold text-text-primary">{veiculoEdicao ? 'Editar Veículo' : 'Novo Veículo'}</h2>
+            <button className="text-text-secondary hover:text-text-primary text-2xl font-bold w-8 h-8 flex items-center justify-center" onClick={fecharModal}>×</button>
           </div>
 
-          <form id="veiculo-form" onSubmit={salvarVeiculo} className={styles.modalForm}>
-            <div className={styles.modalSection}>
-              <h3>Dados Principais</h3>
+          <form id="veiculo-form" onSubmit={salvarVeiculo} className="p-6 space-y-6">
+            <div className="space-y-4">
+              <h3 className="text-lg font-medium text-text-primary">Dados Principais</h3>
 
-              <div className={styles.modalRow}>
-                <div className={styles.modalField}>
-                  <label>Placa *</label>
+              <div className="grid grid-cols-1 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-text-primary mb-2">Placa *</label>
                   <input
                     type="text"
                     value={formatPlaca(dadosModal.placa)}
@@ -284,31 +279,33 @@ export function ListarVeiculos() {
                     placeholder="ABC-1234"
                     maxLength={8}
                     required
+                    className="w-full px-3 py-2 border border-border-primary rounded-lg bg-bg-surface text-text-primary placeholder-text-secondary focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
                   />
                 </div>
               </div>
 
-              <div className={styles.modalRow}>
-                <div className={styles.modalField}>
-                  <label>Marca *</label>
+              <div className="grid grid-cols-1 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-text-primary mb-2">Marca *</label>
                   <input
                     type="text"
-                    value={dadosModal.marca}
-                    onChange={(e) => setDadosModal({ ...dadosModal, marca: e.target.value })}
+                    value={dadosModal.tipoCarroceria}
+                    onChange={(e) => setDadosModal({ ...dadosModal, tipoCarroceria: e.target.value })}
                     maxLength={100}
                     required
+                    className="w-full px-3 py-2 border border-border-primary rounded-lg bg-bg-surface text-text-primary placeholder-text-secondary focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
                   />
                 </div>
-
               </div>
 
-              <div className={styles.modalRow}>
-                <div className={styles.modalField}>
-                  <label>Tipo de Rodado *</label>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-text-primary mb-2">Tipo de Rodado *</label>
                   <select
                     value={dadosModal.tipoRodado}
                     onChange={(e) => setDadosModal({ ...dadosModal, tipoRodado: e.target.value })}
                     required
+                    className="w-full px-3 py-2 border border-border-primary rounded-lg bg-bg-surface text-text-primary focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
                   >
                     <option value="">Selecione</option>
                     <option value="01">01 - Truck</option>
@@ -320,12 +317,13 @@ export function ListarVeiculos() {
                   </select>
                 </div>
 
-                <div className={styles.modalField}>
-                  <label>UF *</label>
+                <div>
+                  <label className="block text-sm font-medium text-text-primary mb-2">UF *</label>
                   <select
                     value={dadosModal.uf}
                     onChange={(e) => setDadosModal({ ...dadosModal, uf: e.target.value })}
                     required
+                    className="w-full px-3 py-2 border border-border-primary rounded-lg bg-bg-surface text-text-primary focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
                   >
                     <option value="">Selecione</option>
                     <option value="AC">AC</option>
@@ -369,27 +367,28 @@ export function ListarVeiculos() {
             />
 
             <OptionalSection isVisible={mostrarCamposOpcionais.dadosComplementares}>
-              <div className={styles.modalRow}>
-                <div className={styles.modalField}>
-                  <label>Tara (kg) *</label>
+              <div className="grid grid-cols-1 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-text-primary mb-2">Tara (kg) *</label>
                   <input
                     type="number"
                     value={dadosModal.tara}
                     onChange={(e) => setDadosModal({ ...dadosModal, tara: Number(e.target.value) })}
                     min="0"
                     required
+                    className="w-full px-3 py-2 border border-border-primary rounded-lg bg-bg-surface text-text-primary placeholder-text-secondary focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
                   />
                 </div>
-
               </div>
 
-              <div className={styles.modalRow}>
-                <div className={styles.modalField}>
-                  <label>Tipo de Carroceria *</label>
+              <div className="grid grid-cols-1 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-text-primary mb-2">Tipo de Carroceria *</label>
                   <select
                     value={dadosModal.tipoCarroceria}
                     onChange={(e) => setDadosModal({ ...dadosModal, tipoCarroceria: e.target.value })}
                     required
+                    className="w-full px-3 py-2 border border-border-primary rounded-lg bg-bg-surface text-text-primary focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
                   >
                     <option value="">Selecione</option>
                     <option value="00">00 - Não aplicável</option>
@@ -400,8 +399,6 @@ export function ListarVeiculos() {
                     <option value="05">05 - Sider</option>
                   </select>
                 </div>
-
-
               </div>
 
             </OptionalSection>
@@ -417,12 +414,13 @@ export function ListarVeiculos() {
                 />
 
                 <OptionalSection isVisible={mostrarCamposOpcionais.configuracoes}>
-                  <div className={styles.modalRow}>
-                    <div className={styles.modalField}>
-                      <label>Status</label>
+                  <div className="grid grid-cols-1 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-text-primary mb-2">Status</label>
                       <select
                         value={dadosModal.ativo ? 'true' : 'false'}
                         onChange={(e) => setDadosModal({ ...dadosModal, ativo: e.target.value === 'true' })}
+                        className="w-full px-3 py-2 border border-border-primary rounded-lg bg-bg-surface text-text-primary focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
                       >
                         <option value="true">Ativo</option>
                         <option value="false">Inativo</option>
@@ -434,11 +432,11 @@ export function ListarVeiculos() {
             )}
           </form>
 
-          <div className={styles.modalActions}>
-            <button type="button" onClick={fecharModal} className={styles.btnCancel}>
+          <div className="flex items-center justify-end gap-3 p-6 border-t border-border-primary">
+            <button type="button" onClick={fecharModal} className="px-4 py-2 border border-border-primary text-text-secondary hover:text-text-primary hover:border-text-primary rounded-lg font-medium transition-colors">
               Cancelar
             </button>
-            <button type="submit" form="veiculo-form" className={styles.btnSave} disabled={salvando}>
+            <button type="submit" form="veiculo-form" className="px-4 py-2 bg-primary hover:bg-primary-hover text-white rounded-lg font-medium disabled:opacity-50 disabled:cursor-not-allowed transition-colors" disabled={salvando}>
               {salvando ? 'Salvando...' : (veiculoEdicao ? 'Atualizar' : 'Salvar')}
             </button>
           </div>
@@ -452,58 +450,58 @@ export function ListarVeiculos() {
     if (!modalVisualizacao || !veiculoVisualizacao) return null;
 
     return (
-      <div className={styles.modalOverlay}>
-        <div className={styles.modal}>
-          <div className={styles.modalHeader}>
-            <h2>Visualizar Veículo</h2>
-            <button className={styles.closeBtn} onClick={fecharModalVisualizacao}>×</button>
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm">
+        <div className="bg-bg-surface rounded-xl border border-border-primary shadow-xl max-w-md w-full mx-4 max-h-[90vh] overflow-y-auto">
+          <div className="flex items-center justify-between p-6 border-b border-border-primary">
+            <h2 className="text-xl font-semibold text-text-primary">Visualizar Veículo</h2>
+            <button className="text-text-secondary hover:text-text-primary text-2xl font-bold w-8 h-8 flex items-center justify-center" onClick={fecharModalVisualizacao}>×</button>
           </div>
 
-          <div className={styles.modalContent}>
-            <div className={styles.modalSection}>
-              <h3>Dados Principais</h3>
-              <div className={styles.viewGrid}>
-                <div className={styles.viewField}>
-                  <label>Placa:</label>
-                  <span>{veiculoVisualizacao.placa}</span>
+          <div className="p-6 space-y-6">
+            <div className="space-y-4">
+              <h3 className="text-lg font-medium text-text-primary">Dados Principais</h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-1">
+                  <label className="text-sm font-medium text-text-secondary">Placa:</label>
+                  <span className="text-text-primary">{veiculoVisualizacao.placa}</span>
                 </div>
-                <div className={styles.viewField}>
-                  <label>Marca:</label>
-                  <span>{veiculoVisualizacao.marca}</span>
+                <div className="space-y-1">
+                  <label className="text-sm font-medium text-text-secondary">Marca:</label>
+                  <span className="text-text-primary">{veiculoVisualizacao.tipoCarroceria}</span>
                 </div>
-                <div className={styles.viewField}>
-                  <label>Tipo de Rodado:</label>
-                  <span>{veiculoVisualizacao.tipoRodado}</span>
+                <div className="space-y-1">
+                  <label className="text-sm font-medium text-text-secondary">Tipo de Rodado:</label>
+                  <span className="text-text-primary">{veiculoVisualizacao.tipoRodado}</span>
                 </div>
-                <div className={styles.viewField}>
-                  <label>UF:</label>
-                  <span>{veiculoVisualizacao.uf}</span>
+                <div className="space-y-1">
+                  <label className="text-sm font-medium text-text-secondary">UF:</label>
+                  <span className="text-text-primary">{veiculoVisualizacao.uf}</span>
                 </div>
               </div>
             </div>
 
             {(veiculoVisualizacao.tara || veiculoVisualizacao.tipoCarroceria) && (
-              <div className={styles.modalSection}>
-                <h3>Dados Complementares</h3>
-                <div className={styles.viewGrid}>
-                  <div className={styles.viewField}>
-                    <label>Tara:</label>
-                    <span>{veiculoVisualizacao.tara.toLocaleString()} kg</span>
+              <div className="space-y-4">
+                <h3 className="text-lg font-medium text-text-primary">Dados Complementares</h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="space-y-1">
+                    <label className="text-sm font-medium text-text-secondary">Tara:</label>
+                    <span className="text-text-primary">{veiculoVisualizacao.tara.toLocaleString()} kg</span>
                   </div>
-                  <div className={styles.viewField}>
-                    <label>Tipo de Carroceria:</label>
-                    <span>{veiculoVisualizacao.tipoCarroceria}</span>
+                  <div className="space-y-1">
+                    <label className="text-sm font-medium text-text-secondary">Tipo de Carroceria:</label>
+                    <span className="text-text-primary">{veiculoVisualizacao.tipoCarroceria}</span>
                   </div>
                 </div>
               </div>
             )}
 
-            <div className={styles.modalSection}>
-              <h3>Configurações</h3>
-              <div className={styles.viewGrid}>
-                <div className={styles.viewField}>
-                  <label>Status:</label>
-                  <span className={`${styles.statusBadge} ${veiculoVisualizacao.ativo ? styles.ativo : styles.inativo}`}>
+            <div className="space-y-4">
+              <h3 className="text-lg font-medium text-text-primary">Configurações</h3>
+              <div className="grid grid-cols-1 gap-4">
+                <div className="space-y-1">
+                  <label className="text-sm font-medium text-text-secondary">Status:</label>
+                  <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${veiculoVisualizacao.ativo ? 'bg-success/20 text-success' : 'bg-error/20 text-error'}`}>
                     {veiculoVisualizacao.ativo ? 'Ativo' : 'Inativo'}
                   </span>
                 </div>
@@ -511,8 +509,8 @@ export function ListarVeiculos() {
             </div>
           </div>
 
-          <div className={styles.modalActions}>
-            <button onClick={fecharModalVisualizacao} className={styles.btnCancel}>
+          <div className="flex items-center justify-end gap-3 p-6 border-t border-border-primary">
+            <button onClick={fecharModalVisualizacao} className="px-4 py-2 border border-border-primary text-text-secondary hover:text-text-primary hover:border-text-primary rounded-lg font-medium transition-colors">
               Fechar
             </button>
             <button
@@ -520,7 +518,7 @@ export function ListarVeiculos() {
                 fecharModalVisualizacao();
                 abrirModalEdicao(veiculoVisualizacao);
               }}
-              className={styles.btnEdit}
+              className="px-4 py-2 bg-primary hover:bg-primary-hover text-white rounded-lg font-medium transition-colors"
             >
               Editar
             </button>
@@ -532,44 +530,48 @@ export function ListarVeiculos() {
 
   if (carregando) {
     return (
-      <div className={styles.container}>
-        <div className={styles.loading}>Carregando veículos...</div>
+      <div className="max-w-7xl mx-auto px-6 py-8">
+        <div className="flex items-center justify-center py-12">
+          <div className="text-text-secondary">Carregando veículos...</div>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className={styles.container}>
-      <div className={styles.header}>
-        <h1>
-          <i className="fas fa-truck"></i>
+    <div className="max-w-7xl mx-auto px-6 py-8">
+      <div className="flex items-center justify-between mb-8">
+        <h1 className="text-2xl font-bold text-text-primary flex items-center gap-3">
+          <i className="fas fa-truck text-primary"></i>
           Veículos
         </h1>
-        <button className={styles.btnNovo} onClick={abrirModalNovo}>
+        <button className="px-4 py-2 bg-primary hover:bg-primary-hover text-white rounded-lg font-medium transition-colors flex items-center gap-2" onClick={abrirModalNovo}>
+          <Icon name="plus" />
           Novo Veículo
         </button>
       </div>
 
-      <div className={styles.filters}>
-        <div className={styles.filtersRow}>
-          <div className={styles.filterField}>
-            <label>Buscar</label>
+      <div className="bg-bg-surface rounded-xl border border-border-primary p-6 mb-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-4 items-end">
+          <div>
+            <label className="block text-sm font-medium text-text-primary mb-2">Buscar</label>
             <input
               type="text"
-              placeholder="Placa ou marca..."
+              placeholder="Placa ou carroceria..."
               value={filtro}
               onChange={(e) => {
                 setFiltro(e.target.value);
               }}
-              className={styles.searchInput}
+              className="w-full px-3 py-2 border border-border-primary rounded-lg bg-bg-surface text-text-primary placeholder-text-secondary focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
             />
           </div>
 
-          <div className={styles.filterField}>
-            <label>Tipo</label>
+          <div>
+            <label className="block text-sm font-medium text-text-primary mb-2">Tipo</label>
             <select
               value={filtroTipo}
               onChange={(e) => setFiltroTipo(e.target.value)}
+              className="w-full px-3 py-2 border border-border-primary rounded-lg bg-bg-surface text-text-primary focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
             >
               <option value="">Todos os tipos</option>
               <option value="01">01 - Truck</option>
@@ -581,11 +583,12 @@ export function ListarVeiculos() {
             </select>
           </div>
 
-          <div className={styles.filterField}>
-            <label>Status</label>
+          <div>
+            <label className="block text-sm font-medium text-text-primary mb-2">Status</label>
             <select
               value={filtroStatus}
               onChange={(e) => setFiltroStatus(e.target.value)}
+              className="w-full px-3 py-2 border border-border-primary rounded-lg bg-bg-surface text-text-primary focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
             >
               <option value="">Todos os status</option>
               <option value="ativo">Ativo</option>
@@ -593,11 +596,12 @@ export function ListarVeiculos() {
             </select>
           </div>
 
-          <div className={styles.filterField}>
-            <label>UF</label>
+          <div>
+            <label className="block text-sm font-medium text-text-primary mb-2">UF</label>
             <select
               value={filtroUf}
               onChange={(e) => setFiltroUf(e.target.value)}
+              className="w-full px-3 py-2 border border-border-primary rounded-lg bg-bg-surface text-text-primary focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
             >
               <option value="">Todas as UF</option>
               <option value="AC">AC</option>
@@ -632,22 +636,22 @@ export function ListarVeiculos() {
 
           <button
             onClick={limparFiltros}
-            className={styles.btnClearFilters}
+            className="px-4 py-2 border border-border-primary text-text-secondary hover:text-text-primary hover:border-text-primary rounded-lg font-medium transition-colors"
           >
             Limpar Filtros
           </button>
         </div>
       </div>
 
-      <div className={styles.list}>
+      <div className="bg-bg-surface rounded-xl border border-border-primary shadow-sm">
         {veiculosFiltrados.length === 0 ? (
-          <div className={styles.emptyState}>
-            <h3>Nenhum veículo encontrado</h3>
-            <p>Adicione um novo veículo para começar.</p>
+          <div className="flex flex-col items-center justify-center py-12 px-6 text-center">
+            <h3 className="text-lg font-medium text-text-primary mb-2">Nenhum veículo encontrado</h3>
+            <p className="text-text-secondary">Adicione um novo veículo para começar.</p>
           </div>
         ) : (
-          <div className={styles.table}>
-            <div className={styles.tableHeader}>
+          <div className="overflow-x-auto">
+            <div className="grid grid-cols-6 gap-4 p-4 border-b border-border-primary bg-bg-hover text-sm font-medium text-text-secondary">
               <div>Placa</div>
               <div>Veículo</div>
               <div>Tipo</div>
@@ -657,42 +661,42 @@ export function ListarVeiculos() {
             </div>
 
             {veiculosFiltrados.map((veiculo) => (
-              <div key={veiculo.id} className={styles.tableRow}>
-                <div>
-                  <strong>{veiculo.placa}</strong>
+              <div key={veiculo.id} className="grid grid-cols-6 gap-4 p-4 border-b border-border-primary hover:bg-bg-hover transition-colors">
+                <div className="flex items-center">
+                  <span className="font-medium text-text-primary">{veiculo.placa}</span>
                 </div>
-                <div>
-                  <strong>{veiculo.marca}</strong>
-                  <div className={styles.subtext}>Tara: {veiculo.tara.toLocaleString()}kg</div>
+                <div className="flex flex-col">
+                  <span className="font-medium text-text-primary">{veiculo.tipoCarroceria}</span>
+                  <span className="text-sm text-text-secondary">Tara: {veiculo.tara.toLocaleString()}kg</span>
                 </div>
-                <div>
-                  <span className={styles.tipoVeiculo}>
+                <div className="flex items-center">
+                  <span className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-primary/10 text-primary">
                     Tipo {veiculo.tipoRodado}
                   </span>
                 </div>
-                <div>
-                  <strong>{veiculo.uf}</strong>
+                <div className="flex items-center">
+                  <span className="font-medium text-text-primary">{veiculo.uf}</span>
                 </div>
-                <div>
-                  <span className={`${styles.status} ${veiculo.ativo ? styles.ativo : styles.inativo}`}>
+                <div className="flex items-center">
+                  <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${veiculo.ativo ? 'bg-success/20 text-success' : 'bg-error/20 text-error'}`}>
                     {veiculo.ativo ? 'Ativo' : 'Inativo'}
                   </span>
                 </div>
-                <div className={styles.actions}>
+                <div className="flex items-center gap-2">
                   <button
-                    className={styles.btnView}
+                    className="text-xs px-2 py-1 border border-border-primary text-text-secondary hover:text-text-primary hover:border-text-primary rounded transition-colors"
                     onClick={() => abrirModalVisualizacao(veiculo)}
                   >
                     Visualizar
                   </button>
                   <button
-                    className={styles.btnEdit}
+                    className="text-xs px-2 py-1 bg-primary hover:bg-primary-hover text-white rounded transition-colors"
                     onClick={() => abrirModalEdicao(veiculo)}
                   >
                     Editar
                   </button>
                   <button
-                    className={styles.btnDelete}
+                    className="text-xs px-2 py-1 bg-error hover:bg-error/80 text-white rounded transition-colors"
                     onClick={() => abrirModalExclusao(veiculo)}
                   >
                     Excluir
@@ -706,45 +710,45 @@ export function ListarVeiculos() {
 
       {/* Paginação */}
       {paginacao && paginacao.totalItems > 0 && (
-        <div className={styles.paginationContainer}>
-          <div className={styles.paginationControls}>
-            <div className={styles.paginationInfo}>
+        <div className="mt-6 bg-bg-surface rounded-xl border border-border-primary p-6">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div className="text-sm text-text-secondary">
               Mostrando {((paginacao.currentPage - 1) * paginacao.pageSize) + 1} até {Math.min(paginacao.currentPage * paginacao.pageSize, paginacao.totalItems)} de {paginacao.totalItems} veículos
             </div>
 
             {paginacao.totalPages > 1 && (
-              <div className={styles.pagination}>
+              <div className="flex items-center gap-2">
                 <button
                   onClick={() => setPaginaAtual(paginacao.currentPage - 1)}
                   disabled={!paginacao.hasPreviousPage}
-                  className={styles.paginationBtn}
+                  className="px-3 py-2 border border-border-primary text-text-secondary hover:text-text-primary hover:border-text-primary rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   ← Anterior
                 </button>
 
-                <span className={styles.pageInfo}>
+                <span className="px-4 py-2 text-sm text-text-primary">
                   Página {paginacao.currentPage} de {paginacao.totalPages}
                 </span>
 
                 <button
                   onClick={() => setPaginaAtual(paginacao.currentPage + 1)}
                   disabled={!paginacao.hasNextPage}
-                  className={styles.paginationBtn}
+                  className="px-3 py-2 border border-border-primary text-text-secondary hover:text-text-primary hover:border-text-primary rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Próxima →
                 </button>
               </div>
             )}
 
-            <div className={styles.pageSizeSelector}>
-              <label>Itens por página:</label>
+            <div className="flex items-center gap-2">
+              <label className="text-sm text-text-secondary">Itens por página:</label>
               <select
                 value={tamanhoPagina}
                 onChange={(e) => {
                   setTamanhoPagina(Number(e.target.value));
                   setPaginaAtual(1);
                 }}
-                className={styles.pageSizeSelect}
+                className="px-2 py-1 border border-border-primary rounded bg-bg-surface text-text-primary text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
               >
                 <option value={1}>1</option>
                 <option value={2}>2</option>
@@ -764,7 +768,7 @@ export function ListarVeiculos() {
         isOpen={modalExclusao}
         title="Excluir Veículo"
         message="Tem certeza de que deseja excluir este veículo?"
-        itemName={veiculoExclusao ? `${formatPlaca(veiculoExclusao.placa)} - ${veiculoExclusao.marca}` : ''}
+        itemName={veiculoExclusao ? `${formatPlaca(veiculoExclusao.placa)} - ${veiculoExclusao.tipoCarroceria}` : ''}
         onConfirm={confirmarExclusao}
         onCancel={fecharModalExclusao}
         loading={excludindo}

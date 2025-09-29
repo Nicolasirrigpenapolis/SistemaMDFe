@@ -1,8 +1,10 @@
 import { useState, useCallback } from 'react';
-import { cnpjService, CNPJData } from '../services/cnpjService';
+import { validationService, CNPJData, ValidacaoResponse } from '../services/cnpjService';
 
 interface UseCNPJLookupReturn {
   consultarCNPJ: (cnpj: string) => Promise<CNPJData | null>;
+  validarCNPJ: (cnpj: string) => Promise<boolean>;
+  validarCPF: (cpf: string) => Promise<boolean>;
   loading: boolean;
   error: string | null;
   clearError: () => void;
@@ -13,21 +15,16 @@ export const useCNPJLookup = (): UseCNPJLookupReturn => {
   const [error, setError] = useState<string | null>(null);
 
   const consultarCNPJ = useCallback(async (cnpj: string): Promise<CNPJData | null> => {
-    if (!cnpj || cnpj.replace(/\D/g, '').length !== 14) {
-      setError('CNPJ deve conter 14 dígitos');
-      return null;
-    }
-
     setLoading(true);
     setError(null);
 
     try {
-      const response = await cnpjService.consultarCNPJ(cnpj);
+      const response = await validationService.consultarCNPJ(cnpj);
 
-      if (response.success && response.data) {
+      if (response.sucesso && response.data) {
         return response.data;
       } else {
-        setError(response.error || 'Erro ao consultar CNPJ');
+        setError(response.mensagem || 'Erro ao consultar CNPJ');
         return null;
       }
     } catch (err) {
@@ -38,12 +35,32 @@ export const useCNPJLookup = (): UseCNPJLookupReturn => {
     }
   }, []);
 
+  const validarCNPJ = useCallback(async (cnpj: string): Promise<boolean> => {
+    try {
+      const response = await validationService.validarCNPJ(cnpj);
+      return response.data || false;
+    } catch (err) {
+      return false;
+    }
+  }, []);
+
+  const validarCPF = useCallback(async (cpf: string): Promise<boolean> => {
+    try {
+      const response = await validationService.validarCPF(cpf);
+      return response.data || false;
+    } catch (err) {
+      return false;
+    }
+  }, []);
+
   const clearError = useCallback(() => {
     setError(null);
   }, []);
 
   return {
     consultarCNPJ,
+    validarCNPJ,
+    validarCPF,
     loading,
     error,
     clearError

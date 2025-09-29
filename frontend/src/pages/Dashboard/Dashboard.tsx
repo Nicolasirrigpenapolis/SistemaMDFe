@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import styles from './Dashboard.module.css';
 import { entitiesService } from '../../services/entitiesService';
 import { mdfeService } from '../../services/mdfeService';
-import { localidadeService } from '../../services/localidadeService';
+import Icon from '../../components/UI/Icon';
 
 interface DashboardStats {
   totalMDFes: number;
@@ -27,7 +26,7 @@ interface RecentMDFe {
   dataEmissao: string;
   status: string;
   emitenteNome?: string;
-  valorCarga?: number;
+  valorTotal?: number;
 }
 
 export function Dashboard() {
@@ -70,7 +69,7 @@ export function Dashboard() {
         entitiesService.obterEmitentes(),
         entitiesService.obterVeiculos(),
         entitiesService.obterCondutores(),
-        entitiesService.obterDestinatarios(), // Contratantes
+        entitiesService.obterContratantes(), // Contratantes
         entitiesService.obterSeguradoras(),
         fetch('https://localhost:5001/api/municipios?tamanhoPagina=1&pagina=1').then(res => res.json()),
         mdfeService.listarMDFes({ tamanhoPagina: 1000 })
@@ -188,276 +187,288 @@ export function Dashboard() {
 
   if (carregando) {
     return (
-      <div className={styles.dashboardContainer}>
-        <div className={styles.loading}>
-          <div className={styles.loadingSpinner}></div>
-          <p>Carregando dados do dashboard...</p>
+      <div className="min-h-screen bg-bg-primary">
+        <div className="flex items-center justify-center min-h-screen">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-primary mx-auto mb-4"></div>
+            <p className="text-text-secondary font-medium">Carregando dados do dashboard...</p>
+          </div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className={styles.dashboardContainer}>
+    <div className="min-h-screen bg-bg-primary">
       {/* Header */}
-      <div className={styles.header}>
-        <div className={styles.headerContent}>
-          <div className={styles.titleSection}>
-            <div className={styles.iconWrapper}>
-              <i className="fas fa-chart-pie"></i>
+      <div className="bg-bg-surface border-b border-border-primary mb-8">
+        <div className="max-w-7xl mx-auto px-6 py-8">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-primary to-primary-hover flex items-center justify-center shadow-lg">
+                <Icon name="chart-pie" color="white" size="lg" />
+              </div>
+              <div>
+                <h1 className="text-3xl font-bold text-text-primary">Dashboard</h1>
+                <p className="text-text-secondary font-medium">Visão geral completa do sistema MDF-e</p>
+              </div>
             </div>
-            <div className={styles.titleContent}>
-              <h1 className={styles.title}>Dashboard</h1>
-              <p className={styles.subtitle}>Visão geral completa do sistema MDF-e</p>
-            </div>
-          </div>
 
-          <button
-            className={styles.btnNovo}
-            onClick={() => navigate('/mdfes/novo')}
-          >
-            <i className="fas fa-plus"></i>
-            <span>Emitir MDF-e</span>
-          </button>
+            <button
+              className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-primary to-primary-hover text-white rounded-lg hover:shadow-lg transition-all duration-200 font-medium"
+              onClick={() => navigate('/mdfes/novo')}
+            >
+              <Icon name="plus" size="sm" />
+              <span>Emitir MDF-e</span>
+            </button>
+          </div>
         </div>
       </div>
 
       {/* Main Stats */}
-      <div className={styles.statsGrid}>
-        <div className={styles.statCard} onClick={() => handleNavigate('mdfes')}>
-          <div className={styles.statHeader}>
-            <div className={styles.statIcon}>
-              <i className="fas fa-file-alt"></i>
+      <div className="max-w-7xl mx-auto px-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-6">
+          <div
+            className="bg-bg-surface rounded-xl p-6 border border-border-primary hover:shadow-lg transition-all duration-200 cursor-pointer group"
+            onClick={() => handleNavigate('mdfes')}
+          >
+            <div className="flex items-center justify-between mb-4">
+              <div className="w-10 h-10 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
+                <Icon name="file-alt" className="text-blue-600 dark:text-blue-400" size="sm" />
+              </div>
+              <Icon name="arrow-up" className="text-success w-4 h-4" />
             </div>
-            <div className={styles.statTrend}>
-              <i className="fas fa-arrow-up"></i>
-            </div>
+            <div className="text-2xl font-bold text-text-primary mb-1">{stats.totalMDFes}</div>
+            <div className="text-sm text-text-secondary">Total MDF-es</div>
           </div>
-          <div className={styles.statContent}>
-            <div className={styles.statNumber}>{stats.totalMDFes}</div>
-            <div className={styles.statLabel}>Total MDF-es</div>
-          </div>
-        </div>
 
-        <div className={styles.statCard}>
-          <div className={styles.statHeader}>
-            <div className={`${styles.statIcon} ${styles.success}`}>
-              <i className="fas fa-check-circle"></i>
+          <div className="bg-bg-surface rounded-xl p-6 border border-border-primary hover:shadow-lg transition-all duration-200">
+            <div className="flex items-center justify-between mb-4">
+              <div className="w-10 h-10 rounded-lg bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
+                <Icon name="check-circle" className="text-success" size="sm" />
+              </div>
+              <Icon name="arrow-up" className="text-success w-4 h-4" />
             </div>
-            <div className={styles.statTrend}>
-              <i className="fas fa-arrow-up"></i>
-            </div>
+            <div className="text-2xl font-bold text-text-primary mb-1">{stats.mdfesAutorizados}</div>
+            <div className="text-sm text-text-secondary">Autorizados</div>
           </div>
-          <div className={styles.statContent}>
-            <div className={styles.statNumber}>{stats.mdfesAutorizados}</div>
-            <div className={styles.statLabel}>Autorizados</div>
-          </div>
-        </div>
 
-        <div className={styles.statCard}>
-          <div className={styles.statHeader}>
-            <div className={`${styles.statIcon} ${styles.warning}`}>
-              <i className="fas fa-clock"></i>
+          <div className="bg-bg-surface rounded-xl p-6 border border-border-primary hover:shadow-lg transition-all duration-200">
+            <div className="flex items-center justify-between mb-4">
+              <div className="w-10 h-10 rounded-lg bg-warning-light dark:bg-warning/20 flex items-center justify-center">
+                <Icon name="clock" className="text-warning" size="sm" />
+              </div>
+              <Icon name="minus" className="text-text-tertiary w-4 h-4" />
             </div>
-            <div className={styles.statTrend}>
-              <i className="fas fa-minus"></i>
-            </div>
+            <div className="text-2xl font-bold text-text-primary mb-1">{stats.mdfesPendentes}</div>
+            <div className="text-sm text-text-secondary">Pendentes</div>
           </div>
-          <div className={styles.statContent}>
-            <div className={styles.statNumber}>{stats.mdfesPendentes}</div>
-            <div className={styles.statLabel}>Pendentes</div>
-          </div>
-        </div>
 
-        <div className={styles.statCard} onClick={() => handleNavigate('emitentes')}>
-          <div className={styles.statHeader}>
-            <div className={styles.statIcon}>
-              <i className="fas fa-building"></i>
+          <div
+            className="bg-bg-surface rounded-xl p-6 border border-border-primary hover:shadow-lg transition-all duration-200 cursor-pointer"
+            onClick={() => handleNavigate('emitentes')}
+          >
+            <div className="flex items-center justify-between mb-4">
+              <div className="w-10 h-10 rounded-lg bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center">
+                <Icon name="building" className="text-purple-600 dark:text-purple-400" size="sm" />
+              </div>
             </div>
+            <div className="text-2xl font-bold text-text-primary mb-1">{stats.totalEmitentes}</div>
+            <div className="text-sm text-text-secondary">Emitentes</div>
           </div>
-          <div className={styles.statContent}>
-            <div className={styles.statNumber}>{stats.totalEmitentes}</div>
-            <div className={styles.statLabel}>Emitentes</div>
-          </div>
-        </div>
 
-        <div className={styles.statCard} onClick={() => handleNavigate('veiculos')}>
-          <div className={styles.statHeader}>
-            <div className={styles.statIcon}>
-              <i className="fas fa-truck"></i>
+          <div
+            className="bg-bg-surface rounded-xl p-6 border border-border-primary hover:shadow-lg transition-all duration-200 cursor-pointer"
+            onClick={() => handleNavigate('veiculos')}
+          >
+            <div className="flex items-center justify-between mb-4">
+              <div className="w-10 h-10 rounded-lg bg-orange-100 dark:bg-orange-900/30 flex items-center justify-center">
+                <Icon name="truck" className="text-orange-600 dark:text-orange-400" size="sm" />
+              </div>
             </div>
+            <div className="text-2xl font-bold text-text-primary mb-1">{stats.totalVeiculos}</div>
+            <div className="text-sm text-text-secondary">Veículos</div>
           </div>
-          <div className={styles.statContent}>
-            <div className={styles.statNumber}>{stats.totalVeiculos}</div>
-            <div className={styles.statLabel}>Veículos</div>
-          </div>
-        </div>
 
-        <div className={styles.statCard} onClick={() => handleNavigate('condutores')}>
-          <div className={styles.statHeader}>
-            <div className={styles.statIcon}>
-              <i className="fas fa-users"></i>
+          <div
+            className="bg-bg-surface rounded-xl p-6 border border-border-primary hover:shadow-lg transition-all duration-200 cursor-pointer"
+            onClick={() => handleNavigate('condutores')}
+          >
+            <div className="flex items-center justify-between mb-4">
+              <div className="w-10 h-10 rounded-lg bg-teal-100 dark:bg-teal-900/30 flex items-center justify-center">
+                <Icon name="users" className="text-teal-600 dark:text-teal-400" size="sm" />
+              </div>
             </div>
-          </div>
-          <div className={styles.statContent}>
-            <div className={styles.statNumber}>{stats.totalCondutores}</div>
-            <div className={styles.statLabel}>Condutores</div>
+            <div className="text-2xl font-bold text-text-primary mb-1">{stats.totalCondutores}</div>
+            <div className="text-sm text-text-secondary">Condutores</div>
           </div>
         </div>
       </div>
 
       {/* Main Content */}
-      <div className={styles.mainContent}>
-        <div className={styles.contentGrid}>
+      <div className="max-w-7xl mx-auto px-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Recent MDFes */}
-          <div className={styles.recentMDFes}>
-            <div className={styles.cardHeader}>
-              <div className={styles.cardTitle}>
-                <i className="fas fa-history"></i>
-                <span>Atividade Recente</span>
-              </div>
-              <button
-                className={styles.viewAllBtn}
-                onClick={() => handleNavigate('mdfes')}
-              >
-                Ver todos
-                <i className="fas fa-arrow-right"></i>
-              </button>
-            </div>
-
-            {recentMDFes.length === 0 ? (
-              <div className={styles.emptyState}>
-                <div className={styles.emptyIcon}>
-                  <i className="fas fa-file-alt"></i>
+          <div className="lg:col-span-2">
+            <div className="bg-bg-surface rounded-xl border border-border-primary">
+              <div className="flex items-center justify-between p-6 border-b border-border-primary">
+                <div className="flex items-center gap-3">
+                  <Icon name="history" className="text-text-secondary" size="sm" />
+                  <span className="font-semibold text-text-primary">Atividade Recente</span>
                 </div>
-                <h3>Nenhum MDF-e emitido</h3>
-                <p>Comece emitindo seu primeiro manifesto eletrônico</p>
                 <button
-                  className={styles.primaryBtn}
-                  onClick={() => handleNavigate('mdfe-editor')}
+                  className="flex items-center gap-2 text-primary hover:text-primary-hover transition-colors duration-200 text-sm font-medium"
+                  onClick={() => handleNavigate('mdfes')}
                 >
-                  <i className="fas fa-plus"></i>
-                  Emitir primeiro MDF-e
+                  Ver todos
+                  <Icon name="arrow-right" size="sm" />
                 </button>
               </div>
-            ) : (
-              <div className={styles.mdfList}>
-                {recentMDFes.map((mdfe) => {
-                  const statusConfig = getStatusConfig(mdfe.status);
-                  return (
-                    <div key={mdfe.id} className={styles.mdfItem}>
-                      <div className={styles.mdfInfo}>
-                        <div className={styles.mdfNumber}>
-                          MDF-e Nº {mdfe.numero}/{mdfe.serie}
+
+              {recentMDFes.length === 0 ? (
+                <div className="flex flex-col items-center justify-center p-12 text-center">
+                  <div className="w-16 h-16 rounded-full bg-bg-surface-hover flex items-center justify-center mb-4">
+                    <Icon name="file-alt" className="text-text-tertiary" size="lg" />
+                  </div>
+                  <h3 className="text-lg font-semibold text-text-primary mb-2">Nenhum MDF-e emitido</h3>
+                  <p className="text-text-secondary mb-6">Comece emitindo seu primeiro manifesto eletrônico</p>
+                  <button
+                    className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-primary to-primary-hover text-white rounded-lg hover:shadow-lg transition-all duration-200 font-medium"
+                    onClick={() => handleNavigate('mdfe-editor')}
+                  >
+                    <Icon name="plus" size="sm" />
+                    Emitir primeiro MDF-e
+                  </button>
+                </div>
+              ) : (
+                <div className="p-6">
+                  <div className="space-y-4">
+                    {recentMDFes.map((mdfe) => {
+                      const statusConfig = getStatusConfig(mdfe.status);
+                      return (
+                        <div key={mdfe.id} className="flex items-center justify-between p-4 rounded-lg border border-border-primary hover:bg-bg-surface-hover transition-colors duration-200">
+                          <div className="flex-1">
+                            <div className="font-medium text-text-primary mb-1">
+                              MDF-e Nº {mdfe.numero}/{mdfe.serie}
+                            </div>
+                            <div className="flex flex-wrap gap-3 text-sm text-text-secondary">
+                              <span>{mdfe.emitenteNome}</span>
+                              <span>{formatDate(mdfe.dataEmissao)}</span>
+                              {mdfe.valorTotal && <span>{formatCurrency(mdfe.valorTotal)}</span>}
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium" style={{ backgroundColor: statusConfig.bgColor, color: statusConfig.textColor }}>
+                            <i className={statusConfig.icon}></i>
+                            {mdfe.status}
+                          </div>
                         </div>
-                        <div className={styles.mdfDetails}>
-                          <span>{mdfe.emitenteNome}</span>
-                          <span>{formatDate(mdfe.dataEmissao)}</span>
-                          {mdfe.valorCarga && <span>{formatCurrency(mdfe.valorCarga)}</span>}
-                        </div>
-                      </div>
-                      <div className={`${styles.statusBadge} ${styles[statusConfig.color]}`}>
-                        <i className={statusConfig.icon}></i>
-                        {mdfe.status}
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            )}
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
 
           {/* Quick Actions & System Info */}
-          <div className={styles.sidebar}>
+          <div className="space-y-6">
             {/* Quick Actions */}
-            <div className={styles.quickActions}>
-              <div className={styles.cardHeader}>
-                <div className={styles.cardTitle}>
-                  <i className="fas fa-bolt"></i>
-                  <span>Ações Rápidas</span>
+            <div className="bg-bg-surface rounded-xl border border-border-primary">
+              <div className="p-6 border-b border-border-primary">
+                <div className="flex items-center gap-3">
+                  <Icon name="bolt" className="text-text-secondary" size="sm" />
+                  <span className="font-semibold text-text-primary">Ações Rápidas</span>
                 </div>
               </div>
 
-              <div className={styles.actionsList}>
+              <div className="p-6 space-y-3">
                 <button
-                  className={styles.actionBtn}
+                  className="w-full flex items-center justify-between p-4 rounded-lg border border-border-primary hover:bg-bg-surface-hover transition-colors duration-200 group"
                   onClick={() => handleNavigate('mdfe-editor')}
                 >
-                  <div className={styles.actionIcon}>
-                    <i className="fas fa-plus"></i>
+                  <div className="flex items-center gap-4">
+                    <div className="w-10 h-10 rounded-lg bg-primary-light flex items-center justify-center">
+                      <Icon name="plus" className="text-primary" size="sm" />
+                    </div>
+                    <div className="text-left">
+                      <div className="font-medium text-text-primary">Novo MDF-e</div>
+                      <div className="text-sm text-text-secondary">Emitir manifesto</div>
+                    </div>
                   </div>
-                  <div className={styles.actionContent}>
-                    <span className={styles.actionTitle}>Novo MDF-e</span>
-                    <span className={styles.actionDesc}>Emitir manifesto</span>
-                  </div>
-                  <i className="fas fa-chevron-right"></i>
+                  <Icon name="chevron-right" className="text-text-tertiary group-hover:text-primary transition-colors duration-200" size="sm" />
                 </button>
 
                 <button
-                  className={styles.actionBtn}
+                  className="w-full flex items-center justify-between p-4 rounded-lg border border-border-primary hover:bg-bg-surface-hover transition-colors duration-200 group"
                   onClick={() => handleNavigate('veiculos')}
                 >
-                  <div className={styles.actionIcon}>
-                    <i className="fas fa-truck"></i>
+                  <div className="flex items-center gap-4">
+                    <div className="w-10 h-10 rounded-lg bg-orange-100 dark:bg-orange-900/30 flex items-center justify-center">
+                      <Icon name="truck" className="text-orange-600 dark:text-orange-400" size="sm" />
+                    </div>
+                    <div className="text-left">
+                      <div className="font-medium text-text-primary">Veículos</div>
+                      <div className="text-sm text-text-secondary">Gerenciar frota</div>
+                    </div>
                   </div>
-                  <div className={styles.actionContent}>
-                    <span className={styles.actionTitle}>Veículos</span>
-                    <span className={styles.actionDesc}>Gerenciar frota</span>
-                  </div>
-                  <i className="fas fa-chevron-right"></i>
+                  <Icon name="chevron-right" className="text-text-tertiary group-hover:text-primary transition-colors duration-200" size="sm" />
                 </button>
 
                 <button
-                  className={styles.actionBtn}
+                  className="w-full flex items-center justify-between p-4 rounded-lg border border-border-primary hover:bg-bg-surface-hover transition-colors duration-200 group"
                   onClick={() => handleNavigate('condutores')}
                 >
-                  <div className={styles.actionIcon}>
-                    <i className="fas fa-users"></i>
+                  <div className="flex items-center gap-4">
+                    <div className="w-10 h-10 rounded-lg bg-teal-100 dark:bg-teal-900/30 flex items-center justify-center">
+                      <Icon name="users" className="text-teal-600 dark:text-teal-400" size="sm" />
+                    </div>
+                    <div className="text-left">
+                      <div className="font-medium text-text-primary">Condutores</div>
+                      <div className="text-sm text-text-secondary">Motoristas</div>
+                    </div>
                   </div>
-                  <div className={styles.actionContent}>
-                    <span className={styles.actionTitle}>Condutores</span>
-                    <span className={styles.actionDesc}>Motoristas</span>
-                  </div>
-                  <i className="fas fa-chevron-right"></i>
+                  <Icon name="chevron-right" className="text-text-tertiary group-hover:text-primary transition-colors duration-200" size="sm" />
                 </button>
 
                 <button
-                  className={styles.actionBtn}
+                  className="w-full flex items-center justify-between p-4 rounded-lg border border-border-primary hover:bg-bg-surface-hover transition-colors duration-200 group"
                   onClick={() => handleNavigate('emitentes')}
                 >
-                  <div className={styles.actionIcon}>
-                    <i className="fas fa-building"></i>
+                  <div className="flex items-center gap-4">
+                    <div className="w-10 h-10 rounded-lg bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center">
+                      <Icon name="building" className="text-purple-600 dark:text-purple-400" size="sm" />
+                    </div>
+                    <div className="text-left">
+                      <div className="font-medium text-text-primary">Emitentes</div>
+                      <div className="text-sm text-text-secondary">Empresas</div>
+                    </div>
                   </div>
-                  <div className={styles.actionContent}>
-                    <span className={styles.actionTitle}>Emitentes</span>
-                    <span className={styles.actionDesc}>Empresas</span>
-                  </div>
-                  <i className="fas fa-chevron-right"></i>
+                  <Icon name="chevron-right" className="text-text-tertiary group-hover:text-primary transition-colors duration-200" size="sm" />
                 </button>
               </div>
             </div>
 
             {/* System Summary */}
-            <div className={styles.systemSummary}>
-              <div className={styles.cardHeader}>
-                <div className={styles.cardTitle}>
-                  <i className="fas fa-chart-bar"></i>
-                  <span>Resumo</span>
+            <div className="bg-bg-surface rounded-xl border border-border-primary">
+              <div className="p-6 border-b border-border-primary">
+                <div className="flex items-center gap-3">
+                  <Icon name="chart-bar" className="text-text-secondary" size="sm" />
+                  <span className="font-semibold text-text-primary">Resumo</span>
                 </div>
               </div>
 
-              <div className={styles.summaryList}>
-                <div className={styles.summaryItem}>
-                  <span>Contratantes</span>
-                  <span className={styles.summaryValue}>{stats.totalContratantes}</span>
+              <div className="p-6 space-y-4">
+                <div className="flex items-center justify-between">
+                  <span className="text-text-secondary">Contratantes</span>
+                  <span className="font-semibold text-text-primary">{stats.totalContratantes}</span>
                 </div>
-                <div className={styles.summaryItem}>
-                  <span>Seguradoras</span>
-                  <span className={styles.summaryValue}>{stats.totalSeguradoras}</span>
+                <div className="flex items-center justify-between">
+                  <span className="text-text-secondary">Seguradoras</span>
+                  <span className="font-semibold text-text-primary">{stats.totalSeguradoras}</span>
                 </div>
-                <div className={styles.summaryItem}>
-                  <span>Municípios</span>
-                  <span className={styles.summaryValue}>{stats.totalMunicipios}</span>
+                <div className="flex items-center justify-between">
+                  <span className="text-text-secondary">Municípios</span>
+                  <span className="font-semibold text-text-primary">{stats.totalMunicipios}</span>
                 </div>
               </div>
             </div>

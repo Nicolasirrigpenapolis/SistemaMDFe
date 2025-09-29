@@ -1,4 +1,7 @@
 using System.Text.Json;
+using System.Linq;
+using MDFeApi.Interfaces;
+using MDFeApi.DTOs;
 
 namespace MDFeApi.Services
 {
@@ -64,12 +67,15 @@ namespace MDFeApi.Services
                     PropertyNameCaseInsensitive = true
                 });
 
-                return estados?.Select(e => new EstadoDto
+                var result = estados?.Select(e => new EstadoDto
                 {
                     Id = e.Id,
                     Sigla = e.Sigla,
                     Nome = e.Nome
                 }).ToList() ?? new List<EstadoDto>();
+
+                _logger.LogInformation("Estados carregados da API IBGE: {Count} estados", result.Count);
+                return result;
             }
             catch (Exception ex)
             {
@@ -89,16 +95,19 @@ namespace MDFeApi.Services
                     PropertyNameCaseInsensitive = true
                 });
 
-                return municipios?.Select(m => new MunicipioIBGEDto
+                var result = municipios?.Select(m => new MunicipioIBGEDto
                 {
                     Id = m.Id,
                     Nome = m.Nome,
                     UF = uf
                 }).ToList() ?? new List<MunicipioIBGEDto>();
+
+                _logger.LogInformation("Municípios carregados da API IBGE para {UF}: {Count} municípios", uf, result.Count);
+                return result;
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Erro ao buscar municípios do estado {uf}");
+                _logger.LogError(ex, "Erro ao buscar municípios do estado {UF}", uf);
                 return new List<MunicipioIBGEDto>();
             }
         }
@@ -155,35 +164,5 @@ namespace MDFeApi.Services
                 return new List<MunicipioIBGE>();
             }
         }
-    }
-
-    // Classes auxiliares para deserialização do JSON do IBGE
-    public class EstadoIBGE
-    {
-        public int Id { get; set; }
-        public string Sigla { get; set; } = string.Empty;
-        public string Nome { get; set; } = string.Empty;
-    }
-
-    public class MunicipioIBGE
-    {
-        public int Id { get; set; }
-        public string Nome { get; set; } = string.Empty;
-        public string UF { get; set; } = string.Empty;
-    }
-
-    // DTOs para retorno
-    public class EstadoDto
-    {
-        public int Id { get; set; }
-        public string Sigla { get; set; } = string.Empty;
-        public string Nome { get; set; } = string.Empty;
-    }
-
-    public class MunicipioIBGEDto
-    {
-        public int Id { get; set; }
-        public string Nome { get; set; } = string.Empty;
-        public string UF { get; set; } = string.Empty;
     }
 }
