@@ -1,17 +1,16 @@
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using MDFeApi.Models;
 
 namespace MDFeApi.Data
 {
-    public class MDFeContext : IdentityDbContext<Usuario, IdentityRole<int>, int>
+    public class MDFeContext : DbContext
     {
         public MDFeContext(DbContextOptions<MDFeContext> options) : base(options)
         {
         }
 
         // DbSets das entidades
+        public DbSet<Usuario> Usuarios { get; set; }
         public DbSet<Emitente> Emitentes { get; set; }
         public DbSet<Estado> Estados { get; set; }
         public DbSet<Municipio> Municipios { get; set; }
@@ -32,6 +31,8 @@ namespace MDFeApi.Data
         public DbSet<Contratante> Contratantes { get; set; }
         public DbSet<Seguradora> Seguradoras { get; set; }
         public DbSet<Cargo> Cargos { get; set; }
+        public DbSet<Permissao> Permissoes { get; set; }
+        public DbSet<CargoPermissao> CargoPermissoes { get; set; }
 
         public DbSet<MDFeUnidadeTransporte> MDFeUnidadesTransporte { get; set; }
         public DbSet<MDFeUnidadeCarga> MDFeUnidadesCarga { get; set; }
@@ -44,12 +45,12 @@ namespace MDFeApi.Data
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
-            base.OnModelCreating(builder);
-
-            // Configurações das tabelas Identity
+            // Configuração do Usuario
             builder.Entity<Usuario>(entity =>
             {
                 entity.ToTable("Usuarios");
+                entity.HasKey(u => u.Id);
+                entity.HasIndex(u => u.UserName).IsUnique();
 
                 // Relacionamento com Cargo
                 entity.HasOne(u => u.Cargo)
@@ -64,34 +65,30 @@ namespace MDFeApi.Data
                 entity.HasIndex(c => c.Nome).IsUnique();
             });
 
-            builder.Entity<IdentityRole<int>>(entity =>
+            // Configuração da Permissao
+            builder.Entity<Permissao>(entity =>
             {
-                entity.ToTable("Roles");
+                entity.HasIndex(p => p.Codigo).IsUnique();
             });
 
-            builder.Entity<IdentityUserRole<int>>(entity =>
+            // Configuração do CargoPermissao
+            builder.Entity<CargoPermissao>(entity =>
             {
-                entity.ToTable("UsuarioRoles");
-            });
+                entity.HasKey(cp => cp.Id);
 
-            builder.Entity<IdentityUserClaim<int>>(entity =>
-            {
-                entity.ToTable("UsuarioClaims");
-            });
+                // Índice único composto para evitar duplicação
+                entity.HasIndex(cp => new { cp.CargoId, cp.PermissaoId }).IsUnique();
 
-            builder.Entity<IdentityUserLogin<int>>(entity =>
-            {
-                entity.ToTable("UsuarioLogins");
-            });
+                // Relacionamentos
+                entity.HasOne(cp => cp.Cargo)
+                    .WithMany(c => c.CargoPermissoes)
+                    .HasForeignKey(cp => cp.CargoId)
+                    .OnDelete(DeleteBehavior.Cascade);
 
-            builder.Entity<IdentityUserToken<int>>(entity =>
-            {
-                entity.ToTable("UsuarioTokens");
-            });
-
-            builder.Entity<IdentityRoleClaim<int>>(entity =>
-            {
-                entity.ToTable("RoleClaims");
+                entity.HasOne(cp => cp.Permissao)
+                    .WithMany(p => p.CargoPermissoes)
+                    .HasForeignKey(cp => cp.PermissaoId)
+                    .OnDelete(DeleteBehavior.Cascade);
             });
 
             // Configurações específicas

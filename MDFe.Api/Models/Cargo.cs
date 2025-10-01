@@ -19,5 +19,6 @@ namespace MDFeApi.Models
 
         // Navegação
         public ICollection<Usuario> Usuarios { get; set; } = new List<Usuario>();
+        public ICollection<CargoPermissao> CargoPermissoes { get; set; } = new List<CargoPermissao>();
     }
 }

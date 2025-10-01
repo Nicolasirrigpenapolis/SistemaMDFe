@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { OptionalFieldsToggle, OptionalSection } from '../../../components/UI/Common/OptionalFieldsToggle';
-import { ConfirmDeleteModal } from '../../../components/UI/Modal/ConfirmDeleteModal';
-import { formatPlaca, cleanPlaca } from '../../../utils/formatters';
+import { VeiculoCRUD } from '../../../components/Veiculos/VeiculoCRUD';
 import { entitiesService } from '../../../services/entitiesService';
 import Icon from '../../../components/UI/Icon';
 
+import { formatPlaca } from '../../../utils/formatters';
 interface Veiculo {
   id?: number;
   placa: string;
+  marca?: string;
   tara: number;
   tipoRodado: string;
   tipoCarroceria: string;
@@ -39,44 +39,46 @@ export function ListarVeiculos() {
   const [tamanhoPagina, setTamanhoPagina] = useState(10);
   const [paginacao, setPaginacao] = useState<PaginationData | null>(null);
 
-  // Estados do modal
-  const [modalAberto, setModalAberto] = useState(false);
+  // Estados dos modais CRUD
   const [modalVisualizacao, setModalVisualizacao] = useState(false);
-  const [veiculoEdicao, setVeiculoEdicao] = useState<Veiculo | null>(null);
-  const [veiculoVisualizacao, setVeiculoVisualizacao] = useState<Veiculo | null>(null);
-
-  // Estados do modal de exclusão
+  const [modalFormulario, setModalFormulario] = useState(false);
   const [modalExclusao, setModalExclusao] = useState(false);
-  const [veiculoExclusao, setVeiculoExclusao] = useState<Veiculo | null>(null);
-  const [excludindo, setExcluindo] = useState(false);
-  const [salvando, setSalvando] = useState(false);
-  const [mostrarCamposOpcionais, setMostrarCamposOpcionais] = useState({
-    dadosComplementares: false,
-    detalhes: false,
-    configuracoes: false
-  });
+  const [veiculoAtual, setVeiculoAtual] = useState<Veiculo | null>(null);
+  const [modoEdicao, setModoEdicao] = useState(false);
 
-  const [dadosModal, setDadosModal] = useState<Veiculo>({
-    placa: '',
-    tara: 0,
-    tipoRodado: '',
-    tipoCarroceria: '',
-    uf: '',
-    ativo: true
-  });
+  // Estados de loading
+  const [salvando, setSalvando] = useState(false);
+  const [excluindo, setExcluindo] = useState(false);
 
   useEffect(() => {
-    carregarVeiculos();
+    carregarVeiculos(paginaAtual, filtro, filtroTipo, filtroStatus, filtroUf);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [paginaAtual, tamanhoPagina]);
 
+  // Carregamento inicial sem filtros
   useEffect(() => {
-    setPaginaAtual(1);
-    carregarVeiculos(1, filtro);
+    carregarVeiculos(1, '', '', '', '');
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filtro]);
+  }, []);
 
-  const carregarVeiculos = async (pagina: number = paginaAtual, busca: string = filtro) => {
+  // Filtragem em tempo real
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      setPaginaAtual(1);
+      carregarVeiculos(1, filtro, filtroTipo, filtroStatus, filtroUf);
+    }, 300); // Debounce de 300ms para evitar muitas requisições
+
+    return () => clearTimeout(timeoutId);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filtro, filtroTipo, filtroStatus, filtroUf]);
+
+  const carregarVeiculos = async (
+    pagina: number = paginaAtual,
+    busca: string = filtro,
+    tipo: string = filtroTipo,
+    status: string = filtroStatus,
+    uf: string = filtroUf
+  ) => {
     try {
       setCarregando(true);
 
@@ -88,6 +90,18 @@ export function ListarVeiculos() {
 
       if (busca.trim()) {
         params.append('Search', busca.trim());
+      }
+
+      if (tipo) {
+        params.append('TipoRodado', tipo);
+      }
+
+      if (status) {
+        params.append('Status', status === 'ativo' ? 'true' : 'false');
+      }
+
+      if (uf) {
+        params.append('Uf', uf);
       }
 
       const response = await fetch(`${API_BASE_URL}/veiculos?${params}`);
@@ -118,661 +132,398 @@ export function ListarVeiculos() {
     }
   };
 
+  // Handlers dos modais
   const abrirModalNovo = () => {
-    setVeiculoEdicao(null);
-    setDadosModal({
-      placa: '',
-      tara: 0,
-      tipoRodado: '',
-      tipoCarroceria: '',
-      uf: '',
-        ativo: true
-    });
-    setModalAberto(true);
+    setVeiculoAtual(null);
+    setModoEdicao(false);
+    setModalFormulario(true);
   };
 
   const abrirModalEdicao = (veiculo: Veiculo) => {
-    setVeiculoEdicao(veiculo);
-    setDadosModal(veiculo);
-    setModalAberto(true);
+    setVeiculoAtual(veiculo);
+    setModoEdicao(true);
+    setModalFormulario(true);
   };
 
   const abrirModalVisualizacao = (veiculo: Veiculo) => {
-    setVeiculoVisualizacao(veiculo);
+    setVeiculoAtual(veiculo);
     setModalVisualizacao(true);
   };
 
-  const fecharModal = () => {
-    setModalAberto(false);
-    setVeiculoEdicao(null);
-    setMostrarCamposOpcionais({
-      dadosComplementares: false,
-      detalhes: false,
-      configuracoes: false
-    });
+  const abrirModalExclusao = (veiculo: Veiculo) => {
+    setVeiculoAtual(veiculo);
+    setModalExclusao(true);
   };
 
-  const fecharModalVisualizacao = () => {
+  const fecharModais = () => {
     setModalVisualizacao(false);
-    setVeiculoVisualizacao(null);
+    setModalFormulario(false);
+    setModalExclusao(false);
+    setVeiculoAtual(null);
+    setModoEdicao(false);
   };
 
-  const toggleCampoOpcional = (campo: keyof typeof mostrarCamposOpcionais) => {
-    setMostrarCamposOpcionais(prev => ({
-      ...prev,
-      [campo]: !prev[campo]
-    }));
-  };
-
-  const salvarVeiculo = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setSalvando(true);
-
+  // Handlers de CRUD
+  const handleSave = async (dadosVeiculo: Veiculo) => {
     try {
-      // Limpar dados antes do envio
+      setSalvando(true);
+
       const dadosLimpos = {
-        ...dadosModal,
-        placa: dadosModal.placa.trim().toUpperCase(),
-        uf: dadosModal.uf.toUpperCase()
+        ...dadosVeiculo,
+        placa: dadosVeiculo.placa.trim().toUpperCase(),
+        marca: dadosVeiculo.marca?.trim(),
+        uf: dadosVeiculo.uf.toUpperCase()
       };
 
       let resposta;
-      if (veiculoEdicao?.id) {
-        // Atualizar existente
-        resposta = await entitiesService.atualizarVeiculo(veiculoEdicao.id, dadosLimpos);
+      if (modoEdicao && veiculoAtual?.id) {
+        resposta = await entitiesService.atualizarVeiculo(veiculoAtual.id, dadosLimpos);
       } else {
-        // Criar novo
         resposta = await entitiesService.criarVeiculo(dadosLimpos);
       }
 
       if (resposta.sucesso) {
-        fecharModal();
-        carregarVeiculos(); // Recarregar lista do backend
+        fecharModais();
+        carregarVeiculos();
       } else {
-        alert(`Erro ao salvar veículo: ${resposta.mensagem}`);
+        throw new Error(resposta.mensagem || 'Erro ao salvar veículo');
       }
     } catch (error) {
       console.error('Erro ao salvar veículo:', error);
-      alert('Erro inesperado ao salvar veículo. Verifique os dados e tente novamente.');
+      throw error; // Re-throw para que o modal possa mostrar o erro
     } finally {
       setSalvando(false);
     }
   };
 
-  const abrirModalExclusao = (veiculo: Veiculo) => {
-    setVeiculoExclusao(veiculo);
-    setModalExclusao(true);
-  };
-
-  const fecharModalExclusao = () => {
-    setModalExclusao(false);
-    setVeiculoExclusao(null);
-    setExcluindo(false);
-  };
-
-  const confirmarExclusao = async () => {
-    if (!veiculoExclusao?.id) return;
+  const handleDelete = async () => {
+    if (!veiculoAtual?.id) return;
 
     try {
       setExcluindo(true);
-      const resposta = await entitiesService.excluirVeiculo(veiculoExclusao.id);
+      const resposta = await entitiesService.excluirVeiculo(veiculoAtual.id);
 
       if (resposta.sucesso) {
-        fecharModalExclusao();
-        carregarVeiculos(); // Recarregar lista do backend
+        fecharModais();
+        carregarVeiculos();
       } else {
-        alert(`Erro ao excluir veículo: ${resposta.mensagem}`);
-        setExcluindo(false);
+        throw new Error(resposta.mensagem || 'Erro ao excluir veículo');
       }
     } catch (error) {
       console.error('Erro ao excluir veículo:', error);
-      alert('Erro inesperado ao excluir veículo. Tente novamente.');
+      // Aqui você poderia mostrar um toast de erro
+    } finally {
       setExcluindo(false);
     }
   };
-
-  const veiculosFiltrados = veiculos.filter(veiculo => {
-    // Filtro de tipo
-    const tipoMatch = !filtroTipo || veiculo.tipoRodado === filtroTipo;
-
-    // Filtro de status
-    const statusMatch = !filtroStatus ||
-      (filtroStatus === 'ativo' && veiculo.ativo) ||
-      (filtroStatus === 'inativo' && !veiculo.ativo);
-
-    // Filtro de UF
-    const ufMatch = !filtroUf || veiculo.uf === filtroUf;
-
-    return tipoMatch && statusMatch && ufMatch;
-  });
 
   const limparFiltros = () => {
     setFiltro('');
     setFiltroTipo('');
     setFiltroStatus('');
     setFiltroUf('');
-  };
-
-  // Renderizar modal inline
-  const renderModal = () => {
-    if (!modalAberto) return null;
-
-    return (
-      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm">
-        <div className="bg-bg-surface rounded-xl border border-border-primary shadow-xl max-w-md w-full mx-4 max-h-[90vh] overflow-y-auto">
-          <div className="flex items-center justify-between p-6 border-b border-border-primary">
-            <h2 className="text-xl font-semibold text-text-primary">{veiculoEdicao ? 'Editar Veículo' : 'Novo Veículo'}</h2>
-            <button className="text-text-secondary hover:text-text-primary text-2xl font-bold w-8 h-8 flex items-center justify-center" onClick={fecharModal}>×</button>
-          </div>
-
-          <form id="veiculo-form" onSubmit={salvarVeiculo} className="p-6 space-y-6">
-            <div className="space-y-4">
-              <h3 className="text-lg font-medium text-text-primary">Dados Principais</h3>
-
-              <div className="grid grid-cols-1 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-text-primary mb-2">Placa *</label>
-                  <input
-                    type="text"
-                    value={formatPlaca(dadosModal.placa)}
-                    onChange={(e) => setDadosModal({ ...dadosModal, placa: cleanPlaca(e.target.value) })}
-                    placeholder="ABC-1234"
-                    maxLength={8}
-                    required
-                    className="w-full px-3 py-2 border border-border-primary rounded-lg bg-bg-surface text-text-primary placeholder-text-secondary focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-text-primary mb-2">Marca *</label>
-                  <input
-                    type="text"
-                    value={dadosModal.tipoCarroceria}
-                    onChange={(e) => setDadosModal({ ...dadosModal, tipoCarroceria: e.target.value })}
-                    maxLength={100}
-                    required
-                    className="w-full px-3 py-2 border border-border-primary rounded-lg bg-bg-surface text-text-primary placeholder-text-secondary focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-text-primary mb-2">Tipo de Rodado *</label>
-                  <select
-                    value={dadosModal.tipoRodado}
-                    onChange={(e) => setDadosModal({ ...dadosModal, tipoRodado: e.target.value })}
-                    required
-                    className="w-full px-3 py-2 border border-border-primary rounded-lg bg-bg-surface text-text-primary focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                  >
-                    <option value="">Selecione</option>
-                    <option value="01">01 - Truck</option>
-                    <option value="02">02 - Toco</option>
-                    <option value="03">03 - Cavalo Mecânico</option>
-                    <option value="04">04 - VAN</option>
-                    <option value="05">05 - Utilitário</option>
-                    <option value="06">06 - Outros</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-text-primary mb-2">UF *</label>
-                  <select
-                    value={dadosModal.uf}
-                    onChange={(e) => setDadosModal({ ...dadosModal, uf: e.target.value })}
-                    required
-                    className="w-full px-3 py-2 border border-border-primary rounded-lg bg-bg-surface text-text-primary focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                  >
-                    <option value="">Selecione</option>
-                    <option value="AC">AC</option>
-                    <option value="AL">AL</option>
-                    <option value="AP">AP</option>
-                    <option value="AM">AM</option>
-                    <option value="BA">BA</option>
-                    <option value="CE">CE</option>
-                    <option value="DF">DF</option>
-                    <option value="ES">ES</option>
-                    <option value="GO">GO</option>
-                    <option value="MA">MA</option>
-                    <option value="MT">MT</option>
-                    <option value="MS">MS</option>
-                    <option value="MG">MG</option>
-                    <option value="PA">PA</option>
-                    <option value="PB">PB</option>
-                    <option value="PR">PR</option>
-                    <option value="PE">PE</option>
-                    <option value="PI">PI</option>
-                    <option value="RJ">RJ</option>
-                    <option value="RN">RN</option>
-                    <option value="RS">RS</option>
-                    <option value="RO">RO</option>
-                    <option value="RR">RR</option>
-                    <option value="SC">SC</option>
-                    <option value="SP">SP</option>
-                    <option value="SE">SE</option>
-                    <option value="TO">TO</option>
-                  </select>
-                </div>
-              </div>
-            </div>
-
-            <OptionalFieldsToggle
-              label="Dados Complementares"
-              description="Capacidade, tara e outras informações"
-              isExpanded={mostrarCamposOpcionais.dadosComplementares}
-              onToggle={() => toggleCampoOpcional('dadosComplementares')}
-              icon="fas fa-address-book"
-            />
-
-            <OptionalSection isVisible={mostrarCamposOpcionais.dadosComplementares}>
-              <div className="grid grid-cols-1 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-text-primary mb-2">Tara (kg) *</label>
-                  <input
-                    type="number"
-                    value={dadosModal.tara}
-                    onChange={(e) => setDadosModal({ ...dadosModal, tara: Number(e.target.value) })}
-                    min="0"
-                    required
-                    className="w-full px-3 py-2 border border-border-primary rounded-lg bg-bg-surface text-text-primary placeholder-text-secondary focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-text-primary mb-2">Tipo de Carroceria *</label>
-                  <select
-                    value={dadosModal.tipoCarroceria}
-                    onChange={(e) => setDadosModal({ ...dadosModal, tipoCarroceria: e.target.value })}
-                    required
-                    className="w-full px-3 py-2 border border-border-primary rounded-lg bg-bg-surface text-text-primary focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                  >
-                    <option value="">Selecione</option>
-                    <option value="00">00 - Não aplicável</option>
-                    <option value="01">01 - Aberta</option>
-                    <option value="02">02 - Fechada/baú</option>
-                    <option value="03">03 - Graneleira</option>
-                    <option value="04">04 - Porta Container</option>
-                    <option value="05">05 - Sider</option>
-                  </select>
-                </div>
-              </div>
-
-            </OptionalSection>
-
-            {veiculoEdicao && (
-              <>
-                <OptionalFieldsToggle
-                  label="Configurações"
-                  description="Status e configurações do veículo"
-                  isExpanded={mostrarCamposOpcionais.configuracoes}
-                  onToggle={() => toggleCampoOpcional('configuracoes')}
-                  icon="fas fa-cog"
-                />
-
-                <OptionalSection isVisible={mostrarCamposOpcionais.configuracoes}>
-                  <div className="grid grid-cols-1 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-text-primary mb-2">Status</label>
-                      <select
-                        value={dadosModal.ativo ? 'true' : 'false'}
-                        onChange={(e) => setDadosModal({ ...dadosModal, ativo: e.target.value === 'true' })}
-                        className="w-full px-3 py-2 border border-border-primary rounded-lg bg-bg-surface text-text-primary focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                      >
-                        <option value="true">Ativo</option>
-                        <option value="false">Inativo</option>
-                      </select>
-                    </div>
-                  </div>
-                </OptionalSection>
-              </>
-            )}
-          </form>
-
-          <div className="flex items-center justify-end gap-3 p-6 border-t border-border-primary">
-            <button type="button" onClick={fecharModal} className="px-4 py-2 border border-border-primary text-text-secondary hover:text-text-primary hover:border-text-primary rounded-lg font-medium transition-colors">
-              Cancelar
-            </button>
-            <button type="submit" form="veiculo-form" className="px-4 py-2 bg-primary hover:bg-primary-hover text-white rounded-lg font-medium disabled:opacity-50 disabled:cursor-not-allowed transition-colors" disabled={salvando}>
-              {salvando ? 'Salvando...' : (veiculoEdicao ? 'Atualizar' : 'Salvar')}
-            </button>
-          </div>
-        </div>
-      </div>
-    );
-  };
-
-  // Renderizar modal de visualização
-  const renderModalVisualizacao = () => {
-    if (!modalVisualizacao || !veiculoVisualizacao) return null;
-
-    return (
-      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm">
-        <div className="bg-bg-surface rounded-xl border border-border-primary shadow-xl max-w-md w-full mx-4 max-h-[90vh] overflow-y-auto">
-          <div className="flex items-center justify-between p-6 border-b border-border-primary">
-            <h2 className="text-xl font-semibold text-text-primary">Visualizar Veículo</h2>
-            <button className="text-text-secondary hover:text-text-primary text-2xl font-bold w-8 h-8 flex items-center justify-center" onClick={fecharModalVisualizacao}>×</button>
-          </div>
-
-          <div className="p-6 space-y-6">
-            <div className="space-y-4">
-              <h3 className="text-lg font-medium text-text-primary">Dados Principais</h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="space-y-1">
-                  <label className="text-sm font-medium text-text-secondary">Placa:</label>
-                  <span className="text-text-primary">{veiculoVisualizacao.placa}</span>
-                </div>
-                <div className="space-y-1">
-                  <label className="text-sm font-medium text-text-secondary">Marca:</label>
-                  <span className="text-text-primary">{veiculoVisualizacao.tipoCarroceria}</span>
-                </div>
-                <div className="space-y-1">
-                  <label className="text-sm font-medium text-text-secondary">Tipo de Rodado:</label>
-                  <span className="text-text-primary">{veiculoVisualizacao.tipoRodado}</span>
-                </div>
-                <div className="space-y-1">
-                  <label className="text-sm font-medium text-text-secondary">UF:</label>
-                  <span className="text-text-primary">{veiculoVisualizacao.uf}</span>
-                </div>
-              </div>
-            </div>
-
-            {(veiculoVisualizacao.tara || veiculoVisualizacao.tipoCarroceria) && (
-              <div className="space-y-4">
-                <h3 className="text-lg font-medium text-text-primary">Dados Complementares</h3>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="space-y-1">
-                    <label className="text-sm font-medium text-text-secondary">Tara:</label>
-                    <span className="text-text-primary">{veiculoVisualizacao.tara.toLocaleString()} kg</span>
-                  </div>
-                  <div className="space-y-1">
-                    <label className="text-sm font-medium text-text-secondary">Tipo de Carroceria:</label>
-                    <span className="text-text-primary">{veiculoVisualizacao.tipoCarroceria}</span>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            <div className="space-y-4">
-              <h3 className="text-lg font-medium text-text-primary">Configurações</h3>
-              <div className="grid grid-cols-1 gap-4">
-                <div className="space-y-1">
-                  <label className="text-sm font-medium text-text-secondary">Status:</label>
-                  <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${veiculoVisualizacao.ativo ? 'bg-success/20 text-success' : 'bg-error/20 text-error'}`}>
-                    {veiculoVisualizacao.ativo ? 'Ativo' : 'Inativo'}
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="flex items-center justify-end gap-3 p-6 border-t border-border-primary">
-            <button onClick={fecharModalVisualizacao} className="px-4 py-2 border border-border-primary text-text-secondary hover:text-text-primary hover:border-text-primary rounded-lg font-medium transition-colors">
-              Fechar
-            </button>
-            <button
-              onClick={() => {
-                fecharModalVisualizacao();
-                abrirModalEdicao(veiculoVisualizacao);
-              }}
-              className="px-4 py-2 bg-primary hover:bg-primary-hover text-white rounded-lg font-medium transition-colors"
-            >
-              Editar
-            </button>
-          </div>
-        </div>
-      </div>
-    );
+    setPaginaAtual(1);
+    setTimeout(() => carregarVeiculos(1, '', '', '', ''), 0);
   };
 
   if (carregando) {
     return (
-      <div className="max-w-7xl mx-auto px-6 py-8">
-        <div className="flex items-center justify-center py-12">
-          <div className="text-text-secondary">Carregando veículos...</div>
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+        <div className="w-full px-6 py-8">
+          <div className="flex items-center justify-center py-16">
+            <div className="flex items-center gap-4">
+              <div className="w-8 h-8 border-4 border-purple-600 border-t-transparent rounded-full animate-spin"></div>
+              <span className="text-gray-600 dark:text-gray-400">Carregando veículos...</span>
+            </div>
+          </div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-6 py-8">
-      <div className="flex items-center justify-between mb-8">
-        <h1 className="text-2xl font-bold text-text-primary flex items-center gap-3">
-          <i className="fas fa-truck text-primary"></i>
-          Veículos
-        </h1>
-        <button className="px-4 py-2 bg-primary hover:bg-primary-hover text-white rounded-lg font-medium transition-colors flex items-center gap-2" onClick={abrirModalNovo}>
-          <Icon name="plus" />
-          Novo Veículo
-        </button>
-      </div>
-
-      <div className="bg-bg-surface rounded-xl border border-border-primary p-6 mb-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-4 items-end">
-          <div>
-            <label className="block text-sm font-medium text-text-primary mb-2">Buscar</label>
-            <input
-              type="text"
-              placeholder="Placa ou carroceria..."
-              value={filtro}
-              onChange={(e) => {
-                setFiltro(e.target.value);
-              }}
-              className="w-full px-3 py-2 border border-border-primary rounded-lg bg-bg-surface text-text-primary placeholder-text-secondary focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-            />
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      <div className="w-full px-2 py-4">
+        {/* Header */}
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-4">
+            <div className="w-14 h-14 bg-gradient-to-br from-purple-600 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg">
+              <Icon name="truck" className="text-white" size="xl" />
+            </div>
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-1">Veículos</h1>
+              <p className="text-gray-600 dark:text-gray-400 text-lg">Gerencie a frota de veículos para transporte</p>
+            </div>
           </div>
-
-          <div>
-            <label className="block text-sm font-medium text-text-primary mb-2">Tipo</label>
-            <select
-              value={filtroTipo}
-              onChange={(e) => setFiltroTipo(e.target.value)}
-              className="w-full px-3 py-2 border border-border-primary rounded-lg bg-bg-surface text-text-primary focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-            >
-              <option value="">Todos os tipos</option>
-              <option value="01">01 - Truck</option>
-              <option value="02">02 - Toco</option>
-              <option value="03">03 - Cavalo Mecânico</option>
-              <option value="04">04 - VAN</option>
-              <option value="05">05 - Utilitário</option>
-              <option value="06">06 - Outros</option>
-            </select>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-text-primary mb-2">Status</label>
-            <select
-              value={filtroStatus}
-              onChange={(e) => setFiltroStatus(e.target.value)}
-              className="w-full px-3 py-2 border border-border-primary rounded-lg bg-bg-surface text-text-primary focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-            >
-              <option value="">Todos os status</option>
-              <option value="ativo">Ativo</option>
-              <option value="inativo">Inativo</option>
-            </select>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-text-primary mb-2">UF</label>
-            <select
-              value={filtroUf}
-              onChange={(e) => setFiltroUf(e.target.value)}
-              className="w-full px-3 py-2 border border-border-primary rounded-lg bg-bg-surface text-text-primary focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-            >
-              <option value="">Todas as UF</option>
-              <option value="AC">AC</option>
-              <option value="AL">AL</option>
-              <option value="AP">AP</option>
-              <option value="AM">AM</option>
-              <option value="BA">BA</option>
-              <option value="CE">CE</option>
-              <option value="DF">DF</option>
-              <option value="ES">ES</option>
-              <option value="GO">GO</option>
-              <option value="MA">MA</option>
-              <option value="MT">MT</option>
-              <option value="MS">MS</option>
-              <option value="MG">MG</option>
-              <option value="PA">PA</option>
-              <option value="PB">PB</option>
-              <option value="PR">PR</option>
-              <option value="PE">PE</option>
-              <option value="PI">PI</option>
-              <option value="RJ">RJ</option>
-              <option value="RN">RN</option>
-              <option value="RS">RS</option>
-              <option value="RO">RO</option>
-              <option value="RR">RR</option>
-              <option value="SC">SC</option>
-              <option value="SP">SP</option>
-              <option value="SE">SE</option>
-              <option value="TO">TO</option>
-            </select>
-          </div>
-
           <button
-            onClick={limparFiltros}
-            className="px-4 py-2 border border-border-primary text-text-secondary hover:text-text-primary hover:border-text-primary rounded-lg font-medium transition-colors"
+            className="px-6 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white rounded-xl font-semibold transition-all duration-200 flex items-center gap-3 shadow-lg hover:shadow-xl transform hover:scale-105"
+            onClick={abrirModalNovo}
           >
-            Limpar Filtros
+            <Icon name="plus" size="lg" />
+            <span>Novo Veículo</span>
           </button>
         </div>
-      </div>
 
-      <div className="bg-bg-surface rounded-xl border border-border-primary shadow-sm">
-        {veiculosFiltrados.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-12 px-6 text-center">
-            <h3 className="text-lg font-medium text-text-primary mb-2">Nenhum veículo encontrado</h3>
-            <p className="text-text-secondary">Adicione um novo veículo para começar.</p>
-          </div>
-        ) : (
-          <div className="overflow-x-auto">
-            <div className="grid grid-cols-6 gap-4 p-4 border-b border-border-primary bg-bg-hover text-sm font-medium text-text-secondary">
-              <div>Placa</div>
-              <div>Veículo</div>
-              <div>Tipo</div>
-              <div>Localização</div>
-              <div>Status</div>
-              <div>Ações</div>
+        {/* Filtros */}
+        <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-0 p-6 mb-6">
+          <div className="grid grid-cols-5 gap-4 items-end">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Buscar</label>
+              <input
+                type="text"
+                placeholder="Placa ou marca..."
+                value={filtro}
+                onChange={(e) => setFiltro(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 dark:border-0 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500"
+              />
             </div>
 
-            {veiculosFiltrados.map((veiculo) => (
-              <div key={veiculo.id} className="grid grid-cols-6 gap-4 p-4 border-b border-border-primary hover:bg-bg-hover transition-colors">
-                <div className="flex items-center">
-                  <span className="font-medium text-text-primary">{veiculo.placa}</span>
-                </div>
-                <div className="flex flex-col">
-                  <span className="font-medium text-text-primary">{veiculo.tipoCarroceria}</span>
-                  <span className="text-sm text-text-secondary">Tara: {veiculo.tara.toLocaleString()}kg</span>
-                </div>
-                <div className="flex items-center">
-                  <span className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-primary/10 text-primary">
-                    Tipo {veiculo.tipoRodado}
-                  </span>
-                </div>
-                <div className="flex items-center">
-                  <span className="font-medium text-text-primary">{veiculo.uf}</span>
-                </div>
-                <div className="flex items-center">
-                  <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${veiculo.ativo ? 'bg-success/20 text-success' : 'bg-error/20 text-error'}`}>
-                    {veiculo.ativo ? 'Ativo' : 'Inativo'}
-                  </span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <button
-                    className="text-xs px-2 py-1 border border-border-primary text-text-secondary hover:text-text-primary hover:border-text-primary rounded transition-colors"
-                    onClick={() => abrirModalVisualizacao(veiculo)}
-                  >
-                    Visualizar
-                  </button>
-                  <button
-                    className="text-xs px-2 py-1 bg-primary hover:bg-primary-hover text-white rounded transition-colors"
-                    onClick={() => abrirModalEdicao(veiculo)}
-                  >
-                    Editar
-                  </button>
-                  <button
-                    className="text-xs px-2 py-1 bg-error hover:bg-error/80 text-white rounded transition-colors"
-                    onClick={() => abrirModalExclusao(veiculo)}
-                  >
-                    Excluir
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-
-      {/* Paginação */}
-      {paginacao && paginacao.totalItems > 0 && (
-        <div className="mt-6 bg-bg-surface rounded-xl border border-border-primary p-6">
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-            <div className="text-sm text-text-secondary">
-              Mostrando {((paginacao.currentPage - 1) * paginacao.pageSize) + 1} até {Math.min(paginacao.currentPage * paginacao.pageSize, paginacao.totalItems)} de {paginacao.totalItems} veículos
-            </div>
-
-            {paginacao.totalPages > 1 && (
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={() => setPaginaAtual(paginacao.currentPage - 1)}
-                  disabled={!paginacao.hasPreviousPage}
-                  className="px-3 py-2 border border-border-primary text-text-secondary hover:text-text-primary hover:border-text-primary rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  ← Anterior
-                </button>
-
-                <span className="px-4 py-2 text-sm text-text-primary">
-                  Página {paginacao.currentPage} de {paginacao.totalPages}
-                </span>
-
-                <button
-                  onClick={() => setPaginaAtual(paginacao.currentPage + 1)}
-                  disabled={!paginacao.hasNextPage}
-                  className="px-3 py-2 border border-border-primary text-text-secondary hover:text-text-primary hover:border-text-primary rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  Próxima →
-                </button>
-              </div>
-            )}
-
-            <div className="flex items-center gap-2">
-              <label className="text-sm text-text-secondary">Itens por página:</label>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Tipo</label>
               <select
-                value={tamanhoPagina}
-                onChange={(e) => {
-                  setTamanhoPagina(Number(e.target.value));
-                  setPaginaAtual(1);
-                }}
-                className="px-2 py-1 border border-border-primary rounded bg-bg-surface text-text-primary text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                value={filtroTipo}
+                onChange={(e) => setFiltroTipo(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 dark:border-0 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500"
               >
-                <option value={1}>1</option>
-                <option value={2}>2</option>
-                <option value={5}>5</option>
-                <option value={10}>10</option>
-                <option value={20}>20</option>
+                <option value="">Todos os tipos</option>
+                <option value="01">Truck</option>
+                <option value="02">Toco</option>
+                <option value="03">Cavalo Mecânico</option>
+                <option value="04">VAN</option>
+                <option value="05">Utilitário</option>
+                <option value="06">Outros</option>
               </select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Status</label>
+              <select
+                value={filtroStatus}
+                onChange={(e) => setFiltroStatus(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 dark:border-0 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500"
+              >
+                <option value="">Todos os status</option>
+                <option value="ativo">Ativo</option>
+                <option value="inativo">Inativo</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">UF</label>
+              <select
+                value={filtroUf}
+                onChange={(e) => setFiltroUf(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 dark:border-0 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500"
+              >
+                <option value="">Todas as UF</option>
+                <option value="AC">AC</option>
+                <option value="AL">AL</option>
+                <option value="AP">AP</option>
+                <option value="AM">AM</option>
+                <option value="BA">BA</option>
+                <option value="CE">CE</option>
+                <option value="DF">DF</option>
+                <option value="ES">ES</option>
+                <option value="GO">GO</option>
+                <option value="MA">MA</option>
+                <option value="MT">MT</option>
+                <option value="MS">MS</option>
+                <option value="MG">MG</option>
+                <option value="PA">PA</option>
+                <option value="PB">PB</option>
+                <option value="PR">PR</option>
+                <option value="PE">PE</option>
+                <option value="PI">PI</option>
+                <option value="RJ">RJ</option>
+                <option value="RN">RN</option>
+                <option value="RS">RS</option>
+                <option value="RO">RO</option>
+                <option value="RR">RR</option>
+                <option value="SC">SC</option>
+                <option value="SP">SP</option>
+                <option value="SE">SE</option>
+                <option value="TO">TO</option>
+              </select>
+            </div>
+
+            <div>
+              <button
+                onClick={limparFiltros}
+                className="w-full px-4 py-2 bg-red-50 hover:bg-red-100 dark:bg-red-900/20 dark:hover:bg-red-900/30 text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 border border-red-200 dark:border-red-800 rounded-lg font-semibold transition-all duration-200 flex items-center justify-center gap-2 shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
+                disabled={!filtro && !filtroTipo && !filtroStatus && !filtroUf}
+              >
+                <Icon name="times" />
+                Limpar Filtros
+              </button>
             </div>
           </div>
         </div>
-      )}
 
-      {renderModal()}
-      {renderModalVisualizacao()}
+        {/* Indicador de filtros ativos */}
+        {(filtro || filtroTipo || filtroStatus || filtroUf) && (
+          <div className="bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 rounded-lg p-3 mb-4">
+            <div className="flex items-center gap-2">
+              <Icon name="filter" className="text-purple-600 dark:text-purple-400" />
+              <span className="text-sm font-medium text-purple-700 dark:text-purple-300">
+                Filtros ativos:
+                {filtro && <span className="ml-1 px-2 py-1 bg-purple-100 dark:bg-purple-800 rounded text-xs">{filtro}</span>}
+                {filtroTipo && <span className="ml-1 px-2 py-1 bg-purple-100 dark:bg-purple-800 rounded text-xs">Tipo {filtroTipo}</span>}
+                {filtroStatus && <span className="ml-1 px-2 py-1 bg-purple-100 dark:bg-purple-800 rounded text-xs">{filtroStatus === 'ativo' ? 'Ativo' : 'Inativo'}</span>}
+                {filtroUf && <span className="ml-1 px-2 py-1 bg-purple-100 dark:bg-purple-800 rounded text-xs">{filtroUf}</span>}
+              </span>
+            </div>
+          </div>
+        )}
 
-      <ConfirmDeleteModal
-        isOpen={modalExclusao}
-        title="Excluir Veículo"
-        message="Tem certeza de que deseja excluir este veículo?"
-        itemName={veiculoExclusao ? `${formatPlaca(veiculoExclusao.placa)} - ${veiculoExclusao.tipoCarroceria}` : ''}
-        onConfirm={confirmarExclusao}
-        onCancel={fecharModalExclusao}
-        loading={excludindo}
-      />
+        {/* Tabela */}
+        <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-0 shadow-sm">
+          {veiculos.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-16 px-6">
+              <div className="w-16 h-16 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center mb-4">
+                <Icon name="truck" className="text-2xl text-gray-400" />
+              </div>
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+                {(filtro || filtroTipo || filtroStatus || filtroUf) ? 'Nenhum veículo encontrado com os filtros aplicados' : 'Nenhum veículo encontrado'}
+              </h3>
+              <p className="text-gray-600 dark:text-gray-400 text-center">
+                {(filtro || filtroTipo || filtroStatus || filtroUf) ? 'Tente ajustar os filtros ou limpar para ver todos os veículos.' : 'Adicione um novo veículo para começar.'}
+              </p>
+            </div>
+          ) : (
+            <>
+              <div className="grid grid-cols-6 gap-4 p-4 bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-0 font-semibold text-gray-900 dark:text-white">
+                <div className="text-center">Placa</div>
+                <div className="text-center">Veículo</div>
+                <div className="text-center">Tipo</div>
+                <div className="text-center">Localização</div>
+                <div className="text-center">Status</div>
+                <div className="text-center">Ações</div>
+              </div>
+
+              {veiculos.map((veiculo) => (
+                <div key={veiculo.id} className="grid grid-cols-6 gap-4 p-4 border-b border-gray-200 dark:border-0 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200">
+                  <div className="text-center">
+                    <div className="font-medium text-gray-900 dark:text-white">{formatPlaca(veiculo.placa)}</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="font-medium text-gray-900 dark:text-white">{veiculo.marca || 'Não informado'}</div>
+                    <div className="text-sm text-gray-500 dark:text-gray-400">Tara: {veiculo.tara?.toLocaleString() || '0'}kg</div>
+                  </div>
+                  <div className="text-center flex justify-center">
+                    <span className="text-sm font-semibold text-purple-600 dark:text-purple-400">
+                      Tipo {veiculo.tipoRodado}
+                    </span>
+                  </div>
+                  <div className="text-center">
+                    <div className="font-medium text-gray-900 dark:text-white">{veiculo.uf}</div>
+                  </div>
+                  <div className="text-center flex justify-center">
+                    <span className={`text-sm font-semibold ${
+                      veiculo.ativo
+                        ? 'text-green-600 dark:text-green-400'
+                        : 'text-red-600 dark:text-red-400'
+                    }`}>
+                      {veiculo.ativo ? 'Ativo' : 'Inativo'}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-center gap-2">
+                    <button
+                      className="p-2 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors duration-200"
+                      onClick={() => abrirModalVisualizacao(veiculo)}
+                      title="Visualizar"
+                    >
+                      <Icon name="eye" />
+                    </button>
+                    <button
+                      className="p-2 text-amber-600 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-900/20 rounded-lg transition-colors duration-200"
+                      onClick={() => abrirModalEdicao(veiculo)}
+                      title="Editar"
+                    >
+                      <Icon name="edit" />
+                    </button>
+                    <button
+                      className="p-2 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors duration-200"
+                      onClick={() => abrirModalExclusao(veiculo)}
+                      title="Excluir"
+                    >
+                      <Icon name="trash" />
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </>
+          )}
+        </div>
+
+        {/* Paginação */}
+        {paginacao && paginacao.totalItems > 0 && (
+          <div className="mt-6 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-0 p-4 rounded-b-lg">
+            <div className="flex flex-row justify-between items-center gap-4">
+              <div className="text-sm text-gray-600 dark:text-gray-400 text-left">
+                Mostrando {paginacao.startItem || ((paginacao.currentPage - 1) * paginacao.pageSize) + 1} até {paginacao.endItem || Math.min(paginacao.currentPage * paginacao.pageSize, paginacao.totalItems)} de {paginacao.totalItems} veículos
+              </div>
+
+              {paginacao.totalPages > 1 && (
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => setPaginaAtual(paginacao.currentPage - 1)}
+                    disabled={!paginacao.hasPreviousPage}
+                    className="px-4 py-2 border border-gray-300 dark:border-0 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200 text-sm"
+                  >
+                    Anterior
+                  </button>
+
+                  <span className="px-4 py-2 text-gray-900 dark:text-white font-medium text-sm whitespace-nowrap">
+                    {paginacao.currentPage} / {paginacao.totalPages}
+                  </span>
+
+                  <button
+                    onClick={() => setPaginaAtual(paginacao.currentPage + 1)}
+                    disabled={!paginacao.hasNextPage}
+                    className="px-4 py-2 border border-gray-300 dark:border-0 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200 text-sm"
+                  >
+                    Próxima
+                  </button>
+                </div>
+              )}
+
+              <div className="flex items-center gap-2">
+                <label className="text-sm text-gray-700 dark:text-gray-300">Itens por página:</label>
+                <select
+                  value={tamanhoPagina}
+                  onChange={(e) => {
+                    setTamanhoPagina(Number(e.target.value));
+                    setPaginaAtual(1);
+                  }}
+                  className="px-3 py-1 border border-gray-300 dark:border-0 rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500"
+                >
+                  <option value={5}>5</option>
+                  <option value={10}>10</option>
+                  <option value={20}>20</option>
+                  <option value={50}>50</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Modais CRUD */}
+        <VeiculoCRUD
+          viewModalOpen={modalVisualizacao}
+          formModalOpen={modalFormulario}
+          deleteModalOpen={modalExclusao}
+          selectedVeiculo={veiculoAtual}
+          isEdit={modoEdicao}
+          onViewClose={fecharModais}
+          onFormClose={fecharModais}
+          onDeleteClose={fecharModais}
+          onSave={handleSave}
+          onEdit={abrirModalEdicao}
+          onDelete={handleDelete}
+          saving={salvando}
+          deleting={excluindo}
+        />
+      </div>
     </div>
   );
 }

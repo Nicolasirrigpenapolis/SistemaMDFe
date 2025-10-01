@@ -1,118 +1,179 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../../contexts/AuthContext';
 import { authService } from '../../../services/authService';
+import { cargosService, Cargo } from '../../../services/cargosService';
+import { UsuarioCRUD } from '../../../components/Usuarios/UsuarioCRUD';
 import Icon from '../../../components/UI/Icon';
 
 interface User {
   id: number;
   nome: string;
-  email: string;
-  telefone?: string;
+  username?: string;
+  cargoId?: number;
+  cargoNome?: string;
   ativo: boolean;
   dataCriacao: string;
+  ultimoLogin?: string;
+  password?: string;
 }
 
 export function Usuarios() {
   const { user: currentUser } = useAuth();
   const [users, setUsers] = useState<User[]>([]);
+  const [cargos, setCargos] = useState<Cargo[]>([]);
   const [loading, setLoading] = useState(true);
-  const [showModal, setShowModal] = useState(false);
-  const [editingUser, setEditingUser] = useState<User | null>(null);
-  const [userForm, setUserForm] = useState({
-    nome: '',
-    email: '',
-    telefone: '',
-    password: ''
-  });
+
+  // Estados de filtro
+  const [filtro, setFiltro] = useState('');
+  const [filtroStatus, setFiltroStatus] = useState('');
+  const [filtroCargo, setFiltroCargo] = useState('');
+
+  // Estados dos modais CRUD
+  const [viewModalOpen, setViewModalOpen] = useState(false);
+  const [formModalOpen, setFormModalOpen] = useState(false);
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const [isEdit, setIsEdit] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
-    loadUsers();
+    loadData();
   }, []);
 
-  const loadUsers = async () => {
+  const loadData = async () => {
     try {
       setLoading(true);
-      // Aqui você faria a chamada para API de usuários
-      // Por enquanto, vamos simular dados
-      const mockUsers: User[] = [
-        {
-          id: 1,
-          nome: currentUser?.nome || 'Usuário Atual',
-          email: currentUser?.email || 'usuario@exemplo.com',
-          telefone: currentUser?.telefone,
-          ativo: true,
-          dataCriacao: new Date().toISOString()
-        }
-      ];
-      setUsers(mockUsers);
+
+      // Carregar cargos
+      const cargosData = await cargosService.listarCargos();
+      setCargos(cargosData);
+
+      // Carregar usuários reais
+      const usersResult = await authService.getUsers();
+      if (usersResult.sucesso && usersResult.data) {
+        setUsers(usersResult.data);
+      } else {
+        console.error('Erro ao carregar usuários:', usersResult.mensagem);
+      }
     } catch (error) {
-      console.error('Erro ao carregar usuários:', error);
+      console.error('Erro ao carregar dados:', error);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleEditUser = (user: User) => {
-    setEditingUser(user);
-    setUserForm({
-      nome: user.nome,
-      email: user.email,
-      telefone: user.telefone || '',
-      password: ''
-    });
-    setShowModal(true);
+  const abrirModalNovo = () => {
+    setSelectedUser(null);
+    setIsEdit(false);
+    setFormModalOpen(true);
   };
 
-  const handleAddUser = () => {
-    setEditingUser(null);
-    setUserForm({
-      nome: '',
-      email: '',
-      telefone: '',
-      password: ''
-    });
-    setShowModal(true);
+  const abrirModalEdicao = (user: User) => {
+    setSelectedUser(user);
+    setIsEdit(true);
+    setFormModalOpen(true);
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const abrirModalVisualizacao = (user: User) => {
+    setSelectedUser(user);
+    setViewModalOpen(true);
+  };
 
+  const abrirModalExclusao = (user: User) => {
+    setSelectedUser(user);
+    setDeleteModalOpen(true);
+  };
+
+  const fecharModais = () => {
+    setViewModalOpen(false);
+    setFormModalOpen(false);
+    setDeleteModalOpen(false);
+    setSelectedUser(null);
+    setIsEdit(false);
+    setSaving(false);
+    setDeleting(false);
+  };
+
+  const salvarUsuario = async (data: User) => {
     try {
-      if (editingUser) {
+      setSaving(true);
+
+      if (isEdit && data.id) {
         // Editar usuário existente
-        console.log('Editando usuário:', editingUser.id, userForm);
-        // Aqui faria a chamada para API de edição
+        console.log('Editando usuário:', data.id, data);
+        // TODO: Implementar API de edição quando estiver disponível
+        setUsers(prev => prev.map(user =>
+          user.id === data.id ? { ...user, ...data } : user
+        ));
       } else {
         // Criar novo usuário
         const result = await authService.register({
-          nome: userForm.nome,
-          email: userForm.email,
-          password: userForm.password,
-          telefone: userForm.telefone || undefined
+          nome: data.nome,
+          username: data.username,
+          password: data.password || '',
+          cargoId: data.cargoId
         });
 
         if (result.sucesso) {
-          await loadUsers();
-          setShowModal(false);
+          await loadData();
         } else {
-          alert(result.mensagem || 'Erro ao criar usuário');
+          throw new Error(result.mensagem || 'Erro ao criar usuário');
         }
       }
+
+      fecharModais();
     } catch (error) {
       console.error('Erro ao salvar usuário:', error);
-      alert('Erro ao salvar usuário');
+      throw error;
+    } finally {
+      setSaving(false);
     }
   };
 
-  const toggleUserStatus = async (userId: number) => {
+  const excluirUsuario = async () => {
+    if (!selectedUser?.id) return;
+
     try {
-      // Aqui faria a chamada para API de ativação/desativação
-      console.log('Alterando status do usuário:', userId);
-      await loadUsers();
+      setDeleting(true);
+      // TODO: Implementar API de exclusão quando estiver disponível
+      console.log('Excluindo usuário:', selectedUser.id);
+      setUsers(prev => prev.filter(user => user.id !== selectedUser.id));
+      fecharModais();
     } catch (error) {
-      console.error('Erro ao alterar status do usuário:', error);
+      console.error('Erro ao excluir usuário:', error);
+      throw error;
+    } finally {
+      setDeleting(false);
     }
   };
+
+  const editarDoModal = (user: User) => {
+    setViewModalOpen(false);
+    abrirModalEdicao(user);
+  };
+
+  const limparFiltros = () => {
+    setFiltro('');
+    setFiltroStatus('');
+    setFiltroCargo('');
+  };
+
+  // Aplicar filtros
+  const usuariosFiltrados = users.filter(user => {
+    const matchFiltro = !filtro ||
+      user.nome.toLowerCase().includes(filtro.toLowerCase()) ||
+      (user.username && user.username.toLowerCase().includes(filtro.toLowerCase()));
+
+    const matchStatus = !filtroStatus ||
+      (filtroStatus === 'ativo' && user.ativo) ||
+      (filtroStatus === 'inativo' && !user.ativo);
+
+    const matchCargo = !filtroCargo ||
+      (user.cargoId && user.cargoId.toString() === filtroCargo);
+
+    return matchFiltro && matchStatus && matchCargo;
+  });
 
   if (loading) {
     return (
@@ -123,205 +184,189 @@ export function Usuarios() {
   }
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-            Usuários do Sistema
-          </h1>
-          <p className="text-gray-600 dark:text-gray-400">
-            Gerencie os usuários com acesso ao sistema MDFe
-          </p>
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      <div className="w-full px-2 py-4">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-4">
+            <div className="w-14 h-14 bg-gradient-to-br from-green-600 to-emerald-600 rounded-xl flex items-center justify-center shadow-lg">
+              <i className="fas fa-users text-white text-xl"></i>
+            </div>
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-1">Usuários</h1>
+              <p className="text-gray-600 dark:text-gray-400 text-lg">Gerencie os usuários com acesso ao sistema MDFe</p>
+            </div>
+          </div>
+          <button
+            onClick={abrirModalNovo}
+            className="px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white rounded-xl font-semibold transition-all duration-200 flex items-center gap-3 shadow-lg hover:shadow-xl transform hover:scale-105"
+          >
+            <i className="fas fa-plus text-lg"></i>
+            <span>Novo Usuário</span>
+          </button>
         </div>
-        <button
-          onClick={handleAddUser}
-          className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
-        >
-          <Icon name="plus" size="sm" />
-          Novo Usuário
-        </button>
-      </div>
 
-      {/* Lista de usuários */}
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow">
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="bg-gray-50 dark:bg-gray-700">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                  Usuário
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                  Email
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                  Telefone
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                  Status
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                  Data Criação
-                </th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                  Ações
-                </th>
-              </tr>
-            </thead>
-            <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-              {users.map((user) => (
-                <tr key={user.id}>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="flex items-center">
-                      <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center">
-                        <Icon name="user" size="sm" />
-                      </div>
-                      <div className="ml-4">
-                        <div className="text-sm font-medium text-gray-900 dark:text-white">
-                          {user.nome}
-                        </div>
-                      </div>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-300">
-                    {user.email}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-300">
-                    {user.telefone || '-'}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+        {/* Filtros */}
+        <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-0 p-6 mb-6">
+          <div className="grid grid-cols-4 gap-4 items-end">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Buscar</label>
+              <input
+                type="text"
+                placeholder="Nome ou username..."
+                value={filtro}
+                onChange={(e) => setFiltro(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 dark:border-0 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500/20 focus:border-green-500"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Status</label>
+              <select
+                value={filtroStatus}
+                onChange={(e) => setFiltroStatus(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 dark:border-0 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-green-500/20 focus:border-green-500"
+              >
+                <option value="">Todos os status</option>
+                <option value="ativo">Ativo</option>
+                <option value="inativo">Inativo</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Cargo</label>
+              <select
+                value={filtroCargo}
+                onChange={(e) => setFiltroCargo(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 dark:border-0 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-green-500/20 focus:border-green-500"
+              >
+                <option value="">Todos os cargos</option>
+                {cargos.map(cargo => (
+                  <option key={cargo.id} value={cargo.id}>
+                    {cargo.nome}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <button
+                onClick={limparFiltros}
+                className="w-full px-4 py-2 bg-red-50 hover:bg-red-100 dark:bg-red-900/20 dark:hover:bg-red-900/30 text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 border border-red-200 dark:border-red-800 rounded-lg font-semibold transition-all duration-200 flex items-center justify-center gap-2 shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
+                disabled={!filtro && !filtroStatus && !filtroCargo}
+              >
+                <Icon name="times" />
+                Limpar Filtros
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Indicador de filtros ativos */}
+        {(filtro || filtroStatus || filtroCargo) && (
+          <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-3 mb-4">
+            <div className="flex items-center gap-2">
+              <Icon name="filter" className="text-green-600 dark:text-green-400" />
+              <span className="text-sm font-medium text-green-700 dark:text-green-300">
+                Filtros ativos:
+                {filtro && <span className="ml-1 px-2 py-1 bg-green-100 dark:bg-green-800 rounded text-xs">{filtro}</span>}
+                {filtroStatus && <span className="ml-1 px-2 py-1 bg-green-100 dark:bg-green-800 rounded text-xs">{filtroStatus === 'ativo' ? 'Ativo' : 'Inativo'}</span>}
+                {filtroCargo && <span className="ml-1 px-2 py-1 bg-green-100 dark:bg-green-800 rounded text-xs">{cargos.find(c => c.id.toString() === filtroCargo)?.nome}</span>}
+              </span>
+            </div>
+          </div>
+        )}
+
+        {/* Tabela */}
+        <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-0 shadow-sm">
+          {usuariosFiltrados.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-16 px-6">
+              <div className="w-16 h-16 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center mb-4">
+                <Icon name="users" className="text-2xl text-gray-400" />
+              </div>
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+                {(filtro || filtroStatus || filtroCargo) ? 'Nenhum usuário encontrado com os filtros aplicados' : 'Nenhum usuário encontrado'}
+              </h3>
+              <p className="text-gray-600 dark:text-gray-400 text-center">
+                {(filtro || filtroStatus || filtroCargo) ? 'Tente ajustar os filtros ou limpar para ver todos os usuários.' : 'Adicione um novo usuário para começar.'}
+              </p>
+            </div>
+          ) : (
+            <>
+              <div className="grid grid-cols-5 gap-4 p-4 bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-0 font-semibold text-gray-900 dark:text-white">
+                <div className="text-center">Nome</div>
+                <div className="text-center">Username</div>
+                <div className="text-center">Cargo</div>
+                <div className="text-center">Status</div>
+                <div className="text-center">Ações</div>
+              </div>
+
+              {usuariosFiltrados.map((user) => (
+                <div key={user.id} className="grid grid-cols-5 gap-4 p-4 border-b border-gray-200 dark:border-0 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200">
+                  <div className="text-center">
+                    <div className="font-medium text-gray-900 dark:text-white">{user.nome}</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-gray-700 dark:text-gray-300">{user.username || '-'}</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-gray-700 dark:text-gray-300">{user.cargoNome || '-'}</div>
+                  </div>
+                  <div className="text-center flex justify-center">
+                    <span className={`text-sm font-semibold ${
                       user.ativo
-                        ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400'
-                        : 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400'
+                        ? 'text-green-700 dark:text-green-400'
+                        : 'text-red-700 dark:text-red-400'
                     }`}>
                       {user.ativo ? 'Ativo' : 'Inativo'}
                     </span>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-300">
-                    {new Date(user.dataCriacao).toLocaleDateString('pt-BR')}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                    <div className="flex items-center justify-end gap-2">
-                      <button
-                        onClick={() => handleEditUser(user)}
-                        className="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300"
-                        title="Editar usuário"
-                      >
-                        <Icon name="edit" size="sm" />
-                      </button>
-                      <button
-                        onClick={() => toggleUserStatus(user.id)}
-                        className={`${
-                          user.ativo
-                            ? 'text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300'
-                            : 'text-green-600 hover:text-green-900 dark:text-green-400 dark:hover:text-green-300'
-                        }`}
-                        title={user.ativo ? 'Desativar usuário' : 'Ativar usuário'}
-                      >
-                        <Icon name={user.ativo ? 'ban' : 'check'} size="sm" />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      {/* Modal de usuário */}
-      {showModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full mx-4 p-6">
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                {editingUser ? 'Editar Usuário' : 'Novo Usuário'}
-              </h3>
-              <button
-                onClick={() => setShowModal(false)}
-                className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
-              >
-                <Icon name="times" size="sm" />
-              </button>
-            </div>
-
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Nome
-                </label>
-                <input
-                  type="text"
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                  value={userForm.nome}
-                  onChange={(e) => setUserForm({ ...userForm, nome: e.target.value })}
-                  required
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Email
-                </label>
-                <input
-                  type="email"
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                  value={userForm.email}
-                  onChange={(e) => setUserForm({ ...userForm, email: e.target.value })}
-                  required
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Telefone (opcional)
-                </label>
-                <input
-                  type="tel"
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                  value={userForm.telefone}
-                  onChange={(e) => setUserForm({ ...userForm, telefone: authService.formatPhone(e.target.value) })}
-                  placeholder="(11) 99999-9999"
-                />
-              </div>
-
-              {!editingUser && (
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Senha
-                  </label>
-                  <input
-                    type="password"
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                    value={userForm.password}
-                    onChange={(e) => setUserForm({ ...userForm, password: e.target.value })}
-                    required
-                    minLength={6}
-                  />
+                  </div>
+                  <div className="text-center flex justify-center gap-2">
+                    <button
+                      onClick={() => abrirModalVisualizacao(user)}
+                      className="p-2 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors duration-200"
+                      title="Visualizar"
+                    >
+                      <Icon name="eye" size="sm" />
+                    </button>
+                    <button
+                      onClick={() => abrirModalEdicao(user)}
+                      className="p-2 text-amber-600 hover:bg-amber-50 dark:hover:bg-amber-900/20 rounded-lg transition-colors duration-200"
+                      title="Editar"
+                    >
+                      <Icon name="edit" size="sm" />
+                    </button>
+                    <button
+                      onClick={() => abrirModalExclusao(user)}
+                      className="p-2 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors duration-200"
+                      title="Excluir"
+                    >
+                      <Icon name="trash" size="sm" />
+                    </button>
+                  </div>
                 </div>
-              )}
-
-              <div className="flex gap-3 justify-end pt-4">
-                <button
-                  type="button"
-                  onClick={() => setShowModal(false)}
-                  className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-colors"
-                >
-                  Cancelar
-                </button>
-                <button
-                  type="submit"
-                  className="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors"
-                >
-                  {editingUser ? 'Salvar' : 'Criar'}
-                </button>
-              </div>
-            </form>
-          </div>
+              ))}
+            </>
+          )}
         </div>
-      )}
+
+        {/* Componente de CRUD de Usuários */}
+        <UsuarioCRUD
+          viewModalOpen={viewModalOpen}
+          formModalOpen={formModalOpen}
+          deleteModalOpen={deleteModalOpen}
+          selectedUsuario={selectedUser}
+          isEdit={isEdit}
+          cargos={cargos}
+          onViewClose={() => setViewModalOpen(false)}
+          onFormClose={() => setFormModalOpen(false)}
+          onDeleteClose={() => setDeleteModalOpen(false)}
+          onSave={salvarUsuario}
+          onEdit={editarDoModal}
+          onDelete={excluirUsuario}
+          saving={saving}
+          deleting={deleting}
+        />
+      </div>
     </div>
   );
 }

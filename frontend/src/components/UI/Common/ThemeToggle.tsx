@@ -11,10 +11,10 @@ export function ThemeToggle() {
       className="
         p-2 rounded-lg border-2 transition-all duration-200 ease-in-out
         bg-white dark:bg-gray-800
-        border-gray-200 dark:border-gray-600
+        border-gray-200 dark:border-0
         text-gray-700 dark:text-gray-300
         hover:bg-gray-50 dark:hover:bg-gray-700
-        hover:border-gray-300 dark:hover:border-gray-500
+        hover:border-gray-300 dark:hover:border-0
         focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50
         shadow-sm hover:shadow-md
         transform hover:scale-105 active:scale-95

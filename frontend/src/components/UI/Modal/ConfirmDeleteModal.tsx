@@ -1,10 +1,10 @@
 import React from 'react';
 import Icon from '../Icon';
 
-interface ConfirmDeleteModalProps {
+export interface ConfirmDeleteModalProps {
   isOpen: boolean;
-  title: string;
-  message: string;
+  title?: string;
+  message?: string;
   itemName?: string;
   onConfirm: () => void;
   onCancel: () => void;
@@ -13,8 +13,8 @@ interface ConfirmDeleteModalProps {
 
 export function ConfirmDeleteModal({
   isOpen,
-  title,
-  message,
+  title = "Confirmar Exclusão",
+  message = "Tem certeza que deseja excluir este item?",
   itemName,
   onConfirm,
   onCancel,
@@ -24,32 +24,38 @@ export function ConfirmDeleteModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm" onClick={onCancel}>
-      <div className="bg-bg-surface rounded-xl border border-border-primary shadow-xl max-w-md w-full mx-4 overflow-hidden" onClick={(e) => e.stopPropagation()}>
-        <div className="flex items-center gap-4 p-6 border-b border-border-primary">
-          <div className="w-12 h-12 rounded-full bg-danger-light flex items-center justify-center">
-            <Icon name="exclamation-triangle" className="text-danger" size="lg" />
+      <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-0 shadow-xl max-w-md w-full mx-4 overflow-hidden" onClick={(e) => e.stopPropagation()}>
+
+        {/* Header com gradiente de perigo */}
+        <div className="px-6 py-4 bg-gradient-to-r from-red-600 to-red-700">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 bg-white/15 backdrop-blur-sm rounded-xl flex items-center justify-center shadow-lg">
+              <Icon name="exclamation-triangle" className="text-white" size="lg" />
+            </div>
+            <h2 className="text-xl font-bold text-white">{title}</h2>
           </div>
-          <h2 className="text-xl font-semibold text-text-primary">{title}</h2>
         </div>
 
+        {/* Content */}
         <div className="p-6 space-y-4">
-          <p className="text-text-secondary">{message}</p>
+          <p className="text-gray-600 dark:text-gray-400">{message}</p>
           {itemName && (
-            <div className="p-3 rounded-lg bg-bg-surface-hover border border-border-primary">
-              <strong className="text-text-primary">{itemName}</strong>
+            <div className="p-3 rounded-lg bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-0">
+              <strong className="text-gray-900 dark:text-white">{itemName}</strong>
             </div>
           )}
-          <div className="flex items-center gap-2 p-3 rounded-lg bg-danger-light border border-danger/20">
-            <Icon name="info-circle" className="text-danger" size="sm" />
-            <span className="text-sm text-danger font-medium">Esta ação não pode ser desfeita.</span>
+          <div className="flex items-center gap-2 p-3 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800">
+            <Icon name="info-circle" className="text-red-600 dark:text-red-400" size="sm" />
+            <span className="text-sm text-red-600 dark:text-red-400 font-medium">Esta ação não pode ser desfeita.</span>
           </div>
         </div>
 
-        <div className="flex items-center justify-end gap-3 p-6 border-t border-border-primary bg-bg-surface-hover">
+        {/* Footer */}
+        <div className="flex items-center justify-end gap-3 p-6 border-t border-gray-200 dark:border-0 bg-gray-50 dark:bg-gray-800">
           <button
             type="button"
             onClick={onCancel}
-            className="px-4 py-2 text-text-secondary border border-border-primary rounded-lg hover:bg-bg-surface hover:text-text-primary transition-colors duration-200 font-medium"
+            className="px-4 py-2 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-0 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200 font-medium"
             disabled={loading}
           >
             Cancelar
@@ -57,7 +63,7 @@ export function ConfirmDeleteModal({
           <button
             type="button"
             onClick={onConfirm}
-            className="flex items-center gap-2 px-4 py-2 bg-danger hover:bg-danger-dark text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200 font-medium"
+            className="flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200 font-medium"
             disabled={loading}
           >
             {loading ? (

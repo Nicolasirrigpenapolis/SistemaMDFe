@@ -7,6 +7,7 @@ interface AuthContextType {
   isAuthenticated: boolean;
   user: UserInfo | null;
   loading: boolean;
+  token: string | null;
 
   // Ações de autenticação
   login: (credentials: LoginRequest) => Promise<{ success: boolean; message: string }>;
@@ -29,10 +30,34 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const [user, setUser] = useState<UserInfo | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [tokenTimeRemaining, setTokenTimeRemaining] = useState<number>(0);
+  const [token, setToken] = useState<string | null>(null);
 
   // Verificar autenticação ao carregar
   useEffect(() => {
-    checkAuthStatus();
+    const checkAuth = async () => {
+      try {
+        const authenticated = authService.isAuthenticated();
+        const currentUser = authService.getCurrentUser();
+        const currentToken = authService.getToken();
+
+        setIsAuthenticated(authenticated);
+        setUser(currentUser);
+        setToken(currentToken);
+
+        if (authenticated) {
+          updateTokenInfo();
+        }
+      } catch (error) {
+        console.error('Erro ao verificar autenticação:', error);
+        setIsAuthenticated(false);
+        setUser(null);
+        setToken(null);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    checkAuth();
   }, []);
 
   // Timer para atualizar informações do token
@@ -46,28 +71,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
   }, [isAuthenticated]);
 
-  /**
-   * 🔍 Verificar status de autenticação
-   */
-  const checkAuthStatus = () => {
-    try {
-      const authenticated = authService.isAuthenticated();
-      const currentUser = authService.getCurrentUser();
-
-      setIsAuthenticated(authenticated);
-      setUser(currentUser);
-
-      if (authenticated) {
-        updateTokenInfo();
-      }
-    } catch (error) {
-      console.error('Erro ao verificar autenticação:', error);
-      setIsAuthenticated(false);
-      setUser(null);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   /**
    * ⏰ Atualizar informações do token
@@ -94,6 +97,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       if (response.sucesso && response.data) {
         setIsAuthenticated(true);
         setUser(response.data.user);
+        setToken(response.data.token);
         updateTokenInfo();
 
         return {
@@ -147,8 +151,14 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const handleLogout = () => {
     setIsAuthenticated(false);
     setUser(null);
+    setToken(null);
     setTokenTimeRemaining(0);
     authService.logout();
+
+    // Redirecionar para login apenas se não estivermos já lá
+    if (window.location.pathname !== '/login') {
+      window.location.href = '/login';
+    }
   };
 
   const contextValue: AuthContextType = {
@@ -156,6 +166,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     isAuthenticated,
     user,
     loading,
+    token,
 
     // Ações
     login: handleLogin,

@@ -10,6 +10,9 @@ namespace MDFeApi.DTOs
         [PlacaVeiculo(ErrorMessage = "Placa deve estar no formato ABC1234 ou ABC1A23 (Mercosul)")]
         public string Placa { get; set; } = string.Empty;
 
+        [StringLength(100, ErrorMessage = "Marca deve ter no máximo 100 caracteres")]
+        public string? Marca { get; set; }
+
         [Required(ErrorMessage = "Tara é obrigatória")]
         [Range(1, int.MaxValue, ErrorMessage = "Tara deve ser maior que zero")]
         public int Tara { get; set; }
@@ -37,6 +40,7 @@ namespace MDFeApi.DTOs
     {
         public int Id { get; set; }
         public string Placa { get; set; } = string.Empty;
+        public string? Marca { get; set; }
         public int Tara { get; set; }
         public string TipoRodado { get; set; } = string.Empty;
         public string TipoCarroceria { get; set; } = string.Empty;
@@ -49,6 +53,7 @@ namespace MDFeApi.DTOs
     {
         public int Id { get; set; }
         public string Placa { get; set; } = string.Empty;
+        public string? Marca { get; set; }
         public int Tara { get; set; }
         public string TipoRodado { get; set; } = string.Empty;
         public string TipoCarroceria { get; set; } = string.Empty;

@@ -58,6 +58,8 @@ export interface PaginationResponse<T> {
   pageSize: number;
   hasNextPage: boolean;
   hasPreviousPage: boolean;
+  startItem: number;
+  endItem: number;
 }
 
 class ReboquesService {

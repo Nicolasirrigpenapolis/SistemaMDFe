@@ -84,7 +84,7 @@ export const Combobox: React.FC<ComboboxProps> = ({
         <div
           className={`
             flex items-center justify-between px-4 py-3 bg-white dark:bg-gray-800
-            border-2 border-gray-300 dark:border-gray-600 rounded-lg cursor-pointer
+            border-2 border-gray-300 dark:border-0 rounded-lg cursor-pointer
             transition-colors duration-200 min-h-[48px]
             ${isOpen ? 'border-slate-500 ring-2 ring-slate-500/10' : 'hover:border-gray-400 dark:hover:border-gray-500'}
             ${disabled ? 'bg-gray-50 dark:bg-gray-900 text-gray-400 cursor-not-allowed' : ''}
@@ -108,15 +108,15 @@ export const Combobox: React.FC<ComboboxProps> = ({
         </div>
 
         {isOpen && (
-          <div className="absolute top-full left-0 right-0 z-50 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-xl mt-1 max-h-80 overflow-hidden">
-            <div className="relative p-3 border-b border-gray-100 dark:border-gray-700">
+          <div className="absolute top-full left-0 right-0 z-50 bg-white dark:bg-gray-800 border border-gray-200 dark:border-0 rounded-lg shadow-xl mt-1 max-h-80 overflow-hidden">
+            <div className="relative p-3 border-b border-gray-100 dark:border-0">
               <i className="fas fa-search absolute left-6 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm"></i>
               <input
                 type="text"
                 placeholder={searchPlaceholder}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-9 pr-3 py-2 border border-gray-200 dark:border-gray-600 rounded-md text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-slate-500/20 focus:border-slate-500"
+                className="w-full pl-9 pr-3 py-2 border border-gray-200 dark:border-0 rounded-md text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-slate-500/20 focus:border-slate-500"
                 autoFocus
               />
             </div>

@@ -5,56 +5,69 @@ module.exports = {
   ],
   darkMode: 'class',
   theme: {
+    container: {
+      center: true,
+      padding: "2rem",
+      screens: {
+        "2xl": "1400px",
+      },
+    },
     extend: {
       colors: {
-        // Sistema de cores adaptativo para tema claro/escuro
-        'bg-primary': 'rgb(var(--color-bg-primary) / <alpha-value>)',
-        'bg-surface': 'rgb(var(--color-bg-surface) / <alpha-value>)',
-        'bg-surface-hover': 'rgb(var(--color-bg-surface-hover) / <alpha-value>)',
-        'border-primary': 'rgb(var(--color-border-primary) / <alpha-value>)',
-        'border-hover': 'rgb(var(--color-border-hover) / <alpha-value>)',
-        'text-primary': 'rgb(var(--color-text-primary) / <alpha-value>)',
-        'text-secondary': 'rgb(var(--color-text-secondary) / <alpha-value>)',
-        'text-tertiary': 'rgb(var(--color-text-tertiary) / <alpha-value>)',
-        'primary': {
-          DEFAULT: 'rgb(var(--color-primary) / <alpha-value>)',
-          hover: 'rgb(var(--color-primary-hover) / <alpha-value>)',
-          light: 'rgb(var(--color-primary-light) / <alpha-value>)',
+        border: "hsl(var(--border))",
+        input: "hsl(var(--input))",
+        ring: "hsl(var(--ring))",
+        background: "hsl(var(--background))",
+        foreground: "hsl(var(--foreground))",
+        primary: {
+          DEFAULT: "hsl(var(--primary))",
+          foreground: "hsl(var(--primary-foreground))",
         },
-        'success': {
-          DEFAULT: 'rgb(var(--color-success) / <alpha-value>)',
-          light: 'rgb(var(--color-success-light) / <alpha-value>)',
-          dark: 'rgb(var(--color-success-dark) / <alpha-value>)',
+        secondary: {
+          DEFAULT: "hsl(var(--secondary))",
+          foreground: "hsl(var(--secondary-foreground))",
         },
-        'warning': {
-          DEFAULT: 'rgb(var(--color-warning) / <alpha-value>)',
-          light: 'rgb(var(--color-warning-light) / <alpha-value>)',
-          dark: 'rgb(var(--color-warning-dark) / <alpha-value>)',
+        destructive: {
+          DEFAULT: "hsl(var(--destructive))",
+          foreground: "hsl(var(--destructive-foreground))",
         },
-        'danger': {
-          DEFAULT: 'rgb(var(--color-danger) / <alpha-value>)',
-          light: 'rgb(var(--color-danger-light) / <alpha-value>)',
-          dark: 'rgb(var(--color-danger-dark) / <alpha-value>)',
+        muted: {
+          DEFAULT: "hsl(var(--muted))",
+          foreground: "hsl(var(--muted-foreground))",
+        },
+        accent: {
+          DEFAULT: "hsl(var(--accent))",
+          foreground: "hsl(var(--accent-foreground))",
+        },
+        popover: {
+          DEFAULT: "hsl(var(--popover))",
+          foreground: "hsl(var(--popover-foreground))",
+        },
+        card: {
+          DEFAULT: "hsl(var(--card))",
+          foreground: "hsl(var(--card-foreground))",
         },
       },
-      fontFamily: {
-        sans: ['-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'sans-serif'],
-      },
-      animation: {
-        'fade-in': 'fadeIn 0.2s ease-out',
-        'slide-up': 'slideUp 0.2s ease-out',
+      borderRadius: {
+        lg: "var(--radius)",
+        md: "calc(var(--radius) - 2px)",
+        sm: "calc(var(--radius) - 4px)",
       },
       keyframes: {
-        fadeIn: {
-          '0%': { opacity: '0' },
-          '100%': { opacity: '1' },
+        "accordion-down": {
+          from: { height: "0" },
+          to: { height: "var(--radix-accordion-content-height)" },
         },
-        slideUp: {
-          '0%': { opacity: '0', transform: 'translateY(10px)' },
-          '100%': { opacity: '1', transform: 'translateY(0)' },
+        "accordion-up": {
+          from: { height: "var(--radix-accordion-content-height)" },
+          to: { height: "0" },
         },
+      },
+      animation: {
+        "accordion-down": "accordion-down 0.2s ease-out",
+        "accordion-up": "accordion-up 0.2s ease-out",
       },
     },
   },
-  plugins: [],
+  plugins: [require("tailwindcss-animate")],
 }

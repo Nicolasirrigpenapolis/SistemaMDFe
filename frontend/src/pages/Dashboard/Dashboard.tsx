@@ -202,7 +202,7 @@ export function Dashboard() {
     <div className="min-h-screen bg-bg-primary">
       {/* Header */}
       <div className="bg-bg-surface border-b border-border-primary mb-8">
-        <div className="max-w-7xl mx-auto px-6 py-8">
+        <div className="px-6 py-8">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-primary to-primary-hover flex items-center justify-center shadow-lg">
@@ -226,7 +226,7 @@ export function Dashboard() {
       </div>
 
       {/* Main Stats */}
-      <div className="max-w-7xl mx-auto px-6 mb-8">
+      <div className="px-6 mb-8">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-6">
           <div
             className="bg-bg-surface rounded-xl p-6 border border-border-primary hover:shadow-lg transition-all duration-200 cursor-pointer group"
@@ -306,7 +306,7 @@ export function Dashboard() {
       </div>
 
       {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-6">
+      <div className="px-6">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Recent MDFes */}
           <div className="lg:col-span-2">

@@ -29,6 +29,8 @@ export interface PaginationInfo {
   totalPages: number;
   hasNextPage: boolean;
   hasPreviousPage: boolean;
+  startItem: number;
+  endItem: number;
 }
 
 export interface PaginationRequest {
@@ -56,18 +58,14 @@ export interface LoginRequest {
 export interface RegisterRequest {
   nome: string;
   username: string;
-  email: string;
   password: string;
-  telefone?: string;
-  cargoId?: number;
+  cargoId: number;
 }
 
 export interface UserInfo {
   id: number;
   nome: string;
   username: string;
-  email: string;
-  telefone?: string;
   cargoId?: number;
   cargoNome?: string;
 }

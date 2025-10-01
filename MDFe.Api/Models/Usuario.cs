@@ -1,15 +1,18 @@
 using System.ComponentModel.DataAnnotations;
-using Microsoft.AspNetCore.Identity;
 
 namespace MDFeApi.Models
 {
-    public class Usuario : IdentityUser<int>
+    public class Usuario
     {
+        public int Id { get; set; }
+
+        [MaxLength(50)]
+        public string UserName { get; set; } = string.Empty;
+
         [MaxLength(100)]
         public string Nome { get; set; } = string.Empty;
 
-        [MaxLength(20)]
-        public string? Telefone { get; set; }
+        public string PasswordHash { get; set; } = string.Empty;
 
         public int? CargoId { get; set; }
         public Cargo? Cargo { get; set; }

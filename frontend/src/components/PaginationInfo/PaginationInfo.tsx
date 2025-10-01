@@ -21,10 +21,15 @@ const PaginationInfo: React.FC<PaginationInfoProps> = ({
     );
   }
 
+  // Garantir que os valores são válidos para evitar NaN
+  const validStartItem = startItem && !isNaN(startItem) ? startItem : 0;
+  const validEndItem = endItem && !isNaN(endItem) ? endItem : 0;
+  const validTotalItems = totalItems && !isNaN(totalItems) ? totalItems : 0;
+
   return (
     <div className="pagination-info">
       <span>
-        Mostrando {startItem} até {endItem} de {totalItems} {itemName}
+        Mostrando {validStartItem} até {validEndItem} de {validTotalItems} {itemName}
       </span>
     </div>
   );

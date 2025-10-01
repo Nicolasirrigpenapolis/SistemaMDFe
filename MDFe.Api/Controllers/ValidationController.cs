@@ -17,6 +17,7 @@ namespace MDFeApi.Controllers
         {
             _logger = logger;
             _httpClient = httpClient;
+            _httpClient.Timeout = TimeSpan.FromSeconds(10); // Timeout de 10 segundos
         }
 
         /// <summary>
@@ -41,55 +42,114 @@ namespace MDFeApi.Controllers
                     return BadRequest(ApiResponse<CNPJData>.CreateError("CNPJ inválido"));
                 }
 
-                // Consultar BrasilAPI
-                var response = await _httpClient.GetAsync($"https://brasilapi.com.br/api/cnpj/v1/{cnpjLimpo}");
+                // Consultar BrasilAPI com retry
+                var cnpjData = await ConsultarCNPJComRetry(cnpjLimpo);
 
-                if (!response.IsSuccessStatusCode)
+                if (cnpjData != null)
                 {
-                    if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
-                    {
-                        return NotFound(ApiResponse<CNPJData>.CreateError("CNPJ não encontrado"));
-                    }
-                    return StatusCode(500, ApiResponse<CNPJData>.CreateError("Erro ao consultar CNPJ"));
+                    return Ok(ApiResponse<CNPJData>.CreateSuccess(cnpjData));
                 }
 
-                var jsonContent = await response.Content.ReadAsStringAsync();
-                var brasilApiData = JsonSerializer.Deserialize<BrasilApiCNPJResponse>(jsonContent);
-
-                if (brasilApiData == null)
-                {
-                    return StatusCode(500, ApiResponse<CNPJData>.CreateError("Erro ao processar resposta da consulta"));
-                }
-
-                // Mapear para nosso formato
-                var cnpjData = new CNPJData
-                {
-                    Cnpj = brasilApiData.cnpj,
-                    RazaoSocial = brasilApiData.razao_social ?? "",
-                    NomeFantasia = brasilApiData.nome_fantasia ?? "",
-                    Logradouro = brasilApiData.logradouro ?? "",
-                    Numero = brasilApiData.numero ?? "",
-                    Complemento = brasilApiData.complemento ?? "",
-                    Bairro = brasilApiData.bairro ?? "",
-                    Municipio = brasilApiData.municipio ?? "",
-                    Uf = brasilApiData.uf ?? "",
-                    Cep = !string.IsNullOrEmpty(brasilApiData.cep) ? Regex.Replace(brasilApiData.cep, @"\D", "") : "",
-                    CodigoMunicipio = int.TryParse(brasilApiData.codigo_municipio, out var codMun) ? codMun : 0,
-                    Telefone = !string.IsNullOrEmpty(brasilApiData.ddd_telefone_1)
-                        ? $"({brasilApiData.ddd_telefone_1.Substring(0, 2)}) {brasilApiData.ddd_telefone_1.Substring(2)}"
-                        : "",
-                    Email = brasilApiData.email ?? "",
-                    Situacao = brasilApiData.situacao ?? "",
-                    DataSituacao = brasilApiData.data_situacao ?? ""
-                };
-
-                return Ok(ApiResponse<CNPJData>.CreateSuccess(cnpjData));
+                return StatusCode(500, ApiResponse<CNPJData>.CreateError("Não foi possível consultar os dados do CNPJ no momento"));
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Erro ao consultar CNPJ {CNPJ}", cnpj);
                 return StatusCode(500, ApiResponse<CNPJData>.CreateError("Erro interno do servidor"));
             }
+        }
+
+        private async Task<CNPJData?> ConsultarCNPJComRetry(string cnpjLimpo, int maxRetries = 3)
+        {
+            var tentativas = 0;
+            var delay = 1000; // 1 segundo inicial
+
+            while (tentativas < maxRetries)
+            {
+                try
+                {
+                    tentativas++;
+                    _logger.LogInformation("Consultando CNPJ {CNPJ}, tentativa {Tentativa}/{MaxTentativas}", cnpjLimpo, tentativas, maxRetries);
+
+                    // Consultar BrasilAPI
+                    var response = await _httpClient.GetAsync($"https://brasilapi.com.br/api/cnpj/v1/{cnpjLimpo}");
+
+                    if (response.IsSuccessStatusCode)
+                    {
+                        var jsonContent = await response.Content.ReadAsStringAsync();
+                        var options = new JsonSerializerOptions
+                        {
+                            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                            PropertyNameCaseInsensitive = true
+                        };
+
+                        var brasilApiData = JsonSerializer.Deserialize<BrasilApiCNPJResponse>(jsonContent, options);
+
+                        if (brasilApiData != null)
+                        {
+                            _logger.LogInformation("CNPJ {CNPJ} consultado com sucesso na tentativa {Tentativa}", cnpjLimpo, tentativas);
+
+                            // Mapear para nosso formato
+                            return new CNPJData
+                            {
+                                Cnpj = brasilApiData.cnpj,
+                                RazaoSocial = brasilApiData.razao_social ?? "",
+                                NomeFantasia = brasilApiData.nome_fantasia ?? "",
+                                Logradouro = brasilApiData.logradouro ?? "",
+                                Numero = brasilApiData.numero ?? "",
+                                Complemento = brasilApiData.complemento ?? "",
+                                Bairro = brasilApiData.bairro ?? "",
+                                Municipio = brasilApiData.municipio ?? "",
+                                Uf = brasilApiData.uf ?? "",
+                                Cep = !string.IsNullOrEmpty(brasilApiData.cep) ? Regex.Replace(brasilApiData.cep, @"\D", "") : "",
+                                CodigoMunicipio = brasilApiData.codigo_municipio ?? 0,
+                                Telefone = !string.IsNullOrEmpty(brasilApiData.ddd_telefone_1)
+                                    ? $"({brasilApiData.ddd_telefone_1.Substring(0, 2)}) {brasilApiData.ddd_telefone_1.Substring(2)}"
+                                    : "",
+                                Email = brasilApiData.email ?? "",
+                                Situacao = brasilApiData.situacao ?? "",
+                                DataSituacao = brasilApiData.data_situacao ?? ""
+                            };
+                        }
+                    }
+                    else if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
+                    {
+                        _logger.LogWarning("CNPJ {CNPJ} não encontrado na BrasilAPI", cnpjLimpo);
+                        return null; // CNPJ não encontrado, não tenta novamente
+                    }
+                    else if (response.StatusCode == System.Net.HttpStatusCode.TooManyRequests)
+                    {
+                        _logger.LogWarning("Rate limit atingido na BrasilAPI para CNPJ {CNPJ}, tentativa {Tentativa}", cnpjLimpo, tentativas);
+                    }
+                    else
+                    {
+                        _logger.LogWarning("Erro HTTP {StatusCode} ao consultar CNPJ {CNPJ}, tentativa {Tentativa}", response.StatusCode, cnpjLimpo, tentativas);
+                    }
+                }
+                catch (TaskCanceledException ex) when (ex.InnerException is TimeoutException)
+                {
+                    _logger.LogWarning("Timeout ao consultar CNPJ {CNPJ}, tentativa {Tentativa}", cnpjLimpo, tentativas);
+                }
+                catch (HttpRequestException ex)
+                {
+                    _logger.LogWarning(ex, "Erro de rede ao consultar CNPJ {CNPJ}, tentativa {Tentativa}", cnpjLimpo, tentativas);
+                }
+                catch (JsonException ex)
+                {
+                    _logger.LogError(ex, "Erro ao processar JSON da BrasilAPI para CNPJ {CNPJ}", cnpjLimpo);
+                    return null; // Erro de parsing, não tenta novamente
+                }
+
+                // Se não é a última tentativa, aguarda antes de tentar novamente
+                if (tentativas < maxRetries)
+                {
+                    await Task.Delay(delay);
+                    delay *= 2; // Exponential backoff
+                }
+            }
+
+            _logger.LogError("Falha ao consultar CNPJ {CNPJ} após {MaxTentativas} tentativas", cnpjLimpo, maxRetries);
+            return null;
         }
 
         /// <summary>
@@ -241,7 +301,7 @@ namespace MDFeApi.Controllers
         public string? municipio { get; set; }
         public string? uf { get; set; }
         public string? cep { get; set; }
-        public string? codigo_municipio { get; set; }
+        public int? codigo_municipio { get; set; }
         public string? ddd_telefone_1 { get; set; }
         public string? email { get; set; }
         public string? situacao { get; set; }

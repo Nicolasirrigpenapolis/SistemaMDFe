@@ -65,10 +65,12 @@ class AuthService {
    */
   async register(userData: RegisterRequest): Promise<ApiResponse<void>> {
     try {
+      const token = this.getToken();
       const response = await fetch(`${API_BASE_URL}/auth/register`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify(userData)
       });
@@ -89,16 +91,55 @@ class AuthService {
   }
 
   /**
+   * 📋 Listar usuários
+   */
+  async getUsers(): Promise<ApiResponse<any[]>> {
+    try {
+      const token = this.getToken();
+      const response = await fetch(`${API_BASE_URL}/auth/users`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (response.ok) {
+        const users = await response.json();
+        return {
+          sucesso: true,
+          data: users,
+          mensagem: 'Usuários carregados com sucesso'
+        };
+      } else {
+        return {
+          sucesso: false,
+          mensagem: 'Erro ao carregar usuários'
+        };
+      }
+    } catch (error) {
+      console.error('Erro ao carregar usuários:', error);
+      return {
+        sucesso: false,
+        mensagem: 'Erro de conexão com o servidor'
+      };
+    }
+  }
+
+  /**
    * 🚪 Fazer logout
    */
   logout(): void {
-    // Limpar dados do localStorage
+    this.clearAuthData();
+  }
+
+  /**
+   * 🧹 Limpar dados de autenticação
+   */
+  private clearAuthData(): void {
     localStorage.removeItem(TOKEN_KEY);
     localStorage.removeItem(USER_KEY);
     localStorage.removeItem(REFRESH_KEY);
-
-    // Redirecionar para login
-    window.location.href = '/login';
   }
 
   /**
@@ -114,15 +155,15 @@ class AuthService {
       const now = Date.now() / 1000;
 
       if (payload.exp && payload.exp < now) {
-        // Token expirado, fazer logout
-        this.logout();
+        // Token expirado, limpar dados mas não redirecionar
+        this.clearAuthData();
         return false;
       }
 
       return true;
     } catch (error) {
-      // Token inválido
-      this.logout();
+      // Token inválido, limpar dados mas não redirecionar
+      this.clearAuthData();
       return false;
     }
   }
@@ -192,7 +233,7 @@ class AuthService {
 
     // Se retornar 401, token expirou
     if (response.status === 401) {
-      this.logout();
+      this.clearAuthData();
       throw new Error('Sessão expirada');
     }
 
@@ -245,13 +286,6 @@ class AuthService {
     return timeRemaining <= 15 && timeRemaining > 0;
   }
 
-  /**
-   * ✅ Validar formato de email
-   */
-  validateEmail(email: string): boolean {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
-  }
 
   /**
    * ✅ Validar força da senha
@@ -284,30 +318,6 @@ class AuthService {
     };
   }
 
-  /**
-   * 📱 Validar formato de telefone
-   */
-  validatePhone(phone: string): boolean {
-    if (!phone) return true; // Telefone é opcional
-
-    const phoneRegex = /^\(\d{2}\)\s\d{4,5}-\d{4}$/;
-    return phoneRegex.test(phone);
-  }
-
-  /**
-   * 🎯 Formatação automática de telefone
-   */
-  formatPhone(phone: string): string {
-    const numbers = phone.replace(/\D/g, '');
-
-    if (numbers.length === 11) {
-      return numbers.replace(/(\d{2})(\d{5})(\d{4})/, '($1) $2-$3');
-    } else if (numbers.length === 10) {
-      return numbers.replace(/(\d{2})(\d{4})(\d{4})/, '($1) $2-$3');
-    }
-
-    return phone;
-  }
 
   /**
    * 📊 Obter estatísticas da sessão

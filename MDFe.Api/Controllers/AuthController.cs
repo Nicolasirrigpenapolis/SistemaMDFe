@@ -1,4 +1,3 @@
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
@@ -9,6 +8,7 @@ using MDFeApi.DTOs;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using MDFeApi.Data;
+using MDFeApi.Services;
 
 namespace MDFeApi.Controllers
 {
@@ -16,21 +16,21 @@ namespace MDFeApi.Controllers
     [Route("api/[controller]")]
     public class AuthController : ControllerBase
     {
-        private readonly UserManager<Usuario> _userManager;
-        private readonly SignInManager<Usuario> _signInManager;
         private readonly IConfiguration _configuration;
         private readonly MDFeContext _context;
+        private readonly IPasswordHasher _passwordHasher;
+        private readonly IPermissaoService _permissaoService;
 
         public AuthController(
-            UserManager<Usuario> userManager,
-            SignInManager<Usuario> signInManager,
             IConfiguration configuration,
-            MDFeContext context)
+            MDFeContext context,
+            IPasswordHasher passwordHasher,
+            IPermissaoService permissaoService)
         {
-            _userManager = userManager;
-            _signInManager = signInManager;
             _configuration = configuration;
             _context = context;
+            _passwordHasher = passwordHasher;
+            _permissaoService = permissaoService;
         }
 
         [HttpPost("login")]
@@ -38,7 +38,7 @@ namespace MDFeApi.Controllers
         {
             try
             {
-                var user = await _context.Users
+                var user = await _context.Usuarios
                     .Include(u => u.Cargo)
                     .FirstOrDefaultAsync(u => u.UserName == request.Username);
 
@@ -47,17 +47,16 @@ namespace MDFeApi.Controllers
                     return BadRequest(new { message = "Credenciais inválidas" });
                 }
 
-                var result = await _signInManager.CheckPasswordSignInAsync(user, request.Password, false);
-                if (!result.Succeeded)
+                if (!_passwordHasher.VerifyPassword(user.PasswordHash, request.Password))
                 {
                     return BadRequest(new { message = "Credenciais inválidas" });
                 }
 
-                var token = await GenerateJwtToken(user);
-                
+                var token = await GenerateJwtTokenAsync(user);
+
                 // Atualizar último login
                 user.DataUltimoLogin = DateTime.Now;
-                await _userManager.UpdateAsync(user);
+                await _context.SaveChangesAsync();
 
                 return Ok(new LoginResponse
                 {
@@ -67,8 +66,6 @@ namespace MDFeApi.Controllers
                         Id = user.Id,
                         Nome = user.Nome,
                         Username = user.UserName ?? "",
-                        Email = user.Email ?? "",
-                        Telefone = user.Telefone,
                         CargoId = user.CargoId,
                         CargoNome = user.Cargo?.Nome
                     }
@@ -93,7 +90,7 @@ namespace MDFeApi.Controllers
                     return Unauthorized(new { message = "Usuário não autenticado" });
                 }
 
-                var currentUser = await _context.Users
+                var currentUser = await _context.Usuarios
                     .Include(u => u.Cargo)
                     .FirstOrDefaultAsync(u => u.Id.ToString() == currentUserId);
 
@@ -102,34 +99,24 @@ namespace MDFeApi.Controllers
                     return Forbid("Apenas usuários com cargo 'Programador' podem criar novos usuários");
                 }
 
-                var existingUser = await _userManager.FindByNameAsync(request.Username);
+                var existingUser = await _context.Usuarios.FirstOrDefaultAsync(u => u.UserName == request.Username);
                 if (existingUser != null)
                 {
                     return BadRequest(new { message = "Nome de usuário já está em uso" });
                 }
 
-                var existingEmail = await _userManager.FindByEmailAsync(request.Email);
-                if (existingEmail != null)
-                {
-                    return BadRequest(new { message = "Email já está em uso" });
-                }
-
                 var user = new Usuario
                 {
                     UserName = request.Username,
-                    Email = request.Email,
                     Nome = request.Nome,
-                    Telefone = request.Telefone,
                     CargoId = request.CargoId,
-                    EmailConfirmed = true,
-                    Ativo = true
+                    PasswordHash = _passwordHasher.HashPassword(request.Password),
+                    Ativo = true,
+                    DataCriacao = DateTime.Now
                 };
 
-                var result = await _userManager.CreateAsync(user, request.Password);
-                if (!result.Succeeded)
-                {
-                    return BadRequest(new { message = "Erro ao criar usuário", errors = result.Errors });
-                }
+                _context.Usuarios.Add(user);
+                await _context.SaveChangesAsync();
 
                 return Ok(new { message = "Usuário criado com sucesso" });
             }
@@ -139,7 +126,124 @@ namespace MDFeApi.Controllers
             }
         }
 
-        private async Task<string> GenerateJwtToken(Usuario user)
+        [HttpGet("users")]
+        [Authorize]
+        public async Task<IActionResult> GetUsers()
+        {
+            try
+            {
+                var users = await _context.Usuarios
+                    .Include(u => u.Cargo)
+                    .Select(u => new
+                    {
+                        u.Id,
+                        u.Nome,
+                        Username = u.UserName,
+                        u.CargoId,
+                        CargoNome = u.Cargo != null ? u.Cargo.Nome : null,
+                        u.Ativo,
+                        DataCriacao = u.DataCriacao,
+                        UltimoLogin = u.DataUltimoLogin
+                    })
+                    .ToListAsync();
+
+                return Ok(users);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Erro ao listar usuários", error = ex.Message });
+            }
+        }
+
+        [HttpPost("debug/reset-master")]
+        public async Task<IActionResult> ResetMasterPassword()
+        {
+            try
+            {
+                var masterUser = await _context.Usuarios.FirstOrDefaultAsync(u => u.UserName == "master");
+                if (masterUser == null)
+                {
+                    return BadRequest(new { message = "Usuário master não encontrado" });
+                }
+
+                masterUser.PasswordHash = _passwordHasher.HashPassword("master123");
+                await _context.SaveChangesAsync();
+
+                return Ok(new { message = "Senha do master resetada para 'master123'" });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Erro interno do servidor", error = ex.Message });
+            }
+        }
+
+        [HttpGet("debug/users")]
+        public async Task<IActionResult> DebugUsers()
+        {
+            try
+            {
+                var users = await _context.Usuarios
+                    .Select(u => new { u.Id, u.UserName, u.Nome, u.Ativo, u.DataCriacao })
+                    .ToListAsync();
+
+                return Ok(users);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Erro interno do servidor", error = ex.Message });
+            }
+        }
+
+        [HttpPost("bootstrap")]
+        public async Task<IActionResult> Bootstrap()
+        {
+            try
+            {
+                // Verificar se já existe algum usuário no sistema
+                var userCount = await _context.Usuarios.CountAsync();
+                if (userCount > 0)
+                {
+                    return BadRequest(new { message = "Sistema já foi inicializado" });
+                }
+
+                // Criar cargo Programador se não existir
+                var cargo = await _context.Cargos.FirstOrDefaultAsync(c => c.Nome == "Programador");
+                if (cargo == null)
+                {
+                    cargo = new Cargo
+                    {
+                        Nome = "Programador",
+                        Descricao = "Desenvolvedor do sistema com acesso total",
+                        Ativo = true,
+                        DataCriacao = DateTime.Now
+                    };
+                    _context.Cargos.Add(cargo);
+                    await _context.SaveChangesAsync();
+                }
+
+                // Criar usuário master
+                var masterUser = new Usuario
+                {
+                    UserName = "master",
+                    Nome = "Usuário Master do Sistema",
+                    CargoId = cargo.Id,
+                    PasswordHash = _passwordHasher.HashPassword("master123"),
+                    Ativo = true,
+                    DataCriacao = DateTime.Now
+                };
+
+                _context.Usuarios.Add(masterUser);
+                await _context.SaveChangesAsync();
+
+                return Ok(new { message = "Usuário master criado com sucesso", username = "master", password = "master123" });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Erro interno do servidor", error = ex.Message });
+            }
+        }
+
+        private async Task<string> GenerateJwtTokenAsync(Usuario user)
         {
             var jwtSettings = _configuration.GetSection("JwtSettings");
             var secretKey = Encoding.ASCII.GetBytes(jwtSettings["SecretKey"]!);
@@ -147,20 +251,23 @@ namespace MDFeApi.Controllers
             var claims = new List<Claim>
             {
                 new(ClaimTypes.NameIdentifier, user.Id.ToString()),
-                new(ClaimTypes.Name, user.Nome),
-                new(ClaimTypes.Email, user.Email ?? "")
+                new(ClaimTypes.Name, user.Nome)
             };
 
             // Adicionar cargo se tiver
             if (user.Cargo != null)
             {
                 claims.Add(new Claim(ClaimTypes.Role, user.Cargo.Nome));
-                claims.Add(new Claim("cargo", user.Cargo.Nome));
-                claims.Add(new Claim("cargoId", user.CargoId.ToString() ?? ""));
-            }
+                claims.Add(new Claim("Cargo", user.Cargo.Nome));
+                claims.Add(new Claim("CargoId", user.CargoId.ToString() ?? ""));
 
-            var roles = await _userManager.GetRolesAsync(user);
-            claims.AddRange(roles.Select(role => new Claim(ClaimTypes.Role, role)));
+                // Adicionar permissões do cargo ao JWT
+                var permissoes = await _permissaoService.GetUserPermissionsAsync(user.CargoId);
+                foreach (var permissao in permissoes)
+                {
+                    claims.Add(new Claim("Permission", permissao));
+                }
+            }
 
             var tokenDescriptor = new SecurityTokenDescriptor
             {

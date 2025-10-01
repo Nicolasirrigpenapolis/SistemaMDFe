@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { ConfirmDeleteModal } from '../../../components/UI/Modal/ConfirmDeleteModal';
-import { reboquesService, ReboqueList, ReboqueDetail, ReboqueCreate, ReboqueUpdate } from '../../../services/reboquesService';
+import { ReboqueCRUD } from '../../../components/Reboques/ReboqueCRUD';
+import { reboquesService, ReboqueList, ReboqueDetail } from '../../../services/reboquesService';
 import Icon from '../../../components/UI/Icon';
 
+import { formatPlaca } from '../../../utils/formatters';
 interface PaginationData {
   totalItems: number;
   totalPages: number;
@@ -10,6 +11,8 @@ interface PaginationData {
   pageSize: number;
   hasNextPage: boolean;
   hasPreviousPage: boolean;
+  startItem: number;
+  endItem: number;
 }
 
 export function ListarReboques() {
@@ -24,25 +27,16 @@ export function ListarReboques() {
   const [tamanhoPagina, setTamanhoPagina] = useState(10);
   const [paginacao, setPaginacao] = useState<PaginationData | null>(null);
 
-  // Estados do modal
-  const [modalAberto, setModalAberto] = useState(false);
+  // Estados dos modais CRUD
   const [modalVisualizacao, setModalVisualizacao] = useState(false);
-  const [reboqueEdicao, setReboqueEdicao] = useState<ReboqueDetail | null>(null);
-  const [reboqueVisualizacao, setReboqueVisualizacao] = useState<ReboqueDetail | null>(null);
-
-  // Estados do modal de exclusão
+  const [modalFormulario, setModalFormulario] = useState(false);
   const [modalExclusao, setModalExclusao] = useState(false);
-  const [reboqueExclusao, setReboqueExclusao] = useState<ReboqueList | null>(null);
-  const [excludindo, setExcluindo] = useState(false);
+  const [reboqueAtual, setReboqueAtual] = useState<ReboqueDetail | null>(null);
+  const [modoEdicao, setModoEdicao] = useState(false);
 
-  const [dadosModal, setDadosModal] = useState<ReboqueCreate>({
-    placa: '',
-    tara: 0,
-    tipoRodado: '',
-    tipoCarroceria: '',
-    uf: '',
-    rntrc: ''
-  });
+  // Estados de loading
+  const [salvando, setSalvando] = useState(false);
+  const [excluindo, setExcluindo] = useState(false);
 
   useEffect(() => {
     carregarReboques();
@@ -65,7 +59,7 @@ export function ListarReboques() {
         'asc'
       );
 
-      if (response.sucesso && response.data) {
+      if (response.sucesso && response.data && Array.isArray(response.data.data)) {
         setReboques(response.data.data);
         setPaginacao({
           totalItems: response.data.totalItems,
@@ -73,7 +67,9 @@ export function ListarReboques() {
           currentPage: response.data.currentPage,
           pageSize: response.data.pageSize,
           hasNextPage: response.data.hasNextPage,
-          hasPreviousPage: response.data.hasPreviousPage
+          hasPreviousPage: response.data.hasPreviousPage,
+          startItem: response.data.startItem || ((response.data.currentPage - 1) * response.data.pageSize) + 1,
+          endItem: response.data.endItem || Math.min(response.data.currentPage * response.data.pageSize, response.data.totalItems)
         });
       } else {
         console.error('Erro ao carregar reboques:', response.mensagem);
@@ -87,33 +83,20 @@ export function ListarReboques() {
     }
   };
 
+  // Handlers dos modais
   const abrirModalNovo = () => {
-    setReboqueEdicao(null);
-    setDadosModal({
-      placa: '',
-      tara: 0,
-      tipoRodado: '',
-      tipoCarroceria: '',
-      uf: '',
-      rntrc: ''
-    });
-    setModalAberto(true);
+    setReboqueAtual(null);
+    setModoEdicao(false);
+    setModalFormulario(true);
   };
 
   const abrirModalEdicao = async (reboque: ReboqueList) => {
     try {
       const response = await reboquesService.buscarReboque(reboque.id);
       if (response.sucesso && response.data) {
-        setReboqueEdicao(response.data);
-        setDadosModal({
-          placa: response.data.placa,
-          tara: response.data.tara,
-          tipoRodado: response.data.tipoRodado,
-          tipoCarroceria: response.data.tipoCarroceria,
-          uf: response.data.uf,
-          rntrc: response.data.rntrc || ''
-        });
-        setModalAberto(true);
+        setReboqueAtual(response.data);
+        setModoEdicao(true);
+        setModalFormulario(true);
       }
     } catch (error) {
       console.error('Erro ao buscar reboque:', error);
@@ -124,7 +107,7 @@ export function ListarReboques() {
     try {
       const response = await reboquesService.buscarReboque(reboque.id);
       if (response.sucesso && response.data) {
-        setReboqueVisualizacao(response.data);
+        setReboqueAtual(response.data);
         setModalVisualizacao(true);
       }
     } catch (error) {
@@ -132,69 +115,69 @@ export function ListarReboques() {
     }
   };
 
-  const fecharModal = () => {
-    setModalAberto(false);
-    setReboqueEdicao(null);
-  };
-
-  const fecharModalVisualizacao = () => {
-    setModalVisualizacao(false);
-    setReboqueVisualizacao(null);
-  };
-
-  const salvarReboque = async (e: React.FormEvent) => {
-    e.preventDefault();
-
+  const abrirModalExclusao = async (reboque: ReboqueList) => {
     try {
-      let resposta;
-      if (reboqueEdicao?.id) {
-        resposta = await reboquesService.atualizarReboque(reboqueEdicao.id, dadosModal);
-      } else {
-        resposta = await reboquesService.criarReboque(dadosModal);
-      }
-
-      if (resposta.sucesso) {
-        fecharModal();
-        carregarReboques();
-        alert(resposta.mensagem);
-      } else {
-        alert(`Erro ao salvar reboque: ${resposta.mensagem}`);
+      const response = await reboquesService.buscarReboque(reboque.id);
+      if (response.sucesso && response.data) {
+        setReboqueAtual(response.data);
+        setModalExclusao(true);
       }
     } catch (error) {
-      console.error('Erro ao salvar reboque:', error);
-      alert('Erro ao salvar reboque');
+      console.error('Erro ao buscar reboque:', error);
     }
   };
 
-  const abrirModalExclusao = (reboque: ReboqueList) => {
-    setReboqueExclusao(reboque);
-    setModalExclusao(true);
-  };
-
-  const fecharModalExclusao = () => {
+  const fecharModais = () => {
+    setModalVisualizacao(false);
+    setModalFormulario(false);
     setModalExclusao(false);
-    setReboqueExclusao(null);
-    setExcluindo(false);
+    setReboqueAtual(null);
+    setModoEdicao(false);
   };
 
-  const confirmarExclusao = async () => {
-    if (!reboqueExclusao) return;
+  // Handlers de CRUD
+  const handleSave = async (dadosReboque: ReboqueDetail) => {
+    try {
+      setSalvando(true);
+
+      let resposta;
+      if (modoEdicao && reboqueAtual?.id) {
+        resposta = await reboquesService.atualizarReboque(reboqueAtual.id, dadosReboque);
+      } else {
+        resposta = await reboquesService.criarReboque(dadosReboque);
+      }
+
+      if (resposta.sucesso) {
+        fecharModais();
+        carregarReboques();
+      } else {
+        throw new Error(resposta.mensagem || 'Erro ao salvar reboque');
+      }
+    } catch (error) {
+      console.error('Erro ao salvar reboque:', error);
+      throw error; // Re-throw para que o modal possa mostrar o erro
+    } finally {
+      setSalvando(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!reboqueAtual?.id) return;
 
     try {
       setExcluindo(true);
-      const resposta = await reboquesService.excluirReboque(reboqueExclusao.id);
+      const resposta = await reboquesService.excluirReboque(reboqueAtual.id);
 
       if (resposta.sucesso) {
-        fecharModalExclusao();
+        fecharModais();
         carregarReboques();
-        alert(resposta.mensagem);
       } else {
-        alert(`Erro ao excluir reboque: ${resposta.mensagem}`);
-        setExcluindo(false);
+        throw new Error(resposta.mensagem || 'Erro ao excluir reboque');
       }
     } catch (error) {
       console.error('Erro ao excluir reboque:', error);
-      alert('Erro ao excluir reboque');
+      // Aqui você poderia mostrar um toast de erro
+    } finally {
       setExcluindo(false);
     }
   };
@@ -225,6 +208,11 @@ export function ListarReboques() {
   };
 
   const aplicarFiltros = () => {
+    // Garantir que reboques seja um array válido
+    if (!Array.isArray(reboques)) {
+      return [];
+    }
+
     let reboquesFiltraods = [...reboques];
 
     if (filtroUf) {
@@ -241,113 +229,151 @@ export function ListarReboques() {
 
   const reboquesFiltrados = aplicarFiltros();
 
-  return (
-    <div className="max-w-7xl mx-auto px-6 py-8">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-8">
-        <h1>
-          <i className="fas fa-truck"></i>
-          Gestão de Reboques
-        </h1>
-        <button className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-hover font-medium transition-colors duration-200 flex items-center gap-2" onClick={abrirModalNovo}>
-          <i className="fas fa-plus"></i>
-          Novo Reboque
-        </button>
-      </div>
-
-      {/* Filtros */}
-      <div className="bg-bg-surface rounded-xl border border-border-primary p-6 mb-6">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-text-primary">Buscar</label>
-            <input
-              type="text"
-              value={filtro}
-              onChange={(e) => setFiltro(e.target.value)}
-              placeholder="Placa ou RNTRC..."
-              className="w-full px-3 py-2 border border-border-primary rounded-lg bg-bg-surface text-text-primary focus:outline-none focus:ring-2 focus:ring-primary"
-            />
-          </div>
-
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-text-primary">UF</label>
-            <select
-              value={filtroUf}
-              onChange={(e) => setFiltroUf(e.target.value)}
-              className="w-full px-3 py-2 border border-border-primary rounded-lg bg-bg-surface text-text-primary focus:outline-none focus:ring-2 focus:ring-primary"
-            >
-              <option value="">Todos os estados</option>
-              {reboquesService.getEstados().map(estado => (
-                <option key={estado.value} value={estado.value}>
-                  {estado.label}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-text-primary">Status</label>
-            <select
-              value={filtroStatus}
-              onChange={(e) => setFiltroStatus(e.target.value)}
-              className="w-full px-3 py-2 border border-border-primary rounded-lg bg-bg-surface text-text-primary focus:outline-none focus:ring-2 focus:ring-primary"
-            >
-              <option value="">Todos</option>
-              <option value="ativo">Ativo</option>
-              <option value="inativo">Inativo</option>
-            </select>
-          </div>
-
-          <button className="px-4 py-2 border border-border-primary rounded-lg bg-bg-surface text-text-primary hover:bg-bg-surface-hover transition-colors duration-200" onClick={limparFiltros}>
-            Limpar
-          </button>
-        </div>
-      </div>
-
-      {/* Tabela */}
-      <div className="bg-bg-surface rounded-xl border border-border-primary shadow-sm">
-        {carregando ? (
+  if (carregando) {
+    return (
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+        <div className="w-full px-6 py-8">
           <div className="flex items-center justify-center py-16">
             <div className="flex items-center gap-4">
-              <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
-              <span className="text-text-secondary">Carregando reboques...</span>
+              <div className="w-8 h-8 border-4 border-orange-600 border-t-transparent rounded-full animate-spin"></div>
+              <span className="text-gray-600 dark:text-gray-400">Carregando reboques...</span>
             </div>
           </div>
-        ) : reboquesFiltrados.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-16 px-6">
-            <div className="w-16 h-16 bg-bg-tertiary rounded-full flex items-center justify-center mb-4">
-              <i className="fas fa-truck text-2xl text-text-tertiary"></i>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      <div className="w-full px-2 py-4">
+        {/* Header */}
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-4">
+            <div className="w-14 h-14 bg-gradient-to-br from-orange-600 to-red-600 rounded-xl flex items-center justify-center shadow-lg">
+              <Icon name="truck" className="text-white" size="xl" />
             </div>
-            <h3 className="text-lg font-semibold text-text-primary mb-2">Nenhum reboque encontrado</h3>
-            <p className="text-text-secondary text-center">Tente ajustar os filtros ou cadastre um novo reboque.</p>
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-1">Reboques</h1>
+              <p className="text-gray-600 dark:text-gray-400 text-lg">Gerencie os reboques para transporte de carga</p>
+            </div>
           </div>
-        ) : (
-          <>
-            <div className="overflow-x-auto">
-              <div className="grid grid-cols-9 gap-4 p-4 bg-bg-tertiary border-b border-border-primary font-semibold text-text-primary">
-                <div>Placa</div>
-                <div>Tara</div>
-                <div>Tipo Rodado</div>
-                <div>Tipo Carroceria</div>
-                <div>UF</div>
-                <div>RNTRC</div>
-                <div>Status</div>
-                <div>Data Cadastro</div>
-                <div>Ações</div>
+          <button
+            className="px-6 py-3 bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 text-white rounded-xl font-semibold transition-all duration-200 flex items-center gap-3 shadow-lg hover:shadow-xl transform hover:scale-105"
+            onClick={abrirModalNovo}
+          >
+            <Icon name="plus" size="lg" />
+            <span>Novo Reboque</span>
+          </button>
+        </div>
+
+        {/* Filtros */}
+        <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-0 p-6 mb-6">
+          <div className="grid grid-cols-4 gap-4 items-end">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Buscar</label>
+              <input
+                type="text"
+                value={filtro}
+                onChange={(e) => setFiltro(e.target.value)}
+                placeholder="Placa ou RNTRC..."
+                className="w-full px-3 py-2 border border-gray-300 dark:border-0 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">UF</label>
+              <select
+                value={filtroUf}
+                onChange={(e) => setFiltroUf(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 dark:border-0 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500"
+              >
+                <option value="">Todos os estados</option>
+                {reboquesService.getEstados().map(estado => (
+                  <option key={estado.value} value={estado.value}>
+                    {estado.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Status</label>
+              <select
+                value={filtroStatus}
+                onChange={(e) => setFiltroStatus(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 dark:border-0 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500"
+              >
+                <option value="">Todos</option>
+                <option value="ativo">Ativo</option>
+                <option value="inativo">Inativo</option>
+              </select>
+            </div>
+
+            <div>
+              <button
+                onClick={limparFiltros}
+                className="w-full px-4 py-2 bg-red-50 hover:bg-red-100 dark:bg-red-900/20 dark:hover:bg-red-900/30 text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 border border-red-200 dark:border-red-800 rounded-lg font-semibold transition-all duration-200 flex items-center justify-center gap-2 shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
+                disabled={!filtro && !filtroUf && !filtroStatus}
+              >
+                <Icon name="times" />
+                Limpar Filtros
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Indicador de filtros ativos */}
+        {(filtro || filtroUf || filtroStatus) && (
+          <div className="bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800 rounded-lg p-3 mb-4">
+            <div className="flex items-center gap-2">
+              <Icon name="filter" className="text-orange-600 dark:text-orange-400" />
+              <span className="text-sm font-medium text-orange-700 dark:text-orange-300">
+                Filtros ativos:
+                {filtro && <span className="ml-1 px-2 py-1 bg-orange-100 dark:bg-orange-800 rounded text-xs">{filtro}</span>}
+                {filtroUf && <span className="ml-1 px-2 py-1 bg-orange-100 dark:bg-orange-800 rounded text-xs">{filtroUf}</span>}
+                {filtroStatus && <span className="ml-1 px-2 py-1 bg-orange-100 dark:bg-orange-800 rounded text-xs">{filtroStatus === 'ativo' ? 'Ativo' : 'Inativo'}</span>}
+              </span>
+            </div>
+          </div>
+        )}
+
+        {/* Tabela */}
+        <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-0 shadow-sm">
+          {reboquesFiltrados.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-16 px-6">
+              <div className="w-16 h-16 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center mb-4">
+                <Icon name="truck" className="text-2xl text-gray-400" />
+              </div>
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Nenhum reboque encontrado</h3>
+              <p className="text-gray-600 dark:text-gray-400 text-center">Tente ajustar os filtros ou cadastre um novo reboque.</p>
+            </div>
+          ) : (
+            <>
+              <div className="grid grid-cols-9 gap-4 p-4 bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-0 font-semibold text-gray-900 dark:text-white">
+                <div className="text-center">Placa</div>
+                <div className="text-center">Tara</div>
+                <div className="text-center">Tipo Rodado</div>
+                <div className="text-center">Tipo Carroceria</div>
+                <div className="text-center">UF</div>
+                <div className="text-center">RNTRC</div>
+                <div className="text-center">Status</div>
+                <div className="text-center">Data Cadastro</div>
+                <div className="text-center">Ações</div>
               </div>
               {reboquesFiltrados.map((reboque) => (
-                <div key={reboque.id} className="grid grid-cols-9 gap-4 p-4 border-b border-border-primary hover:bg-bg-surface-hover transition-colors duration-200">
-                  <div>
-                    <strong className="text-text-primary">{formatarPlaca(reboque.placa)}</strong>
+                <div key={reboque.id} className="grid grid-cols-9 gap-4 p-4 border-b border-gray-200 dark:border-0 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200">
+                  <div className="text-center">
+                    <strong className="text-gray-900 dark:text-white">{formatPlaca(reboque.placa)}</strong>
                   </div>
-                  <div className="text-text-primary">{formatarTara(reboque.tara)}</div>
-                  <div className="text-text-primary">{reboque.tipoRodado}</div>
-                  <div className="text-text-primary">{reboque.tipoCarroceria}</div>
-                  <div>
+                  <div className="text-center text-gray-900 dark:text-white">{formatarTara(reboque.tara)}</div>
+                  <div className="text-center text-gray-900 dark:text-white">{reboque.tipoRodado}</div>
+                  <div className="text-center text-gray-900 dark:text-white">{reboque.tipoCarroceria}</div>
+                  <div className="text-center">
                     <span className="px-2 py-1 bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300 rounded text-xs font-medium">{reboque.uf}</span>
                   </div>
-                  <div className="text-text-primary">{reboque.rntrc || '-'}</div>
-                  <div>
+                  <div className="text-center text-gray-900 dark:text-white">{reboque.rntrc || '-'}</div>
+                  <div className="text-center">
                     <span className={`px-2 py-1 rounded-full text-xs font-medium ${
                       reboque.ativo
                         ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300'
@@ -356,275 +382,105 @@ export function ListarReboques() {
                       {reboque.ativo ? 'Ativo' : 'Inativo'}
                     </span>
                   </div>
-                  <div className="text-text-primary">{formatarData(reboque.dataCriacao)}</div>
-                  <div>
-                    <div className="flex items-center gap-1">
-                      <button
-                        className="p-2 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded transition-colors duration-200"
-                        onClick={() => abrirModalVisualizacao(reboque)}
-                        title="Visualizar"
-                      >
-                        <i className="fas fa-eye"></i>
-                      </button>
-                      <button
-                        className="p-2 text-amber-600 hover:bg-amber-50 dark:hover:bg-amber-900/20 rounded transition-colors duration-200"
-                        onClick={() => abrirModalEdicao(reboque)}
-                        title="Editar"
-                      >
-                        <i className="fas fa-edit"></i>
-                      </button>
-                      <button
-                        className="p-2 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded transition-colors duration-200"
-                        onClick={() => abrirModalExclusao(reboque)}
-                        title="Excluir"
-                      >
-                        <i className="fas fa-trash"></i>
-                      </button>
-                    </div>
+                  <div className="text-center text-gray-900 dark:text-white">{formatarData(reboque.dataCriacao)}</div>
+                  <div className="flex items-center justify-center gap-2">
+                    <button
+                      className="p-2 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors duration-200"
+                      onClick={() => abrirModalVisualizacao(reboque)}
+                      title="Visualizar"
+                    >
+                      <Icon name="eye" />
+                    </button>
+                    <button
+                      className="p-2 text-amber-600 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-900/20 rounded-lg transition-colors duration-200"
+                      onClick={() => abrirModalEdicao(reboque)}
+                      title="Editar"
+                    >
+                      <Icon name="edit" />
+                    </button>
+                    <button
+                      className="p-2 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors duration-200"
+                      onClick={() => abrirModalExclusao(reboque)}
+                      title="Excluir"
+                    >
+                      <Icon name="trash" />
+                    </button>
                   </div>
                 </div>
               ))}
-            </div>
-
-            {/* Paginação */}
-            {paginacao && (
-              <div className="mt-6 bg-bg-surface border-t border-border-primary p-4">
-                <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
-                  <div className="text-sm text-text-secondary">
-                    Mostrando {((paginacao.currentPage - 1) * paginacao.pageSize) + 1} a {Math.min(paginacao.currentPage * paginacao.pageSize, paginacao.totalItems)} de {paginacao.totalItems} registros
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <button
-                      className="px-4 py-2 border border-border-primary rounded-lg bg-bg-surface text-text-primary hover:bg-bg-surface-hover disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
-                      onClick={() => setPaginaAtual(paginaAtual - 1)}
-                      disabled={!paginacao.hasPreviousPage}
-                    >
-                      Anterior
-                    </button>
-                    <span className="px-4 py-2 text-text-primary">
-                      Página {paginacao.currentPage} de {paginacao.totalPages}
-                    </span>
-                    <button
-                      className="px-4 py-2 border border-border-primary rounded-lg bg-bg-surface text-text-primary hover:bg-bg-surface-hover disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
-                      onClick={() => setPaginaAtual(paginaAtual + 1)}
-                      disabled={!paginacao.hasNextPage}
-                    >
-                      Próxima
-                    </button>
-                  </div>
-                </div>
-              </div>
-            )}
-          </>
-        )}
-      </div>
-
-      {/* Modal de Formulário */}
-      {modalAberto && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm" onClick={fecharModal}>
-          <div className="bg-bg-surface rounded-xl border border-border-primary shadow-xl max-w-4xl w-full mx-4 max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
-            <div className="flex items-center justify-between p-6 border-b border-border-primary">
-              <h2 className="text-xl font-semibold text-text-primary flex items-center gap-2">
-                <i className="fas fa-truck"></i>
-                {reboqueEdicao ? 'Editar Reboque' : 'Novo Reboque'}
-              </h2>
-              <button className="text-text-tertiary hover:text-text-primary transition-colors duration-200 text-2xl" onClick={fecharModal}>
-                <i className="fas fa-times"></i>
-              </button>
-            </div>
-
-            <form onSubmit={salvarReboque} className="p-6">
-              <div className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium text-text-primary">Placa *</label>
-                    <input
-                      type="text"
-                      value={dadosModal.placa}
-                      onChange={(e) => setDadosModal({ ...dadosModal, placa: e.target.value.toUpperCase() })}
-                      placeholder="ABC-1234 ou ABC1D23"
-                      maxLength={8}
-                      required
-                      className="w-full px-3 py-2 border border-border-primary rounded-lg bg-bg-surface text-text-primary focus:outline-none focus:ring-2 focus:ring-primary"
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium text-text-primary">Tara (kg) *</label>
-                    <input
-                      type="number"
-                      value={dadosModal.tara}
-                      onChange={(e) => setDadosModal({ ...dadosModal, tara: parseInt(e.target.value) || 0 })}
-                      placeholder="5000"
-                      min="0"
-                      required
-                      className="w-full px-3 py-2 border border-border-primary rounded-lg bg-bg-surface text-text-primary focus:outline-none focus:ring-2 focus:ring-primary"
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium text-text-primary">Tipo de Rodado *</label>
-                    <select
-                      value={dadosModal.tipoRodado}
-                      onChange={(e) => setDadosModal({ ...dadosModal, tipoRodado: e.target.value })}
-                      required
-                      className="w-full px-3 py-2 border border-border-primary rounded-lg bg-bg-surface text-text-primary focus:outline-none focus:ring-2 focus:ring-primary"
-                    >
-                      <option value="">Selecione...</option>
-                      {reboquesService.getTiposRodado().map(tipo => (
-                        <option key={tipo.value} value={tipo.value}>
-                          {tipo.label}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium text-text-primary">Tipo de Carroceria *</label>
-                    <select
-                      value={dadosModal.tipoCarroceria}
-                      onChange={(e) => setDadosModal({ ...dadosModal, tipoCarroceria: e.target.value })}
-                      required
-                      className="w-full px-3 py-2 border border-border-primary rounded-lg bg-bg-surface text-text-primary focus:outline-none focus:ring-2 focus:ring-primary"
-                    >
-                      <option value="">Selecione...</option>
-                      {reboquesService.getTiposCarroceria().map(tipo => (
-                        <option key={tipo.value} value={tipo.value}>
-                          {tipo.label}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium text-text-primary">UF *</label>
-                    <select
-                      value={dadosModal.uf}
-                      onChange={(e) => setDadosModal({ ...dadosModal, uf: e.target.value })}
-                      required
-                      className="w-full px-3 py-2 border border-border-primary rounded-lg bg-bg-surface text-text-primary focus:outline-none focus:ring-2 focus:ring-primary"
-                    >
-                      <option value="">Selecione...</option>
-                      {reboquesService.getEstados().map(estado => (
-                        <option key={estado.value} value={estado.value}>
-                          {estado.label}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium text-text-primary">RNTRC</label>
-                    <input
-                      type="text"
-                      value={dadosModal.rntrc || ''}
-                      onChange={(e) => setDadosModal({ ...dadosModal, rntrc: e.target.value })}
-                      placeholder="12345678"
-                      maxLength={20}
-                      className="w-full px-3 py-2 border border-border-primary rounded-lg bg-bg-surface text-text-primary focus:outline-none focus:ring-2 focus:ring-primary"
-                    />
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex items-center justify-end gap-4 mt-6 pt-6 border-t border-border-primary">
-                <button type="button" className="px-4 py-2 border border-border-primary rounded-lg bg-bg-surface text-text-primary hover:bg-bg-surface-hover transition-colors duration-200" onClick={fecharModal}>
-                  Cancelar
-                </button>
-                <button type="submit" className="px-4 py-2 bg-primary hover:bg-primary-hover text-white rounded-lg font-medium transition-colors duration-200 flex items-center gap-2">
-                  <i className="fas fa-save"></i>
-                  {reboqueEdicao ? 'Atualizar' : 'Criar'} Reboque
-                </button>
-              </div>
-            </form>
-          </div>
+            </>
+          )}
         </div>
-      )}
 
-      {/* Modal de Visualização */}
-      {modalVisualizacao && reboqueVisualizacao && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm" onClick={fecharModalVisualizacao}>
-          <div className="bg-bg-surface rounded-xl border border-border-primary shadow-xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
-            <div className="flex items-center justify-between p-6 border-b border-border-primary">
-              <h2 className="text-xl font-semibold text-text-primary flex items-center gap-2">
-                <i className="fas fa-truck"></i>
-                Detalhes do Reboque
-              </h2>
-              <button className="text-text-tertiary hover:text-text-primary transition-colors duration-200 text-2xl" onClick={fecharModalVisualizacao}>
-                <i className="fas fa-times"></i>
-              </button>
-            </div>
+        {/* Paginação */}
+        {paginacao && paginacao.totalItems > 0 && (
+          <div className="mt-6 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-0 p-4 rounded-b-lg">
+            <div className="flex flex-row justify-between items-center gap-4">
+              <div className="text-sm text-gray-600 dark:text-gray-400 text-left">
+                Mostrando {paginacao.startItem} até {paginacao.endItem} de {paginacao.totalItems} registros
+              </div>
 
-            <div className="p-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-1">
-                  <strong className="text-sm font-medium text-text-secondary">Placa:</strong>
-                  <span className="block text-text-primary">{formatarPlaca(reboqueVisualizacao.placa)}</span>
-                </div>
-                <div className="space-y-1">
-                  <strong className="text-sm font-medium text-text-secondary">Tara:</strong>
-                  <span className="block text-text-primary">{formatarTara(reboqueVisualizacao.tara)}</span>
-                </div>
-                <div className="space-y-1">
-                  <strong className="text-sm font-medium text-text-secondary">Tipo de Rodado:</strong>
-                  <span className="block text-text-primary">{reboqueVisualizacao.tipoRodado}</span>
-                </div>
-                <div className="space-y-1">
-                  <strong className="text-sm font-medium text-text-secondary">Tipo de Carroceria:</strong>
-                  <span className="block text-text-primary">{reboqueVisualizacao.tipoCarroceria}</span>
-                </div>
-                <div className="space-y-1">
-                  <strong className="text-sm font-medium text-text-secondary">UF:</strong>
-                  <span className="block text-text-primary">{reboqueVisualizacao.uf}</span>
-                </div>
-                <div className="space-y-1">
-                  <strong className="text-sm font-medium text-text-secondary">RNTRC:</strong>
-                  <span className="block text-text-primary">{reboqueVisualizacao.rntrc || 'Não informado'}</span>
-                </div>
-                <div className="space-y-1">
-                  <strong className="text-sm font-medium text-text-secondary">Status:</strong>
-                  <span className={`inline-block px-2 py-1 rounded-full text-xs font-medium ${
-                    reboqueVisualizacao.ativo
-                      ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300'
-                      : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300'
-                  }`}>
-                    {reboqueVisualizacao.ativo ? 'Ativo' : 'Inativo'}
+              {paginacao.totalPages > 1 && (
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => setPaginaAtual(paginaAtual - 1)}
+                    disabled={!paginacao.hasPreviousPage}
+                    className="px-4 py-2 border border-gray-300 dark:border-0 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200 text-sm"
+                  >
+                    Anterior
+                  </button>
+
+                  <span className="px-4 py-2 text-gray-900 dark:text-white font-medium text-sm whitespace-nowrap">
+                    Página {paginacao.currentPage} de {paginacao.totalPages}
                   </span>
+
+                  <button
+                    onClick={() => setPaginaAtual(paginaAtual + 1)}
+                    disabled={!paginacao.hasNextPage}
+                    className="px-4 py-2 border border-gray-300 dark:border-0 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200 text-sm"
+                  >
+                    Próxima
+                  </button>
                 </div>
-                <div className="space-y-1">
-                  <strong className="text-sm font-medium text-text-secondary">Data de Cadastro:</strong>
-                  <span className="block text-text-primary">{formatarData(reboqueVisualizacao.dataCriacao)}</span>
-                </div>
-                {reboqueVisualizacao.dataUltimaAlteracao && (
-                  <div className="space-y-1">
-                    <strong className="text-sm font-medium text-text-secondary">Última Alteração:</strong>
-                    <span className="block text-text-primary">{formatarData(reboqueVisualizacao.dataUltimaAlteracao)}</span>
-                  </div>
-                )}
+              )}
+
+              <div className="flex items-center gap-2">
+                <label className="text-sm text-gray-700 dark:text-gray-300">Itens por página:</label>
+                <select
+                  value={tamanhoPagina}
+                  onChange={(e) => {
+                    setTamanhoPagina(Number(e.target.value));
+                    setPaginaAtual(1);
+                  }}
+                  className="px-3 py-1 border border-gray-300 dark:border-0 rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500"
+                >
+                  <option value={5}>5</option>
+                  <option value={10}>10</option>
+                  <option value={20}>20</option>
+                  <option value={50}>50</option>
+                </select>
               </div>
             </div>
-
-            <div className="flex items-center justify-end gap-4 p-6 border-t border-border-primary">
-              <button className="px-4 py-2 border border-border-primary rounded-lg bg-bg-surface text-text-primary hover:bg-bg-surface-hover transition-colors duration-200" onClick={fecharModalVisualizacao}>
-                Fechar
-              </button>
-            </div>
           </div>
-        </div>
-      )}
+        )}
 
-      {/* Modal de Confirmação de Exclusão */}
-      {modalExclusao && reboqueExclusao && (
-        <ConfirmDeleteModal
-          isOpen={modalExclusao}
-          title="Excluir Reboque"
-          message="Tem certeza de que deseja excluir este reboque?"
-          itemName={`reboque ${formatarPlaca(reboqueExclusao.placa)}`}
-          onConfirm={confirmarExclusao}
-          onCancel={fecharModalExclusao}
-          loading={excludindo}
+        {/* Modais CRUD */}
+        <ReboqueCRUD
+          viewModalOpen={modalVisualizacao}
+          formModalOpen={modalFormulario}
+          deleteModalOpen={modalExclusao}
+          selectedReboque={reboqueAtual}
+          isEdit={modoEdicao}
+          onViewClose={fecharModais}
+          onFormClose={fecharModais}
+          onDeleteClose={fecharModais}
+          onSave={handleSave}
+          onEdit={abrirModalEdicao}
+          onDelete={handleDelete}
+          saving={salvando}
+          deleting={excluindo}
         />
-      )}
+      </div>
     </div>
   );
 }

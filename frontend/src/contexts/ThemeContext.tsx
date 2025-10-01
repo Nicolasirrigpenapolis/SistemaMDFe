@@ -1,12 +1,9 @@
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
-import { Theme as MuiTheme } from '@mui/material/styles';
-import { getTheme } from '../theme/muiTheme';
 
 type ThemeMode = 'light' | 'dark';
 
 interface ThemeContextType {
   themeMode: ThemeMode;
-  theme: MuiTheme;
   toggleTheme: () => void;
   isDark: boolean;
 }
@@ -36,43 +33,42 @@ interface ThemeProviderProps {
 }
 
 export function ThemeProvider({ children }: ThemeProviderProps) {
-  const [themeMode, setThemeMode] = useState<ThemeMode>('light');
-  const [theme, setTheme] = useState(getTheme('light'));
+  // Inicializar tema de forma síncrona para evitar flashes
+  const getInitialTheme = (): ThemeMode => {
+    if (typeof window === 'undefined') return 'light';
+
+    const savedTheme = localStorage.getItem('mdfe-theme') as ThemeMode;
+    if (savedTheme && (savedTheme === 'light' || savedTheme === 'dark')) {
+      return savedTheme;
+    }
+
+    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  };
+
+  const initialTheme = getInitialTheme();
+  const [themeMode, setThemeMode] = useState<ThemeMode>(initialTheme);
 
   const isDark = themeMode === 'dark';
 
   const applyTheme = (mode: ThemeMode) => {
-    // Atualizar documento para Tailwind
+    // Atualizar documento para Tailwind/Shadcn
     if (mode === 'dark') {
       document.documentElement.classList.add('dark');
-      document.body.classList.add('dark');
     } else {
       document.documentElement.classList.remove('dark');
-      document.body.classList.remove('dark');
     }
-
-    // Atualizar atributo data-theme para CSS custom
-    document.documentElement.setAttribute('data-theme', mode);
-
-    // Atualizar variáveis CSS customizadas para compatibility
-    document.documentElement.style.setProperty('--theme-mode', mode);
   };
 
+  // Aplicar tema inicial apenas uma vez
   useEffect(() => {
-    // Verificar tema salvo ou preferência do sistema
-    const savedTheme = localStorage.getItem('mdfe-theme') as ThemeMode;
-    const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-
-    const initialTheme = savedTheme || (systemPrefersDark ? 'dark' : 'light');
-    setThemeMode(initialTheme);
-    setTheme(getTheme(initialTheme));
     applyTheme(initialTheme);
-  }, []);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const toggleTheme = () => {
     const newTheme = themeMode === 'light' ? 'dark' : 'light';
+
+    // Aplicar todas as mudanças em lote
     setThemeMode(newTheme);
-    setTheme(getTheme(newTheme));
     applyTheme(newTheme);
 
     // Salvar preferência
@@ -80,7 +76,7 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
   };
 
   return (
-    <ThemeContext.Provider value={{ themeMode, theme, toggleTheme, isDark }}>
+    <ThemeContext.Provider value={{ themeMode, toggleTheme, isDark }}>
       {children}
     </ThemeContext.Provider>
   );

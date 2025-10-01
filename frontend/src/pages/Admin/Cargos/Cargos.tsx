@@ -1,7 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { ConfirmDeleteModal } from '../../../components/UI/Modal/ConfirmDeleteModal';
-import { cargosService, Cargo, CargoCreateRequest, CargoUpdateRequest } from '../../../services/cargosService';
+import { GenericFormModal } from '../../../components/UI/Modal/GenericFormModal';
+import { cargosService, Cargo } from '../../../services/cargosService';
 import { useAuth } from '../../../contexts/AuthContext';
+import { ModernPermissionModal } from '../../../components/Admin/ModernPermissionModal';
+import { cargoConfig, CargoFormData } from '../../../components/Admin/CargoConfig';
 import Icon from '../../../components/UI/Icon';
 
 export function Cargos() {
@@ -9,18 +12,22 @@ export function Cargos() {
   const [cargos, setCargos] = useState<Cargo[]>([]);
   const [carregando, setCarregando] = useState(false);
   const [filtro, setFiltro] = useState('');
+  const [filtroStatus, setFiltroStatus] = useState('');
+  const [filtroDescricao, setFiltroDescricao] = useState('');
 
   // Estados para modais
-  const [modalVisualizacao, setModalVisualizacao] = useState(false);
-  const [modalEdicao, setModalEdicao] = useState(false);
+  const [modalFormulario, setModalFormulario] = useState(false);
   const [cargoSelecionado, setCargoSelecionado] = useState<Cargo | null>(null);
-  const [dadosFormulario, setDadosFormulario] = useState<Partial<CargoUpdateRequest>>({});
-  const [salvando, setSalvando] = useState(false);
+  const [modoEdicao, setModoEdicao] = useState(false);
 
   // Estados do modal de exclusão
   const [modalExclusao, setModalExclusao] = useState(false);
   const [cargoExclusao, setCargoExclusao] = useState<Cargo | null>(null);
   const [excludindo, setExcluindo] = useState(false);
+
+  // Estados do modal de permissões
+  const [modalPermissoes, setModalPermissoes] = useState(false);
+  const [cargoPermissoes, setCargoPermissoes] = useState<Cargo | null>(null);
 
   // Verificar se usuário é Programador
   const isProgramador = user?.cargoNome === 'Programador';
@@ -32,75 +39,72 @@ export function Cargos() {
   const carregarCargos = async () => {
     setCarregando(true);
     try {
+      console.log('Cargos: Iniciando carregamento dos cargos...');
       const data = await cargosService.listarCargos();
+      console.log('Cargos: Dados recebidos:', data);
+      console.log('Cargos: Quantidade de cargos:', data.length);
       setCargos(data);
     } catch (error) {
-      console.error('Erro ao carregar cargos:', error);
+      console.error('Cargos: Erro ao carregar cargos:', error);
     } finally {
       setCarregando(false);
     }
   };
 
-  const cargosFiltrados = cargos.filter(cargo =>
-    cargo.nome.toLowerCase().includes(filtro.toLowerCase()) ||
-    cargo.descricao?.toLowerCase().includes(filtro.toLowerCase())
-  );
+  const cargosFiltrados = cargos.filter(cargo => {
+    const matchNome = !filtro || cargo.nome.toLowerCase().includes(filtro.toLowerCase());
+    const matchDescricao = !filtroDescricao || cargo.descricao?.toLowerCase().includes(filtroDescricao.toLowerCase());
+    const matchStatus = !filtroStatus ||
+      (filtroStatus === 'ativo' && cargo.ativo) ||
+      (filtroStatus === 'inativo' && !cargo.ativo);
 
-  const abrirModalVisualizacao = (cargo: Cargo) => {
-    setCargoSelecionado(cargo);
-    setModalVisualizacao(true);
+    return matchNome && matchDescricao && matchStatus;
+  });
+
+  const limparFiltros = () => {
+    setFiltro('');
+    setFiltroDescricao('');
+    setFiltroStatus('');
   };
 
-  const abrirModalEdicao = (cargo?: Cargo) => {
-    if (cargo) {
-      setCargoSelecionado(cargo);
-      setDadosFormulario({
-        nome: cargo.nome,
-        descricao: cargo.descricao,
-        ativo: cargo.ativo
-      });
-    } else {
-      setCargoSelecionado(null);
-      setDadosFormulario({
-        nome: '',
-        descricao: '',
-        ativo: true
-      });
-    }
-    setModalEdicao(true);
-  };
-
-  const fecharModais = () => {
-    setModalVisualizacao(false);
-    setModalEdicao(false);
+  const abrirModalCriar = () => {
     setCargoSelecionado(null);
-    setDadosFormulario({});
+    setModoEdicao(false);
+    setModalFormulario(true);
   };
 
-  const salvarCargo = async () => {
-    setSalvando(true);
+  const abrirModalEditar = (cargo: Cargo) => {
+    setCargoSelecionado(cargo);
+    setModoEdicao(true);
+    setModalFormulario(true);
+  };
+
+  const fecharModalFormulario = () => {
+    setModalFormulario(false);
+    setCargoSelecionado(null);
+    setModoEdicao(false);
+  };
+
+  const handleSalvar = async (dados: CargoFormData) => {
     try {
-      if (cargoSelecionado?.id) {
-        // Atualizar
+      if (modoEdicao && cargoSelecionado?.id) {
         await cargosService.atualizarCargo(cargoSelecionado.id, {
-          nome: dadosFormulario.nome!,
-          descricao: dadosFormulario.descricao,
-          ativo: dadosFormulario.ativo!
+          nome: dados.nome,
+          descricao: dados.descricao,
+          ativo: dados.ativo ?? true
         });
       } else {
-        // Criar
         await cargosService.criarCargo({
-          nome: dadosFormulario.nome!,
-          descricao: dadosFormulario.descricao
+          nome: dados.nome,
+          descricao: dados.descricao
         });
       }
 
-      fecharModais();
+      fecharModalFormulario();
       carregarCargos();
     } catch (error: any) {
-      alert(`Erro ao salvar cargo: ${error.message}`);
-    } finally {
-      setSalvando(false);
+      console.error('Erro ao salvar cargo:', error);
+      alert(`Erro ao salvar cargo: ${error.message || 'Erro desconhecido'}`);
     }
   };
 
@@ -113,6 +117,16 @@ export function Cargos() {
     setModalExclusao(false);
     setCargoExclusao(null);
     setExcluindo(false);
+  };
+
+  const abrirModalPermissoes = (cargo: Cargo) => {
+    setCargoPermissoes(cargo);
+    setModalPermissoes(true);
+  };
+
+  const fecharModalPermissoes = () => {
+    setModalPermissoes(false);
+    setCargoPermissoes(null);
   };
 
   const confirmarExclusao = async () => {
@@ -129,12 +143,6 @@ export function Cargos() {
     }
   };
 
-  const atualizarCampo = (campo: keyof CargoUpdateRequest, valor: any) => {
-    setDadosFormulario(prev => ({
-      ...prev,
-      [campo]: valor
-    }));
-  };
 
   if (!isProgramador) {
     return (
@@ -151,42 +159,92 @@ export function Cargos() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-6 py-8">
-      <div className="flex items-center justify-between mb-8">
-        <h1 className="text-3xl font-bold text-text-primary flex items-center gap-3">
-          <Icon name="users" className="text-primary" />
-          Cargos
-        </h1>
-        <button
-          className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-hover transition-colors duration-200 flex items-center gap-2"
-          onClick={() => abrirModalEdicao()}
-        >
-          <Icon name="plus" />
-          Novo Cargo
-        </button>
-      </div>
-
-      <div className="bg-bg-surface rounded-xl border border-border-primary p-6 mb-6">
-        <div className="flex items-center gap-4">
-          <div className="flex-1">
-            <label className="block text-sm font-medium text-text-primary mb-2">Buscar</label>
-            <input
-              type="text"
-              className="w-full px-3 py-2 border border-border-primary rounded-lg bg-bg-surface focus:outline-none focus:ring-2 focus:ring-primary/20"
-              placeholder="Buscar por nome ou descrição..."
-              value={filtro}
-              onChange={(e) => setFiltro(e.target.value)}
-            />
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      <div className="w-full px-6 py-8">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-4">
+            <div className="w-14 h-14 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg">
+              <i className="fas fa-user-cog text-white text-xl"></i>
+            </div>
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-1">Cargos</h1>
+              <p className="text-gray-600 dark:text-gray-400 text-lg">Gerencie os cargos e permissões do sistema</p>
+            </div>
           </div>
           <button
-            className="px-4 py-2 border border-border-primary rounded-lg bg-bg-surface text-text-primary hover:bg-bg-tertiary transition-colors duration-200 flex items-center gap-2"
-            onClick={() => setFiltro('')}
+            className="px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-xl font-semibold transition-all duration-200 flex items-center gap-3 shadow-lg hover:shadow-xl transform hover:scale-105"
+            onClick={abrirModalCriar}
           >
-            <Icon name="times" />
-            Limpar
+            <i className="fas fa-plus text-lg"></i>
+            <span>Novo Cargo</span>
           </button>
         </div>
+
+      {/* Filtros */}
+      <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-0 p-6 mb-6">
+        <div className="grid grid-cols-4 gap-4 items-end">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Buscar por Nome</label>
+            <input
+              type="text"
+              placeholder="Nome do cargo..."
+              value={filtro}
+              onChange={(e) => setFiltro(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 dark:border-0 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Buscar por Descrição</label>
+            <input
+              type="text"
+              placeholder="Descrição do cargo..."
+              value={filtroDescricao}
+              onChange={(e) => setFiltroDescricao(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 dark:border-0 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Status</label>
+            <select
+              value={filtroStatus}
+              onChange={(e) => setFiltroStatus(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 dark:border-0 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+            >
+              <option value="">Todos os status</option>
+              <option value="ativo">Ativo</option>
+              <option value="inativo">Inativo</option>
+            </select>
+          </div>
+
+          <div>
+            <button
+              onClick={limparFiltros}
+              className="w-full px-4 py-2 bg-red-50 hover:bg-red-100 dark:bg-red-900/20 dark:hover:bg-red-900/30 text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 border border-red-200 dark:border-red-800 rounded-lg font-semibold transition-all duration-200 flex items-center justify-center gap-2 shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
+              disabled={!filtro && !filtroDescricao && !filtroStatus}
+            >
+              <Icon name="times" />
+              Limpar Filtros
+            </button>
+          </div>
+        </div>
       </div>
+
+      {/* Indicador de filtros ativos */}
+      {(filtro || filtroDescricao || filtroStatus) && (
+        <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-3 mb-4">
+          <div className="flex items-center gap-2">
+            <Icon name="filter" className="text-blue-600 dark:text-blue-400" />
+            <span className="text-sm font-medium text-blue-700 dark:text-blue-300">
+              Filtros ativos:
+              {filtro && <span className="ml-1 px-2 py-1 bg-blue-100 dark:bg-blue-800 rounded text-xs">Nome: {filtro}</span>}
+              {filtroDescricao && <span className="ml-1 px-2 py-1 bg-blue-100 dark:bg-blue-800 rounded text-xs">Descrição: {filtroDescricao}</span>}
+              {filtroStatus && <span className="ml-1 px-2 py-1 bg-blue-100 dark:bg-blue-800 rounded text-xs">{filtroStatus === 'ativo' ? 'Ativo' : 'Inativo'}</span>}
+            </span>
+          </div>
+        </div>
+      )}
 
       <div className="bg-bg-surface rounded-xl border border-border-primary shadow-sm">
         {carregando ? (
@@ -206,15 +264,16 @@ export function Cargos() {
           </div>
         ) : (
           <div className="overflow-x-auto">
-            <div className="grid grid-cols-5 gap-4 p-4 bg-bg-tertiary border-b border-border-primary font-semibold text-text-primary">
+            <div className="grid grid-cols-6 gap-4 p-4 bg-bg-tertiary border-b border-border-primary font-semibold text-text-primary">
               <div>Nome</div>
               <div>Descrição</div>
               <div>Usuários</div>
               <div>Status</div>
+              <div>Permissões</div>
               <div>Ações</div>
             </div>
             {cargosFiltrados.map((cargo) => (
-              <div key={cargo.id} className="grid grid-cols-5 gap-4 p-4 border-b border-border-primary hover:bg-bg-tertiary transition-colors duration-200">
+              <div key={cargo.id} className="grid grid-cols-6 gap-4 p-4 border-b border-border-primary hover:bg-bg-tertiary transition-colors duration-200">
                 <div>
                   <strong className="text-text-primary">{cargo.nome}</strong>
                 </div>
@@ -237,17 +296,20 @@ export function Cargos() {
                     {cargo.ativo ? 'Ativo' : 'Inativo'}
                   </span>
                 </div>
+                <div>
+                  <button
+                    className="px-3 py-1 bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300 rounded text-xs font-medium hover:bg-purple-200 transition-colors duration-200"
+                    onClick={() => abrirModalPermissoes(cargo)}
+                    title="Gerenciar Permissões"
+                  >
+                    <Icon name="shield" size="sm" className="inline mr-1" />
+                    Gerenciar
+                  </button>
+                </div>
                 <div className="flex items-center gap-2">
                   <button
-                    className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors duration-200"
-                    onClick={() => abrirModalVisualizacao(cargo)}
-                    title="Visualizar"
-                  >
-                    <Icon name="eye" size="sm" />
-                  </button>
-                  <button
                     className="p-2 text-amber-600 hover:bg-amber-50 rounded-lg transition-colors duration-200"
-                    onClick={() => abrirModalEdicao(cargo)}
+                    onClick={() => abrirModalEditar(cargo)}
                     title="Editar"
                   >
                     <Icon name="edit" size="sm" />
@@ -267,114 +329,15 @@ export function Cargos() {
         )}
       </div>
 
-      {/* Modal de Visualização */}
-      {modalVisualizacao && cargoSelecionado && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4" onClick={fecharModais}>
-          <div className="bg-bg-surface rounded-xl border border-border-primary shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
-            <div className="flex items-center justify-between p-6 border-b border-border-primary">
-              <h2 className="text-xl font-semibold text-text-primary">Visualizar Cargo</h2>
-              <button className="text-text-tertiary hover:text-text-primary transition-colors duration-200 text-2xl" onClick={fecharModais}>&times;</button>
-            </div>
-            <div className="p-6 space-y-4">
-              <div>
-                <label className="text-sm font-medium text-text-secondary">Nome:</label>
-                <p className="text-text-primary font-medium">{cargoSelecionado.nome}</p>
-              </div>
-              <div>
-                <label className="text-sm font-medium text-text-secondary">Descrição:</label>
-                <p className="text-text-primary">{cargoSelecionado.descricao || 'Não informada'}</p>
-              </div>
-              <div>
-                <label className="text-sm font-medium text-text-secondary">Usuários vinculados:</label>
-                <p className="text-text-primary">{cargoSelecionado.quantidadeUsuarios} usuário(s)</p>
-              </div>
-              <div>
-                <label className="text-sm font-medium text-text-secondary">Status:</label>
-                <span className={`inline-block px-2 py-1 rounded-full text-xs font-medium ${
-                  cargoSelecionado.ativo
-                    ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300'
-                    : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300'
-                }`}>
-                  {cargoSelecionado.ativo ? 'Ativo' : 'Inativo'}
-                </span>
-              </div>
-            </div>
-            <div className="flex items-center justify-end gap-4 p-6 border-t border-border-primary">
-              <button className="px-4 py-2 border border-border-primary rounded-lg bg-bg-surface text-text-primary hover:bg-bg-tertiary transition-colors duration-200" onClick={fecharModais}>
-                Fechar
-              </button>
-              <button className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-hover transition-colors duration-200" onClick={() => {
-                setModalVisualizacao(false);
-                abrirModalEdicao(cargoSelecionado);
-              }}>
-                Editar
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Modal de Edição/Criação */}
-      {modalEdicao && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4" onClick={fecharModais}>
-          <div className="bg-bg-surface rounded-xl border border-border-primary shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
-            <div className="flex items-center justify-between p-6 border-b border-border-primary">
-              <h2 className="text-xl font-semibold text-text-primary">{cargoSelecionado ? 'Editar Cargo' : 'Novo Cargo'}</h2>
-              <button className="text-text-tertiary hover:text-text-primary transition-colors duration-200 text-2xl" onClick={fecharModais}>&times;</button>
-            </div>
-            <form className="p-6" onSubmit={(e) => { e.preventDefault(); salvarCargo(); }}>
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-text-primary mb-2">Nome *</label>
-                  <input
-                    type="text"
-                    className="w-full px-3 py-2 border border-border-primary rounded-lg bg-bg-surface focus:outline-none focus:ring-2 focus:ring-primary/20"
-                    value={dadosFormulario.nome || ''}
-                    onChange={(e) => atualizarCampo('nome', e.target.value)}
-                    required
-                    maxLength={100}
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-text-primary mb-2">Descrição</label>
-                  <textarea
-                    className="w-full px-3 py-2 border border-border-primary rounded-lg bg-bg-surface focus:outline-none focus:ring-2 focus:ring-primary/20"
-                    rows={3}
-                    value={dadosFormulario.descricao || ''}
-                    onChange={(e) => atualizarCampo('descricao', e.target.value)}
-                    maxLength={500}
-                  />
-                </div>
-
-                {cargoSelecionado && (
-                  <div className="flex items-center gap-2">
-                    <input
-                      type="checkbox"
-                      id="ativo"
-                      className="w-4 h-4 text-primary bg-bg-surface border-border-primary rounded focus:ring-primary/20 focus:ring-2"
-                      checked={dadosFormulario.ativo || false}
-                      onChange={(e) => atualizarCampo('ativo', e.target.checked)}
-                    />
-                    <label htmlFor="ativo" className="text-sm font-medium text-text-primary">
-                      Cargo ativo
-                    </label>
-                  </div>
-                )}
-              </div>
-
-              <div className="flex items-center justify-end gap-4 pt-6 border-t border-border-primary mt-6">
-                <button type="button" className="px-4 py-2 border border-border-primary rounded-lg bg-bg-surface text-text-primary hover:bg-bg-tertiary transition-colors duration-200" onClick={fecharModais}>
-                  Cancelar
-                </button>
-                <button type="submit" className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-hover transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed" disabled={salvando}>
-                  {salvando ? 'Salvando...' : 'Salvar'}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
+      {/* Modal de Formulário */}
+      <GenericFormModal
+        isOpen={modalFormulario}
+        onClose={fecharModalFormulario}
+        config={cargoConfig}
+        data={cargoSelecionado}
+        onSave={handleSalvar}
+        isEditing={modoEdicao}
+      />
 
       {/* Modal de Exclusão */}
       <ConfirmDeleteModal
@@ -386,6 +349,19 @@ export function Cargos() {
         onCancel={fecharModalExclusao}
         loading={excludindo}
       />
+
+      {/* Modal Moderno de Gerenciamento de Permissões */}
+      <ModernPermissionModal
+        cargoId={cargoPermissoes?.id || 0}
+        cargoNome={cargoPermissoes?.nome || ''}
+        isOpen={modalPermissoes}
+        onClose={fecharModalPermissoes}
+        onPermissionsChange={() => {
+          // Recarregar dados se necessário
+          console.log('Permissões atualizadas');
+        }}
+      />
+      </div>
     </div>
   );
 }

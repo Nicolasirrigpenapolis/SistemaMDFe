@@ -1,15 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { OptionalFieldsToggle, OptionalSection } from '../../../components/UI/Common/OptionalFieldsToggle';
+import { MunicipioCRUD } from '../../../components/Municipios/MunicipioCRUD';
+import { ImportarIBGEModal } from '../../../components/Municipios/ImportarIBGEModal';
 import Icon from '../../../components/UI/Icon';
 
 interface Municipio {
   id?: number;
-  codigo: string;
+  codigo: number;
   nome: string;
   uf: string;
   ativo?: boolean;
-  ibge?: string;
-  observacoes?: string;
 }
 
 interface PaginationData {
@@ -43,25 +42,18 @@ export function ListarMunicipios() {
     totalPages: 0
   });
 
-  // Estados do modal
-  const [modalAberto, setModalAberto] = useState(false);
-  const [modalVisualizacao, setModalVisualizacao] = useState(false);
-  const [municipioSelecionado, setMunicipioSelecionado] = useState<Municipio | null>(null);
-  const [isEdicao, setIsEdicao] = useState(false);
-  const [salvando, setSalvando] = useState(false);
-  const [mostrarOpcionais, setMostrarOpcionais] = useState(false);
+  // Estados dos modais CRUD
+  const [viewModalOpen, setViewModalOpen] = useState(false);
+  const [formModalOpen, setFormModalOpen] = useState(false);
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [selectedMunicipio, setSelectedMunicipio] = useState<Municipio | null>(null);
+  const [isEdit, setIsEdit] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const [importandoIBGE, setImportandoIBGE] = useState(false);
 
   // Estados do modal de importação
   const [modalImportacao, setModalImportacao] = useState(false);
-
-  // Estados do formulário
-  const [dadosForm, setDadosForm] = useState<Municipio>({
-    codigo: '',
-    nome: '',
-    uf: '',
-    ativo: true
-  });
 
   useEffect(() => {
     carregarMunicipios();
@@ -72,9 +64,15 @@ export function ListarMunicipios() {
       setCarregando(true);
 
       // Conectar à API real de municípios
-      const response = await fetch(`https://localhost:5001/api/municipios?tamanhoPagina=${paginacao.pageSize}&pagina=${paginacao.current}`);
+      const url = `https://localhost:5001/api/municipios?tamanhoPagina=${paginacao.pageSize}&pagina=${paginacao.current}`;
+      console.log('Carregando municípios de:', url);
+
+      const response = await fetch(url);
+      console.log('Response status:', response.status);
 
       if (!response.ok) {
+        const errorText = await response.text();
+        console.error('Erro ao carregar municípios:', response.status, errorText);
         // Se não houver municípios cadastrados, mostrar lista vazia
         setMunicipios([]);
         setPaginacao(prev => ({
@@ -86,9 +84,11 @@ export function ListarMunicipios() {
       }
 
       const data = await response.json();
+      console.log('Dados recebidos da API:', data);
 
-      // API retorna ResultadoPaginado<Municipio> com propriedades em minúsculas
-      const municipiosArray = Array.isArray(data.itens) ? data.itens : [];
+      // API retorna ResultadoPaginado<Municipio> com propriedades em inglês
+      const municipiosArray = Array.isArray(data.items) ? data.items : [];
+      console.log('Municípios encontrados:', municipiosArray.length);
 
       // Mapear dados da API para o formato esperado
       const municipiosFormatados = municipiosArray.map((municipio: any) => ({
@@ -96,16 +96,14 @@ export function ListarMunicipios() {
         codigo: municipio.codigo,
         nome: municipio.nome,
         uf: municipio.uf,
-        ibge: municipio.codigo, // Codigo IBGE é o mesmo que codigo
-        ativo: municipio.ativo,
-        observacoes: '' // Campo não está no modelo da API
+        ativo: municipio.ativo
       }));
 
       setMunicipios(municipiosFormatados);
       setPaginacao(prev => ({
         ...prev,
-        total: data.totalItens || 0,
-        totalPages: data.totalPaginas || Math.ceil((data.totalItens || 0) / prev.pageSize)
+        total: data.totalItems || 0,
+        totalPages: data.totalPages || Math.ceil((data.totalItems || 0) / prev.pageSize)
       }));
     } catch (error) {
       console.error('Erro ao carregar municípios:', error);
@@ -126,65 +124,96 @@ export function ListarMunicipios() {
   };
 
   const abrirModalNovo = () => {
-    setIsEdicao(false);
-    setDadosForm({
-      codigo: '',
-      nome: '',
-      uf: '',
-      ativo: true
-    });
-    setMostrarOpcionais(false);
-    setModalAberto(true);
+    setSelectedMunicipio(null);
+    setIsEdit(false);
+    setFormModalOpen(true);
   };
 
   const abrirModalEdicao = (municipio: Municipio) => {
-    setIsEdicao(true);
-    setDadosForm(municipio);
-    setMostrarOpcionais(!!municipio.observacoes);
-    setModalAberto(true);
+    setSelectedMunicipio(municipio);
+    setIsEdit(true);
+    setFormModalOpen(true);
   };
 
   const abrirModalVisualizacao = (municipio: Municipio) => {
-    setMunicipioSelecionado(municipio);
-    setModalVisualizacao(true);
+    setSelectedMunicipio(municipio);
+    setViewModalOpen(true);
+  };
+
+  const abrirModalExclusao = (municipio: Municipio) => {
+    setSelectedMunicipio(municipio);
+    setDeleteModalOpen(true);
   };
 
   const fecharModais = () => {
-    setModalAberto(false);
-    setModalVisualizacao(false);
-    setMunicipioSelecionado(null);
-    setIsEdicao(false);
-    setSalvando(false);
+    setViewModalOpen(false);
+    setFormModalOpen(false);
+    setDeleteModalOpen(false);
+    setSelectedMunicipio(null);
+    setIsEdit(false);
+    setSaving(false);
+    setDeleting(false);
   };
 
-  const salvarMunicipio = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const salvarMunicipio = async (data: Municipio) => {
+    try {
+      setSaving(true);
+
+      const url = isEdit && data.id
+        ? `https://localhost:5001/api/municipios/${data.id}`
+        : 'https://localhost:5001/api/municipios';
+
+      const method = isEdit && data.id ? 'PUT' : 'POST';
+
+      console.log('Salvando município:', { url, method, data });
+
+      const response = await fetch(url, {
+        method,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      });
+
+      console.log('Response status:', response.status);
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('Erro da API:', errorText);
+        throw new Error(`Erro ao salvar município: ${errorText}`);
+      }
+
+      fecharModais();
+      await carregarMunicipios();
+    } catch (error) {
+      console.error('Erro ao salvar município:', error);
+      throw error;
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const excluirMunicipio = async () => {
+    if (!selectedMunicipio?.id) return;
 
     try {
-      setSalvando(true);
+      setDeleting(true);
 
-      if (isEdicao) {
-        setMunicipios(prev => prev.map(mun =>
-          mun.id === dadosForm.id ? dadosForm : mun
-        ));
-      } else {
-        const novoMunicipio = { ...dadosForm, id: Date.now() };
-        setMunicipios(prev => [...prev, novoMunicipio]);
+      const response = await fetch(`https://localhost:5001/api/municipios/${selectedMunicipio.id}`, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) {
+        throw new Error('Erro ao excluir município');
       }
 
       fecharModais();
       carregarMunicipios();
     } catch (error) {
-      console.error('Erro ao salvar município:', error);
+      console.error('Erro ao excluir município:', error);
+      throw error;
     } finally {
-      setSalvando(false);
-    }
-  };
-
-  const excluirMunicipio = async (id: number) => {
-    if (window.confirm('Deseja realmente excluir este município?')) {
-      setMunicipios(prev => prev.filter(mun => mun.id !== id));
-      carregarMunicipios();
+      setDeleting(false);
     }
   };
 
@@ -200,11 +229,9 @@ export function ListarMunicipios() {
     }));
   };
 
-  const editarDoModal = () => {
-    if (municipioSelecionado) {
-      setModalVisualizacao(false);
-      abrirModalEdicao(municipioSelecionado);
-    }
+  const editarDoModal = (municipio: Municipio) => {
+    setViewModalOpen(false);
+    abrirModalEdicao(municipio);
   };
 
   const abrirModalImportacao = () => {
@@ -262,32 +289,41 @@ export function ListarMunicipios() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-6 py-8">
-      <div className="flex items-center justify-between mb-8">
-        <h1>
-          <i className="fas fa-map-marker-alt"></i>
-          Municípios
-        </h1>
-        <div className="flex items-center gap-4">
-          <button
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium transition-colors duration-200 flex items-center gap-2"
-            onClick={abrirModalImportacao}
-            disabled={importandoIBGE}
-          >
-            <i className={importandoIBGE ? "fas fa-spinner fa-spin" : "fas fa-download"}></i>
-            {importandoIBGE ? 'Importando...' : 'Importar IBGE'}
-          </button>
-          <button className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-hover font-medium transition-colors duration-200 flex items-center gap-2" onClick={abrirModalNovo}>
-            <i className="fas fa-plus"></i>
-            Novo Município
-          </button>
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      <div className="w-full px-6 py-8">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-4">
+            <div className="w-14 h-14 bg-gradient-to-br from-indigo-600 to-purple-600 rounded-xl flex items-center justify-center shadow-lg">
+              <i className="fas fa-map-marker-alt text-white text-xl"></i>
+            </div>
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-1">Municípios</h1>
+              <p className="text-gray-600 dark:text-gray-400 text-lg">Gerencie os municípios cadastrados no sistema</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-3">
+            <button
+              className="px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white rounded-xl font-semibold transition-all duration-200 flex items-center gap-3 shadow-lg hover:shadow-xl transform hover:scale-105"
+              onClick={abrirModalImportacao}
+              disabled={importandoIBGE}
+            >
+              <i className={importandoIBGE ? "fas fa-spinner fa-spin text-lg" : "fas fa-download text-lg"}></i>
+              <span>{importandoIBGE ? 'Importando...' : 'Importar IBGE'}</span>
+            </button>
+            <button
+              className="px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white rounded-xl font-semibold transition-all duration-200 flex items-center gap-3 shadow-lg hover:shadow-xl transform hover:scale-105"
+              onClick={abrirModalNovo}
+            >
+              <i className="fas fa-plus text-lg"></i>
+              <span>Novo Município</span>
+            </button>
+          </div>
         </div>
-      </div>
 
       <div className="bg-bg-surface rounded-xl border border-border-primary p-6 mb-6">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-text-primary">Status</label>
+        <div className="grid grid-cols-4 gap-4 items-end">
+          <div>
+            <label className="block text-sm font-medium text-text-primary mb-2">Status</label>
             <select
               value={filtros.status}
               onChange={(e) => setFiltros({ ...filtros, status: e.target.value })}
@@ -299,8 +335,8 @@ export function ListarMunicipios() {
             </select>
           </div>
 
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-text-primary">UF</label>
+          <div>
+            <label className="block text-sm font-medium text-text-primary mb-2">UF</label>
             <select
               value={filtros.uf}
               onChange={(e) => setFiltros({ ...filtros, uf: e.target.value })}
@@ -320,8 +356,8 @@ export function ListarMunicipios() {
             </select>
           </div>
 
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-text-primary">Buscar</label>
+          <div>
+            <label className="block text-sm font-medium text-text-primary mb-2">Buscar</label>
             <input
               type="text"
               placeholder="Buscar por nome, código ou UF..."
@@ -331,12 +367,16 @@ export function ListarMunicipios() {
             />
           </div>
 
-          <button
-            className="px-4 py-2 border border-border-primary rounded-lg bg-bg-surface text-text-primary hover:bg-bg-surface-hover transition-colors duration-200 col-span-full md:col-span-1"
-            onClick={limparFiltros}
-          >
-            Limpar Filtros
-          </button>
+          <div>
+            <button
+              className="w-full px-4 py-2 bg-red-50 hover:bg-red-100 dark:bg-red-900/20 dark:hover:bg-red-900/30 text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 border border-red-200 dark:border-red-800 rounded-lg font-semibold transition-all duration-200 flex items-center justify-center gap-2 shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
+              onClick={limparFiltros}
+              disabled={!filtros.status && !filtros.uf && !termoBusca}
+            >
+              <Icon name="times" />
+              Limpar Filtros
+            </button>
+          </div>
         </div>
       </div>
 
@@ -352,29 +392,26 @@ export function ListarMunicipios() {
         ) : (
           <div className="overflow-x-auto">
             <div className="grid grid-cols-5 gap-4 p-4 bg-bg-tertiary border-b border-border-primary font-semibold text-text-primary">
-              <div>Código IBGE</div>
-              <div>Nome</div>
-              <div>UF</div>
-              <div>Status</div>
-              <div>Ações</div>
+              <div className="text-center">Código IBGE</div>
+              <div className="text-center">Nome</div>
+              <div className="text-center">UF</div>
+              <div className="text-center">Status</div>
+              <div className="text-center">Ações</div>
             </div>
 
             {municipios.map((municipio) => (
               <div key={municipio.id} className="grid grid-cols-5 gap-4 p-4 border-b border-border-primary hover:bg-bg-surface-hover transition-colors duration-200">
-                <div>
+                <div className="text-center">
                   <span className="text-text-primary">{municipio.codigo}</span>
                   <div className="text-sm text-text-secondary">Código IBGE</div>
                 </div>
-                <div>
+                <div className="text-center">
                   <strong className="text-text-primary">{municipio.nome}</strong>
-                  {municipio.observacoes && (
-                    <div className="text-sm text-text-secondary">{municipio.observacoes}</div>
-                  )}
                 </div>
-                <div>
+                <div className="text-center">
                   <span className="px-2 py-1 bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300 rounded text-xs font-medium">{municipio.uf}</span>
                 </div>
-                <div>
+                <div className="text-center">
                   <span className={`px-2 py-1 rounded-full text-xs font-medium ${
                     municipio.ativo
                       ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300'
@@ -383,27 +420,27 @@ export function ListarMunicipios() {
                     {municipio.ativo ? 'Ativo' : 'Inativo'}
                   </span>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center justify-center gap-2">
                   <button
-                    className="px-3 py-1 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded transition-colors duration-200"
+                    className="p-2 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors duration-200"
                     onClick={() => abrirModalVisualizacao(municipio)}
                     title="Visualizar"
                   >
-                    Ver
+                    <Icon name="eye" />
                   </button>
                   <button
-                    className="px-3 py-1 text-amber-600 hover:bg-amber-50 dark:hover:bg-amber-900/20 rounded transition-colors duration-200"
+                    className="p-2 text-amber-600 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-900/20 rounded-lg transition-colors duration-200"
                     onClick={() => abrirModalEdicao(municipio)}
                     title="Editar"
                   >
-                    Editar
+                    <Icon name="edit" />
                   </button>
                   <button
-                    className="px-3 py-1 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded transition-colors duration-200"
-                    onClick={() => municipio.id && excluirMunicipio(municipio.id)}
+                    className="p-2 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors duration-200"
+                    onClick={() => abrirModalExclusao(municipio)}
                     title="Excluir"
                   >
-                    Excluir
+                    <Icon name="trash" />
                   </button>
                 </div>
               </div>
@@ -459,217 +496,31 @@ export function ListarMunicipios() {
         </div>
       )}
 
-      {/* Modal de Cadastro/Edição */}
-      {modalAberto && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm" onClick={fecharModais}>
-          <div className="bg-bg-surface rounded-xl border border-border-primary shadow-xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
-            <div className="flex items-center justify-between p-6 border-b border-border-primary">
-              <h2 className="text-xl font-semibold text-text-primary">{isEdicao ? 'Editar Município' : 'Novo Município'}</h2>
-              <button className="text-text-tertiary hover:text-text-primary transition-colors duration-200 text-2xl" onClick={fecharModais}>×</button>
-            </div>
+      {/* Componente de CRUD de Municípios */}
+      <MunicipioCRUD
+        viewModalOpen={viewModalOpen}
+        formModalOpen={formModalOpen}
+        deleteModalOpen={deleteModalOpen}
+        selectedMunicipio={selectedMunicipio}
+        isEdit={isEdit}
+        onViewClose={() => setViewModalOpen(false)}
+        onFormClose={() => setFormModalOpen(false)}
+        onDeleteClose={() => setDeleteModalOpen(false)}
+        onSave={salvarMunicipio}
+        onEdit={editarDoModal}
+        onDelete={excluirMunicipio}
+        saving={saving}
+        deleting={deleting}
+      />
 
-            <form onSubmit={salvarMunicipio} className="p-6">
-              <div className="space-y-6">
-                <div>
-                  <h3 className="text-lg font-medium text-text-primary mb-4">Dados Básicos</h3>
-
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div className="md:col-span-2 space-y-2">
-                      <label className="text-sm font-medium text-text-primary">Nome *</label>
-                      <input
-                        type="text"
-                        value={dadosForm.nome}
-                        onChange={(e) => setDadosForm({ ...dadosForm, nome: e.target.value })}
-                        required
-                        placeholder="Nome do município"
-                        className="w-full px-3 py-2 border border-border-primary rounded-lg bg-bg-surface text-text-primary focus:outline-none focus:ring-2 focus:ring-primary"
-                      />
-                    </div>
-
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium text-text-primary">UF *</label>
-                      <select
-                        value={dadosForm.uf}
-                        onChange={(e) => setDadosForm({ ...dadosForm, uf: e.target.value })}
-                        required
-                        className="w-full px-3 py-2 border border-border-primary rounded-lg bg-bg-surface text-text-primary focus:outline-none focus:ring-2 focus:ring-primary"
-                      >
-                        <option value="">Selecione</option>
-                        <option value="AC">AC</option>
-                        <option value="AL">AL</option>
-                        <option value="AP">AP</option>
-                        <option value="AM">AM</option>
-                        <option value="BA">BA</option>
-                        <option value="CE">CE</option>
-                        <option value="DF">DF</option>
-                        <option value="ES">ES</option>
-                        <option value="GO">GO</option>
-                        <option value="MA">MA</option>
-                        <option value="MT">MT</option>
-                        <option value="MS">MS</option>
-                        <option value="MG">MG</option>
-                        <option value="PA">PA</option>
-                        <option value="PB">PB</option>
-                        <option value="PR">PR</option>
-                        <option value="PE">PE</option>
-                        <option value="PI">PI</option>
-                        <option value="RJ">RJ</option>
-                        <option value="RN">RN</option>
-                        <option value="RS">RS</option>
-                        <option value="RO">RO</option>
-                        <option value="RR">RR</option>
-                        <option value="SC">SC</option>
-                        <option value="SP">SP</option>
-                        <option value="SE">SE</option>
-                        <option value="TO">TO</option>
-                      </select>
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 gap-4 mt-4">
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium text-text-primary">Código IBGE *</label>
-                      <input
-                        type="text"
-                        value={dadosForm.codigo}
-                        onChange={(e) => setDadosForm({ ...dadosForm, codigo: e.target.value, ibge: e.target.value })}
-                        required
-                        placeholder="Ex: 3550308"
-                        className="w-full px-3 py-2 border border-border-primary rounded-lg bg-bg-surface text-text-primary focus:outline-none focus:ring-2 focus:ring-primary"
-                      />
-                    </div>
-                  </div>
-                </div>
-
-              <OptionalFieldsToggle
-                isExpanded={mostrarOpcionais}
-                onToggle={() => setMostrarOpcionais(!mostrarOpcionais)}
-                label="Campos Opcionais"
-                description="Informações adicionais do município"
-              />
-
-              <OptionalSection isVisible={mostrarOpcionais}>
-                <div className="space-y-4">
-                  <h3 className="text-lg font-medium text-text-primary">Informações Adicionais</h3>
-
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium text-text-primary">Observações</label>
-                    <input
-                      type="text"
-                      value={dadosForm.observacoes || ''}
-                      onChange={(e) => setDadosForm({ ...dadosForm, observacoes: e.target.value })}
-                      placeholder="Observações sobre o município"
-                      className="w-full px-3 py-2 border border-border-primary rounded-lg bg-bg-surface text-text-primary focus:outline-none focus:ring-2 focus:ring-primary"
-                    />
-                  </div>
-                </div>
-              </OptionalSection>
-              </div>
-
-              <div className="flex items-center justify-end gap-4 mt-6 pt-6 border-t border-border-primary">
-                <button type="button" onClick={fecharModais} className="px-4 py-2 border border-border-primary rounded-lg bg-bg-surface text-text-primary hover:bg-bg-surface-hover transition-colors duration-200">
-                  Cancelar
-                </button>
-                <button type="submit" className="px-4 py-2 bg-primary hover:bg-primary-hover text-white rounded-lg font-medium transition-colors duration-200" disabled={salvando}>
-                  {salvando ? 'Salvando...' : (isEdicao ? 'Atualizar' : 'Salvar')}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {/* Modal de Visualização */}
-      {modalVisualizacao && municipioSelecionado && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm" onClick={fecharModais}>
-          <div className="bg-bg-surface rounded-xl border border-border-primary shadow-xl max-w-md w-full mx-4" onClick={(e) => e.stopPropagation()}>
-            <div className="flex items-center justify-between p-6 border-b border-border-primary">
-              <h2 className="text-xl font-semibold text-text-primary">Visualizar Município</h2>
-              <button className="text-text-tertiary hover:text-text-primary transition-colors duration-200 text-2xl" onClick={fecharModais}>×</button>
-            </div>
-
-            <div className="p-6">
-              <div className="space-y-6">
-                <div>
-                  <h3 className="text-lg font-medium text-text-primary mb-4">Dados do Município</h3>
-                  <div className="grid grid-cols-1 gap-4">
-                    <div className="space-y-1">
-                      <label className="text-sm font-medium text-text-secondary">Nome:</label>
-                      <span className="block text-text-primary">{municipioSelecionado.nome}</span>
-                    </div>
-                    <div className="space-y-1">
-                      <label className="text-sm font-medium text-text-secondary">UF:</label>
-                      <span className="block text-text-primary">{municipioSelecionado.uf}</span>
-                    </div>
-                    <div className="space-y-1">
-                      <label className="text-sm font-medium text-text-secondary">Código IBGE:</label>
-                      <span className="block text-text-primary">{municipioSelecionado.codigo}</span>
-                    </div>
-                    <div className="space-y-1">
-                      <label className="text-sm font-medium text-text-secondary">Status:</label>
-                      <span className={`inline-block px-2 py-1 rounded-full text-xs font-medium ${
-                        municipioSelecionado.ativo
-                          ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300'
-                          : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300'
-                      }`}>
-                        {municipioSelecionado.ativo ? 'Ativo' : 'Inativo'}
-                      </span>
-                    </div>
-                    {municipioSelecionado.observacoes && (
-                      <div className="space-y-1">
-                        <label className="text-sm font-medium text-text-secondary">Observações:</label>
-                        <span className="block text-text-primary">{municipioSelecionado.observacoes}</span>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="flex items-center justify-end gap-4 p-6 border-t border-border-primary">
-              <button type="button" onClick={fecharModais} className="px-4 py-2 border border-border-primary rounded-lg bg-bg-surface text-text-primary hover:bg-bg-surface-hover transition-colors duration-200">
-                Fechar
-              </button>
-              <button type="button" onClick={editarDoModal} className="px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white rounded-lg font-medium transition-colors duration-200">
-                Editar
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Modal de importação - componente temporariamente removido */}
-      {modalImportacao && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full mx-4 p-6">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-              Importar Municípios IBGE
-            </h3>
-            <p className="text-gray-700 dark:text-gray-300 mb-4">
-              Deseja importar todos os municípios do IBGE? Esta base contém mais de 5.500 municípios brasileiros.
-            </p>
-            <p className="text-yellow-600 dark:text-yellow-400 text-sm mb-6">
-              Todos os municípios existentes serão atualizados com os dados mais recentes do IBGE.
-            </p>
-            <div className="flex gap-3 justify-end">
-              <button
-                onClick={fecharModalImportacao}
-                className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-colors"
-                disabled={importandoIBGE}
-              >
-                Cancelar
-              </button>
-              <button
-                onClick={confirmarImportacao}
-                className="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors disabled:opacity-50"
-                disabled={importandoIBGE}
-              >
-                {importandoIBGE ? 'Importando...' : 'Importar'}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Modal de Importação IBGE */}
+      <ImportarIBGEModal
+        isOpen={modalImportacao}
+        onClose={fecharModalImportacao}
+        onConfirm={confirmarImportacao}
+        isImporting={importandoIBGE}
+      />
+      </div>
     </div>
   );
 }

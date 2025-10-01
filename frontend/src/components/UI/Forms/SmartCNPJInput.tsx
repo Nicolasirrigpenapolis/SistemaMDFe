@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { validationService } from '../../../services/cnpjService';
 
 interface SmartCNPJInputProps {
@@ -11,6 +11,10 @@ interface SmartCNPJInputProps {
   autoFetch?: boolean;
   className?: string;
 }
+
+// Cache local para CNPJs consultados
+const cnpjCache = new Map<string, { data: any; timestamp: number }>();
+const CACHE_DURATION = 10 * 60 * 1000; // 10 minutos
 
 export function SmartCNPJInput({
   value,
@@ -26,6 +30,8 @@ export function SmartCNPJInput({
   const [isFetching, setIsFetching] = useState(false);
   const [isValid, setIsValid] = useState<boolean | null>(null);
   const [error, setError] = useState<string>('');
+  const [progress, setProgress] = useState<'idle' | 'validating' | 'fetching' | 'success' | 'error'>('idle');
+  const timeoutRef = useRef<NodeJS.Timeout>();
 
   // Formatar CNPJ conforme digitação
   const formatCNPJ = (input: string): string => {
@@ -34,58 +40,127 @@ export function SmartCNPJInput({
     return formatted;
   };
 
+  // Verificar cache local
+  const getCachedData = (cnpj: string) => {
+    const cached = cnpjCache.get(cnpj);
+    if (cached && Date.now() - cached.timestamp < CACHE_DURATION) {
+      return cached.data;
+    }
+    return null;
+  };
+
+  // Salvar no cache
+  const setCachedData = (cnpj: string, data: any) => {
+    cnpjCache.set(cnpj, { data, timestamp: Date.now() });
+    // Limpar entradas antigas do cache
+    if (cnpjCache.size > 100) {
+      const entries = Array.from(cnpjCache.entries());
+      entries.sort((a, b) => a[1].timestamp - b[1].timestamp);
+      cnpjCache.delete(entries[0][0]);
+    }
+  };
+
   // Validar CNPJ conforme usuário digita
   useEffect(() => {
+    // Limpar timeout anterior
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+    }
+
     const validateCNPJ = async () => {
       const numbers = value.replace(/\D/g, '');
 
       if (numbers.length === 0) {
         setIsValid(null);
         setError('');
+        setProgress('idle');
         return;
       }
 
       if (numbers.length < 14) {
         setIsValid(false);
         setError('CNPJ incompleto');
+        setProgress('error');
         return;
       }
 
       if (numbers.length === 14 && autoValidate) {
-        setIsValidating(true);
-        setError('');
-
         try {
+          // Etapa 1: Validação
+          setProgress('validating');
+          setIsValidating(true);
+          setError('');
+
           const response = await validationService.validarCNPJ(numbers);
           setIsValid(response.data || false);
 
           if (!response.data) {
             setError('CNPJ inválido');
-          } else if (autoFetch && onDataFetch) {
-            // Se validação passou, buscar dados automaticamente
+            setProgress('error');
+            return;
+          }
+
+          // Etapa 2: Busca de dados (se habilitada)
+          if (autoFetch && onDataFetch) {
+            setProgress('fetching');
             setIsFetching(true);
+
+            // Verificar cache primeiro
+            const cachedData = getCachedData(numbers);
+            if (cachedData) {
+              console.log('📦 Dados do CNPJ carregados do cache');
+              onDataFetch(cachedData);
+              setProgress('success');
+              setIsFetching(false);
+              return;
+            }
+
+            // Consultar API se não estiver no cache
             const fetchResponse = await validationService.consultarCNPJ(numbers);
 
             if (fetchResponse.sucesso && fetchResponse.data) {
+              setCachedData(numbers, fetchResponse.data);
               onDataFetch(fetchResponse.data);
               setError('');
+              setProgress('success');
             } else {
-              setError(fetchResponse.mensagem || 'Erro ao consultar dados');
+              setError(fetchResponse.mensagem || 'Não foi possível consultar os dados do CNPJ');
+              setProgress('error');
             }
-            setIsFetching(false);
+          } else {
+            setProgress('success');
           }
         } catch (err) {
+          console.error('Erro ao validar CNPJ:', err);
           setIsValid(false);
-          setError('Erro ao validar CNPJ');
+          setError('Erro de conectividade. Tente novamente.');
+          setProgress('error');
         } finally {
           setIsValidating(false);
+          setIsFetching(false);
         }
       }
     };
 
-    const timer = setTimeout(validateCNPJ, 500); // Debounce
-    return () => clearTimeout(timer);
-  }, [value, autoValidate, autoFetch, onDataFetch]);
+    // Debounce inteligente: mais rápido para CNPJs completos
+    const delay = value.replace(/\D/g, '').length === 14 ? 300 : 800;
+    timeoutRef.current = setTimeout(validateCNPJ, delay);
+
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
+  }, [value, autoValidate, autoFetch]);
+
+  // Cleanup no unmount
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
+  }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const formatted = formatCNPJ(e.target.value);

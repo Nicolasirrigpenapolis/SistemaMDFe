@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ConfirmDeleteModal } from '../../../components/UI/Modal/ConfirmDeleteModal';
+import { CondutorCRUD } from '../../../components/Condutores/CondutorCRUD';
 import { formatCPF, cleanNumericString } from '../../../utils/formatters';
 import { entitiesService } from '../../../services/entitiesService';
 import Icon from '../../../components/UI/Icon';
@@ -26,28 +26,28 @@ export function ListarCondutores() {
   const [condutores, setCondutores] = useState<Condutor[]>([]);
   const [carregando, setCarregando] = useState(false);
   const [filtro, setFiltro] = useState('');
-  const [filtroStatus, setFiltroStatus] = useState('todos');
+  const [filtroStatus, setFiltroStatus] = useState('');
+  const [filtroCPF, setFiltroCPF] = useState('');
 
   // Estados de paginação
   const [paginaAtual, setPaginaAtual] = useState(1);
   const [tamanhoPagina, setTamanhoPagina] = useState(10);
   const [paginacao, setPaginacao] = useState<PaginationData | null>(null);
 
-  // Estados do modal
-  const [modalAberto, setModalAberto] = useState(false);
+  // Estados dos modais CRUD
   const [modalVisualizacao, setModalVisualizacao] = useState(false);
-  const [condutorSelecionado, setCondutorSelecionado] = useState<Condutor | null>(null);
-  const [dadosFormulario, setDadosFormulario] = useState<Partial<Condutor>>({});
-  const [salvando, setSalvando] = useState(false);
-
-  // Estados do modal de exclusão
+  const [modalFormulario, setModalFormulario] = useState(false);
   const [modalExclusao, setModalExclusao] = useState(false);
-  const [condutorExclusao, setCondutorExclusao] = useState<Condutor | null>(null);
+  const [condutorAtual, setCondutorAtual] = useState<Condutor | null>(null);
+  const [modoEdicao, setModoEdicao] = useState(false);
+
+  // Estados de loading
+  const [salvando, setSalvando] = useState(false);
   const [excluindo, setExcluindo] = useState(false);
 
   useEffect(() => {
     carregarCondutores();
-  }, [paginaAtual, tamanhoPagina, filtro, filtroStatus]);
+  }, [paginaAtual, tamanhoPagina, filtro, filtroStatus, filtroCPF]);
 
   const carregarCondutores = async () => {
     setCarregando(true);
@@ -60,6 +60,14 @@ export function ListarCondutores() {
 
       if (filtro.trim()) {
         params.append('Search', filtro.trim());
+      }
+
+      if (filtroCPF.trim()) {
+        params.append('CPF', cleanNumericString(filtroCPF.trim()));
+      }
+
+      if (filtroStatus) {
+        params.append('Status', filtroStatus === 'ativo' ? 'true' : 'false');
       }
 
       const response = await fetch(`${API_BASE_URL}/condutores?${params}`);
@@ -97,426 +105,338 @@ export function ListarCondutores() {
     }
   };
 
+  // Handlers dos modais
   const abrirModalNovo = () => {
-    setCondutorSelecionado(null);
-    setDadosFormulario({ nome: '', cpf: '', ativo: true });
-    setModalAberto(true);
+    setCondutorAtual(null);
+    setModoEdicao(false);
+    setModalFormulario(true);
   };
 
   const abrirModalEdicao = (condutor: Condutor) => {
-    setCondutorSelecionado(condutor);
-    setDadosFormulario(condutor);
-    setModalAberto(true);
+    setCondutorAtual(condutor);
+    setModoEdicao(true);
+    setModalFormulario(true);
   };
 
   const abrirModalVisualizacao = (condutor: Condutor) => {
-    setCondutorSelecionado(condutor);
+    setCondutorAtual(condutor);
     setModalVisualizacao(true);
   };
 
-  const fecharModal = () => {
-    setModalAberto(false);
-    setCondutorSelecionado(null);
-    setDadosFormulario({});
+  const abrirModalExclusao = (condutor: Condutor) => {
+    setCondutorAtual(condutor);
+    setModalExclusao(true);
   };
 
-  const fecharModalVisualizacao = () => {
+  const fecharModais = () => {
     setModalVisualizacao(false);
-    setCondutorSelecionado(null);
+    setModalFormulario(false);
+    setModalExclusao(false);
+    setCondutorAtual(null);
+    setModoEdicao(false);
   };
 
-  const atualizarCampo = (campo: keyof Condutor, valor: any) => {
-    setDadosFormulario(prev => ({ ...prev, [campo]: valor }));
-  };
-
-  const salvarCondutor = async () => {
-    setSalvando(true);
+  // Handlers de CRUD
+  const handleSave = async (dadosCondutor: Condutor) => {
     try {
-      const dadosParaSalvar = {
-        nome: dadosFormulario.nome?.trim(),
-        cpf: dadosFormulario.cpf ? cleanNumericString(dadosFormulario.cpf) : undefined,
-        ativo: dadosFormulario.ativo ?? true
+      setSalvando(true);
+
+      const dadosLimpos = {
+        ...dadosCondutor,
+        cpf: cleanNumericString(dadosCondutor.cpf),
+        nome: dadosCondutor.nome.trim()
       };
 
-      if (condutorSelecionado) {
-        await entitiesService.atualizarCondutor(condutorSelecionado.id!, dadosParaSalvar);
+      let resposta;
+      if (modoEdicao && condutorAtual?.id) {
+        resposta = await entitiesService.atualizarCondutor(condutorAtual.id, dadosLimpos);
       } else {
-        await entitiesService.criarCondutor(dadosParaSalvar);
+        resposta = await entitiesService.criarCondutor(dadosLimpos);
       }
 
-      await carregarCondutores();
-      fecharModal();
-
+      if (resposta.sucesso) {
+        fecharModais();
+        carregarCondutores();
+      } else {
+        throw new Error(resposta.mensagem || 'Erro ao salvar condutor');
+      }
     } catch (error) {
       console.error('Erro ao salvar condutor:', error);
-      alert('Erro ao salvar condutor. Tente novamente.');
+      throw error;
     } finally {
       setSalvando(false);
     }
   };
 
-  const abrirModalExclusao = (condutor: Condutor) => {
-    setCondutorExclusao(condutor);
-    setModalExclusao(true);
-  };
+  const handleDelete = async () => {
+    if (!condutorAtual?.id) return;
 
-  const fecharModalExclusao = () => {
-    setModalExclusao(false);
-    setCondutorExclusao(null);
-    setExcluindo(false);
-  };
-
-  const confirmarExclusao = async () => {
-    if (!condutorExclusao?.id) return;
-
-    setExcluindo(true);
     try {
-      await entitiesService.excluirCondutor(condutorExclusao.id);
-      await carregarCondutores();
-      fecharModalExclusao();
+      setExcluindo(true);
+      const resposta = await entitiesService.excluirCondutor(condutorAtual.id);
+
+      if (resposta.sucesso) {
+        fecharModais();
+        carregarCondutores();
+      } else {
+        throw new Error(resposta.mensagem || 'Erro ao excluir condutor');
+      }
     } catch (error) {
       console.error('Erro ao excluir condutor:', error);
-      alert('Erro ao excluir condutor. Tente novamente.');
+    } finally {
       setExcluindo(false);
     }
   };
 
-  const condutoresFiltrados = condutores.filter(condutor => {
-    const matchStatus = filtroStatus === 'todos' ||
-      (filtroStatus === 'ativo' && condutor.ativo) ||
-      (filtroStatus === 'inativo' && !condutor.ativo);
-    return matchStatus;
-  });
-
-  const alterarPagina = (novaPagina: number) => {
-    setPaginaAtual(novaPagina);
-  };
-
-  const alterarTamanhoPagina = (novoTamanho: number) => {
-    setTamanhoPagina(novoTamanho);
+  const limparFiltros = () => {
+    setFiltro('');
+    setFiltroCPF('');
+    setFiltroStatus('');
     setPaginaAtual(1);
   };
 
   if (carregando) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[400px] gap-4">
-        <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
-        <p className="text-text-secondary">Carregando condutores...</p>
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+        <div className="w-full px-6 py-8">
+          <div className="flex items-center justify-center py-16">
+            <div className="flex items-center gap-4">
+              <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+              <span className="text-gray-600 dark:text-gray-400">Carregando condutores...</span>
+            </div>
+          </div>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-6 py-8">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-8">
-        <h1 className="text-3xl font-bold text-text-primary flex items-center gap-3">
-          <Icon name="user-tie" className="text-primary" />
-          Condutores
-        </h1>
-        <button className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-hover transition-colors duration-200 flex items-center gap-2" onClick={abrirModalNovo}>
-          <Icon name="plus" />
-          Novo Condutor
-        </button>
-      </div>
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      <div className="w-full px-2 py-4">
+        {/* Header */}
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-4">
+            <div className="w-14 h-14 bg-gradient-to-br from-green-600 to-emerald-600 rounded-xl flex items-center justify-center shadow-lg">
+              <Icon name="user" className="text-white" size="xl" />
+            </div>
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-1">Condutores</h1>
+              <p className="text-gray-600 dark:text-gray-400 text-lg">Gerencie os condutores cadastrados</p>
+            </div>
+          </div>
+          <button
+            className="px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white rounded-xl font-semibold transition-all duration-200 flex items-center gap-3 shadow-lg hover:shadow-xl transform hover:scale-105"
+            onClick={abrirModalNovo}
+          >
+            <Icon name="plus" size="lg" />
+            <span>Novo Condutor</span>
+          </button>
+        </div>
 
         {/* Filtros */}
-      <div className="bg-bg-surface rounded-xl border border-border-primary p-6 mb-6">
-        <div className="flex flex-col md:flex-row gap-4">
-          <div className="flex-1">
-            <input
-              type="text"
-              placeholder="Buscar por nome ou CPF..."
-              value={filtro}
-              onChange={(e) => setFiltro(e.target.value)}
-              className="w-full px-3 py-2 border border-border-primary rounded-lg bg-bg-surface focus:outline-none focus:ring-2 focus:ring-primary/20"
-            />
-          </div>
-
-          <div className="flex-1">
-            <select
-              value={filtroStatus}
-              onChange={(e) => setFiltroStatus(e.target.value)}
-              className="w-full px-3 py-2 border border-border-primary rounded-lg bg-bg-surface focus:outline-none focus:ring-2 focus:ring-primary/20"
-            >
-              <option value="todos">Todos os Status</option>
-              <option value="ativo">Ativo</option>
-              <option value="inativo">Inativo</option>
-            </select>
-          </div>
-        </div>
-      </div>
-
-      {/* Lista de Condutores */}
-      <div className="bg-bg-surface rounded-xl border border-border-primary shadow-sm">
-        {condutoresFiltrados.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-16 px-6">
-            <div className="text-6xl text-text-tertiary mb-4">
-              <Icon name="users" />
-            </div>
-            <h3 className="text-xl font-semibold text-text-primary mb-2">Nenhum condutor encontrado</h3>
-            <p className="text-text-secondary text-center mb-6">
-              {condutores.length === 0
-                ? "Você ainda não possui nenhum condutor cadastrado."
-                : "Nenhum condutor corresponde aos filtros selecionados."
-              }
-            </p>
-            {condutores.length === 0 && (
-              <button className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-hover transition-colors duration-200 flex items-center gap-2" onClick={abrirModalNovo}>
-                <Icon name="plus" />
-                Cadastrar primeiro condutor
-              </button>
-            )}
-          </div>
-        ) : (
-          <div className="overflow-x-auto">
-            {/* Header da Tabela */}
-            <div className="grid grid-cols-6 gap-4 p-4 bg-bg-tertiary border-b border-border-primary font-semibold text-text-primary">
-              <div>ID</div>
-              <div>Nome</div>
-              <div>CPF</div>
-              <div>Status</div>
-              <div>Data Cadastro</div>
-              <div>Ações</div>
+        <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-0 p-6 mb-6">
+          <div className="grid grid-cols-4 gap-4 items-end">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Buscar por Nome</label>
+              <input
+                type="text"
+                placeholder="Nome do condutor..."
+                value={filtro}
+                onChange={(e) => setFiltro(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 dark:border-0 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500/20 focus:border-green-500"
+              />
             </div>
 
-            {/* Linhas da Tabela */}
-            {condutoresFiltrados.map((condutor) => (
-              <div key={condutor.id} className="grid grid-cols-6 gap-4 p-4 border-b border-border-primary hover:bg-bg-tertiary transition-colors duration-200">
-                <div>
-                  <strong className="text-primary">#{condutor.id}</strong>
-                </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Buscar por CPF</label>
+              <input
+                type="text"
+                placeholder="000.000.000-00"
+                value={filtroCPF}
+                onChange={(e) => setFiltroCPF(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 dark:border-0 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500/20 focus:border-green-500"
+              />
+            </div>
 
-                <div>
-                  <span className="text-text-primary font-medium">{condutor.nome}</span>
-                </div>
-
-                <div>
-                  <span className="text-text-secondary font-mono">{formatCPF(condutor.cpf)}</span>
-                </div>
-
-                <div>
-                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${condutor.ativo ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
-                    {condutor.ativo ? 'Ativo' : 'Inativo'}
-                  </span>
-                </div>
-
-                <div>
-                  <span className="text-text-tertiary text-sm">
-                    {new Date().toLocaleDateString('pt-BR')}
-                  </span>
-                </div>
-
-                <div className="flex items-center gap-2">
-                  <button
-                    className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors duration-200"
-                    onClick={() => abrirModalVisualizacao(condutor)}
-                    title="Visualizar"
-                  >
-                    <Icon name="eye" />
-                  </button>
-
-                  <button
-                    className="p-2 text-amber-600 hover:bg-amber-50 rounded-lg transition-colors duration-200"
-                    onClick={() => abrirModalEdicao(condutor)}
-                    title="Editar"
-                  >
-                    <Icon name="edit" />
-                  </button>
-
-                  <button
-                    className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors duration-200"
-                    onClick={() => abrirModalExclusao(condutor)}
-                    title="Excluir"
-                  >
-                    <Icon name="trash" />
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-
-      {/* Paginação */}
-      {paginacao && paginacao.totalItems > 0 && (
-        <div className="mt-6 border-t border-border-primary pt-6">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-            <div className="flex items-center gap-2">
-              <label className="text-text-secondary text-sm">Itens por página:</label>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Status</label>
               <select
-                className="px-3 py-1 border border-border-primary rounded-lg bg-bg-surface focus:outline-none focus:ring-2 focus:ring-primary/20"
-                value={paginacao.pageSize}
-                onChange={(e) => alterarTamanhoPagina(Number(e.target.value))}
+                value={filtroStatus}
+                onChange={(e) => setFiltroStatus(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 dark:border-0 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-green-500/20 focus:border-green-500"
               >
-                <option value={5}>5</option>
-                <option value={10}>10</option>
-                <option value={20}>20</option>
-                <option value={50}>50</option>
+                <option value="">Todos os status</option>
+                <option value="ativo">Ativo</option>
+                <option value="inativo">Inativo</option>
               </select>
             </div>
 
-            <div className="flex items-center gap-4">
+            <div>
               <button
-                className="px-4 py-2 border border-border-primary rounded-lg bg-bg-surface hover:bg-bg-tertiary transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-                onClick={() => alterarPagina(paginacao.currentPage - 1)}
-                disabled={paginacao.currentPage === 1}
+                onClick={limparFiltros}
+                className="w-full px-4 py-2 bg-red-50 hover:bg-red-100 dark:bg-red-900/20 dark:hover:bg-red-900/30 text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 border border-red-200 dark:border-red-800 rounded-lg font-semibold transition-all duration-200 flex items-center justify-center gap-2 shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
+                disabled={!filtro && !filtroCPF && !filtroStatus}
               >
-                Anterior
+                <Icon name="times" />
+                Limpar Filtros
               </button>
+            </div>
+          </div>
+        </div>
 
-              <span className="text-text-secondary text-sm px-4">
-                Página {paginacao.currentPage} de {paginacao.totalPages}
+        {/* Indicador de filtros ativos */}
+        {(filtro || filtroCPF || filtroStatus) && (
+          <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-3 mb-4">
+            <div className="flex items-center gap-2">
+              <Icon name="filter" className="text-green-600 dark:text-green-400" />
+              <span className="text-sm font-medium text-green-700 dark:text-green-300">
+                Filtros ativos:
+                {filtro && <span className="ml-1 px-2 py-1 bg-green-100 dark:bg-green-800 rounded text-xs">Nome: {filtro}</span>}
+                {filtroCPF && <span className="ml-1 px-2 py-1 bg-green-100 dark:bg-green-800 rounded text-xs">CPF: {filtroCPF}</span>}
+                {filtroStatus && <span className="ml-1 px-2 py-1 bg-green-100 dark:bg-green-800 rounded text-xs">{filtroStatus === 'ativo' ? 'Ativo' : 'Inativo'}</span>}
               </span>
-
-              <button
-                className="px-4 py-2 border border-border-primary rounded-lg bg-bg-surface hover:bg-bg-tertiary transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-                onClick={() => alterarPagina(paginacao.currentPage + 1)}
-                disabled={paginacao.currentPage === paginacao.totalPages}
-              >
-                Próxima
-              </button>
-            </div>
-
-            <div className="text-text-tertiary text-sm">
-              Mostrando {((paginacao.currentPage - 1) * paginacao.pageSize) + 1} a {Math.min(paginacao.currentPage * paginacao.pageSize, paginacao.totalItems)} de {paginacao.totalItems} condutores
             </div>
           </div>
-        </div>
-      )}
+        )}
 
-      {/* Modal de Cadastro/Edição */}
-      {modalAberto && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-bg-surface rounded-xl border border-border-primary shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between p-6 border-b border-border-primary">
-              <h2 className="text-xl font-semibold text-text-primary">{condutorSelecionado ? 'Editar Condutor' : 'Novo Condutor'}</h2>
-              <button className="text-text-tertiary hover:text-text-primary transition-colors duration-200 text-2xl" onClick={fecharModal}>×</button>
-            </div>
-
-            <div className="p-6">
-              <div className="space-y-6">
-                <h3 className="text-lg font-medium text-text-primary">Dados do Condutor</h3>
-
-                <div className="space-y-4">
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium text-text-primary">Nome *</label>
-                    <input
-                      type="text"
-                      value={dadosFormulario.nome || ''}
-                      onChange={(e) => atualizarCampo('nome', e.target.value)}
-                      placeholder="Nome completo do condutor"
-                      maxLength={200}
-                      required
-                      className="w-full px-3 py-2 border border-border-primary rounded-lg bg-bg-surface focus:outline-none focus:ring-2 focus:ring-primary/20"
-                    />
-                  </div>
-                </div>
-
-                <div className="space-y-4">
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium text-text-primary">CPF *</label>
-                    <input
-                      type="text"
-                      value={formatCPF(dadosFormulario.cpf || '')}
-                      onChange={(e) => atualizarCampo('cpf', cleanNumericString(e.target.value))}
-                      placeholder="000.000.000-00"
-                      maxLength={14}
-                      required
-                      className="w-full px-3 py-2 border border-border-primary rounded-lg bg-bg-surface focus:outline-none focus:ring-2 focus:ring-primary/20"
-                    />
-                  </div>
-                </div>
-
-                {condutorSelecionado && (
-                  <div className="space-y-4">
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium text-text-primary">Status</label>
-                      <select
-                        value={dadosFormulario.ativo ? 'true' : 'false'}
-                        onChange={(e) => atualizarCampo('ativo', e.target.value === 'true')}
-                        className="w-full px-3 py-2 border border-border-primary rounded-lg bg-bg-surface focus:outline-none focus:ring-2 focus:ring-primary/20"
-                      >
-                        <option value="true">Ativo</option>
-                        <option value="false">Inativo</option>
-                      </select>
-                    </div>
-                  </div>
-                )}
+        {/* Tabela */}
+        <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-0 shadow-sm">
+          {condutores.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-16 px-6">
+              <div className="w-16 h-16 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center mb-4">
+                <Icon name="user" className="text-2xl text-gray-400" />
               </div>
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+                {(filtro || filtroStatus) ? 'Nenhum condutor encontrado com os filtros aplicados' : 'Nenhum condutor encontrado'}
+              </h3>
+              <p className="text-gray-600 dark:text-gray-400 text-center">
+                {(filtro || filtroStatus) ? 'Tente ajustar os filtros ou limpar para ver todos os condutores.' : 'Adicione um novo condutor para começar.'}
+              </p>
             </div>
+          ) : (
+            <>
+              <div className="grid grid-cols-4 gap-4 p-4 bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-0 font-semibold text-gray-900 dark:text-white">
+                <div className="text-center">Nome</div>
+                <div className="text-center">CPF</div>
+                <div className="text-center">Status</div>
+                <div className="text-center">Ações</div>
+              </div>
 
-            <div className="flex items-center justify-end gap-4 p-6 border-t border-border-primary">
-              <button
-                type="button"
-                onClick={fecharModal}
-                className="px-4 py-2 border border-border-primary rounded-lg bg-bg-surface text-text-primary hover:bg-bg-tertiary transition-colors duration-200"
-                disabled={salvando}
-              >
-                Cancelar
-              </button>
-              <button
-                type="button"
-                onClick={salvarCondutor}
-                className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-hover transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-                disabled={salvando || !dadosFormulario.nome || !dadosFormulario.cpf}
-              >
-                {salvando ? 'Salvando...' : condutorSelecionado ? 'Atualizar' : 'Salvar'}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Modal de Visualização */}
-      {modalVisualizacao && condutorSelecionado && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-bg-surface rounded-xl border border-border-primary shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between p-6 border-b border-border-primary">
-              <h2 className="text-xl font-semibold text-text-primary">Visualizar Condutor</h2>
-              <button className="text-text-tertiary hover:text-text-primary transition-colors duration-200 text-2xl" onClick={fecharModalVisualizacao}>×</button>
-            </div>
-
-            <div className="p-6">
-              <div className="space-y-6">
-                <h3 className="text-lg font-medium text-text-primary">Dados do Condutor</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium text-text-secondary">Nome:</label>
-                    <span className="text-text-primary font-medium">{condutorSelecionado.nome}</span>
+              {condutores.map((condutor) => (
+                <div key={condutor.id} className="grid grid-cols-4 gap-4 p-4 border-b border-gray-200 dark:border-0 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200">
+                  <div className="text-center">
+                    <div className="font-medium text-gray-900 dark:text-white">{condutor.nome}</div>
                   </div>
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium text-text-secondary">CPF:</label>
-                    <span className="text-text-primary font-mono">{formatCPF(condutorSelecionado.cpf)}</span>
+                  <div className="text-center">
+                    <div className="font-medium text-gray-900 dark:text-white">{formatCPF(condutor.cpf)}</div>
                   </div>
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium text-text-secondary">Status:</label>
-                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${condutorSelecionado.ativo ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
-                      {condutorSelecionado.ativo ? 'Ativo' : 'Inativo'}
+                  <div className="text-center flex justify-center">
+                    <span className={`text-sm font-semibold ${
+                      condutor.ativo
+                        ? 'text-green-600 dark:text-green-400'
+                        : 'text-red-600 dark:text-red-400'
+                    }`}>
+                      {condutor.ativo ? 'Ativo' : 'Inativo'}
                     </span>
                   </div>
+                  <div className="flex items-center justify-center gap-2">
+                    <button
+                      className="p-2 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors duration-200"
+                      onClick={() => abrirModalVisualizacao(condutor)}
+                      title="Visualizar"
+                    >
+                      <Icon name="eye" />
+                    </button>
+                    <button
+                      className="p-2 text-amber-600 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-900/20 rounded-lg transition-colors duration-200"
+                      onClick={() => abrirModalEdicao(condutor)}
+                      title="Editar"
+                    >
+                      <Icon name="edit" />
+                    </button>
+                    <button
+                      className="p-2 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors duration-200"
+                      onClick={() => abrirModalExclusao(condutor)}
+                      title="Excluir"
+                    >
+                      <Icon name="trash" />
+                    </button>
+                  </div>
                 </div>
+              ))}
+            </>
+          )}
+        </div>
+
+        {/* Paginação */}
+        {paginacao && paginacao.totalItems > 0 && (
+          <div className="mt-6 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-0 p-4 rounded-b-lg">
+            <div className="flex flex-row justify-between items-center gap-4">
+              <div className="text-sm text-gray-600 dark:text-gray-400 text-left">
+                Mostrando {paginacao.startItem || ((paginacao.currentPage - 1) * paginacao.pageSize) + 1} até {paginacao.endItem || Math.min(paginacao.currentPage * paginacao.pageSize, paginacao.totalItems)} de {paginacao.totalItems} condutores
+              </div>
+
+              {paginacao.totalPages > 1 && (
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => setPaginaAtual(paginacao.currentPage - 1)}
+                    disabled={!paginacao.hasPreviousPage}
+                    className="px-4 py-2 border border-gray-300 dark:border-0 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200 text-sm"
+                  >
+                    Anterior
+                  </button>
+
+                  <span className="px-4 py-2 text-gray-900 dark:text-white font-medium text-sm whitespace-nowrap">
+                    {paginacao.currentPage} / {paginacao.totalPages}
+                  </span>
+
+                  <button
+                    onClick={() => setPaginaAtual(paginacao.currentPage + 1)}
+                    disabled={!paginacao.hasNextPage}
+                    className="px-4 py-2 border border-gray-300 dark:border-0 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200 text-sm"
+                  >
+                    Próxima
+                  </button>
+                </div>
+              )}
+
+              <div className="flex items-center gap-2">
+                <label className="text-sm text-gray-700 dark:text-gray-300">Itens por página:</label>
+                <select
+                  value={tamanhoPagina}
+                  onChange={(e) => {
+                    setTamanhoPagina(Number(e.target.value));
+                    setPaginaAtual(1);
+                  }}
+                  className="px-3 py-1 border border-gray-300 dark:border-0 rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-green-500/20 focus:border-green-500"
+                >
+                  <option value={5}>5</option>
+                  <option value={10}>10</option>
+                  <option value={20}>20</option>
+                  <option value={50}>50</option>
+                </select>
               </div>
             </div>
-
-            <div className="flex items-center justify-end gap-4 p-6 border-t border-border-primary">
-              <button onClick={fecharModalVisualizacao} className="px-4 py-2 border border-border-primary rounded-lg bg-bg-surface text-text-primary hover:bg-bg-tertiary transition-colors duration-200">
-                Fechar
-              </button>
-            </div>
           </div>
-        </div>
-      )}
+        )}
 
-      {/* Modal de Exclusão */}
-      <ConfirmDeleteModal
-        isOpen={modalExclusao}
-        onCancel={fecharModalExclusao}
-        onConfirm={confirmarExclusao}
-        title="Excluir Condutor"
-        message={`Tem certeza que deseja excluir o condutor "${condutorExclusao?.nome}"?`}
-        loading={excluindo}
-      />
+        {/* Modais CRUD */}
+        <CondutorCRUD
+          viewModalOpen={modalVisualizacao}
+          formModalOpen={modalFormulario}
+          deleteModalOpen={modalExclusao}
+          selectedCondutor={condutorAtual}
+          isEdit={modoEdicao}
+          onViewClose={fecharModais}
+          onFormClose={fecharModais}
+          onDeleteClose={fecharModais}
+          onSave={handleSave}
+          onEdit={abrirModalEdicao}
+          onDelete={handleDelete}
+          saving={salvando}
+          deleting={excluindo}
+        />
+      </div>
     </div>
   );
 }

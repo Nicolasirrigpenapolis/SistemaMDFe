@@ -12,7 +12,7 @@ import { ListarCondutores } from '../pages/Condutores/ListarCondutores/ListarCon
 import { ListarContratantes } from '../pages/Contratantes/ListarContratantes/ListarContratantes';
 import { ListarSeguradoras } from '../pages/Seguradoras/ListarSeguradoras/ListarSeguradoras';
 import { ListarMunicipios } from '../pages/Municipios/ListarMunicipios/ListarMunicipios';
-import { Usuarios } from '../pages/Admin/Usuarios/Usuarios';
+import { Usuarios } from '../pages/Admin/Usuarios';
 import { Cargos } from '../pages/Admin/Cargos/Cargos';
 
 export function AppRoutes() {

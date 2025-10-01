@@ -1,10 +1,11 @@
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MDFeApi.Data;
 using MDFeApi.DTOs;
 using MDFeApi.Models;
+using MDFeApi.Services;
+using MDFeApi.Attributes;
 using System.Security.Claims;
 
 namespace MDFeApi.Controllers
@@ -15,15 +16,16 @@ namespace MDFeApi.Controllers
     public class CargosController : ControllerBase
     {
         private readonly MDFeContext _context;
-        private readonly UserManager<Usuario> _userManager;
+        private readonly IPermissaoService _permissaoService;
 
-        public CargosController(MDFeContext context, UserManager<Usuario> userManager)
+        public CargosController(MDFeContext context, IPermissaoService permissaoService)
         {
             _context = context;
-            _userManager = userManager;
+            _permissaoService = permissaoService;
         }
 
         [HttpGet]
+        [RequiresPermission("admin.roles.read")]
         public async Task<IActionResult> GetCargos()
         {
             try
@@ -212,12 +214,100 @@ namespace MDFeApi.Controllers
             }
         }
 
+        [HttpGet("{cargoId}/permissoes")]
+        [RequiresPermission("admin.permissions.read")]
+        public async Task<IActionResult> GetPermissoesByCargo(int cargoId)
+        {
+            try
+            {
+                var permissoes = await _permissaoService.GetPermissoesByCargoIdAsync(cargoId);
+                return Ok(permissoes);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Erro interno do servidor", error = ex.Message });
+            }
+        }
+
+        [HttpPost("{cargoId}/permissoes/{permissaoId}")]
+        [RequiresPermission("admin.permissions.assign")]
+        public async Task<IActionResult> AtribuirPermissaoToCargo(int cargoId, int permissaoId)
+        {
+            try
+            {
+                await _permissaoService.AtribuirPermissaoToCargoAsync(cargoId, permissaoId);
+                return Ok(new { message = "Permissão atribuída com sucesso" });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Erro interno do servidor", error = ex.Message });
+            }
+        }
+
+        [HttpDelete("{cargoId}/permissoes/{permissaoId}")]
+        [RequiresPermission("admin.permissions.assign")]
+        public async Task<IActionResult> RemoverPermissaoFromCargo(int cargoId, int permissaoId)
+        {
+            try
+            {
+                // Verificar se o cargo é "Programador"
+                var cargo = await _context.Cargos.FindAsync(cargoId);
+                if (cargo != null && cargo.Nome == "Programador")
+                {
+                    return BadRequest(new { message = "Não é possível remover permissões do cargo Programador" });
+                }
+
+                await _permissaoService.RemoverPermissaoFromCargoAsync(cargoId, permissaoId);
+                return Ok(new { message = "Permissão removida com sucesso" });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Erro interno do servidor", error = ex.Message });
+            }
+        }
+
+        [HttpPost("{cargoId}/permissoes/bulk")]
+        [RequiresPermission("admin.permissions.assign")]
+        public async Task<IActionResult> AtualizarPermissoesCargo(int cargoId, [FromBody] List<int> permissaoIds)
+        {
+            try
+            {
+                // Verificar se o cargo é "Programador"
+                var cargo = await _context.Cargos.FindAsync(cargoId);
+                if (cargo != null && cargo.Nome == "Programador")
+                {
+                    return BadRequest(new { message = "Não é possível modificar permissões do cargo Programador" });
+                }
+
+                // Remover todas as permissões atuais do cargo
+                var permissoesAtuais = await _permissaoService.GetPermissoesByCargoIdAsync(cargoId);
+                foreach (var permissao in permissoesAtuais)
+                {
+                    await _permissaoService.RemoverPermissaoFromCargoAsync(cargoId, permissao.Id);
+                }
+
+                // Adicionar as novas permissões
+                foreach (var permissaoId in permissaoIds)
+                {
+                    await _permissaoService.AtribuirPermissaoToCargoAsync(cargoId, permissaoId);
+                }
+
+                return Ok(new { message = "Permissões do cargo atualizadas com sucesso" });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Erro interno do servidor", error = ex.Message });
+            }
+        }
+
         private async Task<bool> IsUserProgramador()
         {
             var currentUserId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            if (currentUserId == null) return false;
+            if (currentUserId == null || !int.TryParse(currentUserId, out var userId)) return false;
 
-            var currentUser = await _userManager.FindByIdAsync(currentUserId);
+            var currentUser = await _context.Usuarios
+                .Include(u => u.Cargo)
+                .FirstOrDefaultAsync(u => u.Id == userId);
             return currentUser != null && currentUser.Cargo?.Nome == "Programador";
         }
     }

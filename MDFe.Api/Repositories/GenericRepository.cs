@@ -94,6 +94,9 @@ namespace MDFeApi.Repositories
                     .Take(request.PageSize)
                     .ToListAsync();
 
+                var startItem = totalItems > 0 ? ((request.Page - 1) * request.PageSize) + 1 : 0;
+                var endItem = totalItems > 0 ? Math.Min(request.Page * request.PageSize, totalItems) : 0;
+
                 return new PagedResult<TEntity>
                 {
                     Items = items,
@@ -102,7 +105,9 @@ namespace MDFeApi.Repositories
                     PageSize = request.PageSize,
                     TotalPages = (int)Math.Ceiling((double)totalItems / request.PageSize),
                     HasNextPage = request.Page * request.PageSize < totalItems,
-                    HasPreviousPage = request.Page > 1
+                    HasPreviousPage = request.Page > 1,
+                    StartItem = startItem,
+                    EndItem = endItem
                 };
             }
             catch (Exception ex)
@@ -165,16 +170,9 @@ namespace MDFeApi.Repositories
                 if (entity == null)
                     throw new InvalidOperationException($"Entidade com ID {id} não encontrada");
 
-                // Verificar se tem propriedade Ativo (soft delete)
-                if (HasActiveProperty())
-                {
-                    await SoftDeleteAsync(id);
-                }
-                else
-                {
-                    _dbSet.Remove(entity);
-                    await _context.SaveChangesAsync();
-                }
+                // SEMPRE fazer HARD DELETE - exclusão real do banco
+                _dbSet.Remove(entity);
+                await _context.SaveChangesAsync();
 
                 _logger.LogInformation("Entidade {EntityType} deletada com ID: {Id}",
                     typeof(TEntity).Name, id);
@@ -346,51 +344,7 @@ namespace MDFeApi.Repositories
 
         #endregion
 
-        #region Soft delete
-
-        public virtual async Task SoftDeleteAsync(int id)
-        {
-            try
-            {
-                var entity = await _dbSet.FindAsync(id);
-                if (entity == null)
-                    throw new InvalidOperationException($"Entidade com ID {id} não encontrada");
-
-                SetActiveStatus(entity, false);
-                SetUpdateDate(entity);
-
-                await _context.SaveChangesAsync();
-
-                _logger.LogInformation("Entidade {EntityType} desativada com ID: {Id}",
-                    typeof(TEntity).Name, id);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Erro ao desativar entidade {EntityType} com ID: {Id}",
-                    typeof(TEntity).Name, id);
-                throw;
-            }
-        }
-
-        public virtual async Task<IEnumerable<TEntity>> GetActiveAsync()
-        {
-            try
-            {
-                if (HasActiveProperty())
-                {
-                    return await _dbSet.Where(e => EF.Property<bool>(e, "Ativo")).ToListAsync();
-                }
-
-                return await GetAllAsync();
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Erro ao buscar entidades ativas");
-                throw;
-            }
-        }
-
-        #endregion
+        // Soft delete removido - sistema usa apenas HARD DELETE
 
         #region Métodos auxiliares (podem ser sobrescritos)
 

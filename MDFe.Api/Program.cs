@@ -20,26 +20,15 @@ builder.Services.AddControllers()
     {
         options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
         options.JsonSerializerOptions.WriteIndented = true;
+        options.JsonSerializerOptions.PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase;
     });
 
 // Configure Entity Framework
 builder.Services.AddDbContext<MDFeContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// Configure Identity
-builder.Services.AddIdentity<Usuario, IdentityRole<int>>(options =>
-{
-    options.Password.RequireDigit = true;
-    options.Password.RequireLowercase = true;
-    options.Password.RequireUppercase = true;
-    options.Password.RequireNonAlphanumeric = false;
-    options.Password.RequiredLength = 8;
-    
-    options.User.RequireUniqueEmail = true;
-    options.SignIn.RequireConfirmedEmail = false;
-})
-.AddEntityFrameworkStores<MDFeContext>()
-.AddDefaultTokenProviders();
+// Configuração de senha para hash manual
+builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
 
 // Configure JWT
 var jwtSettings = builder.Configuration.GetSection("JwtSettings");
@@ -75,6 +64,10 @@ builder.Services.AddScoped<IIBGEService, IBGEService>();
 
 // Register repositories
 builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
+builder.Services.AddScoped<IPermissaoRepository, PermissaoRepository>();
+
+// Register permission services
+builder.Services.AddScoped<IPermissaoService, PermissaoService>();
 
 // Register HttpClient for IBGE service
 builder.Services.AddHttpClient<IIBGEService, IBGEService>();
@@ -243,6 +236,7 @@ if (app.Environment.IsDevelopment())
 using (var scope = app.Services.CreateScope())
 {
     var context = scope.ServiceProvider.GetRequiredService<MDFeContext>();
+    var passwordHasher = scope.ServiceProvider.GetRequiredService<IPasswordHasher>();
     var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
 
     try
@@ -250,6 +244,9 @@ using (var scope = app.Services.CreateScope())
         // Apply pending migrations
         context.Database.Migrate();
         logger.LogInformation("Database migrations applied successfully");
+
+        // Create master user automatically
+        await CreateMasterUser(context, passwordHasher, logger);
     }
     catch (Exception ex) when (ex.Message.Contains("multiple cascade paths") || ex.Message.Contains("cascade"))
     {
@@ -259,6 +256,88 @@ using (var scope = app.Services.CreateScope())
     catch (Exception ex)
     {
         logger.LogError(ex, "An error occurred while applying database migrations");
+    }
+}
+
+async Task CreateMasterUser(MDFeContext context, IPasswordHasher passwordHasher, ILogger logger)
+{
+    try
+    {
+        // Check if master user already exists
+        var existingUser = await context.Usuarios.Include(u => u.Cargo).FirstOrDefaultAsync(u => u.UserName == "programador");
+        if (existingUser != null)
+        {
+            // Se o usuário existe mas não tem cargo, vamos atualizar
+            if (existingUser.CargoId == null)
+            {
+                logger.LogInformation("Master user exists but missing cargo - updating...");
+
+                // Criar cargo Programador se não existir
+                var cargo = await context.Cargos.FirstOrDefaultAsync(c => c.Nome == "Programador");
+                if (cargo == null)
+                {
+                    cargo = new Cargo
+                    {
+                        Nome = "Programador",
+                        Descricao = "Desenvolvedor do sistema com acesso total",
+                        Ativo = true,
+                        DataCriacao = DateTime.UtcNow
+                    };
+                    context.Cargos.Add(cargo);
+                    await context.SaveChangesAsync();
+                    logger.LogInformation("Cargo 'Programador' created successfully");
+                }
+
+                // Atualizar usuário com cargo
+                existingUser.CargoId = cargo.Id;
+                await context.SaveChangesAsync();
+                logger.LogInformation("Master user updated with cargo 'Programador'");
+            }
+            else
+            {
+                logger.LogInformation("Master user already exists with cargo");
+            }
+            return;
+        }
+
+        // Criar cargo Programador se não existir
+        var programadorCargo = await context.Cargos.FirstOrDefaultAsync(c => c.Nome == "Programador");
+        if (programadorCargo == null)
+        {
+            programadorCargo = new Cargo
+            {
+                Nome = "Programador",
+                Descricao = "Desenvolvedor do sistema com acesso total",
+                Ativo = true,
+                DataCriacao = DateTime.UtcNow
+            };
+            context.Cargos.Add(programadorCargo);
+            await context.SaveChangesAsync();
+            logger.LogInformation("Cargo 'Programador' created successfully");
+        }
+
+        // Create master user with cargo
+        var masterUser = new Usuario
+        {
+            UserName = "programador",
+            Nome = "Programador",
+            CargoId = programadorCargo.Id,
+            Ativo = true,
+            DataCriacao = DateTime.UtcNow
+        };
+
+        // Hash the password
+        masterUser.PasswordHash = passwordHasher.HashPassword("conectairrig@");
+
+        // Add user to database
+        context.Usuarios.Add(masterUser);
+        await context.SaveChangesAsync();
+
+        logger.LogInformation("Master user 'programador' created successfully with cargo 'Programador'");
+    }
+    catch (Exception ex)
+    {
+        logger.LogError(ex, "Error creating master user");
     }
 }
 

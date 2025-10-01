@@ -34,7 +34,7 @@ export function Login() {
   // Redirecionar se já autenticado
   useEffect(() => {
     if (!loading && isAuthenticated) {
-      navigate('/dashboard');
+      navigate('/dashboard', { replace: true });
     }
   }, [isAuthenticated, loading, navigate]);
 

@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import Icon from '../../../components/UI/Icon';
 import Pagination from '../../../components/UI/Pagination/Pagination';
 import { MDFeViewModal } from '../../../components/UI/Modal/MDFeViewModal';
+import { formatPlaca } from '../../../utils/formatters';
 
 interface MDFe {
   id: number;
@@ -48,42 +49,24 @@ export function ListarMDFe() {
       const mdfesMapeados: MDFe[] = data.itens?.map((item: any) => ({
         id: item.id,
         numero: item.numeroMdfe?.toString().padStart(9, '0') || '',
-        serie: item.serie?.toString() || '001',
-        dataEmissao: item.dataEmissao,
+        serie: item.serie?.toString() || '1',
+        dataEmissao: item.dataEmissao || new Date().toISOString(),
         ufIni: item.ufIni || '',
         ufFim: item.ufFim || '',
         valorTotal: item.valorTotal || 0,
-        status: mapearStatus(item.statusSefaz),
-        chave: item.chaveAcesso || '',
-        emitenteNome: item.emitenteRazaoSocial || '',
+        status: item.status || 'Rascunho',
+        chave: item.chave || '',
+        emitenteNome: item.emitenteNome || 'Empresa',
         veiculoPlaca: item.veiculoPlaca || ''
       })) || [];
 
       setMDFes(mdfesMapeados);
     } catch (error) {
       console.error('Erro ao carregar MDFes:', error);
-      setMDFes([]); // Define array vazio em caso de erro
+      setMDFes([]);
     }
   };
 
-  // Função auxiliar para mapear status da API para o formato do componente
-  const mapearStatus = (status: string): 'Autorizado' | 'Pendente' | 'Cancelado' | 'Rejeitado' | 'Rascunho' => {
-    switch (status?.toUpperCase()) {
-      case 'AUTORIZADO':
-        return 'Autorizado';
-      case 'CANCELADO':
-        return 'Cancelado';
-      case 'REJEITADO':
-        return 'Rejeitado';
-      case 'PENDENTE':
-        return 'Pendente';
-      case 'RASCUNHO':
-      default:
-        return 'Rascunho';
-    }
-  };
-
-  // Função para exibir mensagem temporária
   const exibirMensagem = (tipo: 'sucesso' | 'erro', texto: string) => {
     setMensagem({ tipo, texto });
     setTimeout(() => setMensagem(null), 5000);
@@ -178,300 +161,372 @@ export function ListarMDFe() {
     setPaginaAtual(1);
   };
 
-
   return (
-    <div className="max-w-7xl mx-auto px-6 py-8">
-      {/* Mensagem de Feedback */}
-      {mensagem && (
-        <div className={`mb-6 p-4 rounded-lg border flex items-center justify-between ${
-          mensagem.tipo === 'sucesso'
-            ? 'bg-green-50 border-green-200 text-green-800 dark:bg-green-900/20 dark:border-green-800 dark:text-green-300'
-            : 'bg-red-50 border-red-200 text-red-800 dark:bg-red-900/20 dark:border-red-800 dark:text-red-300'
-        }`}>
-          <div className="flex items-center gap-3">
-            <i className={`fas ${
-              mensagem.tipo === 'sucesso' ? 'fa-check-circle' : 'fa-exclamation-circle'
-            }`}></i>
-            <span>{mensagem.texto}</span>
-          </div>
-          <button
-            className="text-current hover:opacity-70 transition-opacity duration-200"
-            onClick={() => setMensagem(null)}
-          >
-            <i className="fas fa-times"></i>
-          </button>
-        </div>
-      )}
-
-      {/* Header */}
-      <div className="flex items-center justify-between mb-8">
-        <h1>
-          <i className="fas fa-file-alt"></i>
-          Manifestos Eletrônicos (MDFe)
-        </h1>
-        <button
-          onClick={() => navigate('/mdfes/novo')}
-          className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-hover font-medium transition-colors duration-200 flex items-center gap-2"
-        >
-          <i className="fas fa-plus"></i>
-          Novo MDFe
-        </button>
-      </div>
-
-      {/* Estatísticas */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-        <div className="bg-bg-surface rounded-xl border border-border-primary p-6">
-          <div className="flex items-center justify-between mb-4">
-            <div className="p-3 bg-green-100 dark:bg-green-900/30 rounded-lg">
-              <i className="fas fa-check-circle text-green-600 dark:text-green-400 text-xl"></i>
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      <div className="w-full py-8">
+        {/* Mensagem de Feedback */}
+        {mensagem && (
+          <div className="mx-4 sm:mx-6 lg:mx-8 mb-6">
+            <div className={`p-4 rounded-lg border flex items-center justify-between ${
+              mensagem.tipo === 'sucesso'
+                ? 'bg-green-50 border-green-200 text-green-800 dark:bg-green-900/20 dark:border-green-800 dark:text-green-300'
+                : 'bg-red-50 border-red-200 text-red-800 dark:bg-red-900/20 dark:border-red-800 dark:text-red-300'
+            }`}>
+              <div className="flex items-center gap-3">
+                <i className={`fas ${
+                  mensagem.tipo === 'sucesso' ? 'fa-check-circle' : 'fa-exclamation-circle'
+                }`}></i>
+                <span>{mensagem.texto}</span>
+              </div>
+              <button
+                className="text-current hover:opacity-70 transition-opacity duration-200"
+                onClick={() => setMensagem(null)}
+              >
+                <i className="fas fa-times"></i>
+              </button>
             </div>
-            <div className="text-green-600 dark:text-green-400">
-              <i className="fas fa-arrow-up"></i>
-            </div>
-          </div>
-          <div>
-            <div className="text-2xl font-bold text-text-primary">{mdfes.filter(m => m.status === 'Autorizado').length}</div>
-            <div className="text-text-secondary">Autorizados</div>
-          </div>
-        </div>
-
-        <div className="bg-bg-surface rounded-xl border border-border-primary p-6">
-          <div className="flex items-center justify-between mb-4">
-            <div className="p-3 bg-yellow-100 dark:bg-yellow-900/30 rounded-lg">
-              <i className="fas fa-clock text-yellow-600 dark:text-yellow-400 text-xl"></i>
-            </div>
-            <div className="text-yellow-600 dark:text-yellow-400">
-              <i className="fas fa-arrow-up"></i>
-            </div>
-          </div>
-          <div>
-            <div className="text-2xl font-bold text-text-primary">{mdfes.filter(m => m.status === 'Pendente' || m.status === 'Rascunho').length}</div>
-            <div className="text-text-secondary">Pendentes</div>
-          </div>
-        </div>
-
-        <div className="bg-bg-surface rounded-xl border border-border-primary p-6">
-          <div className="flex items-center justify-between mb-4">
-            <div className="p-3 bg-red-100 dark:bg-red-900/30 rounded-lg">
-              <i className="fas fa-times-circle text-red-600 dark:text-red-400 text-xl"></i>
-            </div>
-            <div className="text-red-600 dark:text-red-400">
-              <i className="fas fa-arrow-down"></i>
-            </div>
-          </div>
-          <div>
-            <div className="text-2xl font-bold text-text-primary">{mdfes.filter(m => m.status === 'Rejeitado' || m.status === 'Cancelado').length}</div>
-            <div className="text-text-secondary">Rejeitados/Cancelados</div>
-          </div>
-        </div>
-      </div>
-
-      {/* Filtros */}
-      <div className="bg-bg-surface rounded-xl border border-border-primary p-6 mb-6">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="space-y-2">
-            <input
-              type="text"
-              placeholder="Buscar por número, emitente ou veículo..."
-              value={filtro}
-              onChange={(e) => setFiltro(e.target.value)}
-              className="w-full px-3 py-2 border border-border-primary rounded-lg bg-bg-surface text-text-primary focus:outline-none focus:ring-2 focus:ring-primary"
-            />
-          </div>
-
-          <div className="space-y-2">
-            <select
-              value={statusFiltro}
-              onChange={(e) => setStatusFiltro(e.target.value)}
-              className="w-full px-3 py-2 border border-border-primary rounded-lg bg-bg-surface text-text-primary focus:outline-none focus:ring-2 focus:ring-primary"
-            >
-              <option value="todos">Todos os Status</option>
-              <option value="Autorizado">Autorizado</option>
-              <option value="Pendente">Pendente</option>
-              <option value="Rascunho">Rascunho</option>
-              <option value="Cancelado">Cancelado</option>
-              <option value="Rejeitado">Rejeitado</option>
-            </select>
-          </div>
-
-          <div className="space-y-2">
-            <select
-              value={itensPorPagina}
-              onChange={(e) => handleItemsPerPageChange(Number(e.target.value))}
-              className="w-full px-3 py-2 border border-border-primary rounded-lg bg-bg-surface text-text-primary focus:outline-none focus:ring-2 focus:ring-primary"
-            >
-              <option value={5}>5 por página</option>
-              <option value={10}>10 por página</option>
-              <option value={25}>25 por página</option>
-              <option value={50}>50 por página</option>
-            </select>
-          </div>
-        </div>
-      </div>
-
-      {/* Lista de MDFes */}
-      <div className="bg-bg-surface rounded-xl border border-border-primary shadow-sm">
-        {totalItems > 0 && (
-          <div className="px-6 py-3 border-b border-border-primary bg-bg-tertiary">
-            <span className="text-sm text-text-secondary">
-              Mostrando {startIndex + 1} a {Math.min(endIndex, totalItems)} de {totalItems} MDFes
-            </span>
           </div>
         )}
 
-        {itensAtuais.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-16 px-6">
-            <div className="w-16 h-16 bg-bg-tertiary rounded-full flex items-center justify-center mb-4">
-              <i className="fas fa-file-alt text-2xl text-text-tertiary"></i>
+        {/* Header */}
+        <div className="mx-4 sm:mx-6 lg:mx-8 mb-8">
+          <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900 dark:text-white flex items-center gap-3">
+                <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg">
+                  <i className="fas fa-file-alt text-white text-xl"></i>
+                </div>
+                Manifestos Eletrônicos (MDFe)
+              </h1>
+              <p className="text-gray-600 dark:text-gray-300 mt-2">
+                Gerencie seus manifestos eletrônicos de transporte
+              </p>
             </div>
-            <h3 className="text-lg font-semibold text-text-primary mb-2">Nenhum MDFe encontrado</h3>
-            <p className="text-text-secondary text-center mb-6">
-              {filtro || statusFiltro !== 'todos'
-                ? 'Tente ajustar os filtros para encontrar o que procura.'
-                : 'Comece criando seu primeiro manifesto eletrônico.'
-              }
-            </p>
-            {(!filtro && statusFiltro === 'todos') && (
-              <button
-                onClick={() => navigate('/mdfes/novo')}
-                className="px-6 py-3 bg-primary text-white rounded-lg hover:bg-primary-hover font-medium transition-colors duration-200 flex items-center gap-2"
-              >
-                <i className="fas fa-plus"></i>
-                Criar Primeiro MDFe
-              </button>
-            )}
+            <button
+              onClick={() => navigate('/mdfes/novo')}
+              className="px-6 py-3 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-lg hover:from-blue-600 hover:to-indigo-700 font-medium transition-all duration-200 flex items-center gap-2 shadow-md hover:shadow-lg"
+            >
+              <i className="fas fa-plus"></i>
+              Novo MDFe
+            </button>
           </div>
-        ) : (
-          <div className="overflow-x-auto">
-            {/* Header da Tabela */}
-            <div className="grid grid-cols-8 gap-4 p-4 bg-bg-tertiary border-b border-border-primary font-semibold text-text-primary">
-              <div>Número/Série</div>
-              <div>Emitente</div>
-              <div>Data</div>
-              <div>Trajeto</div>
-              <div>Veículo</div>
-              <div>Valor Carga</div>
-              <div>Status</div>
-              <div>Ações</div>
-            </div>
+        </div>
 
-            {/* Linhas da Tabela */}
-            {itensAtuais.map((mdfe) => (
-              <div key={mdfe.id} className="grid grid-cols-8 gap-4 p-4 border-b border-border-primary hover:bg-bg-surface-hover transition-colors duration-200">
-                <div>
-                  <strong className="text-text-primary">#{mdfe.numero}</strong>
-                  <div className="text-sm text-text-secondary">Série {mdfe.serie}</div>
+        {/* Estatísticas */}
+        <div className="mx-4 sm:mx-6 lg:mx-8 mb-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="bg-bg-surface rounded-xl border border-border-primary p-6">
+              <div className="flex items-center justify-between mb-4">
+                <div className="p-3 bg-green-100 dark:bg-green-900/30 rounded-lg">
+                  <i className="fas fa-check-circle text-green-600 dark:text-green-400 text-xl"></i>
                 </div>
-
-                <div>
-                  <span className="text-text-primary">{mdfe.emitenteNome || 'N/A'}</span>
-                </div>
-
-                <div>
-                  <span className="text-text-primary">{new Date(mdfe.dataEmissao).toLocaleDateString('pt-BR')}</span>
-                </div>
-
-                <div>
-                  <span className="text-text-primary">{mdfe.ufIni} → {mdfe.ufFim}</span>
-                </div>
-
-                <div>
-                  <span className="text-text-primary">{mdfe.veiculoPlaca || 'N/A'}</span>
-                </div>
-
-                <div>
-                  <span className="text-text-primary">R$ {mdfe.valorTotal.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
-                </div>
-
-                <div>
-                  <span
-                    className={`px-2 py-1 rounded-full text-xs font-medium ${
-                      mdfe.status === 'Autorizado' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300' :
-                      mdfe.status === 'Rascunho' || mdfe.status === 'Pendente' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300' :
-                      'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300'
-                    }`}
-                  >
-                    {mdfe.status}
-                  </span>
-                </div>
-
-                <div className="flex items-center gap-1">
-                  {/* Ação principal por status */}
-                  {(mdfe.status === 'Rascunho' || mdfe.status === 'Rejeitado') ? (
-                    <button
-                      className="p-2 text-amber-600 hover:bg-amber-50 dark:hover:bg-amber-900/20 rounded transition-colors duration-200"
-                      title={mdfe.status === 'Rejeitado' ? 'Corrigir & Editar' : 'Continuar Editando'}
-                      onClick={() => navigate(`/mdfes/editar/${mdfe.id}`)}
-                    >
-                      <i className="fas fa-edit"></i>
-                    </button>
-                  ) : (
-                    <button
-                      className="p-2 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded transition-colors duration-200"
-                      title="Ver Detalhes"
-                      onClick={() => navigate(`/mdfes/visualizar/${mdfe.id}`)}
-                    >
-                      <i className="fas fa-eye"></i>
-                    </button>
-                  )}
-
-                  {/* Download rápido apenas para autorizados/pendentes */}
-                  {(mdfe.status === 'Autorizado' || mdfe.status === 'Pendente') && (
-                    <button
-                      className="p-2 text-green-600 hover:bg-green-50 dark:hover:bg-green-900/20 rounded transition-colors duration-200"
-                      title="Download PDF"
-                      onClick={() => handleGerarMDFe(mdfe.id, mdfe.numero)}
-                      disabled={processando === mdfe.id}
-                    >
-                      {processando === mdfe.id ? (
-                        <i className="fas fa-spinner fa-spin"></i>
-                      ) : (
-                        <i className="fas fa-download"></i>
-                      )}
-                    </button>
-                  )}
-
-                  {/* Duplicar sempre disponível (exceto cancelados) */}
-                  {mdfe.status !== 'Cancelado' && (
-                    <button
-                      className="p-2 text-purple-600 hover:bg-purple-50 dark:hover:bg-purple-900/20 rounded transition-colors duration-200"
-                      title="Duplicar MDFe"
-                      onClick={() => handleTransmitir(mdfe.id, mdfe.numero)}
-                      disabled={processando === mdfe.id}
-                    >
-                      {processando === mdfe.id ? (
-                        <i className="fas fa-spinner fa-spin"></i>
-                      ) : (
-                        <i className="fas fa-copy"></i>
-                      )}
-                    </button>
-                  )}
+                <div className="text-green-600 dark:text-green-400">
+                  <i className="fas fa-arrow-up"></i>
                 </div>
               </div>
-            ))}
-          </div>
-        )}
+              <div>
+                <div className="text-2xl font-bold text-text-primary">{mdfes.filter(m => m.status === 'Autorizado').length}</div>
+                <div className="text-text-secondary">Autorizados</div>
+              </div>
+            </div>
 
-        {totalPages > 1 && (
-          <Pagination
-            currentPage={paginaAtual}
-            totalPages={totalPages}
-            onPageChange={handlePageChange}
+            <div className="bg-bg-surface rounded-xl border border-border-primary p-6">
+              <div className="flex items-center justify-between mb-4">
+                <div className="p-3 bg-yellow-100 dark:bg-yellow-900/30 rounded-lg">
+                  <i className="fas fa-clock text-yellow-600 dark:text-yellow-400 text-xl"></i>
+                </div>
+                <div className="text-yellow-600 dark:text-yellow-400">
+                  <i className="fas fa-arrow-up"></i>
+                </div>
+              </div>
+              <div>
+                <div className="text-2xl font-bold text-text-primary">{mdfes.filter(m => m.status === 'Pendente' || m.status === 'Rascunho').length}</div>
+                <div className="text-text-secondary">Pendentes</div>
+              </div>
+            </div>
+
+            <div className="bg-bg-surface rounded-xl border border-border-primary p-6">
+              <div className="flex items-center justify-between mb-4">
+                <div className="p-3 bg-red-100 dark:bg-red-900/30 rounded-lg">
+                  <i className="fas fa-times-circle text-red-600 dark:text-red-400 text-xl"></i>
+                </div>
+                <div className="text-red-600 dark:text-red-400">
+                  <i className="fas fa-arrow-down"></i>
+                </div>
+              </div>
+              <div>
+                <div className="text-2xl font-bold text-text-primary">{mdfes.filter(m => m.status === 'Rejeitado' || m.status === 'Cancelado').length}</div>
+                <div className="text-text-secondary">Rejeitados/Cancelados</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Filtros */}
+        <div className="mx-4 sm:mx-6 lg:mx-8 mb-6">
+          <div className="bg-bg-surface rounded-xl border border-border-primary p-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="space-y-2">
+                <input
+                  type="text"
+                  placeholder="Buscar por número, emitente ou veículo..."
+                  value={filtro}
+                  onChange={(e) => setFiltro(e.target.value)}
+                  className="w-full px-3 py-2 border border-border-primary rounded-lg bg-bg-surface text-text-primary focus:outline-none focus:ring-2 focus:ring-primary"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <select
+                  value={statusFiltro}
+                  onChange={(e) => setStatusFiltro(e.target.value)}
+                  className="w-full px-3 py-2 border border-border-primary rounded-lg bg-bg-surface text-text-primary focus:outline-none focus:ring-2 focus:ring-primary"
+                >
+                  <option value="todos">Todos os Status</option>
+                  <option value="Autorizado">Autorizado</option>
+                  <option value="Pendente">Pendente</option>
+                  <option value="Rascunho">Rascunho</option>
+                  <option value="Cancelado">Cancelado</option>
+                  <option value="Rejeitado">Rejeitado</option>
+                </select>
+              </div>
+
+              <div className="space-y-2">
+                <select
+                  value={itensPorPagina}
+                  onChange={(e) => handleItemsPerPageChange(Number(e.target.value))}
+                  className="w-full px-3 py-2 border border-border-primary rounded-lg bg-bg-surface text-text-primary focus:outline-none focus:ring-2 focus:ring-primary"
+                >
+                  <option value={5}>5 por página</option>
+                  <option value={10}>10 por página</option>
+                  <option value={25}>25 por página</option>
+                  <option value={50}>50 por página</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Lista de MDFes */}
+        <div className="bg-bg-surface shadow-sm">
+          {totalItems > 0 && (
+            <div className="px-6 py-3 border-b border-border-primary bg-bg-tertiary">
+              <span className="text-sm text-text-secondary">
+                Mostrando {startIndex + 1} a {Math.min(endIndex, totalItems)} de {totalItems} MDFes
+              </span>
+            </div>
+          )}
+
+          {itensAtuais.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-16 px-6">
+              <div className="w-16 h-16 bg-bg-tertiary rounded-full flex items-center justify-center mb-4">
+                <i className="fas fa-file-alt text-2xl text-text-tertiary"></i>
+              </div>
+              <h3 className="text-lg font-semibold text-text-primary mb-2">Nenhum MDFe encontrado</h3>
+              <p className="text-text-secondary text-center mb-6">
+                {filtro || statusFiltro !== 'todos'
+                  ? 'Tente ajustar os filtros para encontrar o que procura.'
+                  : 'Comece criando seu primeiro manifesto eletrônico.'
+                }
+              </p>
+              {(!filtro && statusFiltro === 'todos') && (
+                <button
+                  onClick={() => navigate('/mdfes/novo')}
+                  className="px-6 py-3 bg-primary text-white rounded-lg hover:bg-primary-hover font-medium transition-colors duration-200 flex items-center gap-2"
+                >
+                  <i className="fas fa-plus"></i>
+                  Criar Primeiro MDFe
+                </button>
+              )}
+            </div>
+          ) : (
+            <div className="overflow-x-auto w-full">
+              <table className="w-full min-w-full table-auto border-collapse">
+                {/* Header da Tabela */}
+                <thead className="bg-gray-100 dark:bg-gray-800">
+                  <tr>
+                    <th className="px-6 py-4 text-center text-sm font-semibold text-gray-900 dark:text-gray-100 w-36">
+                      Número/Série
+                    </th>
+                    <th className="px-6 py-4 text-center text-sm font-semibold text-gray-900 dark:text-gray-100">
+                      Emitente
+                    </th>
+                    <th className="px-6 py-4 text-center text-sm font-semibold text-gray-900 dark:text-gray-100 w-32">
+                      Data
+                    </th>
+                    <th className="px-6 py-4 text-center text-sm font-semibold text-gray-900 dark:text-gray-100 w-28">
+                      Trajeto
+                    </th>
+                    <th className="px-6 py-4 text-center text-sm font-semibold text-gray-900 dark:text-gray-100 w-32">
+                      Veículo
+                    </th>
+                    <th className="px-6 py-4 text-center text-sm font-semibold text-gray-900 dark:text-gray-100 w-40">
+                      Valor Carga
+                    </th>
+                    <th className="px-6 py-4 text-center text-sm font-semibold text-gray-900 dark:text-gray-100 w-36">
+                      Status
+                    </th>
+                    <th className="px-6 py-4 text-center text-sm font-semibold text-gray-900 dark:text-gray-100 w-48">
+                      Ações
+                    </th>
+                  </tr>
+                </thead>
+
+                {/* Linhas da Tabela */}
+                <tbody className="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700">
+                  {itensAtuais.map((mdfe) => (
+                    <tr key={mdfe.id} className="hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors duration-200">
+                      <td className="px-6 py-4 whitespace-nowrap text-center">
+                        <div className="text-sm">
+                          <div className="font-semibold text-gray-900 dark:text-gray-100">#{mdfe.numero}</div>
+                          <div className="text-gray-500 dark:text-gray-400">Série {mdfe.serie}</div>
+                        </div>
+                      </td>
+
+                      <td className="px-6 py-4 text-center">
+                        <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                          {mdfe.emitenteNome || 'N/A'}
+                        </div>
+                      </td>
+
+                      <td className="px-6 py-4 whitespace-nowrap text-center">
+                        <div className="text-sm text-gray-900 dark:text-gray-100">
+                          {new Date(mdfe.dataEmissao).toLocaleDateString('pt-BR')}
+                        </div>
+                      </td>
+
+                      <td className="px-6 py-4 whitespace-nowrap text-center">
+                        <div className="text-sm text-gray-900 dark:text-gray-100">
+                          <span className="inline-flex items-center gap-1">
+                            {mdfe.ufIni}
+                            <i className="fas fa-arrow-right text-xs text-gray-400"></i>
+                            {mdfe.ufFim}
+                          </span>
+                        </div>
+                      </td>
+
+                      <td className="px-6 py-4 whitespace-nowrap text-center">
+                        <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                          {mdfe.veiculoPlaca ? formatPlaca(mdfe.veiculoPlaca) : 'N/A'}
+                        </div>
+                      </td>
+
+                      <td className="px-6 py-4 whitespace-nowrap text-center">
+                        <div className="text-sm font-semibold text-green-600 dark:text-green-400">
+                          R$ {mdfe.valorTotal.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                        </div>
+                      </td>
+
+                      <td className="px-6 py-4 whitespace-nowrap text-center">
+                        <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${
+                          mdfe.status === 'Autorizado'
+                            ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300' :
+                          mdfe.status === 'Rascunho' || mdfe.status === 'Pendente'
+                            ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300' :
+                          'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300'
+                        }`}>
+                          <div className="w-2 h-2 rounded-full bg-current mr-2"></div>
+                          {mdfe.status}
+                        </span>
+                      </td>
+
+                      <td className="px-6 py-4 whitespace-nowrap text-center">
+                        <div className="flex items-center gap-1 justify-center">
+                          {/* Ação principal por status */}
+                          {(mdfe.status === 'Rascunho' || mdfe.status === 'Rejeitado') ? (
+                            <button
+                              className="w-8 h-8 flex items-center justify-center text-amber-600 hover:bg-amber-100 dark:hover:bg-amber-900/20 rounded-lg transition-all duration-200 hover:scale-110"
+                              title={mdfe.status === 'Rejeitado' ? 'Corrigir & Editar' : 'Continuar Editando'}
+                              onClick={() => navigate(`/mdfes/editar/${mdfe.id}`)}
+                            >
+                              <i className="fas fa-edit text-sm"></i>
+                            </button>
+                          ) : (
+                            <button
+                              className="w-8 h-8 flex items-center justify-center text-blue-600 hover:bg-blue-100 dark:hover:bg-blue-900/20 rounded-lg transition-all duration-200 hover:scale-110"
+                              title="Ver Detalhes"
+                              onClick={() => navigate(`/mdfes/visualizar/${mdfe.id}`)}
+                            >
+                              <i className="fas fa-eye text-sm"></i>
+                            </button>
+                          )}
+
+                          {/* Download rápido apenas para autorizados/pendentes */}
+                          {(mdfe.status === 'Autorizado' || mdfe.status === 'Pendente') && (
+                            <button
+                              className="w-8 h-8 flex items-center justify-center text-green-600 hover:bg-green-100 dark:hover:bg-green-900/20 rounded-lg transition-all duration-200 hover:scale-110 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+                              title="Download PDF"
+                              onClick={() => handleGerarMDFe(mdfe.id, mdfe.numero)}
+                              disabled={processando === mdfe.id}
+                            >
+                              {processando === mdfe.id ? (
+                                <i className="fas fa-spinner fa-spin text-sm"></i>
+                              ) : (
+                                <i className="fas fa-download text-sm"></i>
+                              )}
+                            </button>
+                          )}
+
+                          {/* Transmitir rascunhos */}
+                          {mdfe.status === 'Rascunho' && (
+                            <button
+                              className="w-8 h-8 flex items-center justify-center text-indigo-600 hover:bg-indigo-100 dark:hover:bg-indigo-900/20 rounded-lg transition-all duration-200 hover:scale-110 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+                              title="Transmitir MDFe"
+                              onClick={() => handleTransmitir(mdfe.id, mdfe.numero)}
+                              disabled={processando === mdfe.id}
+                            >
+                              {processando === mdfe.id ? (
+                                <i className="fas fa-spinner fa-spin text-sm"></i>
+                              ) : (
+                                <i className="fas fa-paper-plane text-sm"></i>
+                              )}
+                            </button>
+                          )}
+
+                          {/* Duplicar sempre disponível (exceto cancelados) */}
+                          {mdfe.status !== 'Cancelado' && (
+                            <button
+                              className="w-8 h-8 flex items-center justify-center text-purple-600 hover:bg-purple-100 dark:hover:bg-purple-900/20 rounded-lg transition-all duration-200 hover:scale-110 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+                              title="Duplicar MDFe"
+                              onClick={() => {
+                                // Implementar lógica de duplicação
+                                navigate(`/mdfes/duplicar/${mdfe.id}`);
+                              }}
+                              disabled={processando === mdfe.id}
+                            >
+                              <i className="fas fa-copy text-sm"></i>
+                            </button>
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+
+          {totalPages > 1 && (
+            <Pagination
+              currentPage={paginaAtual}
+              totalPages={totalPages}
+              onPageChange={handlePageChange}
+            />
+          )}
+        </div>
+
+        {/* Modal de Visualização */}
+        {selectedMDFe && (
+          <MDFeViewModal
+            mdfe={selectedMDFe}
+            isOpen={showViewModal}
+            onClose={() => {
+              setShowViewModal(false);
+              setSelectedMDFe(null);
+            }}
           />
         )}
       </div>
-
-      {/* Modal de Visualização */}
-      {selectedMDFe && (
-        <MDFeViewModal
-          mdfe={selectedMDFe}
-          isOpen={showViewModal}
-          onClose={() => {
-            setShowViewModal(false);
-            setSelectedMDFe(null);
-          }}
-        />
-      )}
     </div>
   );
 };

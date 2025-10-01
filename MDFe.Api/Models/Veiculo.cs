@@ -11,6 +11,9 @@ namespace MDFeApi.Models
         [MaxLength(8)]
         public string Placa { get; set; } = string.Empty;
 
+        [MaxLength(100)]
+        public string? Marca { get; set; }
+
         [Required]
         public int Tara { get; set; }
 

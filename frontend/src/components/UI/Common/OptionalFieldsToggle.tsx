@@ -22,8 +22,8 @@ export const OptionalFieldsToggle: React.FC<OptionalFieldsToggleProps> = ({
     <div
       className={`optional-fields-toggle ${className} flex items-center p-4 rounded-xl cursor-pointer mb-4 transition-all duration-300 transform hover:scale-105 ${
         isExpanded
-          ? 'bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/30 dark:to-indigo-900/30 border-2 border-blue-300 dark:border-blue-600 shadow-lg'
-          : 'bg-gray-50 dark:bg-gray-700 border-2 border-gray-200 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-600 shadow-md hover:shadow-lg'
+          ? 'bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/30 dark:to-indigo-900/30 border-2 border-blue-300 dark:border-0 shadow-lg'
+          : 'bg-gray-50 dark:bg-gray-700 border-2 border-gray-200 dark:border-0 hover:bg-gray-100 dark:hover:bg-gray-600 shadow-md hover:shadow-lg'
       }`}
       onClick={onToggle}
     >
@@ -81,7 +81,7 @@ export const OptionalSection: React.FC<OptionalSectionProps> = ({
 
   return (
     <div
-      className={`optional-section ${className} bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-600 rounded-xl p-6 mb-4 transition-all duration-300 shadow-sm hover:shadow-md`}
+      className={`optional-section ${className} bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-0 rounded-xl p-6 mb-4 transition-all duration-300 shadow-sm hover:shadow-md`}
     >
       {children}
     </div>

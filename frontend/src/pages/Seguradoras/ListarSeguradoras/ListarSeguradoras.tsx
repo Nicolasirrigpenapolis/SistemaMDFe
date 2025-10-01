@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { ConfirmDeleteModal } from '../../../components/UI/Modal/ConfirmDeleteModal';
+import { SeguradoraCRUD } from '../../../components/Seguradoras/SeguradoraCRUD';
 import { formatCNPJ, cleanNumericString } from '../../../utils/formatters';
 import { entitiesService } from '../../../services/entitiesService';
-import { useCNPJLookup } from '../../../hooks/useCNPJLookup';
 import Icon from '../../../components/UI/Icon';
 
 interface Seguradora {
@@ -48,8 +47,6 @@ export function ListarSeguradoras() {
   const [seguradoraExclusao, setSeguradoraExclusao] = useState<Seguradora | null>(null);
   const [excludindo, setExcluindo] = useState(false);
 
-  // Hook para consulta automática de CNPJ
-  const { consultarCNPJ, loading: loadingCNPJ, error: errorCNPJ, clearError } = useCNPJLookup();
 
   useEffect(() => {
     carregarSeguradoras();
@@ -135,26 +132,6 @@ export function ListarSeguradoras() {
     setModalEdicao(false);
     setSeguradoraSelecionada(null);
     setDadosFormulario({});
-    clearError();
-  };
-
-  const handleCNPJChange = async (cnpj: string) => {
-    const cnpjFormatado = formatCNPJ(cnpj);
-    setDadosFormulario(prev => ({ ...prev, cnpj: cnpjFormatado }));
-
-    const cnpjLimpo = cleanNumericString(cnpj);
-    if (cnpjLimpo.length === 14) {
-      const dadosCNPJ = await consultarCNPJ(cnpjLimpo);
-
-      if (dadosCNPJ) {
-        setDadosFormulario(prev => ({
-          ...prev,
-          cnpj: formatCNPJ(dadosCNPJ.cnpj),
-          razaoSocial: dadosCNPJ.razaoSocial,
-          nomeFantasia: dadosCNPJ.nomeFantasia || ''
-        }));
-      }
-    }
   };
 
   const salvarSeguradora = async () => {
@@ -235,19 +212,29 @@ export function ListarSeguradoras() {
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-6 py-8">
-      <div className="flex items-center justify-between mb-8">
-        <h1>
-          <i className="fas fa-shield-alt"></i>
-          Seguradoras
-        </h1>
-        <button className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-hover font-medium transition-colors duration-200" onClick={() => abrirModalEdicao()}>
-          Nova Seguradora
-        </button>
-      </div>
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      <div className="w-full px-6 py-8">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-4">
+            <div className="w-14 h-14 bg-gradient-to-br from-teal-600 to-cyan-600 rounded-xl flex items-center justify-center shadow-lg">
+              <i className="fas fa-shield-alt text-white text-xl"></i>
+            </div>
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-1">Seguradoras</h1>
+              <p className="text-gray-600 dark:text-gray-400 text-lg">Gerencie as seguradoras para proteção da carga</p>
+            </div>
+          </div>
+          <button
+            className="px-6 py-3 bg-gradient-to-r from-teal-600 to-cyan-600 hover:from-teal-700 hover:to-cyan-700 text-white rounded-xl font-semibold transition-all duration-200 flex items-center gap-3 shadow-lg hover:shadow-xl transform hover:scale-105"
+            onClick={() => abrirModalEdicao()}
+          >
+            <i className="fas fa-plus text-lg"></i>
+            <span>Nova Seguradora</span>
+          </button>
+        </div>
 
-      <div className="bg-bg-surface rounded-xl border border-border-primary p-6 mb-6">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-0 p-6 mb-6">
+          <div className="grid grid-cols-3 gap-4 items-end">
           <div className="space-y-2">
             <label className="text-sm font-medium text-text-primary">Buscar</label>
             <input
@@ -272,9 +259,16 @@ export function ListarSeguradoras() {
             </select>
           </div>
 
-          <button className="px-4 py-2 border border-border-primary rounded-lg bg-bg-surface text-text-primary hover:bg-bg-surface-hover transition-colors duration-200" onClick={limparFiltros}>
-            Limpar Filtros
-          </button>
+          <div>
+            <button
+              className="w-full px-4 py-2 bg-red-50 hover:bg-red-100 dark:bg-red-900/20 dark:hover:bg-red-900/30 text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 border border-red-200 dark:border-red-800 rounded-lg font-semibold transition-all duration-200 flex items-center justify-center gap-2 shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
+              onClick={limparFiltros}
+              disabled={!filtro && !filtroStatus}
+            >
+              <Icon name="times" />
+              Limpar Filtros
+            </button>
+          </div>
         </div>
       </div>
 
@@ -297,25 +291,25 @@ export function ListarSeguradoras() {
         ) : (
           <div className="overflow-x-auto">
             <div className="grid grid-cols-5 gap-4 p-4 bg-bg-tertiary border-b border-border-primary font-semibold text-text-primary">
-              <div>CNPJ</div>
-              <div>Razão Social</div>
-              <div>Apólice</div>
-              <div>Status</div>
-              <div>Ações</div>
+              <div className="text-center">CNPJ</div>
+              <div className="text-center">Razão Social</div>
+              <div className="text-center">Apólice</div>
+              <div className="text-center">Status</div>
+              <div className="text-center">Ações</div>
             </div>
             {seguradoras.map((seguradora) => (
               <div key={seguradora.id} className="grid grid-cols-5 gap-4 p-4 border-b border-border-primary hover:bg-bg-surface-hover transition-colors duration-200">
-                <div>
+                <div className="text-center">
                   <strong className="text-text-primary">{formatCNPJ(seguradora.cnpj)}</strong>
                 </div>
-                <div>
+                <div className="text-center">
                   <strong className="text-text-primary">{seguradora.razaoSocial}</strong>
                   {seguradora.nomeFantasia && <div className="text-sm text-text-secondary">{seguradora.nomeFantasia}</div>}
                 </div>
-                <div>
+                <div className="text-center">
                   <span className="text-text-primary">{seguradora.apolice || 'N/A'}</span>
                 </div>
-                <div>
+                <div className="text-center">
                   <span className={`px-2 py-1 rounded-full text-xs font-medium ${
                     seguradora.ativo
                       ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300'
@@ -324,7 +318,7 @@ export function ListarSeguradoras() {
                     {seguradora.ativo ? 'Ativo' : 'Inativo'}
                   </span>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center justify-center gap-2">
                   <button
                     className="px-3 py-1 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded transition-colors duration-200"
                     onClick={() => abrirModalVisualizacao(seguradora)}
@@ -402,157 +396,22 @@ export function ListarSeguradoras() {
         </div>
       )}
 
-      {modalVisualizacao && seguradoraSelecionada && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm" onClick={fecharModais}>
-          <div className="bg-bg-surface rounded-xl border border-border-primary shadow-xl max-w-md w-full mx-4" onClick={(e) => e.stopPropagation()}>
-            <div className="flex items-center justify-between p-6 border-b border-border-primary">
-              <h2 className="text-xl font-semibold text-text-primary">Visualizar Seguradora</h2>
-              <button className="text-text-tertiary hover:text-text-primary transition-colors duration-200 text-2xl" onClick={fecharModais}>×</button>
-            </div>
-            <div className="p-6">
-              <div className="space-y-6">
-                <div>
-                  <h3 className="text-lg font-medium text-text-primary mb-4">Dados Principais</h3>
-                  <div className="grid grid-cols-1 gap-4">
-                    <div className="space-y-1">
-                      <label className="text-sm font-medium text-text-secondary">CNPJ:</label>
-                      <span className="block text-text-primary">{formatCNPJ(seguradoraSelecionada.cnpj)}</span>
-                    </div>
-                    <div className="space-y-1">
-                      <label className="text-sm font-medium text-text-secondary">Razão Social:</label>
-                      <span className="block text-text-primary">{seguradoraSelecionada.razaoSocial}</span>
-                    </div>
-                    {seguradoraSelecionada.nomeFantasia && (
-                      <div className="space-y-1">
-                        <label className="text-sm font-medium text-text-secondary">Nome Fantasia:</label>
-                        <span className="block text-text-primary">{seguradoraSelecionada.nomeFantasia}</span>
-                      </div>
-                    )}
-                    {seguradoraSelecionada.apolice && (
-                      <div className="space-y-1">
-                        <label className="text-sm font-medium text-text-secondary">Apólice:</label>
-                        <span className="block text-text-primary">{seguradoraSelecionada.apolice}</span>
-                      </div>
-                    )}
-                    <div className="space-y-1">
-                      <label className="text-sm font-medium text-text-secondary">Status:</label>
-                      <span className={`inline-block px-2 py-1 rounded-full text-xs font-medium ${
-                        seguradoraSelecionada.ativo
-                          ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300'
-                          : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300'
-                      }`}>
-                        {seguradoraSelecionada.ativo ? 'Ativo' : 'Inativo'}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div className="flex items-center justify-end gap-4 p-6 border-t border-border-primary">
-              <button className="px-4 py-2 border border-border-primary rounded-lg bg-bg-surface text-text-primary hover:bg-bg-surface-hover transition-colors duration-200" onClick={fecharModais}>
-                Fechar
-              </button>
-              <button className="px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white rounded-lg font-medium transition-colors duration-200" onClick={() => {
-                setModalVisualizacao(false);
-                abrirModalEdicao(seguradoraSelecionada);
-              }}>
-                Editar
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {modalEdicao && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm" onClick={fecharModais}>
-          <div className="bg-bg-surface rounded-xl border border-border-primary shadow-xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
-            <div className="flex items-center justify-between p-6 border-b border-border-primary">
-              <h2 className="text-xl font-semibold text-text-primary">{seguradoraSelecionada ? 'Editar Seguradora' : 'Nova Seguradora'}</h2>
-              <button className="text-text-tertiary hover:text-text-primary transition-colors duration-200 text-2xl" onClick={fecharModais}>×</button>
-            </div>
-            <form className="p-6" onSubmit={(e) => { e.preventDefault(); salvarSeguradora(); }}>
-              <div className="space-y-6">
-                <div>
-                  <h3 className="text-lg font-medium text-text-primary mb-4">Dados Principais</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium text-text-primary">CNPJ *</label>
-                      <input
-                        type="text"
-                        value={dadosFormulario.cnpj ? formatCNPJ(dadosFormulario.cnpj) : ''}
-                        onChange={(e) => handleCNPJChange(e.target.value)}
-                        maxLength={18}
-                        placeholder="00.000.000/0000-00"
-                        required
-                        className="w-full px-3 py-2 border border-border-primary rounded-lg bg-bg-surface text-text-primary focus:outline-none focus:ring-2 focus:ring-primary"
-                      />
-                      {loadingCNPJ && (
-                        <small className="text-blue-600">Consultando CNPJ...</small>
-                      )}
-                      {errorCNPJ && (
-                        <small className="text-red-600">{errorCNPJ}</small>
-                      )}
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium text-text-primary">Razão Social *</label>
-                      <input
-                        type="text"
-                        value={dadosFormulario.razaoSocial || ''}
-                        onChange={(e) => atualizarCampo('razaoSocial', e.target.value)}
-                        maxLength={200}
-                        required
-                        className="w-full px-3 py-2 border border-border-primary rounded-lg bg-bg-surface text-text-primary focus:outline-none focus:ring-2 focus:ring-primary"
-                      />
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium text-text-primary">Nome Fantasia</label>
-                      <input
-                        type="text"
-                        value={dadosFormulario.nomeFantasia || ''}
-                        onChange={(e) => atualizarCampo('nomeFantasia', e.target.value)}
-                        maxLength={200}
-                        className="w-full px-3 py-2 border border-border-primary rounded-lg bg-bg-surface text-text-primary focus:outline-none focus:ring-2 focus:ring-primary"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium text-text-primary">Apólice</label>
-                      <input
-                        type="text"
-                        value={dadosFormulario.apolice || ''}
-                        onChange={(e) => atualizarCampo('apolice', e.target.value)}
-                        placeholder="Número da apólice"
-                        maxLength={100}
-                        className="w-full px-3 py-2 border border-border-primary rounded-lg bg-bg-surface text-text-primary focus:outline-none focus:ring-2 focus:ring-primary"
-                      />
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex items-center justify-end gap-4 mt-6 pt-6 border-t border-border-primary">
-                <button type="button" className="px-4 py-2 border border-border-primary rounded-lg bg-bg-surface text-text-primary hover:bg-bg-surface-hover transition-colors duration-200" onClick={fecharModais}>
-                  Cancelar
-                </button>
-                <button type="submit" className="px-4 py-2 bg-primary hover:bg-primary-hover text-white rounded-lg font-medium transition-colors duration-200" disabled={salvando}>
-                  {salvando ? 'Salvando...' : 'Salvar'}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      <ConfirmDeleteModal
-        isOpen={modalExclusao}
-        title="Excluir Seguradora"
-        message="Tem certeza de que deseja excluir esta seguradora?"
-        itemName={seguradoraExclusao ? `${seguradoraExclusao.razaoSocial} (${formatCNPJ(seguradoraExclusao.cnpj)})` : ''}
-        onConfirm={confirmarExclusao}
-        onCancel={fecharModalExclusao}
-        loading={excludindo}
+      <SeguradoraCRUD
+        viewModalOpen={modalVisualizacao}
+        formModalOpen={modalEdicao}
+        deleteModalOpen={modalExclusao}
+        selectedSeguradora={seguradoraSelecionada}
+        isEdit={!!seguradoraSelecionada}
+        onViewClose={fecharModais}
+        onFormClose={fecharModais}
+        onDeleteClose={fecharModalExclusao}
+        onSave={salvarSeguradora}
+        onEdit={(seguradora) => abrirModalEdicao(seguradora)}
+        onDelete={confirmarExclusao}
+        saving={salvando}
+        deleting={excludindo}
       />
+      </div>
     </div>
   );
 }

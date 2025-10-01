@@ -3,6 +3,7 @@ import { validationService, CNPJData, ValidacaoResponse } from '../services/cnpj
 
 interface UseCNPJLookupReturn {
   consultarCNPJ: (cnpj: string) => Promise<CNPJData | null>;
+  lookupCNPJ: (cnpj: string) => Promise<CNPJData | null>; // alias for backward compatibility
   validarCNPJ: (cnpj: string) => Promise<boolean>;
   validarCPF: (cpf: string) => Promise<boolean>;
   loading: boolean;
@@ -59,6 +60,7 @@ export const useCNPJLookup = (): UseCNPJLookupReturn => {
 
   return {
     consultarCNPJ,
+    lookupCNPJ: consultarCNPJ, // alias for backward compatibility
     validarCNPJ,
     validarCPF,
     loading,

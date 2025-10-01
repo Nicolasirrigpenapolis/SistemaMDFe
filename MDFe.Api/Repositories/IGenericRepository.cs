@@ -27,8 +27,6 @@ namespace MDFeApi.Repositories
         Task UpdateRangeAsync(IEnumerable<TEntity> entities);
         Task DeleteRangeAsync(IEnumerable<TEntity> entities);
 
-        // Soft delete (se aplicável)
-        Task SoftDeleteAsync(int id);
-        Task<IEnumerable<TEntity>> GetActiveAsync();
+        // Soft delete removido - sistema usa apenas HARD DELETE
     }
 }

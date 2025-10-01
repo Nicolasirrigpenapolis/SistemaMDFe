@@ -81,6 +81,9 @@ namespace MDFeApi.DTOs
         public int ModalTransporte { get; set; }
 
         public int AmbienteSefaz { get; set; }
+
+        // Propriedade Ativo para permitir controle no frontend
+        public bool Ativo { get; set; } = true;
     }
 
     public class EmitenteUpdateDto : EmitenteCreateDto
@@ -126,10 +129,19 @@ namespace MDFeApi.DTOs
         public string? NomeFantasia { get; set; }
         public string? Cnpj { get; set; }
         public string? Cpf { get; set; }
+        public string? Ie { get; set; }
+        public string Endereco { get; set; } = string.Empty;
+        public string? Numero { get; set; }
+        public string? Complemento { get; set; }
+        public string Bairro { get; set; } = string.Empty;
+        public int CodMunicipio { get; set; }
+        public string Municipio { get; set; } = string.Empty;
+        public string Cep { get; set; } = string.Empty;
         public string TipoEmitente { get; set; } = string.Empty;
         public bool TemCertificado { get; set; }
         public int AmbienteSefaz { get; set; }
         public string? Uf { get; set; }
+        public bool Ativo { get; set; }
     }
 
     public class EmitenteComCertificadoDto

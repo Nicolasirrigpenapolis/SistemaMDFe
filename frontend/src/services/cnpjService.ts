@@ -33,14 +33,14 @@ class ValidationService {
       if (!response.ok) {
         return {
           sucesso: false,
-          mensagem: result.mensagem || 'Erro ao consultar CNPJ'
+          mensagem: result.message || 'Erro ao consultar CNPJ'
         };
       }
 
       return {
-        sucesso: result.sucesso,
+        sucesso: result.success,
         data: result.data,
-        mensagem: result.mensagem
+        mensagem: result.message
       };
     } catch (error) {
       console.error('Erro ao consultar CNPJ:', error);
@@ -67,9 +67,9 @@ class ValidationService {
       const result = await response.json();
 
       return {
-        sucesso: result.sucesso,
+        sucesso: result.success,
         data: result.data,
-        mensagem: result.mensagem
+        mensagem: result.message
       };
     } catch (error) {
       console.error('Erro ao validar CNPJ:', error);
@@ -96,9 +96,9 @@ class ValidationService {
       const result = await response.json();
 
       return {
-        sucesso: result.sucesso,
+        sucesso: result.success,
         data: result.data,
-        mensagem: result.mensagem
+        mensagem: result.message
       };
     } catch (error) {
       console.error('Erro ao validar CPF:', error);

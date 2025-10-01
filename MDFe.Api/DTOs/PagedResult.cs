@@ -14,6 +14,8 @@ namespace MDFeApi.DTOs
         public int TotalPages { get; set; }
         public bool HasNextPage { get; set; }
         public bool HasPreviousPage { get; set; }
+        public int StartItem { get; set; }
+        public int EndItem { get; set; }
     }
 
     /// <summary>

@@ -34,10 +34,19 @@ namespace MDFeApi.Controllers
                 NomeFantasia = entity.NomeFantasia,
                 Cnpj = entity.Cnpj,
                 Cpf = entity.Cpf,
+                Ie = entity.Ie,
+                Endereco = entity.Endereco,
+                Numero = entity.Numero,
+                Complemento = entity.Complemento,
+                Bairro = entity.Bairro,
+                CodMunicipio = entity.CodMunicipio,
+                Municipio = entity.Municipio,
+                Cep = entity.Cep,
                 TipoEmitente = entity.TipoEmitente,
                 TemCertificado = !string.IsNullOrEmpty(entity.CaminhoArquivoCertificado),
                 AmbienteSefaz = entity.AmbienteSefaz,
-                Uf = entity.Uf
+                Uf = entity.Uf,
+                Ativo = entity.Ativo
             };
         }
 
@@ -102,7 +111,8 @@ namespace MDFeApi.Controllers
                 SerieInicial = dto.SerieInicial,
                 TipoTransportador = dto.TipoTransportador,
                 ModalTransporte = dto.ModalTransporte,
-                AmbienteSefaz = dto.AmbienteSefaz
+                AmbienteSefaz = dto.AmbienteSefaz,
+                Ativo = dto.Ativo // Usar valor do DTO (padrão true)
             };
 
             // Aplicar limpeza automática de documentos
@@ -136,6 +146,7 @@ namespace MDFeApi.Controllers
             entity.TipoTransportador = dto.TipoTransportador;
             entity.ModalTransporte = dto.ModalTransporte;
             entity.AmbienteSefaz = dto.AmbienteSefaz;
+            entity.Ativo = dto.Ativo; // Atualizar status ativo também
 
             // Aplicar limpeza automática de documentos
             DocumentUtils.LimparDocumentosEmitente(entity);
@@ -176,6 +187,7 @@ namespace MDFeApi.Controllers
             }
             return (true, string.Empty);
         }
+
 
         protected override async Task<(bool isValid, string errorMessage)> ValidateCreateAsync(EmitenteCreateDto dto)
         {

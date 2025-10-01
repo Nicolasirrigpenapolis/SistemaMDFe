@@ -117,11 +117,7 @@ namespace MDFeApi.Controllers
             {
                 var query = GetDbSet().AsQueryable();
 
-                // Filtrar apenas ativos (se aplicável)
-                if (ReflectionCache.HasActiveProperty(typeof(TEntity)))
-                {
-                    query = query.Where(e => EF.Property<bool>(e, "Ativo"));
-                }
+                // Sem filtro de "Ativo" - mostra todos os registros (hard delete apenas)
 
                 // Aplicar filtro de busca
                 if (!string.IsNullOrWhiteSpace(request.Search))
@@ -139,6 +135,9 @@ namespace MDFeApi.Controllers
                     .Take(request.PageSize)
                     .ToListAsync();
 
+                var startItem = totalItems > 0 ? ((request.Page - 1) * request.PageSize) + 1 : 0;
+                var endItem = totalItems > 0 ? Math.Min(request.Page * request.PageSize, totalItems) : 0;
+
                 var result = new PagedResult<TListDto>
                 {
                     Items = items.Select(EntityToListDto).ToList(),
@@ -147,7 +146,9 @@ namespace MDFeApi.Controllers
                     PageSize = request.PageSize,
                     TotalPages = (int)Math.Ceiling((double)totalItems / request.PageSize),
                     HasNextPage = request.Page * request.PageSize < totalItems,
-                    HasPreviousPage = request.Page > 1
+                    HasPreviousPage = request.Page > 1,
+                    StartItem = startItem,
+                    EndItem = endItem
                 };
 
                 return Ok(result);
@@ -289,16 +290,8 @@ namespace MDFeApi.Controllers
                     return BadRequest(new { message = errorMessage });
                 }
 
-                // Soft delete se aplicável, caso contrário delete físico
-                if (ReflectionCache.HasActiveProperty(entity.GetType()))
-                {
-                    SetEntityInactive(entity);
-                    ReflectionCache.SetDataUltimaAlteracaoValue(entity, DateTime.Now);
-                }
-                else
-                {
-                    GetDbSet().Remove(entity);
-                }
+                // SEMPRE fazer HARD DELETE - exclusão real do banco
+                GetDbSet().Remove(entity);
 
                 await _context.SaveChangesAsync();
 

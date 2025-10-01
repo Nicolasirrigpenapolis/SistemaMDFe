@@ -21,14 +21,29 @@ class EntitiesService {
         ...options,
       });
 
-      const data = await response.json();
-
       if (!response.ok) {
+        let errorData = null;
+        try {
+          errorData = await response.json();
+        } catch {
+          // Resposta não tem JSON válido
+        }
+
         return {
           sucesso: false,
-          mensagem: data.message || 'Erro na operação',
+          mensagem: errorData?.message || 'Erro na operação',
           codigoErro: response.status.toString()
         };
+      }
+
+      // Sucesso - verificar se tem conteúdo
+      let data = null;
+      if (response.status !== 204) { // 204 = No Content
+        try {
+          data = await response.json();
+        } catch {
+          // Resposta de sucesso sem JSON válido (normal para alguns endpoints)
+        }
       }
 
       return {

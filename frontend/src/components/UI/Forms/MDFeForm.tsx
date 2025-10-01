@@ -44,6 +44,7 @@ export function MDFeForm({
   const [currentSection, setCurrentSection] = useState('emitente');
   const [showOptionalContratacao, setShowOptionalContratacao] = useState(false);
   const [showOptionalSeguro, setShowOptionalSeguro] = useState(false);
+  const [showOptionalReboques, setShowOptionalReboques] = useState(false);
 
 
   // Estados para localidades com LocalidadeSelector
@@ -296,7 +297,7 @@ export function MDFeForm({
 
   if (carregandoDados) {
     return (
-      <div className="flex items-center justify-center min-h-64 bg-white dark:bg-gray-800 rounded-lg border border-gray-300 dark:border-gray-600">
+      <div className="flex items-center justify-center min-h-64 bg-white dark:bg-gray-800 rounded-lg border border-gray-300 dark:border-0">
         <div className="flex flex-col items-center space-y-4">
           <Icon name="spinner" className="w-8 h-8 text-primary animate-spin" />
           <p className="text-text-secondary text-lg">Carregando dados do formulário...</p>
@@ -322,8 +323,8 @@ export function MDFeForm({
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       {/* Header modernizado */}
-      <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-gray-800 dark:to-gray-900 border-b border-gray-200 dark:border-gray-700 shadow-lg">
-        <div className="max-w-full mx-auto px-4 py-8">
+      <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-gray-800 dark:to-gray-900 border-b border-gray-200 dark:border-0 shadow-lg">
+        <div className="w-full px-6 py-8">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-6">
               <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-indigo-600 dark:from-blue-600 dark:to-indigo-700 rounded-xl flex items-center justify-center shadow-lg">
@@ -347,9 +348,9 @@ export function MDFeForm({
       </div>
 
       {/* Navegação modernizada */}
-      <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 shadow-sm">
-        <div className="max-w-full mx-auto px-4">
-          <nav className="flex space-x-2 overflow-x-auto py-2">
+      <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-0 shadow-sm">
+        <div className="w-full px-6">
+          <nav className="flex space-x-2 overflow-x-auto py-4 scrollbar-hide">
             {sections.map((section, index) => {
               const isCurrent = section.id === currentSection;
               const isCompleted = section.completed;
@@ -358,7 +359,7 @@ export function MDFeForm({
                 <button
                   key={section.id}
                   onClick={() => setCurrentSection(section.id)}
-                  className={`flex-shrink-0 px-6 py-4 rounded-lg font-medium text-sm transition-all duration-300 transform hover:scale-105 ${
+                  className={`flex-shrink-0 px-4 py-3 rounded-lg font-medium text-sm transition-all duration-300 hover:shadow-md ${
                     isCurrent
                       ? 'bg-gradient-to-r from-blue-500 to-indigo-600 text-white shadow-lg'
                       : isCompleted
@@ -366,13 +367,13 @@ export function MDFeForm({
                       : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300'
                   }`}
                 >
-                  <div className="flex items-center space-x-3">
-                    <span className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold bg-white/20">
+                  <div className="flex items-center space-x-2">
+                    <span className="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold bg-white/20">
                       {isCompleted ? <i className="fas fa-check"></i> : index + 1}
                     </span>
                     <div className="text-left">
-                      <div className="font-semibold">{section.title}</div>
-                      <div className="text-xs mt-1 opacity-80">{section.description}</div>
+                      <div className="font-semibold text-xs">{section.title}</div>
+                      <div className="text-xs mt-0.5 opacity-75 hidden md:block">{section.description}</div>
                     </div>
                   </div>
                 </button>
@@ -383,8 +384,8 @@ export function MDFeForm({
       </div>
 
       {/* Conteúdo */}
-      <div className="max-w-full mx-auto px-4 py-8">
-        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 p-8">
+      <div className="w-full px-6 py-8">
+        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-200 dark:border-0 p-6 lg:p-8">
 
           {/* Seção Emitente */}
           {currentSection === 'emitente' && (
@@ -408,7 +409,7 @@ export function MDFeForm({
                       label: emitente.label,
                       sublabel: emitente.description,
                       icon: "fas fa-building"
-                    }))}
+                    })) || []}
                     selectedValue={selectedIds.emitenteId}
                     onSelect={(value) => selectEntity('emitenteId', value.toString())}
                     placeholder="Selecione um emitente..."
@@ -436,7 +437,7 @@ export function MDFeForm({
 
               <div className="space-y-6">
                 {/* Seleção de Veículo */}
-                <div className="bg-gradient-to-r from-orange-50 to-red-50 dark:from-orange-900/20 dark:to-red-900/20 p-6 rounded-xl border border-orange-200 dark:border-orange-700">
+                <div className="bg-gradient-to-r from-orange-50 to-red-50 dark:from-orange-900/20 dark:to-red-900/20 p-6 rounded-xl border border-orange-200 dark:border-0">
                   <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
                     <i className="fas fa-truck text-orange-500 mr-2"></i>
                     Veículo
@@ -450,7 +451,7 @@ export function MDFeForm({
                           label: veiculo.label,
                           sublabel: veiculo.description,
                           icon: "fas fa-truck"
-                        }))}
+                        })) || []}
                         selectedValue={selectedIds.veiculoId}
                         onSelect={(value) => selectEntity('veiculoId', value.toString())}
                         placeholder="Selecione um veículo..."
@@ -463,7 +464,7 @@ export function MDFeForm({
                 </div>
 
                 {/* Seleção de Condutor */}
-                <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 p-6 rounded-xl border border-blue-200 dark:border-blue-700">
+                <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 p-6 rounded-xl border border-blue-200 dark:border-0">
                   <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
                     <i className="fas fa-user text-blue-500 mr-2"></i>
                     Condutor
@@ -477,7 +478,7 @@ export function MDFeForm({
                           label: condutor.label,
                           sublabel: condutor.description,
                           icon: "fas fa-id-card"
-                        }))}
+                        })) || []}
                         selectedValue={selectedIds.condutorId}
                         onSelect={(value) => selectEntity('condutorId', value.toString())}
                         placeholder="Selecione um condutor..."
@@ -489,12 +490,12 @@ export function MDFeForm({
                     {/* Seção Reboques - Opcional */}
                     <OptionalFieldsToggle
                       label="Reboques (Opcional)"
-                      isExpanded={false}
-                      onToggle={() => {
-                        // Estado será controlado pelo próprio toggle
-                      }}
+                      description="Adicionar reboques ao veículo de transporte"
+                      isExpanded={showOptionalReboques}
+                      onToggle={() => setShowOptionalReboques(!showOptionalReboques)}
+                      icon="fas fa-trailer"
                     />
-                    <OptionalSection isVisible={true}>
+                    <OptionalSection isVisible={showOptionalReboques}>
                         <div className="space-y-4">
                           <div className="flex items-center justify-between">
                             <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 flex items-center gap-2">
@@ -634,7 +635,7 @@ export function MDFeForm({
 
                 {/* Exibir rota selecionada se houver */}
                 {rotaSelecionada.length > 0 && (
-                  <div className="bg-gradient-to-r from-emerald-50 to-green-50 dark:from-emerald-900/20 dark:to-green-900/20 p-6 rounded-xl border border-emerald-200 dark:border-emerald-700">
+                  <div className="bg-gradient-to-r from-emerald-50 to-green-50 dark:from-emerald-900/20 dark:to-green-900/20 p-6 rounded-xl border border-emerald-200 dark:border-0">
                     <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
                       <i className="fas fa-route text-emerald-500 mr-2"></i>
                       Rota de Percurso Selecionada
@@ -682,7 +683,7 @@ export function MDFeForm({
                 />
 
                 <OptionalSection isVisible={showOptionalContratacao}>
-                  <div className="bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 p-6 rounded-xl border border-purple-200 dark:border-purple-700">
+                  <div className="bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 p-6 rounded-xl border border-purple-200 dark:border-0">
                     <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
                       <i className="fas fa-building text-purple-500 mr-2"></i>
                       Contratante
@@ -695,10 +696,10 @@ export function MDFeForm({
                         <select
                           value={selectedIds.contratanteId || ''}
                           onChange={(e) => selectEntity('contratanteId', e.target.value)}
-                          className="w-full px-4 py-3 border-2 border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                          className="w-full px-4 py-3 border-2 border-gray-300 dark:border-0 rounded-xl bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
                         >
                           <option value="">Selecione um contratante...</option>
-                          {entidadesCarregadas?.contratantes?.map((contratante: any) => (
+                          {(entidadesCarregadas?.contratantes || []).map((contratante: any) => (
                             <option key={contratante.id} value={contratante.id}>
                               {contratante.label} - {contratante.description}
                             </option>
@@ -720,7 +721,7 @@ export function MDFeForm({
                                 type="text"
                                 value={'Dados removidos - agora via ID'}
                                 readOnly
-                                className="w-full px-2 py-1 border border-gray-300 dark:border-gray-600 rounded bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white text-sm"
+                                className="w-full px-2 py-1 border border-gray-300 dark:border-0 rounded bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white text-sm"
                               />
                             </div>
                             <div>
@@ -729,7 +730,7 @@ export function MDFeForm({
                                 type="text"
                                 value={"Dados via ID"}
                                 readOnly
-                                className="w-full px-2 py-1 border border-gray-300 dark:border-gray-600 rounded bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white text-sm"
+                                className="w-full px-2 py-1 border border-gray-300 dark:border-0 rounded bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white text-sm"
                               />
                             </div>
                           </div>
@@ -749,7 +750,7 @@ export function MDFeForm({
                 />
 
                 <OptionalSection isVisible={showOptionalSeguro}>
-                  <div className="bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-blue-900/20 dark:to-cyan-900/20 p-6 rounded-xl border border-blue-200 dark:border-blue-700">
+                  <div className="bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-blue-900/20 dark:to-cyan-900/20 p-6 rounded-xl border border-blue-200 dark:border-0">
                     <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
                       <i className="fas fa-shield-alt text-blue-500 mr-2"></i>
                       Seguradora
@@ -762,10 +763,10 @@ export function MDFeForm({
                         <select
                           value={selectedIds.seguradoraId || ''}
                           onChange={(e) => selectEntity('seguradoraId', e.target.value)}
-                          className="w-full px-4 py-3 border-2 border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                          className="w-full px-4 py-3 border-2 border-gray-300 dark:border-0 rounded-xl bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                         >
                           <option value="">Selecione uma seguradora...</option>
-                          {entidadesCarregadas?.seguradoras?.map((seguradora: any) => (
+                          {(entidadesCarregadas?.seguradoras || []).map((seguradora: any) => (
                             <option key={seguradora.id} value={seguradora.id}>
                               {seguradora.label} - {seguradora.description}
                             </option>
@@ -787,7 +788,7 @@ export function MDFeForm({
                                 type="text"
                                 value={"Dados via ID"}
                                 readOnly
-                                className="w-full px-2 py-1 border border-gray-300 dark:border-gray-600 rounded bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white text-sm"
+                                className="w-full px-2 py-1 border border-gray-300 dark:border-0 rounded bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white text-sm"
                               />
                             </div>
                             <div>
@@ -796,7 +797,7 @@ export function MDFeForm({
                                 type="text"
                                 value={"Dados via ID"}
                                 readOnly
-                                className="w-full px-2 py-1 border border-gray-300 dark:border-gray-600 rounded bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white text-sm"
+                                className="w-full px-2 py-1 border border-gray-300 dark:border-0 rounded bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white text-sm"
                               />
                             </div>
                             <div>
@@ -805,7 +806,7 @@ export function MDFeForm({
                                 type="text"
                                 value={"Dados via ID"}
                                 readOnly
-                                className="w-full px-2 py-1 border border-gray-300 dark:border-gray-600 rounded bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white text-sm"
+                                className="w-full px-2 py-1 border border-gray-300 dark:border-0 rounded bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white text-sm"
                               />
                             </div>
                           </div>
@@ -840,7 +841,7 @@ export function MDFeForm({
               </div>
 
               <div className="space-y-6">
-                <div className="bg-gradient-to-r from-green-50 to-teal-50 dark:from-green-900/20 dark:to-teal-900/20 p-6 rounded-xl border border-green-200 dark:border-green-700">
+                <div className="bg-gradient-to-r from-green-50 to-teal-50 dark:from-green-900/20 dark:to-teal-900/20 p-6 rounded-xl border border-green-200 dark:border-0">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                       <label className="block text-sm font-semibold text-gray-900 dark:text-white mb-2">
@@ -859,7 +860,7 @@ export function MDFeForm({
                           onDadosChange({ ...dados, valorTotal: numericValue });
                         }}
                         placeholder="0,00"
-                        className="w-full px-4 py-3 border-2 border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                        className="w-full px-4 py-3 border-2 border-gray-300 dark:border-0 rounded-xl bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
                       />
                     </div>
 
@@ -880,7 +881,7 @@ export function MDFeForm({
                           onDadosChange({ ...dados, pesoBrutoTotal: numericValue });
                         }}
                         placeholder="0,000"
-                        className="w-full px-4 py-3 border-2 border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                        className="w-full px-4 py-3 border-2 border-gray-300 dark:border-0 rounded-xl bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
                       />
                     </div>
 
@@ -888,7 +889,7 @@ export function MDFeForm({
                       <label className="block text-sm font-semibold text-gray-900 dark:text-white mb-2">
                         Unidade de Medida
                       </label>
-                      <div className="w-full px-4 py-3 border-2 border-gray-300 dark:border-gray-600 rounded-xl bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white flex items-center">
+                      <div className="w-full px-4 py-3 border-2 border-gray-300 dark:border-0 rounded-xl bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white flex items-center">
                         <i className="fas fa-weight-hanging text-green-500 mr-2"></i>
                         <span className="font-medium">Quilograma (kg)</span>
                         <span className="ml-auto text-xs text-gray-500 dark:text-gray-400">Padrão do sistema</span>
@@ -900,7 +901,7 @@ export function MDFeForm({
                         Tipo de Carga
                       </label>
                       <select
-                        className="w-full px-4 py-3 border-2 border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                        className="w-full px-4 py-3 border-2 border-gray-300 dark:border-0 rounded-xl bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
                       >
                         <option value="">Selecione...</option>
                         <option value="01">Carga Geral</option>
@@ -921,7 +922,7 @@ export function MDFeForm({
                     <textarea
                       rows={3}
                       placeholder="Descreva brevemente a carga a ser transportada..."
-                      className="w-full px-4 py-3 border-2 border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 resize-none"
+                      className="w-full px-4 py-3 border-2 border-gray-300 dark:border-0 rounded-xl bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 resize-none"
                     />
                   </div>
                 </div>
@@ -944,7 +945,7 @@ export function MDFeForm({
 
               <div className="space-y-6">
                 {/* Seção CTe */}
-                <div className="bg-white dark:bg-gray-800 p-6 rounded-xl border-2 border-gray-200 dark:border-gray-700">
+                <div className="bg-white dark:bg-gray-800 p-6 rounded-xl border-2 border-gray-200 dark:border-0">
                   <div className="flex items-center justify-between mb-6">
                     <div className="flex items-center gap-3">
                       <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center">
@@ -970,7 +971,7 @@ export function MDFeForm({
                   {dados.documentosCTe && dados.documentosCTe.length > 0 ? (
                     <div className="space-y-3">
                       {dados.documentosCTe.map((chaveAcesso: string, index: number) => (
-                        <div key={index} className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-200 dark:border-blue-700">
+                        <div key={index} className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-200 dark:border-0">
                           <div className="flex items-center gap-4">
                             <div className="flex-1">
                               <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
@@ -1012,7 +1013,7 @@ export function MDFeForm({
                       ))}
                     </div>
                   ) : (
-                    <div className="text-center py-8 border-2 border-dashed border-blue-300 dark:border-blue-600 rounded-xl bg-blue-50 dark:bg-blue-900/10">
+                    <div className="text-center py-8 border-2 border-dashed border-blue-300 dark:border-0 rounded-xl bg-blue-50 dark:bg-blue-900/10">
                       <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center mx-auto mb-3">
                         <i className="fas fa-truck text-white"></i>
                       </div>
@@ -1027,7 +1028,7 @@ export function MDFeForm({
                 </div>
 
                 {/* Seção NFe */}
-                <div className="bg-white dark:bg-gray-800 p-6 rounded-xl border-2 border-gray-200 dark:border-gray-700">
+                <div className="bg-white dark:bg-gray-800 p-6 rounded-xl border-2 border-gray-200 dark:border-0">
                   <div className="flex items-center justify-between mb-6">
                     <div className="flex items-center gap-3">
                       <div className="w-8 h-8 bg-gradient-to-br from-green-500 to-green-600 rounded-lg flex items-center justify-center">
@@ -1053,7 +1054,7 @@ export function MDFeForm({
                   {dados.documentosNFe && dados.documentosNFe.length > 0 ? (
                     <div className="space-y-3">
                       {dados.documentosNFe.map((chaveAcesso: string, index: number) => (
-                        <div key={index} className="bg-green-50 dark:bg-green-900/20 p-4 rounded-lg border border-green-200 dark:border-green-700">
+                        <div key={index} className="bg-green-50 dark:bg-green-900/20 p-4 rounded-lg border border-green-200 dark:border-0">
                           <div className="flex items-center gap-4">
                             <div className="flex-1">
                               <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
@@ -1095,7 +1096,7 @@ export function MDFeForm({
                       ))}
                     </div>
                   ) : (
-                    <div className="text-center py-8 border-2 border-dashed border-green-300 dark:border-green-600 rounded-xl bg-green-50 dark:bg-green-900/10">
+                    <div className="text-center py-8 border-2 border-dashed border-green-300 dark:border-0 rounded-xl bg-green-50 dark:bg-green-900/10">
                       <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-green-600 rounded-full flex items-center justify-center mx-auto mb-3">
                         <i className="fas fa-file-invoice text-white"></i>
                       </div>
@@ -1110,7 +1111,7 @@ export function MDFeForm({
                 </div>
 
                 {/* Informações importantes */}
-                <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded-xl p-4">
+                <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-0 rounded-xl p-4">
                   <div className="flex items-start gap-3">
                     <div className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
                       <i className="fas fa-info text-white text-xs"></i>
@@ -1147,7 +1148,7 @@ export function MDFeForm({
 
               <div className="space-y-6">
                 {/* Status Geral */}
-                <div className="bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20 p-6 rounded-xl border border-indigo-200 dark:border-indigo-700">
+                <div className="bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20 p-6 rounded-xl border border-indigo-200 dark:border-0">
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <div className="text-center">
                       <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center mx-auto mb-3">
@@ -1173,7 +1174,7 @@ export function MDFeForm({
                 {/* Informações Principais */}
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                   {/* Emitente */}
-                  <div className="bg-white dark:bg-gray-800 p-6 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm">
+                  <div className="bg-white dark:bg-gray-800 p-6 rounded-xl border border-gray-200 dark:border-0 shadow-sm">
                     <div className="flex items-center mb-4">
                       <div className="w-8 h-8 bg-blue-100 dark:bg-blue-900/50 rounded-lg flex items-center justify-center mr-3">
                         <i className="fas fa-building text-blue-600 dark:text-blue-400"></i>
@@ -1205,7 +1206,7 @@ export function MDFeForm({
                   </div>
 
                   {/* Transporte */}
-                  <div className="bg-white dark:bg-gray-800 p-6 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm">
+                  <div className="bg-white dark:bg-gray-800 p-6 rounded-xl border border-gray-200 dark:border-0 shadow-sm">
                     <div className="flex items-center mb-4">
                       <div className="w-8 h-8 bg-green-100 dark:bg-green-900/50 rounded-lg flex items-center justify-center mr-3">
                         <i className="fas fa-truck text-green-600 dark:text-green-400"></i>
@@ -1249,7 +1250,7 @@ export function MDFeForm({
                 </div>
 
                 {/* Localidades */}
-                <div className="bg-white dark:bg-gray-800 p-6 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm">
+                <div className="bg-white dark:bg-gray-800 p-6 rounded-xl border border-gray-200 dark:border-0 shadow-sm">
                   <div className="flex items-center mb-4">
                     <div className="w-8 h-8 bg-purple-100 dark:bg-purple-900/50 rounded-lg flex items-center justify-center mr-3">
                       <i className="fas fa-map-marker-alt text-purple-600 dark:text-purple-400"></i>
@@ -1287,7 +1288,7 @@ export function MDFeForm({
                     </div>
                   </div>
                   {rotaSelecionada.length > 0 && (
-                    <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+                    <div className="mt-4 pt-4 border-t border-gray-200 dark:border-0">
                       <h4 className="font-medium text-gray-900 dark:text-white mb-2">Percurso Fiscal</h4>
                       <div className="flex flex-wrap gap-2">
                         {rotaSelecionada.map((uf: string, index: number) => (
@@ -1305,7 +1306,7 @@ export function MDFeForm({
 
                 {/* Contratação */}
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                  <div className="bg-white dark:bg-gray-800 p-6 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm">
+                  <div className="bg-white dark:bg-gray-800 p-6 rounded-xl border border-gray-200 dark:border-0 shadow-sm">
                     <div className="flex items-center mb-4">
                       <div className="w-8 h-8 bg-orange-100 dark:bg-orange-900/50 rounded-lg flex items-center justify-center mr-3">
                         <i className="fas fa-handshake text-orange-600 dark:text-orange-400"></i>
@@ -1326,7 +1327,7 @@ export function MDFeForm({
                     </div>
                   </div>
 
-                  <div className="bg-white dark:bg-gray-800 p-6 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm">
+                  <div className="bg-white dark:bg-gray-800 p-6 rounded-xl border border-gray-200 dark:border-0 shadow-sm">
                     <div className="flex items-center mb-4">
                       <div className="w-8 h-8 bg-teal-100 dark:bg-teal-900/50 rounded-lg flex items-center justify-center mr-3">
                         <i className="fas fa-shield-alt text-teal-600 dark:text-teal-400"></i>
@@ -1350,7 +1351,7 @@ export function MDFeForm({
 
                 {/* Carga e Documentos */}
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                  <div className="bg-white dark:bg-gray-800 p-6 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm">
+                  <div className="bg-white dark:bg-gray-800 p-6 rounded-xl border border-gray-200 dark:border-0 shadow-sm">
                     <div className="flex items-center mb-4">
                       <div className="w-8 h-8 bg-emerald-100 dark:bg-emerald-900/50 rounded-lg flex items-center justify-center mr-3">
                         <i className="fas fa-boxes text-emerald-600 dark:text-emerald-400"></i>
@@ -1373,7 +1374,7 @@ export function MDFeForm({
                     </div>
                   </div>
 
-                  <div className="bg-white dark:bg-gray-800 p-6 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm">
+                  <div className="bg-white dark:bg-gray-800 p-6 rounded-xl border border-gray-200 dark:border-0 shadow-sm">
                     <div className="flex items-center mb-4">
                       <div className="w-8 h-8 bg-red-100 dark:bg-red-900/50 rounded-lg flex items-center justify-center mr-3">
                         <i className="fas fa-file-invoice text-red-600 dark:text-red-400"></i>
@@ -1398,7 +1399,7 @@ export function MDFeForm({
                 </div>
 
                 {/* Validação */}
-                <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded-xl p-6">
+                <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-0 rounded-xl p-6">
                   <div className="flex items-start gap-4">
                     <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
                       <i className="fas fa-info text-white text-sm"></i>
@@ -1438,45 +1439,64 @@ export function MDFeForm({
         </div>
 
         {/* Botões */}
-        <div className="flex justify-between items-center pt-8 border-t-2 border-gray-200 dark:border-gray-700 mt-10">
-          <div className="flex space-x-4">
-            <button
-              onClick={prevSection}
-              disabled={!canGoPrev}
-              className="px-6 py-3 border-2 rounded-xl font-semibold bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
-            >
-              ← Anterior
-            </button>
-            <button
-              onClick={nextSection}
-              disabled={!canGoNext}
-              className="px-6 py-3 rounded-xl font-semibold bg-gradient-to-r from-blue-500 to-indigo-600 text-white"
-            >
-              Próximo →
-            </button>
-          </div>
-
-          <div className="flex space-x-4">
-            <button
-              onClick={onCancelar}
-              className="px-6 py-3 border-2 border-gray-300 dark:border-gray-600 rounded-xl font-semibold bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
-            >
-              Cancelar
-            </button>
-            <button
-              onClick={onSalvar}
-              className="px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-xl font-semibold"
-            >
-              {salvando ? 'Salvando...' : 'Salvar'}
-            </button>
-            {onTransmitir && currentSection === 'resumo' && (
+        <div className="bg-gray-50 dark:bg-gray-800 border-t border-gray-200 dark:border-0 mt-8 -mx-6 lg:-mx-8 px-6 lg:px-8 py-6">
+          <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+            {/* Navegação */}
+            <div className="flex space-x-3">
               <button
-                onClick={onTransmitir}
-                className="px-6 py-3 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-xl font-semibold"
+                onClick={prevSection}
+                disabled={!canGoPrev}
+                className={`px-4 py-2 border-2 rounded-lg font-medium transition-all duration-200 flex items-center gap-2 ${
+                  !canGoPrev
+                    ? 'border-gray-300 dark:border-0 bg-gray-100 dark:bg-gray-700 text-gray-400 dark:text-gray-500 cursor-not-allowed'
+                    : 'border-gray-400 dark:border-0 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:border-gray-500 hover:bg-gray-50 dark:hover:bg-gray-700'
+                }`}
               >
-                {transmitindo ? 'Transmitindo...' : 'Transmitir'}
+                <i className="fas fa-chevron-left text-sm"></i>
+                <span className="hidden sm:inline">Anterior</span>
               </button>
-            )}
+              <button
+                onClick={nextSection}
+                disabled={!canGoNext}
+                className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 flex items-center gap-2 ${
+                  !canGoNext
+                    ? 'bg-gray-300 dark:bg-gray-600 text-gray-500 dark:text-gray-400 cursor-not-allowed'
+                    : 'bg-gradient-to-r from-blue-500 to-indigo-600 text-white hover:from-blue-600 hover:to-indigo-700 shadow-md hover:shadow-lg'
+                }`}
+              >
+                <span className="hidden sm:inline">Próximo</span>
+                <i className="fas fa-chevron-right text-sm"></i>
+              </button>
+            </div>
+
+            {/* Ações principais */}
+            <div className="flex space-x-3">
+              <button
+                onClick={onCancelar}
+                disabled={salvando || transmitindo}
+                className="px-4 py-2 border-2 border-gray-400 dark:border-0 rounded-lg font-medium bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:border-gray-500 hover:bg-gray-50 dark:hover:bg-gray-700 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={onSalvar}
+                disabled={salvando || transmitindo}
+                className="px-6 py-2 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-lg font-medium hover:from-green-600 hover:to-emerald-700 shadow-md hover:shadow-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              >
+                {salvando && <i className="fas fa-spinner fa-spin"></i>}
+                {salvando ? 'Salvando...' : 'Salvar'}
+              </button>
+              {onTransmitir && currentSection === 'resumo' && (
+                <button
+                  onClick={onTransmitir}
+                  disabled={salvando || transmitindo}
+                  className="px-6 py-2 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-lg font-medium hover:from-blue-600 hover:to-indigo-700 shadow-md hover:shadow-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                >
+                  {transmitindo && <i className="fas fa-spinner fa-spin"></i>}
+                  {transmitindo ? 'Transmitindo...' : 'Transmitir'}
+                </button>
+              )}
+            </div>
           </div>
         </div>
       </div>

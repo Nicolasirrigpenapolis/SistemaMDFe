@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { ConfirmDeleteModal } from '../../../components/UI/Modal/ConfirmDeleteModal';
-import { formatCNPJ, formatCPF, cleanNumericString, applyMask } from '../../../utils/formatters';
+import { ContratanteCRUD } from '../../../components/Contratantes/ContratanteCRUD';
+import { formatCNPJ, formatCPF, cleanNumericString } from '../../../utils/formatters';
 import { entitiesService } from '../../../services/entitiesService';
-import { useCNPJLookup } from '../../../hooks/useCNPJLookup';
 import Icon from '../../../components/UI/Icon';
 
 interface Contratante {
@@ -58,8 +57,6 @@ export function ListarContratantes() {
   const [contratanteExclusao, setContratanteExclusao] = useState<Contratante | null>(null);
   const [excludindo, setExcluindo] = useState(false);
 
-  // Hook para consulta automática de CNPJ
-  const { consultarCNPJ, loading: loadingCNPJ, error: errorCNPJ, clearError } = useCNPJLookup();
 
   useEffect(() => {
     carregarContratantes();
@@ -153,35 +150,8 @@ export function ListarContratantes() {
     setModalEdicao(false);
     setContratanteSelecionado(null);
     setDadosFormulario({});
-    clearError();
   };
 
-  const handleCNPJChange = async (cnpj: string) => {
-    const cnpjFormatado = formatCNPJ(cnpj);
-    setDadosFormulario(prev => ({ ...prev, cnpj: cnpjFormatado }));
-
-    const cnpjLimpo = cleanNumericString(cnpj);
-    if (cnpjLimpo.length === 14) {
-      const dadosCNPJ = await consultarCNPJ(cnpjLimpo);
-
-      if (dadosCNPJ) {
-        setDadosFormulario(prev => ({
-          ...prev,
-          cnpj: formatCNPJ(dadosCNPJ.cnpj),
-          razaoSocial: dadosCNPJ.razaoSocial,
-          nomeFantasia: dadosCNPJ.nomeFantasia || '',
-          endereco: dadosCNPJ.logradouro,
-          numero: dadosCNPJ.numero,
-          complemento: dadosCNPJ.complemento || '',
-          bairro: dadosCNPJ.bairro,
-          codMunicipio: dadosCNPJ.codigoMunicipio || 0,
-          municipio: dadosCNPJ.municipio,
-          cep: dadosCNPJ.cep,
-          uf: dadosCNPJ.uf
-        }));
-      }
-    }
-  };
 
   const salvarContratante = async () => {
     setSalvando(true);
@@ -274,22 +244,31 @@ export function ListarContratantes() {
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-6 py-8">
-      <div className="flex items-center justify-between mb-8">
-        <h1 className="text-3xl font-bold text-text-primary flex items-center gap-3">
-          <Icon name="handshake" className="text-primary" />
-          Contratantes
-        </h1>
-        <button className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-hover transition-colors duration-200 flex items-center gap-2" onClick={() => abrirModalEdicao()}>
-          <Icon name="plus" />
-          Novo Contratante
-        </button>
-      </div>
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      <div className="w-full px-6 py-8">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-4">
+            <div className="w-14 h-14 bg-gradient-to-br from-yellow-600 to-orange-600 rounded-xl flex items-center justify-center shadow-lg">
+              <i className="fas fa-handshake text-white text-xl"></i>
+            </div>
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-1">Contratantes</h1>
+              <p className="text-gray-600 dark:text-gray-400 text-lg">Gerencie os contratantes dos serviços de transporte</p>
+            </div>
+          </div>
+          <button
+            className="px-6 py-3 bg-gradient-to-r from-yellow-600 to-orange-600 hover:from-yellow-700 hover:to-orange-700 text-white rounded-xl font-semibold transition-all duration-200 flex items-center gap-3 shadow-lg hover:shadow-xl transform hover:scale-105"
+            onClick={() => abrirModalEdicao()}
+          >
+            <i className="fas fa-plus text-lg"></i>
+            <span>Novo Contratante</span>
+          </button>
+        </div>
 
       <div className="bg-bg-surface rounded-xl border border-border-primary p-6 mb-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-text-primary">Buscar</label>
+        <div className="grid grid-cols-5 gap-4 items-end">
+          <div>
+            <label className="block text-sm font-medium text-text-primary mb-2">Buscar</label>
             <input
               type="text"
               className="w-full px-3 py-2 border border-border-primary rounded-lg bg-bg-surface focus:outline-none focus:ring-2 focus:ring-primary/20"
@@ -299,8 +278,8 @@ export function ListarContratantes() {
             />
           </div>
 
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-text-primary">Tipo</label>
+          <div>
+            <label className="block text-sm font-medium text-text-primary mb-2">Tipo</label>
             <select
               value={filtroTipo}
               onChange={(e) => setFiltroTipo(e.target.value)}
@@ -312,8 +291,8 @@ export function ListarContratantes() {
             </select>
           </div>
 
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-text-primary">Status</label>
+          <div>
+            <label className="block text-sm font-medium text-text-primary mb-2">Status</label>
             <select
               value={filtroStatus}
               onChange={(e) => setFiltroStatus(e.target.value)}
@@ -325,8 +304,8 @@ export function ListarContratantes() {
             </select>
           </div>
 
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-text-primary">UF</label>
+          <div>
+            <label className="block text-sm font-medium text-text-primary mb-2">UF</label>
             <select
               value={filtroUf}
               onChange={(e) => setFiltroUf(e.target.value)}
@@ -363,10 +342,16 @@ export function ListarContratantes() {
             </select>
           </div>
 
-          <button className="px-4 py-2 border border-border-primary rounded-lg bg-bg-surface text-text-primary hover:bg-bg-tertiary transition-colors duration-200 col-span-full md:col-span-1 flex items-center justify-center gap-2" onClick={limparFiltros}>
-            <Icon name="times" />
-            Limpar Filtros
-          </button>
+          <div>
+            <button
+              className="w-full px-4 py-2 bg-red-50 hover:bg-red-100 dark:bg-red-900/20 dark:hover:bg-red-900/30 text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 border border-red-200 dark:border-red-800 rounded-lg font-semibold transition-all duration-200 flex items-center justify-center gap-2 shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
+              onClick={limparFiltros}
+              disabled={!filtro && !filtroTipo && !filtroStatus && !filtroUf}
+            >
+              <Icon name="times" />
+              Limpar Filtros
+            </button>
+          </div>
         </div>
       </div>
 
@@ -386,31 +371,31 @@ export function ListarContratantes() {
         ) : (
           <div className="overflow-x-auto">
             <div className="grid grid-cols-6 gap-4 p-4 bg-bg-tertiary border-b border-border-primary font-semibold text-text-primary">
-              <div>CNPJ/CPF</div>
-              <div>Razão Social</div>
-              <div>Tipo</div>
-              <div>Localização</div>
-              <div>Status</div>
-              <div>Ações</div>
+              <div className="text-center">CNPJ/CPF</div>
+              <div className="text-center">Razão Social</div>
+              <div className="text-center">Tipo</div>
+              <div className="text-center">Localização</div>
+              <div className="text-center">Status</div>
+              <div className="text-center">Ações</div>
             </div>
             {contratantes.map((contratante) => (
               <div key={contratante.id} className="grid grid-cols-6 gap-4 p-4 border-b border-border-primary hover:bg-bg-tertiary transition-colors duration-200">
-                <div>
+                <div className="text-center">
                   <strong>
                     {contratante.cnpj ? formatCNPJ(contratante.cnpj) : formatCPF(contratante.cpf || '')}
                   </strong>
                 </div>
-                <div>
+                <div className="text-center">
                   <strong>{contratante.razaoSocial}</strong>
                   {contratante.nomeFantasia && <div className="text-sm text-text-secondary">{contratante.nomeFantasia}</div>}
                 </div>
-                <div>
+                <div className="text-center">
                   <span className="px-2 py-1 bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300 rounded text-xs font-medium">{tipoContratante(contratante)}</span>
                 </div>
-                <div>
+                <div className="text-center">
                   <strong>{contratante.municipio}/{contratante.uf}</strong>
                 </div>
-                <div>
+                <div className="text-center">
                   <span className={`px-2 py-1 rounded-full text-xs font-medium ${
                     contratante.ativo
                       ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300'
@@ -419,7 +404,7 @@ export function ListarContratantes() {
                     {contratante.ativo ? 'Ativo' : 'Inativo'}
                   </span>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center justify-center gap-2">
                   <button
                     className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors duration-200"
                     onClick={() => abrirModalVisualizacao(contratante)}
@@ -497,301 +482,22 @@ export function ListarContratantes() {
         </div>
       )}
 
-      {modalVisualizacao && contratanteSelecionado && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4" onClick={fecharModais}>
-          <div className="bg-bg-surface rounded-xl border border-border-primary shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
-            <div className="flex items-center justify-between p-6 border-b border-border-primary">
-              <h2>Visualizar Contratante</h2>
-              <button className="text-text-tertiary hover:text-text-primary transition-colors duration-200 text-2xl" onClick={fecharModais}>&times;</button>
-            </div>
-            <div className="p-6">
-              <div className="space-y-6">
-                <div>
-                  <h3 className="text-lg font-medium text-text-primary mb-4">Dados Principais</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-1">
-                      <label className="text-sm font-medium text-text-secondary">Razão Social:</label>
-                      <span className="block text-text-primary">{contratanteSelecionado.razaoSocial}</span>
-                    </div>
-                    {contratanteSelecionado.nomeFantasia && (
-                      <div className="space-y-1">
-                        <label className="text-sm font-medium text-text-secondary">Nome Fantasia:</label>
-                        <span className="block text-text-primary">{contratanteSelecionado.nomeFantasia}</span>
-                      </div>
-                    )}
-                    <div className="space-y-1">
-                      <label className="text-sm font-medium text-text-secondary">{contratanteSelecionado.cnpj ? 'CNPJ:' : 'CPF:'}</label>
-                      <span className="block text-text-primary">
-                        {contratanteSelecionado.cnpj
-                          ? formatCNPJ(contratanteSelecionado.cnpj)
-                          : formatCPF(contratanteSelecionado.cpf || '')}
-                      </span>
-                    </div>
-                    <div className="space-y-1">
-                      <label className="text-sm font-medium text-text-secondary">Tipo:</label>
-                      <span className="block text-text-primary">{tipoContratante(contratanteSelecionado)}</span>
-                    </div>
-                    <div className="space-y-1">
-                      <label className="text-sm font-medium text-text-secondary">Status:</label>
-                      <span className={`inline-block px-2 py-1 rounded-full text-xs font-medium ${
-                        contratanteSelecionado.ativo
-                          ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300'
-                          : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300'
-                      }`}>
-                        {contratanteSelecionado.ativo ? 'Ativo' : 'Inativo'}
-                      </span>
-                    </div>
-                </div>
-
-                <div>
-                  <h3 className="text-lg font-medium text-text-primary mb-4">Endereço</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-1">
-                    <label className="text-sm font-medium text-text-secondary">Logradouro:</label>
-                    <span className="text-text-primary">{contratanteSelecionado.endereco}</span>
-                  </div>
-                  {contratanteSelecionado.numero && (
-                    <div className="space-y-1">
-                      <label className="text-sm font-medium text-text-secondary">Número:</label>
-                      <span className="text-text-primary">{contratanteSelecionado.numero}</span>
-                    </div>
-                  )}
-                  <div className="space-y-1">
-                    <label className="text-sm font-medium text-text-secondary">Bairro:</label>
-                    <span className="text-text-primary">{contratanteSelecionado.bairro}</span>
-                  </div>
-                  {contratanteSelecionado.complemento && (
-                    <div className="space-y-1">
-                      <label className="text-sm font-medium text-text-secondary">Complemento:</label>
-                      <span className="text-text-primary">{contratanteSelecionado.complemento}</span>
-                    </div>
-                  )}
-                  <div className="space-y-1">
-                    <label className="text-sm font-medium text-text-secondary">Município:</label>
-                    <span className="text-text-primary">{contratanteSelecionado.municipio}</span>
-                  </div>
-                  <div className="space-y-1">
-                    <label className="text-sm font-medium text-text-secondary">UF:</label>
-                    <span className="text-text-primary">{contratanteSelecionado.uf}</span>
-                  </div>
-                  <div className="space-y-1">
-                    <label className="text-sm font-medium text-text-secondary">CEP:</label>
-                    <span className="text-text-primary">{applyMask(contratanteSelecionado.cep, 'cep')}</span>
-                  </div>
-                </div>
-                </div>
-              </div>
-            </div>
-            </div>
-            <div className="flex items-center justify-end gap-4 p-6 border-t border-border-primary">
-              <button className="px-4 py-2 border border-border-primary rounded-lg bg-bg-surface text-text-primary hover:bg-bg-tertiary transition-colors duration-200" onClick={fecharModais}>
-                Fechar
-              </button>
-              <button className="p-2 text-amber-600 hover:bg-amber-50 rounded-lg transition-colors duration-200" onClick={() => {
-                setModalVisualizacao(false);
-                abrirModalEdicao(contratanteSelecionado);
-              }}>
-                Editar
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {modalEdicao && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4" onClick={fecharModais}>
-          <div className="bg-bg-surface rounded-xl border border-border-primary shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
-            <div className="flex items-center justify-between p-6 border-b border-border-primary">
-              <h2>{contratanteSelecionado ? 'Editar Contratante' : 'Novo Contratante'}</h2>
-              <button className="text-text-tertiary hover:text-text-primary transition-colors duration-200 text-2xl" onClick={fecharModais}>&times;</button>
-            </div>
-            <form className="p-6" onSubmit={(e) => { e.preventDefault(); salvarContratante(); }}>
-              <div className="space-y-4">
-                <h3>Dados Principais</h3>
-
-                {/* Primeira linha: CNPJ com busca automática */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label>CNPJ *</label>
-                    <input
-                      type="text"
-                      value={dadosFormulario.cnpj ? formatCNPJ(dadosFormulario.cnpj) : ''}
-                      onChange={(e) => handleCNPJChange(e.target.value)}
-                      maxLength={18}
-                      placeholder="00.000.000/0000-00"
-                    />
-                    {loadingCNPJ && (
-                      <small className="text-sm text-blue-600">Consultando CNPJ...</small>
-                    )}
-                    {errorCNPJ && (
-                      <small className="text-sm text-red-600">{errorCNPJ}</small>
-                    )}
-                  </div>
-                  <div>
-                    <label>CPF</label>
-                    <input
-                      type="text"
-                      value={dadosFormulario.cpf ? formatCPF(dadosFormulario.cpf) : ''}
-                      onChange={(e) => atualizarCampo('cpf', cleanNumericString(e.target.value))}
-                      maxLength={14}
-                      placeholder="000.000.000-00"
-                    />
-                  </div>
-                </div>
-
-                {/* Segunda linha: Razão Social e Nome Fantasia */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label>Razão Social *</label>
-                    <input
-                      type="text"
-                      value={dadosFormulario.razaoSocial || ''}
-                      onChange={(e) => atualizarCampo('razaoSocial', e.target.value)}
-                      maxLength={200}
-                      required
-                    />
-                  </div>
-                  <div>
-                    <label>Nome Fantasia</label>
-                    <input
-                      type="text"
-                      value={dadosFormulario.nomeFantasia || ''}
-                      onChange={(e) => atualizarCampo('nomeFantasia', e.target.value)}
-                      maxLength={200}
-                    />
-                  </div>
-                </div>
-
-              </div>
-
-              <div className="space-y-4">
-                <h3>Endereço</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label>Logradouro *</label>
-                    <input
-                      type="text"
-                      value={dadosFormulario.endereco || ''}
-                      onChange={(e) => atualizarCampo('endereco', e.target.value)}
-                      maxLength={200}
-                      required
-                    />
-                  </div>
-                  <div>
-                    <label>Número</label>
-                    <input
-                      type="text"
-                      value={dadosFormulario.numero || ''}
-                      onChange={(e) => atualizarCampo('numero', e.target.value)}
-                      maxLength={20}
-                    />
-                  </div>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label>Bairro *</label>
-                    <input
-                      type="text"
-                      value={dadosFormulario.bairro || ''}
-                      onChange={(e) => atualizarCampo('bairro', e.target.value)}
-                      maxLength={100}
-                      required
-                    />
-                  </div>
-                  <div>
-                    <label>Complemento</label>
-                    <input
-                      type="text"
-                      value={dadosFormulario.complemento || ''}
-                      onChange={(e) => atualizarCampo('complemento', e.target.value)}
-                      maxLength={100}
-                    />
-                  </div>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label>Município *</label>
-                    <input
-                      type="text"
-                      value={dadosFormulario.municipio || ''}
-                      onChange={(e) => atualizarCampo('municipio', e.target.value)}
-                      maxLength={100}
-                      required
-                    />
-                  </div>
-                  <div>
-                    <label>UF *</label>
-                    <select
-                      value={dadosFormulario.uf || ''}
-                      onChange={(e) => atualizarCampo('uf', e.target.value)}
-                      required
-                    >
-                      <option value="">Selecione</option>
-                      <option value="AC">AC</option>
-                      <option value="AL">AL</option>
-                      <option value="AP">AP</option>
-                      <option value="AM">AM</option>
-                      <option value="BA">BA</option>
-                      <option value="CE">CE</option>
-                      <option value="DF">DF</option>
-                      <option value="ES">ES</option>
-                      <option value="GO">GO</option>
-                      <option value="MA">MA</option>
-                      <option value="MT">MT</option>
-                      <option value="MS">MS</option>
-                      <option value="MG">MG</option>
-                      <option value="PA">PA</option>
-                      <option value="PB">PB</option>
-                      <option value="PR">PR</option>
-                      <option value="PE">PE</option>
-                      <option value="PI">PI</option>
-                      <option value="RJ">RJ</option>
-                      <option value="RN">RN</option>
-                      <option value="RS">RS</option>
-                      <option value="RO">RO</option>
-                      <option value="RR">RR</option>
-                      <option value="SC">SC</option>
-                      <option value="SP">SP</option>
-                      <option value="SE">SE</option>
-                      <option value="TO">TO</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label>CEP *</label>
-                    <input
-                      type="text"
-                      value={dadosFormulario.cep ? applyMask(dadosFormulario.cep, 'cep') : ''}
-                      onChange={(e) => atualizarCampo('cep', cleanNumericString(e.target.value))}
-                      maxLength={9}
-                      placeholder="00000-000"
-                      required
-                    />
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex items-center justify-end gap-4 p-6 border-t border-border-primary">
-                <button type="button" className="px-4 py-2 border border-border-primary rounded-lg bg-bg-surface text-text-primary hover:bg-bg-tertiary transition-colors duration-200" onClick={fecharModais}>
-                  Cancelar
-                </button>
-                <button type="submit" className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-hover transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed" disabled={salvando}>
-                  {salvando ? 'Salvando...' : 'Salvar'}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      <ConfirmDeleteModal
-        isOpen={modalExclusao}
-        title="Excluir Contratante"
-        message="Tem certeza de que deseja excluir este contratante?"
-        itemName={contratanteExclusao ? contratanteExclusao.razaoSocial : ''}
-        onConfirm={confirmarExclusao}
-        onCancel={fecharModalExclusao}
-        loading={excludindo}
+      <ContratanteCRUD
+        viewModalOpen={modalVisualizacao}
+        formModalOpen={modalEdicao}
+        deleteModalOpen={modalExclusao}
+        selectedContratante={contratanteSelecionado}
+        isEdit={!!contratanteSelecionado}
+        onViewClose={fecharModais}
+        onFormClose={fecharModais}
+        onDeleteClose={fecharModalExclusao}
+        onSave={salvarContratante}
+        onEdit={(contratante) => abrirModalEdicao(contratante)}
+        onDelete={confirmarExclusao}
+        saving={salvando}
+        deleting={excludindo}
       />
+      </div>
     </div>
   );
 }

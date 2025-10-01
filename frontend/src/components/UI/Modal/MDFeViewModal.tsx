@@ -63,26 +63,27 @@ export function MDFeViewModal({ mdfe, isOpen, onClose }: MDFeViewModalProps) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm" onClick={onClose}>
-      <div className="bg-bg-surface rounded-xl border border-border-primary shadow-xl max-w-4xl w-full mx-4 max-h-[90vh] overflow-hidden" onClick={(e) => e.stopPropagation()}>
-        <div className="p-6 border-b border-border-primary">
-          <div className="flex items-center justify-between mb-4">
-            <MDFeNumberBadge
-              numero={mdfe.numero}
-              serie={mdfe.serie}
-              size="large"
-              variant="primary"
-            />
-            <button
-              className="p-2 rounded-lg text-text-tertiary hover:text-text-primary hover:bg-bg-surface-hover transition-colors duration-200"
-              onClick={onClose}
-            >
-              <Icon name="times" size="lg" />
-            </button>
-          </div>
+      <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-0 shadow-xl max-w-4xl w-full mx-4 max-h-[85vh] overflow-hidden" onClick={(e) => e.stopPropagation()}>
 
-          <div className="flex items-center gap-4">
+        {/* Header com gradiente */}
+        <div className="px-6 py-4 bg-gradient-to-r from-purple-600 via-purple-700 to-indigo-700">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4 min-w-0 flex-1">
+              <div className="w-12 h-12 bg-white/15 backdrop-blur-sm rounded-xl flex items-center justify-center shadow-lg flex-shrink-0">
+                <Icon name="file-invoice" className="text-white" size="lg" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <h2 className="text-xl font-bold text-white mb-1">
+                  MDF-e Nº {mdfe.numero} - Série {mdfe.serie}
+                </h2>
+                <p className="text-white/80 text-sm">
+                  Manifesto de Documentos Fiscais
+                </p>
+              </div>
+            </div>
+
             <div
-              className="flex items-center gap-2 px-3 py-1 rounded-full text-sm font-medium"
+              className="flex items-center gap-2 px-3 py-1 rounded-full text-sm font-medium mr-4"
               style={{
                 backgroundColor: statusConfig.bgColor,
                 color: statusConfig.textColor
@@ -91,58 +92,88 @@ export function MDFeViewModal({ mdfe, isOpen, onClose }: MDFeViewModalProps) {
               <div className="w-2 h-2 rounded-full bg-current"></div>
               <span>{mdfe.status}</span>
             </div>
-            <div className="flex items-center gap-2 text-text-secondary">
+
+            <button
+              className="w-10 h-10 bg-white/10 hover:bg-white/20 rounded-xl flex items-center justify-center transition-all duration-200 group backdrop-blur-sm flex-shrink-0"
+              onClick={onClose}
+            >
+              <Icon name="times" className="text-white group-hover:scale-110 transition-transform" size="lg" />
+            </button>
+          </div>
+
+          <div className="mt-4 flex items-center gap-4">
+            <div className="flex items-center gap-2 text-white/80">
               <Icon name="calendar-alt" size="sm" />
-              <span>{formatDate(mdfe.dataEmissao)}</span>
+              <span className="text-sm">{formatDate(mdfe.dataEmissao)}</span>
+            </div>
+            <div className="flex items-center gap-2 text-white/80">
+              <Icon name="route" size="sm" />
+              <span className="text-sm">{mdfe.ufIni} → {mdfe.ufFim}</span>
             </div>
           </div>
         </div>
 
-        <div className="p-6 max-h-[60vh] overflow-y-auto">
+        {/* Content */}
+        <div className="p-6 overflow-y-auto flex-1">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-            <div className="bg-bg-surface-hover rounded-lg border border-border-primary p-4">
+            {/* Seção Emitente */}
+            <div className="rounded-xl p-4 border bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 border-blue-200 dark:border-blue-700/50">
               <div className="flex items-center gap-3 mb-3">
-                <Icon name="building" className="text-primary" size="sm" />
-                <h3 className="font-semibold text-text-primary">Emitente</h3>
+                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center shadow-lg">
+                  <Icon name="building" className="text-white" size="sm" />
+                </div>
+                <h3 className="font-semibold text-gray-900 dark:text-white">Emitente</h3>
               </div>
-              <p className="text-text-secondary">{mdfe.emitenteNome || 'N/A'}</p>
+              <p className="text-gray-700 dark:text-gray-300 font-medium">{mdfe.emitenteNome || 'N/A'}</p>
             </div>
 
-            <div className="bg-bg-surface-hover rounded-lg border border-border-primary p-4">
+            {/* Seção Veículo */}
+            <div className="rounded-xl p-4 border bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 border-green-200 dark:border-green-700/50">
               <div className="flex items-center gap-3 mb-3">
-                <Icon name="truck" className="text-primary" size="sm" />
-                <h3 className="font-semibold text-text-primary">Veículo</h3>
+                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-green-500 to-green-600 flex items-center justify-center shadow-lg">
+                  <Icon name="truck" className="text-white" size="sm" />
+                </div>
+                <h3 className="font-semibold text-gray-900 dark:text-white">Veículo</h3>
               </div>
-              <p className="text-text-secondary">{mdfe.veiculoPlaca || 'N/A'}</p>
+              <p className="text-gray-700 dark:text-gray-300 font-medium">{mdfe.veiculoPlaca || 'N/A'}</p>
             </div>
 
-            <div className="bg-bg-surface-hover rounded-lg border border-border-primary p-4">
+            {/* Seção Percurso */}
+            <div className="rounded-xl p-4 border bg-gradient-to-br from-orange-50 to-orange-100 dark:from-orange-900/20 dark:to-orange-800/20 border-orange-200 dark:border-orange-700/50">
               <div className="flex items-center gap-3 mb-3">
-                <Icon name="route" className="text-primary" size="sm" />
-                <h3 className="font-semibold text-text-primary">Percurso</h3>
+                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-orange-500 to-orange-600 flex items-center justify-center shadow-lg">
+                  <Icon name="route" className="text-white" size="sm" />
+                </div>
+                <h3 className="font-semibold text-gray-900 dark:text-white">Percurso</h3>
               </div>
-              <p className="text-text-secondary">{mdfe.ufIni} → {mdfe.ufFim}</p>
+              <p className="text-gray-700 dark:text-gray-300 font-medium">{mdfe.ufIni} → {mdfe.ufFim}</p>
             </div>
 
-            <div className="bg-bg-surface-hover rounded-lg border border-border-primary p-4">
+            {/* Seção Valor */}
+            <div className="rounded-xl p-4 border bg-gradient-to-br from-emerald-50 to-emerald-100 dark:from-emerald-900/20 dark:to-emerald-800/20 border-emerald-200 dark:border-emerald-700/50">
               <div className="flex items-center gap-3 mb-3">
-                <Icon name="dollar-sign" className="text-primary" size="sm" />
-                <h3 className="font-semibold text-text-primary">Valor da Carga</h3>
+                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center shadow-lg">
+                  <Icon name="dollar-sign" className="text-white" size="sm" />
+                </div>
+                <h3 className="font-semibold text-gray-900 dark:text-white">Valor da Carga</h3>
               </div>
-              <p className="text-xl font-bold text-success">{formatCurrency(mdfe.valorTotal)}</p>
+              <p className="text-xl font-bold text-emerald-600 dark:text-emerald-400">{formatCurrency(mdfe.valorTotal)}</p>
             </div>
           </div>
 
+          {/* Seção Chave de Acesso */}
           {mdfe.chave && (
-            <div className="bg-bg-surface-hover rounded-lg border border-border-primary p-4">
-              <h4 className="flex items-center gap-3 font-semibold text-text-primary mb-3">
-                <Icon name="key" className="text-primary" size="sm" />
+            <div className="rounded-xl p-4 border bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20 border-purple-200 dark:border-purple-700/50">
+              <h4 className="flex items-center gap-3 font-semibold text-gray-900 dark:text-white mb-3">
+                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center shadow-lg">
+                  <Icon name="key" className="text-white" size="sm" />
+                </div>
                 Chave de Acesso
               </h4>
-              <div className="flex items-center gap-2 p-3 bg-bg-surface rounded-lg border border-border-primary">
-                <code className="flex-1 text-sm font-mono text-text-secondary break-all">{mdfe.chave}</code>
+              <div className="flex items-center gap-2 p-3 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-0">
+                <code className="flex-1 text-sm font-mono text-gray-700 dark:text-gray-300 break-all">{mdfe.chave}</code>
                 <button
-                  className="p-2 text-text-tertiary hover:text-primary hover:bg-bg-surface-hover rounded-lg transition-colors duration-200"
+                  className="p-2 text-gray-500 hover:text-purple-600 hover:bg-purple-50 dark:hover:bg-purple-900/20 rounded-lg transition-colors duration-200"
                   onClick={() => navigator.clipboard.writeText(mdfe.chave)}
                   title="Copiar chave"
                 >
@@ -153,21 +184,55 @@ export function MDFeViewModal({ mdfe, isOpen, onClose }: MDFeViewModalProps) {
           )}
         </div>
 
-        <div className="flex items-center justify-end gap-3 p-6 border-t border-border-primary bg-bg-surface-hover">
-          <button className="flex items-center gap-2 px-4 py-2 text-text-secondary border border-border-primary rounded-lg hover:bg-bg-surface hover:text-text-primary transition-colors duration-200 font-medium">
-            <Icon name="download" size="sm" />
-            <span>Download XML</span>
-          </button>
-          <button className="flex items-center gap-2 px-4 py-2 text-text-secondary border border-border-primary rounded-lg hover:bg-bg-surface hover:text-text-primary transition-colors duration-200 font-medium">
-            <Icon name="print" size="sm" />
-            <span>Imprimir</span>
-          </button>
-          {mdfe.status !== 'Cancelado' && (
-            <button className="flex items-center gap-2 px-4 py-2 bg-danger hover:bg-danger-dark text-white rounded-lg transition-colors duration-200 font-medium">
-              <Icon name="times" size="sm" />
-              <span>Cancelar</span>
+        {/* Footer */}
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-3 p-6 border-t border-gray-200 dark:border-0 bg-gray-50 dark:bg-gray-800">
+          <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+            <Icon name="info-circle" size="sm" />
+            <span>MDFe ID: {mdfe.id}</span>
+          </div>
+          <div className="flex flex-wrap items-center gap-2">
+            <button
+              className="flex items-center gap-2 px-4 py-2 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-0 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200 font-medium"
+              onClick={() => {
+                // Implementar download XML
+                console.log('Download XML for MDFe', mdfe.id);
+              }}
+            >
+              <Icon name="download" size="sm" />
+              <span>Download XML</span>
             </button>
-          )}
+            <button
+              className="flex items-center gap-2 px-4 py-2 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-0 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200 font-medium"
+              onClick={() => {
+                // Implementar impressão
+                window.print();
+              }}
+            >
+              <Icon name="print" size="sm" />
+              <span>Imprimir</span>
+            </button>
+            {mdfe.status !== 'Cancelado' && mdfe.status === 'Autorizado' && (
+              <button
+                className="flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors duration-200 font-medium"
+                onClick={() => {
+                  if (window.confirm('Deseja realmente cancelar este MDFe?')) {
+                    // Implementar cancelamento
+                    console.log('Cancel MDFe', mdfe.id);
+                  }
+                }}
+              >
+                <Icon name="times" size="sm" />
+                <span>Cancelar</span>
+              </button>
+            )}
+            <button
+              className="flex items-center gap-2 px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white rounded-lg transition-colors duration-200 font-medium"
+              onClick={onClose}
+            >
+              <Icon name="times" size="sm" />
+              <span>Fechar</span>
+            </button>
+          </div>
         </div>
       </div>
     </div>
