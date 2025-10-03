@@ -25,7 +25,7 @@ interface FiltrosMunicipios {
 
 export function ListarMunicipios() {
   const [municipios, setMunicipios] = useState<Municipio[]>([]);
-  const [carregando, setCarregando] = useState(false);
+  const [loading, setLoading] = useState<boolean>(false);
 
   // Estados temporários dos filtros (antes de aplicar)
   const [termoBuscaTemp, setTermoBuscaTemp] = useState('');
@@ -67,8 +67,8 @@ export function ListarMunicipios() {
   }, [paginacao.current, paginacao.pageSize, filtros, termoBusca]);
 
   const carregarMunicipios = async () => {
+    setLoading(true);
     try {
-      setCarregando(true);
 
       // Conectar à API real de municípios
       const params = new URLSearchParams({
@@ -136,8 +136,9 @@ export function ListarMunicipios() {
       }));
     } catch (error) {
       console.error('Erro ao carregar municípios:', error);
+      setMunicipios([]);
     } finally {
-      setCarregando(false);
+      setLoading(false);
     }
   };
 
@@ -315,14 +316,12 @@ export function ListarMunicipios() {
     }
   };
 
-  if (carregando) {
+  if (loading) {
     return (
-      <div className="max-w-7xl mx-auto px-6 py-8">
-        <div className="flex items-center justify-center py-16">
-          <div className="flex items-center gap-4">
-            <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
-            <span className="text-muted-foreground">Carregando municípios...</span>
-          </div>
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-muted-foreground">Carregando...</p>
         </div>
       </div>
     );

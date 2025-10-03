@@ -1,5 +1,6 @@
 using MDFeApi.Models;
 using MDFeApi.Interfaces;
+using MDFeApi.Utils;
 using System.Text;
 using Microsoft.Extensions.Configuration;
 
@@ -29,27 +30,55 @@ namespace MDFeApi.Services
 
             // === SEÇÃO [ide] - Identificação do MDFe ===
             ini.AppendLine("[ide]");
-            ini.AppendLine($"cUF={ObterCodigoUF(mdfe.EmitenteUf)}");
+            var codUF = CodigosUF.ObterCodigo(mdfe.EmitenteUf);
+            _logger.LogInformation("[INI] Código UF: {CodUF} ({UF})", codUF, mdfe.EmitenteUf);
+            ini.AppendLine($"cUF={codUF}");
 
             // Ambiente SEFAZ definido no cadastro do Emitente (1=Produção, 2=Homologação)
             var tipoAmbiente = mdfe.Emitente?.AmbienteSefaz ?? _configuration.GetValue<int>("ACBrMDFe:TipoAmbiente", 2);
+            _logger.LogInformation("[INI] Tipo Ambiente: {TipoAmbiente} ({Descricao})", tipoAmbiente, tipoAmbiente == 1 ? "Produção" : "Homologação");
             ini.AppendLine($"tpAmb={tipoAmbiente}");
 
+            _logger.LogInformation("[INI] Tipo Transportador: {TipoTransportador} ({Descricao})", mdfe.TipoTransportador, 
+                mdfe.TipoTransportador == 1 ? "ETC" : mdfe.TipoTransportador == 2 ? "TAC" : "CTC");
             ini.AppendLine($"tpEmit={mdfe.TipoTransportador}"); // 1=ETC, 2=TAC, 3=CTC
             ini.AppendLine("mod=58"); // Fixo: 58 = MDFe
+            _logger.LogInformation("[INI] Série: {Serie}", mdfe.Serie);
             ini.AppendLine($"serie={mdfe.Serie}");
+            
+            _logger.LogInformation("[INI] Número MDFe: {Numero}", mdfe.NumeroMdfe);
             ini.AppendLine($"nMDF={mdfe.NumeroMdfe}");
-            ini.AppendLine($"cMDF={mdfe.CodigoNumericoAleatorio ?? GerarCodigoAleatorio()}");
-            ini.AppendLine($"cDV={mdfe.CodigoVerificador ?? "0"}");
+            
+            var codMDF = mdfe.CodigoNumericoAleatorio ?? GerarCodigoAleatorio();
+            _logger.LogInformation("[INI] Código Numérico: {CodigoNumerico}", codMDF);
+            ini.AppendLine($"cMDF={codMDF}");
+            
+            var codDV = mdfe.CodigoVerificador ?? "0";
+            _logger.LogInformation("[INI] Dígito Verificador: {DigitoVerificador}", codDV);
+            ini.AppendLine($"cDV={codDV}");
+            
+            _logger.LogInformation("[INI] Modal: {Modal} (Rodoviário)", mdfe.Modal);
             ini.AppendLine($"modal={mdfe.Modal}"); // 1=Rodoviário
+            _logger.LogInformation("[INI] Data/Hora Emissão: {DataEmissao}", mdfe.DataEmissao.ToString("yyyy-MM-ddTHH:mm:sszzz"));
             ini.AppendLine($"dhEmi={mdfe.DataEmissao:yyyy-MM-ddTHH:mm:sszzz}");
-            ini.AppendLine("tpEmis=1"); // 1=Normal
-            ini.AppendLine("procEmi=0"); // 0=Aplicativo contribuinte
-            ini.AppendLine("verProc=1.0.0"); // Versão do sistema
-            ini.AppendLine($"UFIni={mdfe.UfIni}");
-            ini.AppendLine($"UFFim={mdfe.UfFim}");
 
-            // Percurso (se houver)
+            _logger.LogInformation("[INI] Tipo Emissão: 1 (Normal)");
+            ini.AppendLine("tpEmis=1"); // 1=Normal
+
+            _logger.LogInformation("[INI] Processo Emissão: 0 (Aplicativo contribuinte)");
+            ini.AppendLine("procEmi=0"); // 0=Aplicativo contribuinte
+
+            _logger.LogInformation("[INI] Versão Processo: 1.0.0");
+            ini.AppendLine("verProc=1.0.0"); // Versão do sistema
+
+            _logger.LogInformation("[INI] UF Inicial: {UFIni}", mdfe.UfIni);
+            ini.AppendLine($"UFIni={mdfe.UfIni}");
+
+            _logger.LogInformation("[INI] UF Final: {UFFim}", mdfe.UfFim);
+            ini.AppendLine($"UFFim={mdfe.UfFim}");
+            ini.AppendLine();
+
+            // === SEÇÃO [perc001] - Percurso (UFs intermediárias) ===
             if (!string.IsNullOrEmpty(mdfe.RotaPercursoJson))
             {
                 try
@@ -57,7 +86,9 @@ namespace MDFeApi.Services
                     var percursos = System.Text.Json.JsonSerializer.Deserialize<List<string>>(mdfe.RotaPercursoJson);
                     for (int i = 0; i < percursos?.Count; i++)
                     {
-                        ini.AppendLine($"UFPer{(i + 1):D3}={percursos[i]}");
+                        ini.AppendLine($"[perc{(i + 1):D3}]");
+                        ini.AppendLine($"UFPer={percursos[i]}");
+                        ini.AppendLine();
                     }
                 }
                 catch (Exception ex)
@@ -66,23 +97,24 @@ namespace MDFeApi.Services
                 }
             }
 
-            // Informações adicionais
-            if (!string.IsNullOrEmpty(mdfe.InfoAdicional))
-            {
-                ini.AppendLine($"infAdFisco={mdfe.InfoAdicional}");
-            }
-
-            ini.AppendLine();
-
             // === SEÇÃO [emit] - Emitente ===
             ini.AppendLine("[emit]");
 
             if (!string.IsNullOrEmpty(mdfe.EmitenteCnpj))
+            {
+                _logger.LogInformation("[INI] CNPJ Emitente: {CNPJ}", mdfe.EmitenteCnpj);
                 ini.AppendLine($"CNPJ={mdfe.EmitenteCnpj}");
+            }
             else if (!string.IsNullOrEmpty(mdfe.EmitenteCpf))
+            {
+                _logger.LogInformation("[INI] CPF Emitente: {CPF}", mdfe.EmitenteCpf);
                 ini.AppendLine($"CPF={mdfe.EmitenteCpf}");
+            }
 
+            _logger.LogInformation("[INI] IE Emitente: {IE}", mdfe.EmitenteIe);
             ini.AppendLine($"IE={mdfe.EmitenteIe}");
+
+            _logger.LogInformation("[INI] Razão Social Emitente: {RazaoSocial}", mdfe.EmitenteRazaoSocial);
             ini.AppendLine($"xNome={mdfe.EmitenteRazaoSocial}");
 
             if (!string.IsNullOrEmpty(mdfe.EmitenteNomeFantasia))
@@ -110,10 +142,6 @@ namespace MDFeApi.Services
             // === SEÇÃO [rodo] - Rodoviário ===
             ini.AppendLine("[rodo]");
 
-            // Dados ANTT
-            if (!string.IsNullOrEmpty(mdfe.EmitenteRntrc))
-                ini.AppendLine($"RNTRC={mdfe.EmitenteRntrc}");
-
             // CEPs de Carregamento/Descarregamento (opcionais)
             if (!string.IsNullOrEmpty(mdfe.CepCarregamento))
                 ini.AppendLine($"CEPCarga={mdfe.CepCarregamento}");
@@ -122,6 +150,14 @@ namespace MDFeApi.Services
                 ini.AppendLine($"CEPDescarga={mdfe.CepDescarregamento}");
 
             ini.AppendLine();
+
+            // === SEÇÃO [infANTT] - Dados ANTT (se houver RNTRC) ===
+            if (!string.IsNullOrEmpty(mdfe.EmitenteRntrc))
+            {
+                ini.AppendLine("[infANTT]");
+                ini.AppendLine($"RNTRC={mdfe.EmitenteRntrc}");
+                ini.AppendLine();
+            }
 
             // === SEÇÃO [veicTracao] - Veículo de Tração ===
             ini.AppendLine("[veicTracao]");
@@ -143,12 +179,16 @@ namespace MDFeApi.Services
                 ini.AppendLine();
             }
 
-            // === SEÇÃO [infMunCarrega001] - Município de Carregamento ===
+            // === SEÇÃO [CARR001] - Município de Carregamento ===
             if (mdfe.MunicipioCarregamento != null)
             {
-                ini.AppendLine("[infMunCarrega001]");
+                ini.AppendLine("[CARR001]");
                 ini.AppendLine($"cMunCarrega={mdfe.MunicipioCarregamento.Codigo}");
                 ini.AppendLine($"xMunCarrega={mdfe.MunicipioCarregamento.Nome}");
+
+                if (mdfe.DataInicioViagem.HasValue)
+                    ini.AppendLine($"dhIniViagem={mdfe.DataInicioViagem.Value:dd/MM/yyyy}");
+
                 ini.AppendLine();
             }
 
@@ -239,7 +279,7 @@ namespace MDFeApi.Services
 
             int docIndex = 1;
 
-            // CTe
+            // === CTe - HIERARQUIA CORRETA: [infDoc001] + [infCTe001001] ===
             if (!string.IsNullOrEmpty(mdfe.DocumentosCTeJson))
             {
                 try
@@ -248,11 +288,17 @@ namespace MDFeApi.Services
 
                     foreach (var chave in chavesCTe ?? new List<string>())
                     {
+                        _logger.LogInformation("[INI] Adicionando CT-e {NumCTe}: {ChaveCTe}", docIndex, chave);
+                        _logger.LogInformation("[INI] Local de descarga do CT-e {NumCTe}: {Municipio} ({Codigo})", 
+                            docIndex, nomeMunicipioDescarga, codigoMunicipioDescarga);
+
+                        // Seção de descarga do documento
                         ini.AppendLine($"[infDoc{docIndex:D3}]");
                         ini.AppendLine($"cMunDescarga={codigoMunicipioDescarga}");
                         ini.AppendLine($"xMunDescarga={nomeMunicipioDescarga}");
                         ini.AppendLine();
 
+                        // CTe dentro do documento (sempre índice 001 = primeiro CTe deste grupo de descarga)
                         ini.AppendLine($"[infCTe{docIndex:D3}001]");
                         ini.AppendLine($"chCTe={chave}");
                         ini.AppendLine();
@@ -266,7 +312,7 @@ namespace MDFeApi.Services
                 }
             }
 
-            // NFe
+            // === NFe - HIERARQUIA CORRETA: [infDoc002] + [infNFe002001] ===
             if (!string.IsNullOrEmpty(mdfe.DocumentosNFeJson))
             {
                 try
@@ -275,11 +321,17 @@ namespace MDFeApi.Services
 
                     foreach (var chave in chavesNFe ?? new List<string>())
                     {
+                        _logger.LogInformation("[INI] Adicionando NF-e {NumNFe}: {ChaveNFe}", docIndex, chave);
+                        _logger.LogInformation("[INI] Local de descarga da NF-e {NumNFe}: {Municipio} ({Codigo})", 
+                            docIndex, nomeMunicipioDescarga, codigoMunicipioDescarga);
+
+                        // Seção de descarga do documento
                         ini.AppendLine($"[infDoc{docIndex:D3}]");
                         ini.AppendLine($"cMunDescarga={codigoMunicipioDescarga}");
                         ini.AppendLine($"xMunDescarga={nomeMunicipioDescarga}");
                         ini.AppendLine();
 
+                        // NFe dentro do documento (sempre índice 001 = primeira NFe deste grupo de descarga)
                         ini.AppendLine($"[infNFe{docIndex:D3}001]");
                         ini.AppendLine($"chNFe={chave}");
                         ini.AppendLine();
@@ -305,7 +357,7 @@ namespace MDFeApi.Services
             ini.AppendLine();
 
             ini.AppendLine("[EVENTO001]");
-            ini.AppendLine($"cOrgao={ObterCodigoUF(mdfe.EmitenteUf)}");
+            ini.AppendLine($"cOrgao={CodigosUF.ObterCodigo(mdfe.EmitenteUf)}");
             ini.AppendLine($"CNPJCPF={mdfe.EmitenteCnpj ?? mdfe.EmitenteCpf}");
             ini.AppendLine($"chMDFe={mdfe.ChaveAcesso}");
             ini.AppendLine($"dhEvento={DateTime.Now:yyyy-MM-ddTHH:mm:sszzz}");
@@ -324,7 +376,7 @@ namespace MDFeApi.Services
                 case "110112": // Encerramento
                     ini.AppendLine($"nProt={mdfe.Protocolo}");
                     ini.AppendLine($"dtEnc={parametrosEvento["dtEnc"]}");
-                    ini.AppendLine($"cUF={ObterCodigoUF(parametrosEvento["UFEnc"])}");
+                    ini.AppendLine($"cUF={CodigosUF.ObterCodigo(parametrosEvento["UFEnc"])}");
                     ini.AppendLine($"cMun={parametrosEvento["cMun"]}");
                     break;
 
@@ -343,22 +395,6 @@ namespace MDFeApi.Services
         }
 
         // === MÉTODOS AUXILIARES ===
-
-        private string ObterCodigoUF(string uf)
-        {
-            var codigosUF = new Dictionary<string, string>
-            {
-                {"AC", "12"}, {"AL", "27"}, {"AP", "16"}, {"AM", "13"},
-                {"BA", "29"}, {"CE", "23"}, {"DF", "53"}, {"ES", "32"},
-                {"GO", "52"}, {"MA", "21"}, {"MT", "51"}, {"MS", "50"},
-                {"MG", "31"}, {"PA", "15"}, {"PB", "25"}, {"PR", "41"},
-                {"PE", "26"}, {"PI", "22"}, {"RJ", "33"}, {"RN", "24"},
-                {"RS", "43"}, {"RO", "11"}, {"RR", "14"}, {"SC", "42"},
-                {"SP", "35"}, {"SE", "28"}, {"TO", "17"}
-            };
-
-            return codigosUF.GetValueOrDefault(uf, "35"); // Default SP
-        }
 
         private string GerarCodigoAleatorio()
         {

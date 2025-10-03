@@ -20,28 +20,48 @@ interface ComboboxProps {
 }
 
 export const Combobox: React.FC<ComboboxProps> = ({
-  options,
-  selectedValue,
-  onSelect,
+  options = [],
+  selectedValue = null,
+  onSelect = () => {},
   placeholder = "Selecione uma opção",
   searchPlaceholder = "Buscar...",
-  label,
+  label = '',
   required = false,
   disabled = false,
   emptyMessage = "Nenhuma opção encontrada"
 }) => {
+  // Validar propriedades críticas
+  if (typeof onSelect !== 'function') {
+    console.error('Combobox: onSelect deve ser uma função');
+    onSelect = () => {};
+  }
+  
+  if (!Array.isArray(options)) {
+    console.error('Combobox: options deve ser um array');
+    options = [];
+  }
   const [isOpen, setIsOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const comboboxRef = useRef<HTMLDivElement>(null);
 
-  // Encontrar opção selecionada
-  const selectedOption = options.find(option => option.id === selectedValue);
+    // Garantir que options seja sempre um array
+  const safeOptions = Array.isArray(options) ? options : [];
 
-  // Filtrar opções baseado na busca
-  const filteredOptions = options.filter(option =>
-    option.label.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    (option.sublabel && option.sublabel.toLowerCase().includes(searchTerm.toLowerCase()))
+  // Encontrar opção selecionada com validação
+  const selectedOption = safeOptions.find(option => 
+    option && option.id && option.id === selectedValue
   );
+
+  // Filtrar opções baseado na busca com validação
+  const filteredOptions = safeOptions.filter(option => {
+    if (!option || typeof option !== 'object') return false;
+    
+    const label = (option.label || '').toLowerCase();
+    const sublabel = (option.sublabel || '').toLowerCase();
+    const searchTermLower = searchTerm.toLowerCase();
+
+    return label.includes(searchTermLower) || sublabel.includes(searchTermLower);
+  });
 
   // Fechar dropdown ao clicar fora
   useEffect(() => {

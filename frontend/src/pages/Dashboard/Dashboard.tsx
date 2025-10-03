@@ -47,95 +47,88 @@ export function Dashboard() {
     totalMunicipios: 0,
   });
   const [recentMDFes, setRecentMDFes] = useState<RecentMDFe[]>([]);
-  const [carregando, setCarregando] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     carregarDadosDashboard();
   }, []);
 
   const carregarDadosDashboard = async () => {
+    setLoading(true);
     try {
-      setCarregando(true);
 
+      // ✅ OTIMIZADO: Busca apenas estatísticas (PageSize=1) ao invés de todos os dados
       const [
-        emitentesRes,
-        veiculosRes,
-        condutoresRes,
-        contratantesRes,
-        seguradorasRes,
+        emitentesStats,
+        veiculosStats,
+        condutoresStats,
+        contratantesStats,
+        seguradorasStats,
         municipiosRes,
-        mdfesRes
+        mdfesRecentes
       ] = await Promise.allSettled([
-        entitiesService.obterEmitentes(),
-        entitiesService.obterVeiculos(),
-        entitiesService.obterCondutores(),
-        entitiesService.obterContratantes(),
-        entitiesService.obterSeguradoras(),
+        fetch('https://localhost:5001/api/emitentes?Page=1&PageSize=1').then(res => res.json()),
+        fetch('https://localhost:5001/api/veiculos?Page=1&PageSize=1').then(res => res.json()),
+        fetch('https://localhost:5001/api/condutores?Page=1&PageSize=1').then(res => res.json()),
+        fetch('https://localhost:5001/api/contratantes?Page=1&PageSize=1').then(res => res.json()),
+        fetch('https://localhost:5001/api/seguradoras?Page=1&PageSize=1').then(res => res.json()),
         fetch('https://localhost:5001/api/municipios?tamanhoPagina=1&pagina=1').then(res => res.json()),
-        mdfeService.listarMDFes({ tamanhoPagina: 1000 })
+        mdfeService.listarMDFes({ tamanhoPagina: 5, pagina: 1 }) // Apenas 5 para "Atividade Recente"
       ]);
 
-      let emitentes: any[] = [];
-      if (emitentesRes.status === 'fulfilled') {
-        emitentes = emitentesRes.value || [];
-      }
+      // Extrai totais das respostas paginadas
+      let totalEmitentes = 0, totalVeiculos = 0, totalCondutores = 0;
+      let totalContratantes = 0, totalSeguradoras = 0, totalMunicipios = 0;
+      let totalMDFes = 0, mdfesPendentes = 0, mdfesAutorizados = 0;
+      let mdfesRecentesData: any[] = [];
 
-      let veiculos: any[] = [];
-      if (veiculosRes.status === 'fulfilled') {
-        veiculos = veiculosRes.value || [];
+      if (emitentesStats.status === 'fulfilled' && emitentesStats.value?.data) {
+        totalEmitentes = emitentesStats.value.data.totalItems || 0;
       }
-
-      let condutores: any[] = [];
-      if (condutoresRes.status === 'fulfilled') {
-        condutores = condutoresRes.value || [];
+      if (veiculosStats.status === 'fulfilled' && veiculosStats.value?.data) {
+        totalVeiculos = veiculosStats.value.data.totalItems || 0;
       }
-
-      let contratantes: any[] = [];
-      if (contratantesRes.status === 'fulfilled') {
-        contratantes = contratantesRes.value || [];
+      if (condutoresStats.status === 'fulfilled' && condutoresStats.value?.data) {
+        totalCondutores = condutoresStats.value.data.totalItems || 0;
       }
-
-      let seguradoras: any[] = [];
-      if (seguradorasRes.status === 'fulfilled') {
-        seguradoras = seguradorasRes.value || [];
+      if (contratantesStats.status === 'fulfilled' && contratantesStats.value?.data) {
+        totalContratantes = contratantesStats.value.data.totalItems || 0;
       }
-
-      let totalMunicipios = 0;
+      if (seguradorasStats.status === 'fulfilled' && seguradorasStats.value?.data) {
+        totalSeguradoras = seguradorasStats.value.data.totalItems || 0;
+      }
       if (municipiosRes.status === 'fulfilled') {
-        const municipiosData = municipiosRes.value;
-        totalMunicipios = municipiosData?.totalItens || 0;
+        totalMunicipios = municipiosRes.value?.totalItens || 0;
       }
-
-      let mdfes: any[] = [];
-      if (mdfesRes.status === 'fulfilled' && mdfesRes.value.sucesso && mdfesRes.value.dados) {
-        const dados = mdfesRes.value.dados;
-        mdfes = dados.Itens || dados.Items || dados.itens || dados.items || dados || [];
+      if (mdfesRecentes.status === 'fulfilled' && mdfesRecentes.value.sucesso && mdfesRecentes.value.dados) {
+        const dados = mdfesRecentes.value.dados;
+        mdfesRecentesData = dados.Itens || dados.Items || dados.itens || dados.items || dados || [];
+        totalMDFes = dados.TotalItens || dados.totalItems || mdfesRecentesData.length;
+        mdfesPendentes = mdfesRecentesData.filter((m: any) => m.status === 'Pendente' || m.statusSefaz === 'RASCUNHO').length;
+        mdfesAutorizados = mdfesRecentesData.filter((m: any) => m.status === 'Autorizado' || m.statusSefaz === 'AUTORIZADO').length;
       }
 
       setStats({
-        totalMDFes: mdfes.length,
-        mdfesPendentes: mdfes.filter((m: any) => m.status === 'Pendente').length,
-        mdfesAutorizados: mdfes.filter((m: any) => m.status === 'Autorizado').length,
-        totalVeiculos: veiculos.length,
-        veiculosAtivos: veiculos.filter((v: any) => v.ativo).length,
-        totalCondutores: condutores.length,
-        condutoresAtivos: condutores.filter((c: any) => c.ativo).length,
-        totalEmitentes: emitentes.length,
-        emitentesAtivos: emitentes.filter((e: any) => e.ativo).length,
-        totalContratantes: contratantes.length,
-        totalSeguradoras: seguradoras.length,
-        totalMunicipios: totalMunicipios,
+        totalMDFes,
+        mdfesPendentes,
+        mdfesAutorizados,
+        totalVeiculos,
+        veiculosAtivos: totalVeiculos, // Backend já filtra apenas ativos
+        totalCondutores,
+        condutoresAtivos: totalCondutores, // Backend já filtra apenas ativos
+        totalEmitentes,
+        emitentesAtivos: totalEmitentes, // Backend já filtra apenas ativos
+        totalContratantes,
+        totalSeguradoras,
+        totalMunicipios,
       });
 
-      const mdfesRecentes = mdfes
-        .sort((a: any, b: any) => new Date(b.dataEmissao).getTime() - new Date(a.dataEmissao).getTime())
-        .slice(0, 5);
-      setRecentMDFes(mdfesRecentes);
+      setRecentMDFes(mdfesRecentesData.slice(0, 5));
 
     } catch (error) {
       console.error('Erro ao carregar dados do dashboard:', error);
     } finally {
-      setCarregando(false);
+      setLoading(false);
     }
   };
 
@@ -190,12 +183,30 @@ export function Dashboard() {
     });
   };
 
-  if (carregando) {
+  if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
+      <div className="min-h-screen p-8 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-muted-foreground font-medium">Carregando dados do dashboard...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-muted-foreground">Carregando...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Mantém skeleton antigo para compatibilidade (nunca será executado)
+  if (false && stats.totalMDFes === 0) {
+    return (
+      <div className="min-h-screen p-8 space-y-8 animate-pulse">
+        <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-1/4"></div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {[1,2,3,4].map(i => (
+            <div key={i} className="h-32 bg-gray-200 dark:bg-gray-700 rounded-lg"></div>
+          ))}
+        </div>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="h-96 bg-gray-200 dark:bg-gray-700 rounded-lg"></div>
+          <div className="h-96 bg-gray-200 dark:bg-gray-700 rounded-lg"></div>
         </div>
       </div>
     );

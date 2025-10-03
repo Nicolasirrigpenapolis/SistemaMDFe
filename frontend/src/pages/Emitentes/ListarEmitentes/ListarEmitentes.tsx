@@ -22,8 +22,7 @@ interface Emitente {
   uf: string;
   ativo?: boolean;
   tipoEmitente: string;
-  caminhoArquivoCertificado?: string;
-  senhaCertificado?: string;
+  // Certificado removido - MonitorACBr gerencia
   caminhoSalvarXml?: string;
   rntrc?: string;
   ambienteSefaz?: number;
@@ -42,7 +41,7 @@ interface PaginationData {
 
 export function ListarEmitentes() {
   const [emitentes, setEmitentes] = useState<Emitente[]>([]);
-  const [carregando, setCarregando] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   // Estados temporários dos filtros (antes de aplicar)
   const [filtroTemp, setFiltroTemp] = useState('');
@@ -87,8 +86,8 @@ export function ListarEmitentes() {
     status: string = filtroStatus,
     uf: string = filtroUf
   ) => {
+    setLoading(true);
     try {
-      setCarregando(true);
 
       const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://localhost:5001/api';
       const params = new URLSearchParams({
@@ -136,7 +135,7 @@ export function ListarEmitentes() {
       setEmitentes([]);
       setPaginacao(null);
     } finally {
-      setCarregando(false);
+      setLoading(false);
     }
   };
 
@@ -211,8 +210,7 @@ export function ListarEmitentes() {
         municipio: dadosEmitente.municipio.trim(),
         uf: dadosEmitente.uf.toUpperCase(),
         rntrc: dadosEmitente.rntrc?.trim() || undefined,
-        caminhoArquivoCertificado: dadosEmitente.caminhoArquivoCertificado?.trim() || undefined,
-        senhaCertificado: dadosEmitente.senhaCertificado?.trim() || undefined,
+        // Certificado removido - MonitorACBr gerencia
         caminhoSalvarXml: dadosEmitente.caminhoSalvarXml?.trim() || undefined
       };
 
@@ -264,6 +262,33 @@ export function ListarEmitentes() {
     console.log('Dados do CNPJ consultados:', data);
   };
 
+  const handleFieldChange = async (fieldKey: string, value: any, formData: Record<string, any>) => {
+    // Buscar código IBGE automaticamente quando município ou UF mudarem
+    if (fieldKey === 'municipio' || fieldKey === 'uf') {
+      const municipio = fieldKey === 'municipio' ? value : formData.municipio;
+      const uf = fieldKey === 'uf' ? value : formData.uf;
+
+      if (municipio && uf && municipio.trim() && uf.trim()) {
+        console.log(`🔍 BUSCANDO CÓDIGO IBGE: Município="${municipio}", UF="${uf}"`);
+
+        try {
+          const { localidadeService } = await import('../../../services/localidadeService');
+          const codigoIBGE = await localidadeService.obterCodigoMunicipio(municipio.trim(), uf.trim());
+
+          if (codigoIBGE && codigoIBGE !== 0) {
+            console.log(`✅ CÓDIGO IBGE ENCONTRADO: ${codigoIBGE} para ${municipio}/${uf}`);
+            // Retornar o código para atualizar no formulário
+            return { codMunicipio: codigoIBGE };
+          } else {
+            console.warn(`❌ Município "${municipio}/${uf}" não encontrado na tabela IBGE`);
+          }
+        } catch (error) {
+          console.error('❌ Erro ao buscar código IBGE:', error);
+        }
+      }
+    }
+  };
+
   const aplicarFiltros = () => {
     setFiltro(filtroTemp);
     setFiltroTipo(filtroTipoTemp);
@@ -284,16 +309,12 @@ export function ListarEmitentes() {
     setPaginaAtual(1);
   };
 
-  if (carregando) {
+  if (loading) {
     return (
-      <div className="min-h-screen bg-background">
-        <div className="w-full px-6 py-8">
-          <div className="flex items-center justify-center py-16">
-            <div className="flex items-center gap-4">
-              <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
-              <span className="text-muted-foreground">Carregando emitentes...</span>
-            </div>
-          </div>
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-muted-foreground">Carregando...</p>
         </div>
       </div>
     );
@@ -313,13 +334,40 @@ export function ListarEmitentes() {
               <p className="text-muted-foreground text-lg">Gerencie as empresas emissoras de MDF-e</p>
             </div>
           </div>
-          <button
-            className="px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-xl font-semibold transition-all duration-200 flex items-center gap-3 shadow-lg hover:shadow-xl transform hover:scale-105"
-            onClick={abrirModalNovo}
-          >
-            <Icon name="plus" size="lg" />
-            <span>Novo Emitente</span>
-          </button>
+          <div className="flex gap-3">
+            <button
+              className="px-4 py-3 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white rounded-xl font-semibold transition-all duration-200 flex items-center gap-2 shadow-lg hover:shadow-xl"
+              onClick={async () => {
+                if (confirm('Deseja atualizar os códigos IBGE de todos os emitentes que estão com código zerado?')) {
+                  try {
+                    const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://localhost:5001/api';
+                    const response = await fetch(`${API_BASE_URL}/emitentes/atualizar-codigos-ibge`, {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' }
+                    });
+                    const result = await response.json();
+                    alert(result.mensagem);
+                    carregarEmitentes();
+                  } catch (error) {
+                    alert('Erro ao atualizar códigos IBGE');
+                    console.error(error);
+                  }
+                }
+              }}
+              title="Atualizar códigos IBGE de todos emitentes"
+            >
+              <Icon name="sync" size="lg" />
+              <span>Atualizar Códigos IBGE</span>
+            </button>
+
+            <button
+              className="px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-xl font-semibold transition-all duration-200 flex items-center gap-3 shadow-lg hover:shadow-xl transform hover:scale-105"
+              onClick={abrirModalNovo}
+            >
+              <Icon name="plus" size="lg" />
+              <span>Novo Emitente</span>
+            </button>
+          </div>
         </div>
 
         {/* Filtros */}
@@ -604,6 +652,7 @@ export function ListarEmitentes() {
           onEdit={abrirModalEdicao}
           onDelete={handleDelete}
           onCNPJDataFetch={handleCNPJDataFetch}
+          onFieldChange={handleFieldChange}
           saving={salvando}
           deleting={excluindo}
         />

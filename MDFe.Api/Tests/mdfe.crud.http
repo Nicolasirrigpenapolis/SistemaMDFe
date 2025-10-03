@@ -1,0 +1,87 @@
+@baseUrl = http://localhost:5000
+
+### Listar MDFs (GET)
+GET {{baseUrl}}/api/mdfe?pagina=1&tamanhoPagina=10
+Content-Type: application/json
+
+### Obter MDF-e por ID (GET)
+GET {{baseUrl}}/api/mdfe/1
+Content-Type: application/json
+
+### Criar novo MDF-e (POST)
+POST {{baseUrl}}/api/mdfe
+Content-Type: application/json
+
+{
+    "emitenteId": 1,
+    "veiculoId": 1,
+    "condutorId": 1,
+    "dataEmissao": "2025-10-03T10:00:00",
+    "dataInicioViagem": "2025-10-03T14:00:00",
+    "ufIni": "SP",
+    "ufFim": "MG",
+    "municipioIni": "São Paulo",
+    "municipioFim": "Belo Horizonte",
+    "pesoBrutoTotal": 1000.50,
+    "valorTotal": 5000.00,
+    "observacoes": "Teste de criação via API",
+    "localidadesCarregamento": [
+        {
+            "UF": "SP",
+            "Municipio": "São Paulo",
+            "CodigoIBGE": 3550308
+        }
+    ],
+    "localidadesDescarregamento": [
+        {
+            "UF": "MG",
+            "Municipio": "Belo Horizonte",
+            "CodigoIBGE": 3106200
+        }
+    ],
+    "rotaPercurso": [
+        "SP",
+        "MG"
+    ]
+}
+
+### Atualizar MDF-e (PUT)
+PUT {{baseUrl}}/api/mdfe/1
+Content-Type: application/json
+
+{
+    "emitenteId": 1,
+    "veiculoId": 1,
+    "condutorId": 1,
+    "dataEmissao": "2025-10-03T10:00:00",
+    "dataInicioViagem": "2025-10-03T14:00:00",
+    "ufIni": "SP",
+    "ufFim": "MG",
+    "municipioIni": "São Paulo",
+    "municipioFim": "Belo Horizonte",
+    "pesoBrutoTotal": 1500.50,
+    "valorTotal": 7500.00,
+    "observacoes": "Teste de atualização via API",
+    "localidadesCarregamento": [
+        {
+            "UF": "SP",
+            "Municipio": "São Paulo",
+            "CodigoIBGE": 3550308
+        }
+    ],
+    "localidadesDescarregamento": [
+        {
+            "UF": "MG",
+            "Municipio": "Belo Horizonte",
+            "CodigoIBGE": 3106200
+        }
+    ],
+    "rotaPercurso": [
+        "SP",
+        "MG"
+    ]
+}
+
+### Excluir MDF-e (DELETE)
+DELETE {{baseUrl}}/api/mdfe/1
+Content-Type: application/json

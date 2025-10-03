@@ -8,14 +8,12 @@ namespace MDFeApi.Models
     {
         public int Id { get; set; }
 
-        [Required]
         public int EmitenteId { get; set; }
         public virtual Emitente Emitente { get; set; } = null!;
 
         // === DADOS DO EMITENTE (COPIADOS DA EMPRESA NO MOMENTO DA EMISSÃO) ===
-        [Required]
         [MaxLength(14)]
-        public string EmitenteCnpj { get; set; } = string.Empty;
+        public string? EmitenteCnpj { get; set; }
 
         [MaxLength(11)]
         public string? EmitenteCpf { get; set; }
@@ -23,16 +21,14 @@ namespace MDFeApi.Models
         [MaxLength(20)]
         public string? EmitenteIe { get; set; }
 
-        [Required]
         [MaxLength(200)]
-        public string EmitenteRazaoSocial { get; set; } = string.Empty;
+        public string? EmitenteRazaoSocial { get; set; }
 
         [MaxLength(200)]
         public string? EmitenteNomeFantasia { get; set; }
 
-        [Required]
         [MaxLength(200)]
-        public string EmitenteEndereco { get; set; } = string.Empty;
+        public string? EmitenteEndereco { get; set; }
 
         [MaxLength(20)]
         public string? EmitenteNumero { get; set; }
@@ -40,29 +36,23 @@ namespace MDFeApi.Models
         [MaxLength(200)]
         public string? EmitenteComplemento { get; set; }
 
-        [Required]
         [MaxLength(100)]
-        public string EmitenteBairro { get; set; } = string.Empty;
+        public string? EmitenteBairro { get; set; }
 
-        [Required]
-        public int EmitenteCodMunicipio { get; set; }
+        public int? EmitenteCodMunicipio { get; set; }
 
-        [Required]
         [MaxLength(100)]
-        public string EmitenteMunicipio { get; set; } = string.Empty;
+        public string? EmitenteMunicipio { get; set; }
 
-        [Required]
         [MaxLength(8)]
-        public string EmitenteCep { get; set; } = string.Empty;
+        public string? EmitenteCep { get; set; }
 
-        [Required]
         [MaxLength(2)]
-        public string EmitenteUf { get; set; } = string.Empty;
+        public string? EmitenteUf { get; set; }
 
 
-        [Required]
         [MaxLength(50)]
-        public string EmitenteTipoEmitente { get; set; } = string.Empty;
+        public string? EmitenteTipoEmitente { get; set; }
 
         [MaxLength(20)]
         public string? EmitenteRntrc { get; set; }
@@ -91,17 +81,14 @@ namespace MDFeApi.Models
         public int? VeiculoTara { get; set; }
 
 
-        [Required]
         [MaxLength(50)]
-        public string VeiculoTipoRodado { get; set; } = string.Empty;
+        public string? VeiculoTipoRodado { get; set; }
 
-        [Required]
         [MaxLength(50)]
-        public string VeiculoTipoCarroceria { get; set; } = string.Empty;
+        public string? VeiculoTipoCarroceria { get; set; }
 
-        [Required]
         [MaxLength(2)]
-        public string VeiculoUf { get; set; } = string.Empty;
+        public string? VeiculoUf { get; set; }
 
 
 
@@ -109,10 +96,8 @@ namespace MDFeApi.Models
         public int? MunicipioCarregamentoId { get; set; }
         public virtual Municipio? MunicipioCarregamento { get; set; }
 
-        [Required]
         public int Serie { get; set; }
 
-        [Required]
         public int NumeroMdfe { get; set; }
 
         [MaxLength(44)]
@@ -134,18 +119,14 @@ namespace MDFeApi.Models
         [MaxLength(10)]
         public string VersaoModal { get; set; } = "3.00";
 
-        [Required]
         [MaxLength(2)]
-        public string UfIni { get; set; } = string.Empty;
+        public string? UfIni { get; set; }
 
-        [Required]
         [MaxLength(2)]
-        public string UfFim { get; set; } = string.Empty;
+        public string? UfFim { get; set; }
 
-        [Required]
         public int Modal { get; set; } = 1; // 1 = Rodoviário
 
-        [Required]
         public int TipoTransportador { get; set; } = 1; // 1 = ETC, 2 = TAC, 3 = CTC
 
         public DateTime DataEmissao { get; set; } = DateTime.Now;
@@ -366,8 +347,8 @@ namespace MDFeApi.Models
         public string? XmlAutorizado { get; set; }
         
         // Propriedades adicionais para compatibilidade
-        public string MunicipioIni { get; set; } = string.Empty;
-        public string MunicipioFim { get; set; } = string.Empty;
+        public string? MunicipioIni { get; set; }
+        public string? MunicipioFim { get; set; }
         public decimal? PesoBrutoTotal { get; set; }
 
         // === AUDITORIA E CONTROLE ===
@@ -511,12 +492,21 @@ namespace MDFeApi.Models
 
         /// <summary>
         /// Gera próximo número do MDFe para um emitente específico
+        /// Numeração inicia em 650
         /// </summary>
         public static int GerarProximoNumero(IEnumerable<MDFe> mdfesExistentes, int emitenteId, int serie = 1)
         {
+            const int NUMERO_INICIAL = 650;
+
             var ultimoNumero = mdfesExistentes
                 .Where(m => m.EmitenteId == emitenteId && m.Serie == serie)
                 .MaxOrDefault(m => m.NumeroMdfe, 0);
+
+            // Se não houver MDFes ainda, começar do número inicial (650)
+            if (ultimoNumero == 0)
+            {
+                return NUMERO_INICIAL;
+            }
 
             return ultimoNumero + 1;
         }

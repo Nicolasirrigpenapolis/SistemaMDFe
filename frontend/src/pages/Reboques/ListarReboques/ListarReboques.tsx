@@ -18,7 +18,7 @@ interface PaginationData {
 
 export function ListarReboques() {
   const [reboques, setReboques] = useState<ReboqueList[]>([]);
-  const [carregando, setCarregando] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const [filtroTemp, setFiltroTemp] = useState('');
   const [filtroUfTemp, setFiltroUfTemp] = useState('');
@@ -49,8 +49,8 @@ export function ListarReboques() {
   }, [paginaAtual, tamanhoPagina, filtro, filtroUf, filtroStatus]);
 
   const carregarReboques = async (pagina: number = paginaAtual, busca: string = filtro) => {
+    setLoading(true);
     try {
-      setCarregando(true);
 
       const response = await reboquesService.listarReboques(
         pagina,
@@ -80,7 +80,7 @@ export function ListarReboques() {
       console.error('Erro ao carregar reboques:', error);
       setReboques([]);
     } finally {
-      setCarregando(false);
+      setLoading(false);
     }
   };
 
@@ -234,16 +234,12 @@ export function ListarReboques() {
     return reboquesFiltraods;
   })();
 
-  if (carregando) {
+  if (loading) {
     return (
-      <div className="min-h-screen bg-background">
-        <div className="w-full px-6 py-8">
-          <div className="flex items-center justify-center py-16">
-            <div className="flex items-center gap-4">
-              <div className="w-8 h-8 border-4 border-orange-600 border-t-transparent rounded-full animate-spin"></div>
-              <span className="text-muted-foreground">Carregando reboques...</span>
-            </div>
-          </div>
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-muted-foreground">Carregando...</p>
         </div>
       </div>
     );

@@ -135,16 +135,30 @@ export function GenericFormModal<T = any>({
     }
   }, [data, isOpen]);
 
-  const handleFieldChange = (fieldKey: string, value: any) => {
+  const handleFieldChange = async (fieldKey: string, value: any) => {
     // Always update internal state
-    setFormData(prev => ({
-      ...prev,
+    const updatedData = {
+      ...formData,
       [fieldKey]: value
-    }));
+    };
+
+    setFormData(updatedData);
 
     // Also call external field change handler if provided
     if (onFieldChange) {
-      onFieldChange(fieldKey, value);
+      try {
+        const result = await onFieldChange(fieldKey, value, updatedData);
+
+        // Se o handler retornar dados adicionais (Record<string, any>), atualizar o formData
+        if (result && typeof result === 'object' && !Array.isArray(result)) {
+          setFormData(prev => ({
+            ...prev,
+            ...result
+          }));
+        }
+      } catch (error) {
+        console.error('Error in onFieldChange handler:', error);
+      }
     }
 
     // Clear error when user starts typing

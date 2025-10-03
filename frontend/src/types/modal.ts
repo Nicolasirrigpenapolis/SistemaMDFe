@@ -107,7 +107,7 @@ export interface GenericFormModalProps<T = any> {
   isEditing?: boolean;
   config?: ModalConfig<T>;
   onCancel?: () => void;
-  onFieldChange?: (name: string, value: any) => void;
+  onFieldChange?: (name: string, value: any, formData?: Record<string, any>) => void | Promise<void | Record<string, any>>;
   customStates?: any;
 }
 

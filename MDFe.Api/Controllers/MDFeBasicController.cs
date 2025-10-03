@@ -78,17 +78,24 @@ namespace MDFeApi.Controllers
         {
             try
             {
+                _logger.LogInformation("📥 Recebendo requisição para criar MDFe: {@MdfeDto}", mdfeDto);
                 var mdfe = await _mdfeBusinessService.CreateMDFeAsync(mdfeDto);
+                _logger.LogInformation("✅ MDFe criado com sucesso: {Id}", mdfe.Id);
                 return CreatedAtAction(nameof(GetMDFe), new { id = mdfe.Id }, mdfe);
             }
             catch (ArgumentException ex)
             {
+                _logger.LogWarning(ex, "❌ Argumento inválido ao criar MDFe");
                 return BadRequest(new { message = ex.Message });
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Erro ao criar MDFe");
-                return StatusCode(500, new { message = "Erro interno do servidor" });
+                _logger.LogError(ex, "💥 ERRO CRÍTICO ao criar MDFe. Mensagem: {Message}. StackTrace: {StackTrace}", ex.Message, ex.StackTrace);
+                return StatusCode(500, new {
+                    message = "Erro interno do servidor",
+                    detalhes = ex.Message,
+                    tipo = ex.GetType().Name
+                });
             }
         }
 
@@ -100,14 +107,17 @@ namespace MDFeApi.Controllers
         {
             try
             {
+                _logger.LogInformation("📥 Recebendo requisição para atualizar MDFe {Id}: {@MdfeDto}", id, mdfeDto);
                 var mdfe = await _mdfeBusinessService.UpdateMDFeAsync(id, mdfeDto);
                 if (mdfe == null)
                     return NotFound(new { message = "MDFe não encontrado" });
 
+                _logger.LogInformation("✅ MDFe {Id} atualizado com sucesso", id);
                 return Ok(mdfe);
             }
             catch (ArgumentException ex)
             {
+                _logger.LogWarning(ex, "❌ Argumento inválido ao atualizar MDFe {Id}: {Message}", id, ex.Message);
                 return BadRequest(new { message = ex.Message });
             }
             catch (Exception ex)
@@ -191,7 +201,11 @@ namespace MDFeApi.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Erro ao transmitir MDFe {Id}", id);
-                return StatusCode(500, new { sucesso = false, mensagem = "Erro interno do servidor" });
+                return StatusCode(500, new {
+                    sucesso = false,
+                    mensagem = $"Erro ao transmitir: {ex.Message}",
+                    detalhes = ex.InnerException?.Message ?? ex.StackTrace
+                });
             }
         }
 
@@ -287,17 +301,67 @@ namespace MDFeApi.Controllers
         /// Salvar rascunho
         /// </summary>
         [HttpPost("salvar-rascunho")]
-        public async Task<ActionResult> SalvarRascunho([FromBody] object mdfeData)
+        public async Task<ActionResult> SalvarRascunho([FromBody] MDFeCreateDto mdfeData)
         {
             try
             {
-                // Implementar lógica de salvar rascunho
-                return Ok(new { sucesso = true, mensagem = "Rascunho salvo com sucesso" });
+                MDFe mdfe;
+
+                // Verificar se é atualização ou criação baseado no ID
+                if (mdfeData.EmitenteId > 0)
+                {
+                    // Tentar encontrar MDFe existente por ID ou criar novo
+                    var mdfeExistente = await _mdfeBusinessService.GetMDFesAsync(mdfeData.EmitenteId, 1, 100);
+                    var rascunhoExistente = mdfeExistente.Items
+                        .FirstOrDefault(m => m.Status == "RASCUNHO" && m.Id.ToString() == mdfeData.EmitenteId.ToString());
+
+                    if (rascunhoExistente != null)
+                    {
+                        // Atualizar rascunho existente
+                        mdfe = await _mdfeBusinessService.UpdateMDFeAsync(rascunhoExistente.Id, mdfeData);
+
+                        if (mdfe == null)
+                            return NotFound(new { sucesso = false, mensagem = "Rascunho não encontrado para atualização" });
+
+                        _logger.LogInformation("Rascunho {Id} atualizado com sucesso", mdfe.Id);
+                    }
+                    else
+                    {
+                        // Criar novo rascunho
+                        mdfe = await _mdfeBusinessService.CreateMDFeAsync(mdfeData);
+                        _logger.LogInformation("Novo rascunho {Id} criado com sucesso", mdfe.Id);
+                    }
+                }
+                else
+                {
+                    // Criar novo rascunho
+                    mdfe = await _mdfeBusinessService.CreateMDFeAsync(mdfeData);
+                    _logger.LogInformation("Novo rascunho {Id} criado com sucesso", mdfe.Id);
+                }
+
+                return Ok(new
+                {
+                    sucesso = true,
+                    mensagem = "Rascunho salvo com sucesso",
+                    dados = new
+                    {
+                        id = mdfe.Id,
+                        numero = mdfe.NumeroMdfe,
+                        serie = mdfe.Serie,
+                        chaveAcesso = mdfe.ChaveAcesso,
+                        statusSefaz = mdfe.StatusSefaz
+                    }
+                });
+            }
+            catch (ArgumentException ex)
+            {
+                _logger.LogWarning(ex, "Erro de validação ao salvar rascunho");
+                return BadRequest(new { sucesso = false, mensagem = ex.Message });
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Erro ao salvar rascunho");
-                return StatusCode(500, new { sucesso = false, mensagem = "Erro interno do servidor" });
+                return StatusCode(500, new { sucesso = false, mensagem = "Erro ao salvar rascunho. Tente novamente." });
             }
         }
 
@@ -305,17 +369,29 @@ namespace MDFeApi.Controllers
         /// Carregar rascunho
         /// </summary>
         [HttpGet("carregar-rascunho/{id}")]
-        public async Task<ActionResult> CarregarRascunho(string id)
+        public async Task<ActionResult> CarregarRascunho(int id)
         {
             try
             {
-                // Implementar lógica de carregar rascunho
-                return Ok(new { sucesso = true, mensagem = "Rascunho carregado com sucesso" });
+                var mdfe = await _mdfeBusinessService.GetMDFeByIdAsync(id);
+
+                if (mdfe == null)
+                    return NotFound(new { sucesso = false, mensagem = "Rascunho não encontrado" });
+
+                if (mdfe.StatusSefaz != "RASCUNHO")
+                    return BadRequest(new { sucesso = false, mensagem = "Este MDFe não é um rascunho" });
+
+                return Ok(new
+                {
+                    sucesso = true,
+                    mensagem = "Rascunho carregado com sucesso",
+                    dados = mdfe
+                });
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Erro ao carregar rascunho");
-                return StatusCode(500, new { sucesso = false, mensagem = "Erro interno do servidor" });
+                _logger.LogError(ex, "Erro ao carregar rascunho {Id}", id);
+                return StatusCode(500, new { sucesso = false, mensagem = "Erro ao carregar rascunho" });
             }
         }
 
@@ -358,17 +434,33 @@ namespace MDFeApi.Controllers
                         emitenteId = mdfe.EmitenteId,
                         veiculoId = mdfe.VeiculoId,
                         condutorId = mdfe.CondutorId,
+                        contratanteId = mdfe.ContratanteId,
+                        seguradoraId = mdfe.SeguradoraId,
                         numeroMdfe = mdfe.NumeroMdfe,
                         serie = mdfe.Serie,
                         dataEmissao = mdfe.DataEmissao,
                         dataInicioViagem = mdfe.DataInicioViagem,
                         ufIni = mdfe.UfIni,
                         ufFim = mdfe.UfFim,
+                        municipioIni = mdfe.MunicipioIni,
+                        municipioFim = mdfe.MunicipioFim,
                         valorTotal = mdfe.ValorTotal,
                         pesoBrutoTotal = mdfe.PesoBrutoTotal,
                         observacoes = mdfe.InfoAdicional,
                         statusSefaz = mdfe.StatusSefaz,
                         chaveAcesso = mdfe.ChaveAcesso,
+                        protocolo = mdfe.Protocolo,
+
+                        // ✅ CAMPOS JSON NECESSÁRIOS PARA EDIÇÃO
+                        localidadesCarregamentoJson = mdfe.LocalidadesCarregamentoJson,
+                        localidadesDescarregamentoJson = mdfe.LocalidadesDescarregamentoJson,
+                        rotaPercursoJson = mdfe.RotaPercursoJson,
+                        documentosCTeJson = mdfe.DocumentosCTeJson,
+                        documentosNFeJson = mdfe.DocumentosNFeJson,
+
+                        // ✅ IDs dos reboques
+                        reboquesIds = mdfe.Reboques?.Select(r => r.ReboqueId).ToList() ?? new List<int>(),
+
                         // Snapshots das entidades
                         emitenteRazaoSocial = mdfe.EmitenteRazaoSocial,
                         emitenteCnpj = mdfe.EmitenteCnpj,
@@ -377,6 +469,7 @@ namespace MDFeApi.Controllers
                         condutorCpf = mdfe.CondutorCpf,
                         veiculoPlaca = mdfe.VeiculoPlaca,
                         veiculoTara = mdfe.VeiculoTara,
+
                         // Estrutura para compatibilidade com frontend atual
                         emit = mdfe.Emitente != null ? new
                         {
@@ -401,10 +494,11 @@ namespace MDFeApi.Controllers
                     },
                     entities = new
                     {
-                        // Dados básicos das entidades podem ser adicionados se necessário
-                        emitentes = mdfe.Emitente != null ? new[] { new { id = mdfe.EmitenteId, data = mdfe.Emitente } } : new object[0],
-                        veiculos = mdfe.Veiculo != null ? new[] { new { id = mdfe.VeiculoId, data = mdfe.Veiculo } } : new object[0],
-                        condutores = mdfe.Condutor != null ? new[] { new { id = mdfe.CondutorId, data = mdfe.Condutor } } : new object[0]
+                        emitentes = mdfe.Emitente != null ? new[] { mdfe.Emitente } : new object[0],
+                        veiculos = mdfe.Veiculo != null ? new[] { mdfe.Veiculo } : new object[0],
+                        condutores = mdfe.Condutor != null ? new[] { mdfe.Condutor } : new object[0],
+                        contratantes = mdfe.Contratante != null ? new[] { mdfe.Contratante } : new object[0],
+                        seguradoras = mdfe.Seguradora != null ? new[] { mdfe.Seguradora } : new object[0]
                     }
                 };
 

@@ -127,17 +127,11 @@ export const EmitenteTable = memo(({
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div className="flex items-center">
-                    {emitente.caminhoArquivoCertificado ? (
-                      <div className="flex items-center text-green-600 dark:text-green-400">
-                        <Icon name="shield-check" className="h-4 w-4 mr-1" />
-                        <span className="text-xs">Configurado</span>
-                      </div>
-                    ) : (
-                      <div className="flex items-center text-gray-400">
-                        <Icon name="shield-x" className="h-4 w-4 mr-1" />
-                        <span className="text-xs">Não configurado</span>
-                      </div>
-                    )}
+                    {/* Certificado gerenciado pelo ACBrMonitor */}
+                    <div className="flex items-center text-blue-600 dark:text-blue-400">
+                      <Icon name="server" className="h-4 w-4 mr-1" />
+                      <span className="text-xs">ACBrMonitor</span>
+                    </div>
                   </div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">

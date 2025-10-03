@@ -4,6 +4,7 @@ using MDFeApi.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace MDFeApi.Migrations
 {
     [DbContext(typeof(MDFeContext))]
-    partial class MDFeContextModelSnapshot : ModelSnapshot
+    [Migration("20251003113915_TornarMunicipiosNullable")]
+    partial class TornarMunicipiosNullable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -232,6 +235,10 @@ namespace MDFeApi.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
+                    b.Property<string>("CaminhoArquivoCertificado")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
                     b.Property<string>("CaminhoSalvarXml")
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
@@ -299,6 +306,10 @@ namespace MDFeApi.Migrations
                     b.Property<string>("Rntrc")
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
+
+                    b.Property<string>("SenhaCertificado")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
 
                     b.Property<int>("SerieInicial")
                         .HasColumnType("int");

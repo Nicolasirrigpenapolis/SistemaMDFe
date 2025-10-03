@@ -93,3 +93,34 @@ Comandos disponíveis:
 - SQL Server Express: `localhost\SQLEXPRESS`
 - Database: `MDFeSystem`
 - Connection string no appsettings.json
+
+## Gerenciamento de Certificados Digitais
+
+### ⚠️ IMPORTANTE: Certificados são gerenciados pelo ACBrMonitor
+
+**NÃO implementar** funcionalidades de upload/gerenciamento de certificados no sistema:
+
+1. **Certificado Digital**: Configurado APENAS no `ACBrMonitor.ini`
+2. **Senha do Certificado**: NUNCA armazenar no banco de dados
+3. **Validação**: ACBrMonitor valida automaticamente
+4. **Localização**: Arquivo de configuração no servidor
+
+### Por que essa arquitetura?
+
+✅ **Segurança**: Senha não transita pela rede ou fica no banco
+✅ **Simplicidade**: Uma única fonte de verdade (ACBrMonitor)
+✅ **Conformidade**: LGPD/Segurança de dados
+✅ **Manutenção**: Menos código = menos bugs
+
+### Comandos ACBr para Certificado
+
+```
+MDFe.SetCertificado(caminho, senha)   // Configurar certificado
+MDFe.ObterCertificados                // Listar certificados disponíveis
+MDFe.CertificadoDataVencimento        // Verificar validade
+```
+
+### Documentação
+
+- Ver: `docs/CONFIG_ACBRMONITOR.md` para configuração completa
+- Ver: `docs/ANALISE_FUNCIONALIDADES_REMOVER.md` para detalhes da arquitetura

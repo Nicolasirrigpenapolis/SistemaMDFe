@@ -62,11 +62,8 @@ namespace MDFeApi.DTOs
         public string TipoEmitente { get; set; } = "PrestadorServico";
 
 
-        [MaxLength(500, ErrorMessage = "Caminho do Certificado deve ter no máximo 500 caracteres")]
-        public string? CaminhoArquivoCertificado { get; set; }
-
-        [MaxLength(500, ErrorMessage = "Senha do Certificado deve ter no máximo 500 caracteres")]
-        public string? SenhaCertificado { get; set; }
+        // Campos de certificado removidos - MonitorACBr gerencia
+        // CaminhoArquivoCertificado e SenhaCertificado são gerenciados pelo ACBrMonitor.ini
 
         [MaxLength(500, ErrorMessage = "Caminho para salvar XML deve ter no máximo 500 caracteres")]
         public string? CaminhoSalvarXml { get; set; }
@@ -111,8 +108,7 @@ namespace MDFeApi.DTOs
         public string? Email { get; set; }
         public bool Ativo { get; set; }
         public string TipoEmitente { get; set; } = string.Empty;
-        public string? CaminhoArquivoCertificado { get; set; }
-        public string? SenhaCertificado { get; set; }
+        // CaminhoArquivoCertificado e SenhaCertificado removidos - MonitorACBr gerencia
         public string? CaminhoSalvarXml { get; set; }
         public string? Rntrc { get; set; }
         public int SerieInicial { get; set; }
@@ -145,39 +141,8 @@ namespace MDFeApi.DTOs
         public bool Ativo { get; set; }
     }
 
-    public class EmitenteComCertificadoDto
-    {
-        public int Id { get; set; }
-        public string RazaoSocial { get; set; } = string.Empty;
-        public string TipoEmitente { get; set; } = string.Empty;
-        public string? CaminhoArquivoCertificado { get; set; }
-        public bool CertificadoValido { get; set; }
-        public DateTime? ValidadeCertificado { get; set; }
-    }
-
-    public class ConfigurarCertificadoRequest
-    {
-        [Required]
-        public int EmitenteId { get; set; }
-
-        [Required]
-        [MaxLength(500)]
-        public string CaminhoArquivoCertificado { get; set; } = string.Empty;
-
-        [Required]
-        [MaxLength(100)]
-        public string SenhaCertificado { get; set; } = string.Empty;
-    }
-
-    public class SelecionarEmitenteRequest
-    {
-        [Required]
-        public int EmitenteId { get; set; }
-
-        [Required]
-        [MaxLength(50)]
-        public string TipoEmitente { get; set; } = string.Empty; // PrestadorServico ou EntregaPropria
-    }
+    // DTOs de certificado removidos - MonitorACBr gerencia certificados via ACBrMonitor.ini
+    // Removidos: EmitenteComCertificadoDto, ConfigurarCertificadoRequest, SelecionarEmitenteRequest
 
     public enum TipoEmitenteEnum
     {

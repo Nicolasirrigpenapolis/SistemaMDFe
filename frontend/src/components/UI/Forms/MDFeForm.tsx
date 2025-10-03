@@ -20,6 +20,14 @@ interface MDFeFormProps {
   entidadesCarregadas?: EntidadesCarregadas;
 }
 
+// Helper para mapear entidades para opções do Combobox de forma segura
+const mapEntityToOption = (entity: any, defaultLabel: string, icon: string) => ({
+  id: entity?.id || '',
+  label: entity?.label || defaultLabel,
+  sublabel: entity?.description || '',
+  icon
+});
+
 interface WizardSection {
   id: string;
   title: string;
@@ -79,11 +87,34 @@ export function MDFeForm({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dadosHook]);
 
-  // Carregar localidades quando em modo de edição - APENAS UMA VEZ
+  // ✅ Carregar localidades quando em modo de edição - APENAS UMA VEZ
+  const [dadosInicializados, setDadosInicializados] = useState(false);
+
+  // ✅ useEffect único para inicialização e atualização de dados
   useEffect(() => {
-    if (isEdicao && dados && !carregandoDados) {
+    // Prevenir múltiplas inicializações
+    if (dadosInicializados || carregandoDados || !dados) {
+      return;
+    }
+
+    if (isEdicao) {
+      console.log('🔄 Inicializando dados do formulário:', {
+        isEdicao,
+        carregandoDados,
+        dadosInicializados,
+        temDados: !!dados,
+        dados
+      });
+
+      // Atualizar selectedIds
+      if (dados.emitenteId || dados.veiculoId || dados.condutorId) {
+        console.log('� Atualizando selectedIds com:', dados);
+        setFormData(dados);
+      }
+      console.log('🔄 Inicializando dados do MDFe para edição:', dados);
+
       // Carregar localidades de carregamento
-      if (dados.localidadesCarregamento && dados.localidadesCarregamento.length > 0 && locaisCarregamento.length === 0) {
+      if (dados.localidadesCarregamento && dados.localidadesCarregamento.length > 0) {
         const locais = dados.localidadesCarregamento.map((mun, index) => ({
           id: `carregamento-${index}`,
           uf: mun.uf || '',
@@ -91,10 +122,11 @@ export function MDFeForm({
           codigoIBGE: mun.codigoIBGE || 0
         }));
         setLocaisCarregamento(locais);
+        console.log('✅ Carregados', locais.length, 'locais de carregamento');
       }
 
       // Carregar localidades de descarregamento
-      if (dados.localidadesDescarregamento && dados.localidadesDescarregamento.length > 0 && locaisDescarregamento.length === 0) {
+      if (dados.localidadesDescarregamento && dados.localidadesDescarregamento.length > 0) {
         const locais = dados.localidadesDescarregamento.map((mun, index) => ({
           id: `descarregamento-${index}`,
           uf: mun.uf || '',
@@ -102,43 +134,48 @@ export function MDFeForm({
           codigoIBGE: mun.codigoIBGE || 0
         }));
         setLocaisDescarregamento(locais);
+        console.log('✅ Carregados', locais.length, 'locais de descarregamento');
       }
 
       // Carregar rota se disponível
-      if (dados.rotaPercurso && dados.rotaPercurso.length > 0 && rotaSelecionada.length === 0) {
+      if (dados.rotaPercurso && dados.rotaPercurso.length > 0) {
         setRotaSelecionada(dados.rotaPercurso);
+        console.log('✅ Carregada rota com', dados.rotaPercurso.length, 'UFs');
       }
 
-      // Atualizar IDs selecionados do hook
+      // Carregar reboques se disponíveis
+      if (dados.reboquesIds && dados.reboquesIds.length > 0) {
+        setReboquesSelecionados(dados.reboquesIds);
+        console.log('✅ Carregados', dados.reboquesIds.length, 'reboques');
+      }
+
+      // Atualizar hook com os IDs
       setFormData(dados);
+
+      // Marcar como inicializado (não executar novamente)
+      setDadosInicializados(true);
+      console.log('✅ Dados inicializados com sucesso');
     }
-  }, [isEdicao, carregandoDados, dados, locaisCarregamento.length, locaisDescarregamento.length, rotaSelecionada.length, setFormData]);
+  }, [isEdicao, carregandoDados, dados, dadosInicializados, setFormData]);
+
+  // Resetar flag quando o ID do MDFe mudar
+  useEffect(() => {
+    if (isEdicao && dados?.id !== undefined) {
+      // Se está em modo edição e tem um novo ID, reseta para permitir nova inicialização
+      setDadosInicializados(false);
+      console.log('🔄 Reset do formulário para novo MDFe:', dados.id);
+    }
+  }, [isEdicao, dados?.id]);
 
   // Funções para gerenciar localidades
   const handleLocaisCarregamentoChange = (locais: LocalCarregamento[]) => {
     setLocaisCarregamento(locais);
-    // Atualizar dados gerais do MDFe
-    if (locais.length > 0) {
-      const primeiroLocal = locais[0];
-      onDadosChange({
-        ...dados,
-        ufIni: primeiroLocal.uf,
-        municipioIni: primeiroLocal.municipio
-      });
-    }
+    // Backend calcula automaticamente UfIni/MunicipioIni do primeiro local
   };
 
   const handleLocaisDescarregamentoChange = (locais: LocalCarregamento[]) => {
     setLocaisDescarregamento(locais);
-    // Atualizar dados gerais do MDFe
-    if (locais.length > 0) {
-      const primeiroLocal = locais[0];
-      onDadosChange({
-        ...dados,
-        ufFim: primeiroLocal.uf,
-        municipioFim: primeiroLocal.municipio
-      });
-    }
+    // Backend calcula automaticamente UfFim/MunicipioFim do primeiro local
   };
 
   const handleRotaChange = (rota: string[]) => {
@@ -291,50 +328,28 @@ export function MDFeForm({
 
   // Sincronizar localidades com dados do MDFe quando há mudanças - OTIMIZADO
   React.useEffect(() => {
-    // Não sincronizar durante carregamento inicial para evitar loops
+    // Não sincronizar durante carregamento inicial
     if (carregandoDados) return;
 
-    // Verificar se há mudanças reais antes de atualizar
-    const localidadesCarregamentoAtuais = dados.localidadesCarregamento || [];
-    const localidadesDescarregamentoAtuais = dados.localidadesDescarregamento || [];
-    const rotaAtual = dados.rotaPercurso || [];
+    // Sempre sincronizar as localidades com o estado pai
+    const dadosAtualizados = {
+      ...dados,
+      localidadesCarregamento: locaisCarregamento.map(local => ({
+        uf: local.uf,
+        municipio: local.municipio,
+        codigoIBGE: local.codigoIBGE
+      })),
+      localidadesDescarregamento: locaisDescarregamento.map(local => ({
+        uf: local.uf,
+        municipio: local.municipio,
+        codigoIBGE: local.codigoIBGE
+      })),
+      rotaPercurso: rotaSelecionada
+    };
 
-    const carregamentoMudou = JSON.stringify(locaisCarregamento) !== JSON.stringify(localidadesCarregamentoAtuais.map((l, i) => ({
-      id: `carregamento-${i}`,
-      uf: l.uf,
-      municipio: l.municipio,
-      codigoIBGE: l.codigoIBGE
-    })));
-
-    const descarregamentoMudou = JSON.stringify(locaisDescarregamento) !== JSON.stringify(localidadesDescarregamentoAtuais.map((l, i) => ({
-      id: `descarregamento-${i}`,
-      uf: l.uf,
-      municipio: l.municipio,
-      codigoIBGE: l.codigoIBGE
-    })));
-
-    const rotaMudou = JSON.stringify(rotaSelecionada) !== JSON.stringify(rotaAtual);
-
-    // Apenas atualizar se houve mudanças reais
-    if (carregamentoMudou || descarregamentoMudou || rotaMudou) {
-      const dadosAtualizados = {
-        ...dados,
-        localidadesCarregamento: locaisCarregamento.map(local => ({
-          uf: local.uf,
-          municipio: local.municipio,
-          codigoIBGE: local.codigoIBGE
-        })),
-        localidadesDescarregamento: locaisDescarregamento.map(local => ({
-          uf: local.uf,
-          municipio: local.municipio,
-          codigoIBGE: local.codigoIBGE
-        })),
-        rotaPercurso: rotaSelecionada
-      };
-
-      onDadosChange(dadosAtualizados);
-    }
-  }, [locaisCarregamento, locaisDescarregamento, rotaSelecionada, carregandoDados, dados, onDadosChange]);
+    onDadosChange(dadosAtualizados);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [locaisCarregamento, locaisDescarregamento, rotaSelecionada]);
 
 
   if (carregandoDados) {
@@ -473,12 +488,15 @@ export function MDFeForm({
                   <div className="pl-10">
                     <Combobox
                       label="Empresa Emissora"
-                      options={entidadesCarregadas?.emitentes?.map((emitente: any) => ({
-                        id: emitente.id,
-                        label: emitente.label,
-                        sublabel: emitente.description,
-                        icon: "fas fa-building"
-                      })) || []}
+                      options={((entidadesCarregadas?.emitentes || [])
+                        .filter(emitente => emitente && typeof emitente === 'object')
+                        .map((emitente: any) => ({
+                          id: emitente?.id || '',
+                          label: String(emitente?.label || 'Sem nome'),
+                          sublabel: String(emitente?.description || ''),
+                          icon: "fas fa-building"
+                        }))
+                      )}
                       selectedValue={selectedIds.emitenteId}
                       onSelect={(value) => selectEntity('emitenteId', value)}
                       placeholder="Selecione o emitente do MDFe..."
@@ -491,6 +509,37 @@ export function MDFeForm({
                         Campo obrigatório
                       </p>
                     )}
+
+                    {/* Indicador de Código IBGE do Município */}
+                    {selectedIds.emitenteId && entidadesCarregadas?.emitentes && (() => {
+                      const emitenteSelected: any = entidadesCarregadas.emitentes.find((e: any) => e?.id === selectedIds.emitenteId);
+                      const codMunicipio = (emitenteSelected?.codMunicipio ?? 0) as number;
+                      const municipio = (emitenteSelected?.municipio ?? '') as string;
+                      const uf = (emitenteSelected?.uf ?? '') as string;
+
+                      return (
+                        <div className={`mt-3 p-3 rounded-lg border-2 ${
+                          codMunicipio === 0
+                            ? 'bg-red-50 dark:bg-red-900/20 border-red-300 dark:border-red-800'
+                            : 'bg-green-50 dark:bg-green-900/20 border-green-300 dark:border-green-800'
+                        }`}>
+                          <div className="flex items-center gap-2">
+                            <i className={`fas ${codMunicipio === 0 ? 'fa-exclamation-triangle text-red-600' : 'fa-check-circle text-green-600'}`}></i>
+                            <div className="flex-1">
+                              <p className={`text-sm font-semibold ${
+                                codMunicipio === 0 ? 'text-red-700 dark:text-red-400' : 'text-green-700 dark:text-green-400'
+                              }`}>
+                                Código IBGE do Município: {codMunicipio === 0 ? 'NÃO DEFINIDO' : codMunicipio}
+                              </p>
+                              <p className="text-xs text-muted-foreground mt-1">
+                                {municipio}/{uf}
+                                {codMunicipio === 0 && ' - Edite o emitente para corrigir!'}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })()}
                   </div>
                 </div>
 

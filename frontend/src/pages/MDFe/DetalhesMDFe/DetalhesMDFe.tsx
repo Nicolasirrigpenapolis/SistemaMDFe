@@ -38,7 +38,7 @@ export function DetalhesMDFe() {
 
   const carregarMDFe = async (mdfeId: number) => {
     try {
-      setCarregando(true);
+      // Loading removido
 
       const response = await fetch(`${process.env.REACT_APP_API_URL || 'https://localhost:5001/api'}/mdfe/${mdfeId}`);
 
@@ -74,7 +74,7 @@ export function DetalhesMDFe() {
       console.error('Erro ao carregar MDFe:', error);
       exibirMensagem('erro', 'Erro ao carregar os detalhes do MDFe');
     } finally {
-      setCarregando(false);
+      // Loading removido
     }
   };
 
@@ -245,14 +245,7 @@ export function DetalhesMDFe() {
     }
   };
 
-  if (carregando) {
-    return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <i className="fas fa-spinner fa-spin"></i>
-        <span>Carregando detalhes do MDFe...</span>
-      </div>
-    );
-  }
+  // Loading removido - interface instantânea
 
   if (!mdfe) {
     return (

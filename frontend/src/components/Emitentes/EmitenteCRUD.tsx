@@ -22,8 +22,7 @@ interface Emitente {
   uf: string;
   ativo?: boolean;
   tipoEmitente: string;
-  caminhoArquivoCertificado?: string;
-  senhaCertificado?: string;
+  // Certificado removido - MonitorACBr gerencia
   caminhoSalvarXml?: string;
   rntrc?: string;
   ambienteSefaz?: number;
@@ -47,6 +46,7 @@ interface EmitenteCRUDProps {
   onEdit: (emitente: Emitente) => void;
   onDelete: () => Promise<void>;
   onCNPJDataFetch?: (data: any) => void;
+  onFieldChange?: (fieldKey: string, value: any, formData: Record<string, any>) => Promise<Record<string, any> | void>;
 
   // Estados
   saving?: boolean;
@@ -66,6 +66,7 @@ export function EmitenteCRUD({
   onEdit,
   onDelete,
   onCNPJDataFetch,
+  onFieldChange,
   saving = false,
   deleting = false
 }: EmitenteCRUDProps) {
@@ -131,6 +132,7 @@ export function EmitenteCRUD({
         sections={getFormSections(selectedEmitente)}
         loading={saving}
         isEdit={isEdit}
+        onFieldChange={onFieldChange}
       />
 
       {/* Modal de Confirmação de Exclusão */}

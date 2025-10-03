@@ -13,16 +13,12 @@ namespace MDFeApi.Controllers
     [Route("api/[controller]")]
     public class EmitentesController : BaseController<Emitente, EmitenteListDto, EmitenteResponseDto, EmitenteCreateDto, EmitenteUpdateDto>
     {
-        private readonly ICertificadoService _certificadoService;
-
         public EmitentesController(
             MDFeContext context,
-            ICertificadoService certificadoService,
             ILogger<EmitentesController> logger,
             ICacheService cacheService)
             : base(context, logger, cacheService)
         {
-            _certificadoService = certificadoService;
         }
 
         protected override DbSet<Emitente> GetDbSet() => _context.Emitentes;
@@ -45,7 +41,7 @@ namespace MDFeApi.Controllers
                 Municipio = entity.Municipio,
                 Cep = entity.Cep,
                 TipoEmitente = entity.TipoEmitente,
-                TemCertificado = !string.IsNullOrEmpty(entity.CaminhoArquivoCertificado),
+                TemCertificado = false, // Certificado gerenciado pelo MonitorACBr
                 AmbienteSefaz = entity.AmbienteSefaz,
                 Uf = entity.Uf,
                 Ativo = entity.Ativo
@@ -74,8 +70,7 @@ namespace MDFeApi.Controllers
                 Email = entity.Email,
                 Ativo = entity.Ativo,
                 TipoEmitente = entity.TipoEmitente,
-                CaminhoArquivoCertificado = entity.CaminhoArquivoCertificado,
-                SenhaCertificado = entity.SenhaCertificado,
+                // Certificado removido - MonitorACBr gerencia
                 CaminhoSalvarXml = entity.CaminhoSalvarXml,
                 Rntrc = entity.Rntrc,
                 SerieInicial = entity.SerieInicial,
@@ -107,8 +102,7 @@ namespace MDFeApi.Controllers
                 Telefone = dto.Telefone?.Trim(),
                 Email = dto.Email?.Trim(),
                 TipoEmitente = dto.TipoEmitente?.Trim(),
-                CaminhoArquivoCertificado = dto.CaminhoArquivoCertificado?.Trim(),
-                SenhaCertificado = dto.SenhaCertificado?.Trim(),
+                // Certificado removido - MonitorACBr gerencia
                 CaminhoSalvarXml = dto.CaminhoSalvarXml?.Trim(),
                 Rntrc = dto.Rntrc?.Trim(),
                 SerieInicial = dto.SerieInicial,
@@ -141,8 +135,7 @@ namespace MDFeApi.Controllers
             entity.Telefone = dto.Telefone?.Trim();
             entity.Email = dto.Email?.Trim();
             entity.TipoEmitente = dto.TipoEmitente?.Trim();
-            entity.CaminhoArquivoCertificado = dto.CaminhoArquivoCertificado?.Trim();
-            entity.SenhaCertificado = dto.SenhaCertificado?.Trim();
+            // Certificado removido - MonitorACBr gerencia
             entity.CaminhoSalvarXml = dto.CaminhoSalvarXml?.Trim();
             entity.Rntrc = dto.Rntrc?.Trim();
             entity.SerieInicial = dto.SerieInicial;
@@ -241,116 +234,97 @@ namespace MDFeApi.Controllers
             return (true, string.Empty);
         }
 
-        #region Métodos específicos de Certificado
-
         /// <summary>
-        /// Configurar certificado do emitente
+        /// Atualizar código IBGE de todos os emitentes com município cadastrado
         /// </summary>
-        [HttpPost("{id}/certificado")]
-        public async Task<IActionResult> ConfigurarCertificado(int id, [FromBody] ConfigurarCertificadoRequest request)
-        {
-            try
-            {
-                var emitente = await _context.Emitentes.FindAsync(id);
-                if (emitente == null || !emitente.Ativo)
-                {
-                    return NotFound(new { message = "Emitente não encontrado" });
-                }
-
-                // Validar certificado
-                var isValid = await _certificadoService.ValidarCertificadoAsync(
-                    request.CaminhoArquivoCertificado,
-                    request.SenhaCertificado);
-
-                if (!isValid)
-                {
-                    return BadRequest(new { message = "Certificado inválido ou senha incorreta" });
-                }
-
-                // Atualizar dados do certificado
-                emitente.CaminhoArquivoCertificado = request.CaminhoArquivoCertificado;
-                emitente.SenhaCertificado = request.SenhaCertificado;
-                emitente.DataUltimaAlteracao = DateTime.Now;
-
-                await _context.SaveChangesAsync();
-
-                return Ok(new { message = "Certificado configurado com sucesso" });
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Erro ao configurar certificado do emitente {EmitenteId}", id);
-                return StatusCode(500, new { message = "Erro interno do servidor", error = ex.Message });
-            }
-        }
-
-        /// <summary>
-        /// Obter emitentes com certificado válido
-        /// </summary>
-        [HttpGet("com-certificado")]
-        public async Task<ActionResult<IEnumerable<EmitenteComCertificadoDto>>> GetEmitentesComCertificado()
+        [HttpPost("atualizar-codigos-ibge")]
+        public async Task<ActionResult> AtualizarCodigosIBGE()
         {
             try
             {
                 var emitentes = await _context.Emitentes
-                    .Where(e => e.Ativo && !string.IsNullOrEmpty(e.CaminhoArquivoCertificado))
-                    .Select(e => new EmitenteComCertificadoDto
-                    {
-                        Id = e.Id,
-                        RazaoSocial = e.RazaoSocial,
-                        TipoEmitente = e.TipoEmitente,
-                        CaminhoArquivoCertificado = e.CaminhoArquivoCertificado,
-                        CertificadoValido = false, // Será validado pelo service
-                        ValidadeCertificado = null // Será preenchido pelo service
-                    })
+                    .Where(e => e.CodMunicipio == 0 && !string.IsNullOrEmpty(e.Municipio) && !string.IsNullOrEmpty(e.Uf))
                     .ToListAsync();
 
-                // Validar certificados
+                int atualizados = 0;
+                int naoEncontrados = 0;
+
                 foreach (var emitente in emitentes)
                 {
-                    if (!string.IsNullOrEmpty(emitente.CaminhoArquivoCertificado))
+                    var municipio = await _context.Municipios
+                        .FirstOrDefaultAsync(m => m.Nome.ToUpper() == emitente.Municipio.ToUpper() && m.Uf.ToUpper() == emitente.Uf.ToUpper());
+
+                    if (municipio != null)
                     {
-                        emitente.CertificadoValido = await _certificadoService.CertificadoValidoAsync(
-                            emitente.CaminhoArquivoCertificado);
+                        emitente.CodMunicipio = municipio.Codigo;
+                        _logger.LogInformation("Emitente {Id} - {Municipio}/{Uf}: Código IBGE {Codigo} atualizado",
+                            emitente.Id, emitente.Municipio, emitente.Uf, municipio.Codigo);
+                        atualizados++;
+                    }
+                    else
+                    {
+                        _logger.LogWarning("Emitente {Id} - {Municipio}/{Uf}: Município não encontrado na tabela IBGE",
+                            emitente.Id, emitente.Municipio, emitente.Uf);
+                        naoEncontrados++;
                     }
                 }
 
-                return Ok(emitentes);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Erro ao obter emitentes com certificado");
-                return StatusCode(500, new { message = "Erro interno do servidor", error = ex.Message });
-            }
-        }
+                await _context.SaveChangesAsync();
 
-        /// <summary>
-        /// Selecionar emitente ativo
-        /// </summary>
-        [HttpPost("selecionar")]
-        public async Task<IActionResult> SelecionarEmitente([FromBody] SelecionarEmitenteRequest request)
-        {
-            try
-            {
-                var emitente = await _context.Emitentes.FindAsync(request.EmitenteId);
-                if (emitente == null || !emitente.Ativo)
+                return Ok(new
                 {
-                    return NotFound(new { message = "Emitente não encontrado" });
-                }
-
-                // Aqui poderia implementar lógica de sessão/contexto do emitente selecionado
-                // Por ora, apenas retorna sucesso
-                return Ok(new {
-                    message = "Emitente selecionado com sucesso",
-                    emitente = new { emitente.Id, emitente.RazaoSocial, emitente.TipoEmitente }
+                    sucesso = true,
+                    mensagem = $"Atualização concluída: {atualizados} emitentes atualizados, {naoEncontrados} não encontrados",
+                    atualizados,
+                    naoEncontrados,
+                    total = emitentes.Count
                 });
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Erro ao selecionar emitente {EmitenteId}", request.EmitenteId);
-                return StatusCode(500, new { message = "Erro interno do servidor", error = ex.Message });
+                _logger.LogError(ex, "Erro ao atualizar códigos IBGE dos emitentes");
+                return StatusCode(500, new { sucesso = false, mensagem = "Erro ao atualizar códigos IBGE", erro = ex.Message });
             }
         }
 
-        #endregion
+        /// <summary>
+        /// Diagnosticar problemas com códigos IBGE dos emitentes
+        /// </summary>
+        [HttpGet("diagnostico-ibge")]
+        public async Task<ActionResult> DiagnosticoIBGE()
+        {
+            try
+            {
+                var emitentes = await _context.Emitentes.ToListAsync();
+                var municipios = await _context.Municipios.CountAsync();
+
+                var diagnostico = emitentes.Select(e => new
+                {
+                    id = e.Id,
+                    razaoSocial = e.RazaoSocial,
+                    municipio = e.Municipio,
+                    uf = e.Uf,
+                    codMunicipioAtual = e.CodMunicipio,
+                    status = e.CodMunicipio == 0 ? "❌ ZERADO" : "✅ OK",
+                    municipioExisteNaTabela = _context.Municipios.Any(m =>
+                        m.Nome.ToUpper() == e.Municipio.ToUpper() &&
+                        m.Uf.ToUpper() == e.Uf.ToUpper())
+                }).ToList();
+
+                return Ok(new
+                {
+                    sucesso = true,
+                    totalEmitentes = emitentes.Count,
+                    totalMunicipiosCadastrados = municipios,
+                    emitentesComProblema = diagnostico.Count(d => d.codMunicipioAtual == 0),
+                    detalhes = diagnostico
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erro ao gerar diagnóstico");
+                return StatusCode(500, new { sucesso = false, mensagem = "Erro ao gerar diagnóstico", erro = ex.Message });
+            }
+        }
     }
 }

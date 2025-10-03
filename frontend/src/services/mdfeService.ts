@@ -104,6 +104,25 @@ class MDFeService {
         body: JSON.stringify(mdfeData)
       });
 
+      // Log detalhado para depuração do INI gerado
+      try {
+        const raw = response.dados;
+        console.log('🔧 MDFeService.carregarINI - resposta bruta:', raw);
+
+        // Heurística para localizar o INI no payload retornado
+        const ini =
+          typeof raw === 'string' ? raw :
+          raw?.ini || raw?.conteudoIni || raw?.conteudo || raw?.dados || raw?.dados?.ini;
+
+        if (ini) {
+          console.log('🧾 INI gerado:\n', ini);
+        } else {
+          console.log('🧾 INI não encontrado no payload; veja a resposta bruta acima.');
+        }
+      } catch (logError) {
+        console.error('❌ Erro ao tentar logar o INI retornado:', logError);
+      }
+
       return response;
     } catch (error) {
       console.error('❌ MDFeService.carregarINI - ERRO:', error);

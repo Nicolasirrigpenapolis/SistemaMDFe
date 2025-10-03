@@ -164,15 +164,18 @@ namespace MDFeApi.DTOs
     {
         [Required(ErrorMessage = "UF é obrigatória")]
         [RegularExpression(@"^[A-Z]{2}$", ErrorMessage = "UF deve ter 2 letras maiúsculas")]
+        [System.Text.Json.Serialization.JsonPropertyName("uf")]
         public string UF { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "Município é obrigatório")]
         [MinLength(2, ErrorMessage = "Município deve ter pelo menos 2 caracteres")]
         [MaxLength(100, ErrorMessage = "Município deve ter no máximo 100 caracteres")]
+        [System.Text.Json.Serialization.JsonPropertyName("municipio")]
         public string Municipio { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "Código IBGE é obrigatório")]
         [Range(1000000, 9999999, ErrorMessage = "Código IBGE deve ter 7 dígitos")]
+        [System.Text.Json.Serialization.JsonPropertyName("codigoIBGE")]
         public int CodigoIBGE { get; set; }
     }
 }

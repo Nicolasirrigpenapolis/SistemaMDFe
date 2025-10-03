@@ -18,8 +18,7 @@ interface Emitente {
   uf: string;
   ativo?: boolean;
   tipoEmitente: string;
-  caminhoArquivoCertificado?: string;
-  senhaCertificado?: string;
+  // Certificado removido - MonitorACBr gerencia
   caminhoSalvarXml?: string;
   rntrc?: string;
   ambienteSefaz?: number;
@@ -151,19 +150,7 @@ export const emitenteConfig: CRUDConfig<Emitente> = {
             value: emitente.ambienteSefaz === 1 ? 'Produção' : 'Homologação',
             icon: 'server'
           },
-          {
-            label: 'Certificado Digital',
-            value: emitente.caminhoArquivoCertificado,
-            icon: 'certificate',
-            show: !!emitente.caminhoArquivoCertificado,
-            colSpan: 2
-          },
-          {
-            label: 'Senha do Certificado',
-            value: emitente.senhaCertificado ? '••••••••' : 'Não configurada',
-            icon: 'key',
-            show: !!emitente.caminhoArquivoCertificado
-          },
+          // Certificado digital removido - MonitorACBr gerencia
           {
             label: 'Pasta para Salvar XMLs',
             value: emitente.caminhoSalvarXml,
@@ -372,6 +359,16 @@ export const emitenteConfig: CRUDConfig<Emitente> = {
               { value: 'SE', label: 'Sergipe' },
               { value: 'TO', label: 'Tocantins' }
             ]
+          },
+          {
+            key: 'codMunicipio',
+            label: '🔍 Código IBGE (Preenchido Automaticamente)',
+            type: 'number',
+            icon: 'map-marker-alt',
+            placeholder: 'Será preenchido ao informar Município + UF',
+            readonly: true,
+            disabled: true,
+            colSpan: 3
           }
         ]
       },
@@ -402,23 +399,7 @@ export const emitenteConfig: CRUDConfig<Emitente> = {
               { value: 2, label: 'Homologação (Teste)' }
             ]
           },
-          {
-            key: 'caminhoArquivoCertificado',
-            label: 'Certificado Digital',
-            type: 'file' as const,
-            icon: 'certificate',
-            placeholder: 'Selecione o arquivo .pfx ou .p12',
-            colSpan: 2,
-            buttonLabel: 'Buscar Certificado',
-            accept: '.pfx,.p12'
-          },
-          {
-            key: 'senhaCertificado',
-            label: 'Senha do Certificado',
-            type: 'password',
-            icon: 'key',
-            placeholder: 'Senha do certificado'
-          },
+          // Campos de certificado removidos - MonitorACBr gerencia via ACBrMonitor.ini
           {
             key: 'caminhoSalvarXml',
             label: 'Pasta para Salvar XMLs',

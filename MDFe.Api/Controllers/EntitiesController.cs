@@ -190,11 +190,17 @@ namespace MDFeApi.Controllers
                     .Where(e => e.Ativo)
                     .OrderBy(e => e.RazaoSocial)
                     .Take(100)
-                    .Select(e => new EntityOption
+                    .Select(e => new
                     {
-                        Id = e.Id.ToString(),
-                        Label = e.RazaoSocial ?? e.NomeFantasia ?? "",
-                        Description = $"{FormatCNPJ(e.Cnpj)} - {e.Municipio}"
+                        id = e.Id,
+                        label = e.RazaoSocial ?? e.NomeFantasia ?? "",
+                        description = $"{FormatCNPJ(e.Cnpj)} - {e.Municipio}",
+                        // ✅ CAMPOS COMPLETOS DO EMITENTE (para verificação no frontend)
+                        codMunicipio = e.CodMunicipio,
+                        municipio = e.Municipio,
+                        uf = e.Uf,
+                        razaoSocial = e.RazaoSocial,
+                        cnpj = e.Cnpj
                     })
                     .ToListAsync();
 

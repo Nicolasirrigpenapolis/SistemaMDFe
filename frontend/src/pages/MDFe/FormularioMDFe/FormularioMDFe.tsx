@@ -16,6 +16,12 @@ export function FormularioMDFe() {
   const [carregandoDados, setCarregandoDados] = useState(false);
   const [mostrarModalCancelamento, setMostrarModalCancelamento] = useState(false);
   const [temAlteracoesNaoSalvas, setTemAlteracoesNaoSalvas] = useState(false);
+  const [modalTransmissao, setModalTransmissao] = useState<{
+    aberto: boolean;
+    sucesso: boolean;
+    mensagem: string;
+    detalhes?: any;
+  }>({ aberto: false, sucesso: false, mensagem: '' });
 
   const [entidadesCarregadas, setEntidadesCarregadas] = useState<EntidadesCarregadas | null>(null);
   const [dados, setDados] = useState<Partial<MDFeData>>({
@@ -26,10 +32,17 @@ export function FormularioMDFe() {
 
 
   useEffect(() => {
-    carregarDadosIniciais();
-    if (id) {
-      carregarMDFe(id);
-    }
+    const inicializar = async () => {
+      // 1️⃣ PRIMEIRO: Carregar entidades frescas do banco
+      await carregarDadosIniciais();
+
+      // 2️⃣ DEPOIS: Carregar MDFe (se estiver editando)
+      if (id) {
+        await carregarMDFe(id);
+      }
+    };
+
+    inicializar();
   }, [id]);
 
   // Detectar alterações nos dados para ativar o aviso
@@ -73,12 +86,38 @@ export function FormularioMDFe() {
 
   const carregarDadosIniciais = async () => {
     try {
+      console.log('📥 Carregando entidades FRESCAS do banco...');
       const entidades = await entitiesService.obterTodasEntidades();
+
+      console.log('🔍 ESTRUTURA COMPLETA DAS ENTIDADES:', JSON.stringify(entidades, null, 2));
+
+      // 🔍 DEBUG: Verificar código IBGE dos emitentes carregados
+      if (entidades?.emitentes && entidades.emitentes.length > 0) {
+        entidades.emitentes.forEach((emitente: any) => {
+          console.log(`🏢 Emitente carregado:`, {
+            id: emitente.id,
+            label: emitente.label,
+            description: emitente.description,
+            codMunicipio: emitente.codMunicipio,
+            municipio: emitente.municipio,
+            razaoSocial: emitente.razaoSocial
+          });
+
+          // ⚠️ ALERTA se label estiver vazio
+          if (!emitente.label || emitente.label === '') {
+            console.error('❌ EMITENTE COM LABEL VAZIO:', emitente);
+          }
+        });
+      }
+
       setEntidadesCarregadas(entidades);
+      console.log('✅ Entidades carregadas com sucesso');
+
       if (!id) {
         await gerarProximoNumero();
       }
     } catch (error) {
+      console.error('❌ ERRO ao carregar dados iniciais:', error);
       setErro('Erro ao carregar dados necessários para o formulário');
     }
   };
@@ -104,21 +143,66 @@ export function FormularioMDFe() {
     }
   };
 
+  // ✅ Função helper para parse seguro de JSON
+  const parseJsonSafe = <T,>(json: string | null | undefined, fallback: T): T => {
+    if (!json || json.trim() === '') return fallback;
+    try {
+      return JSON.parse(json) as T;
+    } catch (error) {
+      console.error('❌ Erro ao fazer parse do JSON:', json, error);
+      return fallback;
+    }
+  };
+
   const carregarMDFe = async (mdfeId: string) => {
     setCarregandoDados(true);
     setErro('');
 
     try {
+      console.log('🔄 Carregando MDFe ID:', mdfeId);
       const resultado = await mdfeService.obterMDFeCompleto(parseInt(mdfeId));
+      console.log('📡 Resultado da API:', JSON.stringify(resultado, null, 2));
 
       if (resultado.sucesso && resultado.dados) {
-        // Estrutura: { mdfe: {...}, entities: {...} }
-        const { mdfe, entities } = resultado.dados as any;
+        // Log detalhado da estrutura
+        console.log('📦 Estrutura completa dos dados:', {
+          sucesso: resultado.sucesso,
+          mensagem: resultado.mensagem,
+          dados: resultado.dados
+        });
+
+        // ✅ A API retorna uma estrutura aninhada: resultado.dados.dados.mdfe
+        const dadosApi = resultado.dados.dados || resultado.dados;
+        const { mdfe, entities } = dadosApi;
+        
+        if (!mdfe) {
+          console.error('❌ MDFe não encontrado na resposta');
+          setErro('Dados do MDFe não encontrados na resposta da API');
+          return;
+        }
+
+        console.log('📦 MDFe extraído:', JSON.stringify(mdfe, null, 2));
+        console.log('📦 Entities extraídas:', JSON.stringify(entities, null, 2));
+
+        // 🔍 DEBUG: Verificar código IBGE do emitente
+        if (entities?.emitentes && entities.emitentes.length > 0) {
+          const emitente = entities.emitentes[0];
+          console.log('🏢 CÓDIGO IBGE DO EMITENTE:', {
+            id: emitente.id,
+            razaoSocial: emitente.razaoSocial,
+            municipio: emitente.municipio,
+            uf: emitente.uf,
+            codMunicipio: emitente.codMunicipio,
+            status: emitente.codMunicipio === 0 ? '❌ ZERADO - PRECISA EDITAR!' : '✅ OK'
+          });
+        }
 
         if (mdfe) {
+          console.log('📦 Dados do MDFe recebidos:', mdfe);
+
           // 🎯 Mapear APENAS os campos essenciais que o usuário preencheu
           const dadosMapeados: Partial<MDFeData> = {
-            id: mdfe.id?.toString(),
+            id: id, // Usar o ID diretamente do parâmetro da URL
             numero: mdfe.numeroMdfe?.toString(),
             serie: mdfe.serie?.toString(),
 
@@ -142,27 +226,17 @@ export function FormularioMDFe() {
             valorTotal: mdfe.valorTotal || 0,
             observacoes: mdfe.observacoes || '',
 
-            // Localidades (parseadas do JSON se existirem)
-            localidadesCarregamento: mdfe.localidadesCarregamentoJson
-              ? JSON.parse(mdfe.localidadesCarregamentoJson)
-              : [],
-            localidadesDescarregamento: mdfe.localidadesDescarregamentoJson
-              ? JSON.parse(mdfe.localidadesDescarregamentoJson)
-              : [],
-            rotaPercurso: mdfe.rotaPercursoJson
-              ? JSON.parse(mdfe.rotaPercursoJson)
-              : [],
+            // ✅ Localidades (parseadas do JSON com segurança)
+            localidadesCarregamento: parseJsonSafe(mdfe.localidadesCarregamentoJson, []),
+            localidadesDescarregamento: parseJsonSafe(mdfe.localidadesDescarregamentoJson, []),
+            rotaPercurso: parseJsonSafe(mdfe.rotaPercursoJson, []),
 
-            // Documentos (parseados do JSON se existirem)
-            documentosCTe: mdfe.documentosCTeJson
-              ? JSON.parse(mdfe.documentosCTeJson)
-              : [],
-            documentosNFe: mdfe.documentosNFeJson
-              ? JSON.parse(mdfe.documentosNFeJson)
-              : [],
+            // ✅ Documentos (parseados do JSON com segurança)
+            documentosCTe: parseJsonSafe(mdfe.documentosCTeJson, []),
+            documentosNFe: parseJsonSafe(mdfe.documentosNFeJson, []),
 
-            // Reboques (IDs apenas)
-            reboquesIds: mdfe.reboques?.map((r: any) => r.id) || [],
+            // ✅ Reboques (IDs do backend)
+            reboquesIds: mdfe.reboquesIds || [],
 
             // Status (apenas para exibição)
             chaveAcesso: mdfe.chaveAcesso,
@@ -170,16 +244,25 @@ export function FormularioMDFe() {
             statusSefaz: mdfe.statusSefaz
           };
 
+          console.log('✅ Dados mapeados para o formulário:', dadosMapeados);
+          console.log('🔍 ID mapeado:', dadosMapeados.id, 'tipo:', typeof dadosMapeados.id);
           setDados(dadosMapeados);
 
-          // Definir as entidades carregadas
-          setEntidadesCarregadas(entities);
+          // ⚠️ NÃO usar entities da API (snapshots antigos)
+          // As entidades já foram carregadas frescas do banco em carregarDadosIniciais()
+          // Apenas use entities se ainda não tivermos entidades carregadas
+          if (!entidadesCarregadas) {
+            console.warn('⚠️ Usando entities da API (pode conter dados desatualizados)');
+            setEntidadesCarregadas(entities);
+          } else {
+            console.log('✅ Mantendo entidades frescas já carregadas do banco');
+          }
         }
       } else {
         setErro(`Erro ao carregar MDFe: ${resultado.mensagem}`);
       }
     } catch (error) {
-      console.error('Erro ao carregar MDFe:', error);
+      console.error('❌ Erro ao carregar MDFe:', error);
       setErro('Erro inesperado ao carregar MDFe. Tente novamente.');
     } finally {
       setCarregandoDados(false);
@@ -189,6 +272,7 @@ export function FormularioMDFe() {
 
 
   const salvar = async () => {
+    console.log('💾 Salvando MDFe...', { id, dados });
     setSalvando(true);
     try {
       const dadosAtualizados = {
@@ -197,12 +281,17 @@ export function FormularioMDFe() {
         dataInicioViagem: new Date()
       };
 
+      console.log('📦 Dados enviados para a API:', dadosAtualizados);
+      console.log('🔍 LOCALIDADES - Carregamento:', JSON.stringify(dadosAtualizados.localidadesCarregamento));
+      console.log('🔍 LOCALIDADES - Descarregamento:', JSON.stringify(dadosAtualizados.localidadesDescarregamento));
+
       // Backend decide se é rascunho ou completo
       const resultado = id
         ? await mdfeService.atualizarMDFe(parseInt(id), dadosAtualizados as MDFeData)
         : await mdfeService.criarMDFe(dadosAtualizados as MDFeData);
 
       if (resultado.sucesso) {
+        console.log('✅ MDFe salvo com sucesso:', resultado);
         setTemAlteracoesNaoSalvas(false);
         setMensagemSucesso('MDFe salvo com sucesso');
 
@@ -211,10 +300,12 @@ export function FormularioMDFe() {
           navigate('/mdfes');
         }, 1500);
       } else {
+        console.error('❌ Erro ao salvar MDFe:', resultado);
         setErro(`Erro ao salvar MDFe: ${resultado.mensagem}`);
         console.error('Erro detalhado:', resultado);
       }
     } catch (error) {
+      console.error('💥 Erro crítico ao salvar MDFe:', error);
       setErro('Erro inesperado ao salvar MDFe. Tente novamente.');
     } finally {
       setSalvando(false);
@@ -240,47 +331,64 @@ export function FormularioMDFe() {
   };
 
   const transmitir = async () => {
-
-    if (!window.confirm('Deseja transmitir este MDFe para a SEFAZ?')) {
-      return;
-    }
-
     setTransmitindo(true);
     setErro('');
     setMensagemSucesso('');
 
     try {
-      await salvar();
-
-
       const resultadoCarregamento = await mdfeService.carregarINI(dados);
+      console.log('🔍 resultadoCarregamento:', resultadoCarregamento);
 
       if (!resultadoCarregamento.sucesso) {
         console.error('❌ TRANSMITIR - ERRO NO CARREGAMENTO:', resultadoCarregamento);
-        setErro(`Erro ao carregar dados: ${resultadoCarregamento.mensagem}`);
+        setModalTransmissao({
+          aberto: true,
+          sucesso: false,
+          mensagem: `Erro ao carregar dados: ${resultadoCarregamento.mensagem}`,
+          detalhes: resultadoCarregamento
+        });
         return;
       }
 
-
       // Se não tem ID, precisa salvar primeiro
       if (!id) {
-        setErro('É necessário salvar o MDFe antes de transmitir');
+        setModalTransmissao({
+          aberto: true,
+          sucesso: false,
+          mensagem: 'É necessário salvar o MDFe antes de transmitir'
+        });
         return;
       }
 
       const resultadoTransmissao = await mdfeService.transmitirMDFe(parseInt(id));
 
       if (resultadoTransmissao.sucesso) {
-        setMensagemSucesso('MDFe transmitido com sucesso para a SEFAZ!');
-        setTimeout(() => navigate('/mdfes'), 2000);
+        setModalTransmissao({
+          aberto: true,
+          sucesso: true,
+          mensagem: 'MDFe transmitido com sucesso para a SEFAZ!',
+          detalhes: resultadoTransmissao.dados
+        });
+  // Recarregar dados do MDFe para atualizar status
+  await carregarMDFe(id);
       } else {
         console.error('❌ TRANSMITIR - ERRO NA TRANSMISSÃO:', resultadoTransmissao);
-        setErro(`Erro na transmissão: ${resultadoTransmissao.mensagem}`);
+        setModalTransmissao({
+          aberto: true,
+          sucesso: false,
+          mensagem: `Erro na transmissão: ${resultadoTransmissao.mensagem}`,
+          detalhes: resultadoTransmissao
+        });
       }
     } catch (error) {
       console.error('💥 TRANSMITIR - ERRO CRÍTICO:', error);
       console.error('Stack trace:', error instanceof Error ? error.stack : 'No stack available');
-      setErro('Erro inesperado ao transmitir MDFe. Tente novamente.');
+      setModalTransmissao({
+        aberto: true,
+        sucesso: false,
+        mensagem: 'Erro inesperado ao transmitir MDFe. Tente novamente.',
+        detalhes: error
+      });
     } finally {
       setTransmitindo(false);
     }
@@ -333,11 +441,61 @@ export function FormularioMDFe() {
         </div>
       )}
 
-      {/* Indicador de carregamento */}
-      {carregandoDados && (
-        <div className="fixed top-5 right-5 z-50 px-4 py-3 bg-blue-500 text-white rounded-lg flex items-center gap-2 shadow-lg">
-          <i className="fas fa-spinner fa-spin"></i>
-          <span className="text-sm font-medium">Carregando...</span>
+      {/* Modal de Resultado da Transmissão */}
+      {modalTransmissao.aberto && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm">
+          <div className="bg-card border border-border rounded-xl shadow-2xl max-w-2xl w-full mx-4 overflow-hidden">
+            {/* Header */}
+            <div className={`px-6 py-4 flex items-center gap-3 ${
+              modalTransmissao.sucesso
+                ? 'bg-gradient-to-r from-green-500 to-emerald-600'
+                : 'bg-gradient-to-r from-red-500 to-red-600'
+            }`}>
+              <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center">
+                <i className={`fas ${
+                  modalTransmissao.sucesso ? 'fa-check-circle text-green-600' : 'fa-times-circle text-red-600'
+                } text-lg`}></i>
+              </div>
+              <h3 className="text-white font-bold text-lg">
+                {modalTransmissao.sucesso ? 'Transmissão Realizada' : 'Erro na Transmissão'}
+              </h3>
+            </div>
+
+            {/* Content */}
+            <div className="p-6">
+              <p className="text-foreground mb-4 text-base leading-relaxed">
+                {modalTransmissao.mensagem}
+              </p>
+
+              {modalTransmissao.detalhes && (
+                <div className="mt-4 p-4 bg-muted rounded-lg border border-border">
+                  <p className="text-sm font-semibold text-foreground mb-2">Detalhes:</p>
+                  <pre className="text-xs text-muted-foreground overflow-auto max-h-60">
+                    {JSON.stringify(modalTransmissao.detalhes, null, 2)}
+                  </pre>
+                </div>
+              )}
+            </div>
+
+            {/* Actions */}
+            <div className="bg-muted px-6 py-4 flex gap-3 justify-end border-t border-border">
+              {modalTransmissao.sucesso ? (
+                <button
+                  onClick={() => setModalTransmissao({ aberto: false, sucesso: false, mensagem: '' })}
+                  className="px-6 py-2.5 bg-card hover:bg-background border-2 border-border text-foreground rounded-lg font-semibold transition-all duration-200 hover:scale-105"
+                >
+                  Continuar Editando
+                </button>
+              ) : (
+                <button
+                  onClick={() => setModalTransmissao({ aberto: false, sucesso: false, mensagem: '' })}
+                  className="px-6 py-2.5 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white rounded-lg font-semibold transition-all duration-200 hover:scale-105 shadow-lg"
+                >
+                  Fechar
+                </button>
+              )}
+            </div>
+          </div>
         </div>
       )}
 

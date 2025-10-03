@@ -63,7 +63,6 @@ builder.Services.AddSingleton<ICacheService, CacheService>();
 // Register application services
 builder.Services.AddScoped<IMDFeService, MDFeService>();
 builder.Services.AddScoped<IMDFeBusinessService, MDFeBusinessService>();
-builder.Services.AddScoped<ICertificadoService, CertificadoService>();
 builder.Services.AddScoped<IIBGEService, IBGEService>();
 
 // Register repositories

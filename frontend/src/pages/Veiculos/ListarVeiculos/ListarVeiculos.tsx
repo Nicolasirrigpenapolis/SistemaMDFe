@@ -28,7 +28,7 @@ interface PaginationData {
 
 export function ListarVeiculos() {
   const [veiculos, setVeiculos] = useState<Veiculo[]>([]);
-  const [carregando, setCarregando] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   // Estados temporários dos filtros
   const [filtroTemp, setFiltroTemp] = useState('');
@@ -83,8 +83,8 @@ export function ListarVeiculos() {
     status: string = filtroStatus,
     uf: string = filtroUf
   ) => {
+    setLoading(true);
     try {
-      setCarregando(true);
 
       const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://localhost:5001/api';
       const params = new URLSearchParams({
@@ -132,7 +132,7 @@ export function ListarVeiculos() {
       setVeiculos([]);
       setPaginacao(null);
     } finally {
-      setCarregando(false);
+      setLoading(false);
     }
   };
 
@@ -241,16 +241,12 @@ export function ListarVeiculos() {
     setPaginaAtual(1);
   };
 
-  if (carregando) {
+  if (loading) {
     return (
-      <div className="min-h-screen bg-background">
-        <div className="w-full px-6 py-8">
-          <div className="flex items-center justify-center py-16">
-            <div className="flex items-center gap-4">
-              <div className="w-8 h-8 border-4 border-purple-600 border-t-transparent rounded-full animate-spin"></div>
-              <span className="text-muted-foreground">Carregando veículos...</span>
-            </div>
-          </div>
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-muted-foreground">Carregando...</p>
         </div>
       </div>
     );

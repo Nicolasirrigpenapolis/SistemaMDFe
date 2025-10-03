@@ -66,14 +66,11 @@ namespace MDFeApi.Models
         public string TipoEmitente { get; set; } = "PrestadorServico"; // PrestadorServico ou EntregaPropria
         
 
-        // Certificado Digital
-        [MaxLength(500)]
-        public string? CaminhoArquivoCertificado { get; set; }
+        // CERTIFICADO DIGITAL REMOVIDO - MonitorACBr gerencia via ACBrMonitor.ini
+        // Motivo: Segurança (senha não deve ficar no banco) e centralização no MonitorACBr
+        // O certificado é configurado diretamente no ACBrMonitor.ini no servidor
 
-        [MaxLength(500)]
-        public string? SenhaCertificado { get; set; }
-
-        // Caminho para salvar XMLs dos MDFe emitidos
+        // Caminho para salvar XMLs dos MDFe emitidos (opcional - MonitorACBr também gerencia)
         [MaxLength(500)]
         public string? CaminhoSalvarXml { get; set; }
 

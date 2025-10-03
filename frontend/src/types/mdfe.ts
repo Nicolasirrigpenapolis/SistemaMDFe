@@ -138,7 +138,7 @@ export interface EmitenteCadastrado {
   ativo: boolean; // Mapeado do backend Ativo
   tipoEmitente: string; // Mapeado do backend TipoEmitente
   descricaoEmitente?: string; // Mapeado do backend DescricaoEmitente
-  caminhoArquivoCertificado?: string; // Mapeado do backend CaminhoArquivoCertificado
+  // caminhoArquivoCertificado removido - MonitorACBr gerencia
   rntrc?: string; // Mapeado do backend Rntrc
 }
 

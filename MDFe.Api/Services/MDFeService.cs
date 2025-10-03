@@ -126,9 +126,17 @@ namespace MDFeApi.Services
 
         public async Task<int> ObterProximoNumeroAsync(int emitenteId, int serie)
         {
+            const int NUMERO_INICIAL = 650;
+
             var ultimoNumero = await _context.MDFes
                 .Where(m => m.EmitenteId == emitenteId && m.Serie == serie)
                 .MaxAsync(m => (int?)m.NumeroMdfe) ?? 0;
+
+            // Se não houver MDFes ainda, começar do número inicial (650)
+            if (ultimoNumero == 0)
+            {
+                return NUMERO_INICIAL;
+            }
 
             return ultimoNumero + 1;
         }
@@ -212,26 +220,47 @@ namespace MDFeApi.Services
                 _logger.LogInformation("Transmitindo MDFe {Id} para SEFAZ", mdfeId);
 
                 // 1. Gerar INI
+                _logger.LogInformation("[TRANSMITIR] Iniciando geração do arquivo INI para MDFe {Id}", mdfeId);
                 var conteudoIni = await _iniGenerator.GerarIniAsync(mdfe);
+                
                 var pathTemp = Path.Combine(Path.GetTempPath(), $"mdfe_{mdfeId}_{DateTime.Now:yyyyMMddHHmmss}.ini");
+                _logger.LogInformation("[TRANSMITIR] Salvando arquivo INI em {Path}", pathTemp);
                 await File.WriteAllTextAsync(pathTemp, conteudoIni, System.Text.Encoding.GetEncoding("ISO-8859-1"));
+                
+                // Logar conteúdo do INI
+                _logger.LogInformation("[TRANSMITIR] Conteúdo do arquivo INI para MDFe {Id}:\n{Conteudo}", mdfeId, conteudoIni);
 
                 // 2. Enviar comando CriarEnviarMDFe (tudo em um só comando)
                 var lote = mdfe.Lote ?? 1;
+                _logger.LogInformation("[TRANSMITIR] Preparando envio para SEFAZ - Lote: {Lote}", lote);
+                
                 var comando = $"MDFE.CriarEnviarMDFe({pathTemp}, {lote})";
+                _logger.LogInformation("[TRANSMITIR] Executando comando ACBr: {Comando}", comando);
+                
                 var resposta = await _acbrClient.ExecutarComandoAsync(comando);
 
                 // 3. Parsear resposta
+                _logger.LogInformation("[TRANSMITIR] Processando resposta da SEFAZ para MDFe {Id}", mdfeId);
                 var resultado = _acbrParser.ParseResposta(resposta);
+                _logger.LogInformation("[TRANSMITIR] Resposta bruta da SEFAZ:\n{Resposta}", resultado.RespostaBruta);
 
                 if (!resultado.Sucesso)
                 {
+                    _logger.LogWarning("[TRANSMITIR] MDFe {Id} foi REJEITADO pela SEFAZ", mdfeId);
+                    _logger.LogWarning("[TRANSMITIR] Motivo da rejeição: {Mensagem}", resultado.Mensagem);
+                    if (resultado.Erros?.Any() == true)
+                    {
+                        _logger.LogWarning("[TRANSMITIR] Erros detalhados:");
+                        foreach (var erro in resultado.Erros)
+                        {
+                            _logger.LogWarning("[TRANSMITIR] - {Erro}", erro);
+                        }
+                    }
+
                     mdfe.StatusSefaz = "REJEITADO";
                     mdfe.XmlRetorno = resultado.RespostaBruta;
                     mdfe.DataUltimaAlteracao = DateTime.Now;
                     await _context.SaveChangesAsync();
-
-                    _logger.LogWarning("MDFe {Id} rejeitado: {Mensagem}", mdfeId, resultado.Mensagem);
 
                     return new
                     {

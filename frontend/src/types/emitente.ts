@@ -15,8 +15,7 @@ export interface Emitente {
   uf: string;
   ativo?: boolean;
   tipoEmitente: string;
-  caminhoArquivoCertificado?: string;
-  senhaCertificado?: string;
+  // Certificado removido - MonitorACBr gerencia
   caminhoSalvarXml?: string;
   rntrc?: string;
   ambienteSefaz?: number;

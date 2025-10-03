@@ -25,7 +25,7 @@ interface PaginationData {
 
 export function ListarCondutores() {
   const [condutores, setCondutores] = useState<Condutor[]>([]);
-  const [carregando, setCarregando] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const [filtroTemp, setFiltroTemp] = useState('');
   const [filtroStatusTemp, setFiltroStatusTemp] = useState('');
@@ -56,7 +56,7 @@ export function ListarCondutores() {
   }, [paginaAtual, tamanhoPagina, filtro, filtroStatus, filtroCPF]);
 
   const carregarCondutores = async () => {
-    setCarregando(true);
+    setLoading(true);
     try {
       const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://localhost:5001/api';
       const params = new URLSearchParams({
@@ -108,7 +108,7 @@ export function ListarCondutores() {
       setCondutores([]);
       setPaginacao(null);
     } finally {
-      setCarregando(false);
+      setLoading(false);
     }
   };
 
@@ -213,16 +213,12 @@ export function ListarCondutores() {
     setPaginaAtual(1);
   };
 
-  if (carregando) {
+  if (loading) {
     return (
-      <div className="min-h-screen bg-background">
-        <div className="w-full px-6 py-8">
-          <div className="flex items-center justify-center py-16">
-            <div className="flex items-center gap-4">
-              <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
-              <span className="text-muted-foreground">Carregando condutores...</span>
-            </div>
-          </div>
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-muted-foreground">Carregando...</p>
         </div>
       </div>
     );
