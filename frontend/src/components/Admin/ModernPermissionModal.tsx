@@ -37,12 +37,6 @@ export function ModernPermissionModal({
   // Verificar se é cargo Programador (protegido)
   const isProgramadorCargo = cargoNome === 'Programador';
 
-  useEffect(() => {
-    if (isOpen) {
-      loadData();
-    }
-  }, [cargoId, isOpen]);
-
   const loadData = async () => {
     setLoading(true);
     try {
@@ -61,6 +55,12 @@ export function ModernPermissionModal({
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (isOpen) {
+      loadData();
+    }
+  }, [cargoId, isOpen]);
 
   const hasPermission = (permissaoId: number): boolean => {
     return cargoPermissions.some(p => p.id === permissaoId);
@@ -94,7 +94,7 @@ export function ModernPermissionModal({
     });
 
     return stats;
-  }, [modules, allPermissions, cargoPermissions]);
+  }, [modules, allPermissions, cargoPermissions, hasPermission]);
 
   const totalStats = useMemo(() => {
     const total = allPermissions.length;
@@ -241,14 +241,14 @@ export function ModernPermissionModal({
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4" onClick={onClose}>
       <div
-        className="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl max-w-7xl w-full max-h-[95vh] overflow-hidden"
+        className="bg-card dark:bg-gray-900 rounded-2xl shadow-2xl max-w-7xl w-full max-h-[95vh] overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header Modernizado */}
         <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
+              <div className="w-12 h-12 bg-card/20 rounded-xl flex items-center justify-center">
                 <Icon name="shield" size="lg" className="text-white" />
               </div>
               <div>
@@ -258,7 +258,7 @@ export function ModernPermissionModal({
             </div>
             <button
               onClick={onClose}
-              className="w-10 h-10 bg-white/20 hover:bg-white/30 rounded-xl flex items-center justify-center transition-all duration-200"
+              className="w-10 h-10 bg-card/20 hover:bg-card/30 rounded-xl flex items-center justify-center transition-all duration-200"
             >
               <Icon name="times" size="md" className="text-white" />
             </button>
@@ -274,7 +274,7 @@ export function ModernPermissionModal({
                 {totalStats.active} de {totalStats.total} ({Math.round(totalStats.percentage)}%)
               </span>
             </div>
-            <div className="w-full bg-white/20 rounded-full h-3">
+            <div className="w-full bg-card/20 rounded-full h-3">
               <div
                 className="bg-gradient-to-r from-green-400 to-blue-400 h-3 rounded-full transition-all duration-500"
                 style={{ width: `${totalStats.percentage}%` }}
@@ -288,8 +288,8 @@ export function ModernPermissionModal({
               onClick={() => setActiveTab('permissions')}
               className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 flex items-center gap-2 ${
                 activeTab === 'permissions'
-                  ? 'bg-white/20 text-white'
-                  : 'text-blue-100 hover:bg-white/10 hover:text-white'
+                  ? 'bg-card/20 text-white'
+                  : 'text-blue-100 hover:bg-card/10 hover:text-white'
               }`}
             >
               <Icon name="shield" size="sm" />
@@ -299,8 +299,8 @@ export function ModernPermissionModal({
               onClick={() => setActiveTab('templates')}
               className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 flex items-center gap-2 ${
                 activeTab === 'templates'
-                  ? 'bg-white/20 text-white'
-                  : 'text-blue-100 hover:bg-white/10 hover:text-white'
+                  ? 'bg-card/20 text-white'
+                  : 'text-blue-100 hover:bg-card/10 hover:text-white'
               }`}
             >
               <Icon name="magic" size="sm" />
@@ -311,7 +311,7 @@ export function ModernPermissionModal({
 
         {/* Toolbar - apenas para aba de permissões */}
         {activeTab === 'permissions' && (
-          <div className="p-6 bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-0">
+          <div className="p-6 bg-background dark:bg-gray-800 border-b border-gray-200 dark:border-0">
           <div className="flex flex-col lg:flex-row gap-4">
             {/* Busca */}
             <div className="flex-1 relative">
@@ -325,12 +325,12 @@ export function ModernPermissionModal({
                 placeholder="Buscar permissões por nome, descrição ou código..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-0 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-0 rounded-xl bg-card dark:bg-gray-700 text-foreground placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
               />
               {searchTerm && (
                 <button
                   onClick={() => setSearchTerm('')}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-muted-foreground transition-colors"
                 >
                   <Icon name="times" size="sm" />
                 </button>
@@ -341,7 +341,7 @@ export function ModernPermissionModal({
             <select
               value={selectedModule}
               onChange={(e) => setSelectedModule(e.target.value)}
-              className="px-4 py-3 border border-gray-300 dark:border-0 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+              className="px-4 py-3 border border-gray-300 dark:border-0 rounded-xl bg-card dark:bg-gray-700 text-foreground focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
             >
               <option value="">Todos os módulos</option>
               {modules.map(module => (
@@ -352,13 +352,13 @@ export function ModernPermissionModal({
             </select>
 
             {/* Toggle de Visualização */}
-            <div className="flex bg-white dark:bg-gray-700 rounded-xl border border-gray-300 dark:border-0 p-1">
+            <div className="flex bg-card dark:bg-gray-700 rounded-xl border border-gray-300 dark:border-0 p-1">
               <button
                 onClick={() => setViewMode('grid')}
                 className={`px-4 py-2 rounded-lg transition-all duration-200 ${
                   viewMode === 'grid'
                     ? 'bg-blue-600 text-white shadow-md'
-                    : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
+                    : 'text-muted-foreground hover:text-foreground dark:hover:text-white'
                 }`}
               >
                 <Icon name="th" size="sm" />
@@ -368,7 +368,7 @@ export function ModernPermissionModal({
                 className={`px-4 py-2 rounded-lg transition-all duration-200 ${
                   viewMode === 'list'
                     ? 'bg-blue-600 text-white shadow-md'
-                    : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
+                    : 'text-muted-foreground hover:text-foreground dark:hover:text-white'
                 }`}
               >
                 <Icon name="list" size="sm" />
@@ -404,7 +404,7 @@ export function ModernPermissionModal({
             <div className="flex items-center justify-center py-16">
               <div className="flex items-center gap-4">
                 <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
-                <span className="text-lg font-medium text-gray-600 dark:text-gray-400">
+                <span className="text-lg font-medium text-muted-foreground">
                   Carregando permissões...
                 </span>
               </div>
@@ -457,10 +457,10 @@ export function ModernPermissionModal({
               {filteredPermissions.length === 0 && (
                 <div className="text-center py-16">
                   <Icon name="search" size="xl" className="text-gray-400 mx-auto mb-4" />
-                  <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
+                  <h3 className="text-lg font-medium text-foreground mb-2">
                     Nenhuma permissão encontrada
                   </h3>
-                  <p className="text-gray-600 dark:text-gray-400">
+                  <p className="text-muted-foreground">
                     Tente ajustar os filtros de busca
                   </p>
                 </div>
@@ -470,9 +470,9 @@ export function ModernPermissionModal({
         </div>
 
         {/* Footer */}
-        <div className="p-6 bg-gray-50 dark:bg-gray-800 border-t border-gray-200 dark:border-0">
+        <div className="p-6 bg-background dark:bg-gray-800 border-t border-gray-200 dark:border-0">
           <div className="flex items-center justify-between">
-            <div className="text-sm text-gray-600 dark:text-gray-400">
+            <div className="text-sm text-muted-foreground">
               {filteredPermissions.length > 0 && (
                 <>Mostrando {filteredPermissions.length} permissões</>
               )}
@@ -490,9 +490,9 @@ export function ModernPermissionModal({
         {/* Loading Overlay */}
         {saving && (
           <div className="absolute inset-0 bg-black/20 backdrop-blur-sm flex items-center justify-center z-10">
-            <div className="bg-white dark:bg-gray-800 rounded-2xl p-8 flex items-center gap-4 shadow-2xl">
+            <div className="bg-card rounded-2xl p-8 flex items-center gap-4 shadow-2xl">
               <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
-              <span className="text-lg font-medium text-gray-900 dark:text-white">
+              <span className="text-lg font-medium text-foreground">
                 Atualizando permissões...
               </span>
             </div>
@@ -526,10 +526,9 @@ function ModulePermissions({
   saving
 }: ModulePermissionsProps) {
   const allActive = moduleStats.percentage === 100;
-  const noneActive = moduleStats.percentage === 0;
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-0 overflow-hidden shadow-sm">
+    <div className="bg-card rounded-2xl border border-gray-200 dark:border-0 overflow-hidden shadow-sm">
       {/* Header do Módulo */}
       <div className="bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-700 p-6 border-b border-gray-200 dark:border-0">
         <div className="flex items-center justify-between">
@@ -538,8 +537,8 @@ function ModulePermissions({
               <Icon name="folder" size="sm" className="text-white" />
             </div>
             <div>
-              <h3 className="text-lg font-bold text-gray-900 dark:text-white">{module}</h3>
-              <p className="text-sm text-gray-600 dark:text-gray-400">
+              <h3 className="text-lg font-bold text-foreground">{module}</h3>
+              <p className="text-sm text-muted-foreground">
                 {moduleStats.active} de {moduleStats.total} permissões ativas
               </p>
             </div>
@@ -550,7 +549,7 @@ function ModulePermissions({
             <div className="relative w-12 h-12">
               <svg className="w-12 h-12 transform -rotate-90" viewBox="0 0 36 36">
                 <path
-                  className="text-gray-300 dark:text-gray-600"
+                  className="text-gray-300 dark:text-muted-foreground"
                   stroke="currentColor"
                   strokeWidth="3"
                   fill="none"
@@ -572,7 +571,7 @@ function ModulePermissions({
                 />
               </svg>
               <div className="absolute inset-0 flex items-center justify-center">
-                <span className="text-xs font-bold text-gray-900 dark:text-white">
+                <span className="text-xs font-bold text-foreground">
                   {Math.round(moduleStats.percentage)}%
                 </span>
               </div>
@@ -632,12 +631,12 @@ function PermissionCard({ permission, isActive, onToggle, viewMode, disabled }: 
     ? `p-4 rounded-xl border-2 transition-all duration-200 cursor-pointer group hover:shadow-md ${
         isActive
           ? 'bg-green-50 border-green-200 dark:bg-green-900/20 dark:border-green-800'
-          : 'bg-gray-50 border-gray-200 dark:bg-gray-800 dark:border-0 hover:border-blue-300'
+          : 'bg-background border-gray-200 dark:bg-gray-800 dark:border-0 hover:border-blue-300'
       }`
     : `p-4 rounded-lg border transition-all duration-200 cursor-pointer flex items-center gap-4 ${
         isActive
           ? 'bg-green-50 border-green-200 dark:bg-green-900/20 dark:border-green-800'
-          : 'bg-gray-50 border-gray-200 dark:bg-gray-800 dark:border-0 hover:border-blue-300'
+          : 'bg-background border-gray-200 dark:bg-gray-800 dark:border-0 hover:border-blue-300'
       }`;
 
   return (
@@ -652,12 +651,12 @@ function PermissionCard({ permission, isActive, onToggle, viewMode, disabled }: 
             disabled={disabled}
             className="sr-only peer"
           />
-          <div className="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-0 peer-checked:bg-blue-600"></div>
+          <div className="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-card after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-0 peer-checked:bg-blue-600"></div>
         </label>
 
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-1">
-            <h4 className="font-semibold text-gray-900 dark:text-white text-sm">
+            <h4 className="font-semibold text-foreground text-sm">
               {permission.nome}
             </h4>
             {isActive && (
@@ -669,7 +668,7 @@ function PermissionCard({ permission, isActive, onToggle, viewMode, disabled }: 
           </div>
 
           {permission.descricao && (
-            <p className="text-xs text-gray-600 dark:text-gray-400 mb-2">
+            <p className="text-xs text-muted-foreground mb-2">
               {permission.descricao}
             </p>
           )}

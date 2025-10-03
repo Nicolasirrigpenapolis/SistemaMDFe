@@ -20,10 +20,10 @@ export const EmitenteTable = memo(({
 }: EmitenteTableProps) => {
   if (carregando) {
     return (
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-0 p-8">
+      <div className="bg-card rounded-lg shadow-sm border border-gray-200 dark:border-0 p-8">
         <div className="flex flex-col items-center justify-center space-y-4">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-          <p className="text-gray-600 dark:text-gray-400">Carregando emitentes...</p>
+          <p className="text-muted-foreground">Carregando emitentes...</p>
         </div>
       </div>
     );
@@ -31,13 +31,13 @@ export const EmitenteTable = memo(({
 
   if (emitentes.length === 0) {
     return (
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-0 p-8">
+      <div className="bg-card rounded-lg shadow-sm border border-gray-200 dark:border-0 p-8">
         <div className="text-center">
           <Icon name="building" className="mx-auto h-12 w-12 text-gray-400 mb-4" />
-          <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
+          <h3 className="text-lg font-medium text-foreground dark:text-gray-100 mb-2">
             Nenhum emitente encontrado
           </h3>
-          <p className="text-gray-600 dark:text-gray-400">
+          <p className="text-muted-foreground">
             Não há emitentes cadastrados ou que correspondam aos filtros aplicados.
           </p>
         </div>
@@ -46,10 +46,10 @@ export const EmitenteTable = memo(({
   }
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-0 overflow-hidden">
+    <div className="bg-card rounded-lg shadow-sm border border-gray-200 dark:border-0 overflow-hidden">
       <div className="overflow-x-auto">
         <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-          <thead className="bg-gray-50 dark:bg-gray-700">
+          <thead className="bg-background dark:bg-gray-700">
             <tr>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                 Emitente
@@ -74,9 +74,9 @@ export const EmitenteTable = memo(({
               </th>
             </tr>
           </thead>
-          <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+          <tbody className="bg-card divide-y divide-gray-200 dark:divide-gray-700">
             {emitentes.map((emitente) => (
-              <tr key={emitente.id} className="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200">
+              <tr key={emitente.id} className="hover:bg-background dark:hover:bg-gray-700 transition-colors duration-200">
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div className="flex items-center">
                     <div className="flex-shrink-0 h-10 w-10">
@@ -85,7 +85,7 @@ export const EmitenteTable = memo(({
                       </div>
                     </div>
                     <div className="ml-4">
-                      <div className="text-sm font-medium text-gray-900 dark:text-gray-100 max-w-xs truncate">
+                      <div className="text-sm font-medium text-foreground dark:text-gray-100 max-w-xs truncate">
                         {emitente.razaoSocial}
                       </div>
                       {emitente.nomeFantasia && (
@@ -97,7 +97,7 @@ export const EmitenteTable = memo(({
                   </div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="text-sm text-gray-900 dark:text-gray-100">
+                  <div className="text-sm text-foreground dark:text-gray-100">
                     {emitente.cnpj ? formatCNPJ(emitente.cnpj) : formatCPF(emitente.cpf || '')}
                   </div>
                   <div className="text-sm text-gray-500 dark:text-gray-400">
@@ -113,7 +113,7 @@ export const EmitenteTable = memo(({
                     {emitente.tipoEmitente === 'PrestadorServico' ? 'Prestador' : 'Própria'}
                   </span>
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-foreground dark:text-gray-100">
                   {emitente.uf}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">

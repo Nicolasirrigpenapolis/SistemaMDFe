@@ -11,13 +11,13 @@ namespace MDFeApi.Extensions
         public static TResult MaxOrDefault<TSource, TResult>(
             this IEnumerable<TSource> source,
             Func<TSource, TResult> selector,
-            TResult defaultValue = default(TResult))
+            TResult defaultValue = default!)
         {
             if (source == null) throw new ArgumentNullException(nameof(source));
             if (selector == null) throw new ArgumentNullException(nameof(selector));
 
             var list = source.ToList();
-            return list.Any() ? list.Max(selector) : defaultValue;
+            return list.Any() ? list.Max(selector)! : defaultValue;
         }
     }
 }

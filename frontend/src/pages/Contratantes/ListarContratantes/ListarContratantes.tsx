@@ -35,6 +35,12 @@ interface PaginationData {
 export function ListarContratantes() {
   const [contratantes, setContratantes] = useState<Contratante[]>([]);
   const [carregando, setCarregando] = useState(false);
+
+  const [filtroTemp, setFiltroTemp] = useState('');
+  const [filtroTipoTemp, setFiltroTipoTemp] = useState('');
+  const [filtroStatusTemp, setFiltroStatusTemp] = useState('');
+  const [filtroUfTemp, setFiltroUfTemp] = useState('');
+
   const [filtro, setFiltro] = useState('');
   const [filtroTipo, setFiltroTipo] = useState('');
   const [filtroStatus, setFiltroStatus] = useState('');
@@ -137,10 +143,20 @@ export function ListarContratantes() {
   const abrirModalEdicao = (contratante?: Contratante) => {
     if (contratante) {
       setContratanteSelecionado(contratante);
-      setDadosFormulario(contratante);
+      // Adicionar o campo virtual tipoDocumento baseado no que existe
+      const tipoDocumento = contratante.cnpj ? 'cnpj' : contratante.cpf ? 'cpf' : undefined;
+      setDadosFormulario({
+        ...contratante,
+        tipoDocumento
+      } as any);
     } else {
       setContratanteSelecionado(null);
-      setDadosFormulario({});
+      setDadosFormulario({
+        tipoDocumento: 'cnpj', // Default para CNPJ
+        ativo: true,
+        codMunicipio: 0,
+        municipio: ''
+      } as any);
     }
     setModalEdicao(true);
   };
@@ -153,23 +169,23 @@ export function ListarContratantes() {
   };
 
 
-  const salvarContratante = async () => {
+  const salvarContratante = async (dados: Partial<Contratante>) => {
     setSalvando(true);
     try {
       const dadosParaSalvar = {
-        cnpj: dadosFormulario.cnpj ? cleanNumericString(dadosFormulario.cnpj) : undefined,
-        cpf: dadosFormulario.cpf ? cleanNumericString(dadosFormulario.cpf) : undefined,
-        razaoSocial: dadosFormulario.razaoSocial?.trim(),
-        nomeFantasia: dadosFormulario.nomeFantasia?.trim(),
-        endereco: dadosFormulario.endereco?.trim(),
-        numero: dadosFormulario.numero?.trim(),
-        complemento: dadosFormulario.complemento?.trim(),
-        bairro: dadosFormulario.bairro?.trim(),
-        codMunicipio: dadosFormulario.codMunicipio,
-        municipio: dadosFormulario.municipio?.trim(),
-        cep: dadosFormulario.cep ? cleanNumericString(dadosFormulario.cep) : undefined,
-        uf: dadosFormulario.uf?.toUpperCase(),
-        ativo: dadosFormulario.ativo !== false
+        cnpj: dados.cnpj ? cleanNumericString(dados.cnpj) : undefined,
+        cpf: dados.cpf ? cleanNumericString(dados.cpf) : undefined,
+        razaoSocial: dados.razaoSocial?.trim(),
+        nomeFantasia: dados.nomeFantasia?.trim(),
+        endereco: dados.endereco?.trim(),
+        numero: dados.numero?.trim(),
+        complemento: dados.complemento?.trim(),
+        bairro: dados.bairro?.trim(),
+        codMunicipio: dados.codMunicipio,
+        municipio: dados.municipio?.trim(),
+        cep: dados.cep ? cleanNumericString(dados.cep) : undefined,
+        uf: dados.uf?.toUpperCase(),
+        ativo: dados.ativo !== false
       };
 
       let resposta;
@@ -224,7 +240,19 @@ export function ListarContratantes() {
     }
   };
 
+  const aplicarFiltros = () => {
+    setFiltro(filtroTemp);
+    setFiltroTipo(filtroTipoTemp);
+    setFiltroStatus(filtroStatusTemp);
+    setFiltroUf(filtroUfTemp);
+    setPaginaAtual(1);
+  };
+
   const limparFiltros = () => {
+    setFiltroTemp('');
+    setFiltroTipoTemp('');
+    setFiltroStatusTemp('');
+    setFiltroUfTemp('');
     setFiltro('');
     setFiltroTipo('');
     setFiltroStatus('');
@@ -239,12 +267,35 @@ export function ListarContratantes() {
     }));
   };
 
+  // Callback para preencher dados automaticamente ao consultar CNPJ
+  const handleCNPJDataFetch = (data: any) => {
+    console.log('Dados recebidos da API CNPJ:', data);
+
+    // Mapear os dados da API para o formato do formulário
+    const dadosMapeados: Partial<Contratante> = {
+      razaoSocial: data.razaoSocial || data.nome || '',
+      nomeFantasia: data.nomeFantasia || data.fantasia || '',
+      cep: data.cep || '',
+      endereco: data.logradouro || data.endereco || '',
+      numero: data.numero || '',
+      complemento: data.complemento || '',
+      bairro: data.bairro || '',
+      municipio: data.municipio || '',
+      uf: data.uf || '',
+      codMunicipio: data.codMunicipio || 0
+    };
+
+    console.log('Dados mapeados para o formulário:', dadosMapeados);
+
+    return dadosMapeados;
+  };
+
   const tipoContratante = (contratante: Contratante) => {
     return contratante.cnpj ? 'PJ' : 'PF';
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="min-h-screen bg-background">
       <div className="w-full px-6 py-8">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-4">
@@ -252,8 +303,8 @@ export function ListarContratantes() {
               <i className="fas fa-handshake text-white text-xl"></i>
             </div>
             <div>
-              <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-1">Contratantes</h1>
-              <p className="text-gray-600 dark:text-gray-400 text-lg">Gerencie os contratantes dos serviços de transporte</p>
+              <h1 className="text-3xl font-bold text-foreground mb-1">Contratantes</h1>
+              <p className="text-muted-foreground text-lg">Gerencie os contratantes dos serviços de transporte</p>
             </div>
           </div>
           <button
@@ -265,25 +316,26 @@ export function ListarContratantes() {
           </button>
         </div>
 
-      <div className="bg-bg-surface rounded-xl border border-border-primary p-6 mb-6">
-        <div className="grid grid-cols-5 gap-4 items-end">
+      <div className="bg-card rounded-xl border border-border p-6 mb-6">
+        <div className="grid grid-cols-6 gap-4 items-end">
           <div>
-            <label className="block text-sm font-medium text-text-primary mb-2">Buscar</label>
+            <label className="block text-sm font-medium text-foreground mb-2">Buscar</label>
             <input
               type="text"
-              className="w-full px-3 py-2 border border-border-primary rounded-lg bg-bg-surface focus:outline-none focus:ring-2 focus:ring-primary/20"
+              className="w-full px-3 py-2 border border-border rounded-lg bg-card focus:outline-none focus:ring-2 focus:ring-primary/20"
               placeholder="Buscar por razão social, CNPJ, CPF..."
-              value={filtro}
-              onChange={(e) => setFiltro(e.target.value)}
+              value={filtroTemp}
+              onChange={(e) => setFiltroTemp(e.target.value)}
+              onKeyPress={(e) => e.key === 'Enter' && aplicarFiltros()}
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-text-primary mb-2">Tipo</label>
+            <label className="block text-sm font-medium text-foreground mb-2">Tipo</label>
             <select
-              value={filtroTipo}
-              onChange={(e) => setFiltroTipo(e.target.value)}
-              className="w-full px-3 py-2 border border-border-primary rounded-lg bg-bg-surface focus:outline-none focus:ring-2 focus:ring-primary/20"
+              value={filtroTipoTemp}
+              onChange={(e) => setFiltroTipoTemp(e.target.value)}
+              className="w-full px-3 py-2 border border-border rounded-lg bg-card focus:outline-none focus:ring-2 focus:ring-primary/20"
             >
               <option value="">Todos</option>
               <option value="PJ">Pessoa Jurídica</option>
@@ -292,11 +344,11 @@ export function ListarContratantes() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-text-primary mb-2">Status</label>
+            <label className="block text-sm font-medium text-foreground mb-2">Status</label>
             <select
-              value={filtroStatus}
-              onChange={(e) => setFiltroStatus(e.target.value)}
-              className="w-full px-3 py-2 border border-border-primary rounded-lg bg-bg-surface focus:outline-none focus:ring-2 focus:ring-primary/20"
+              value={filtroStatusTemp}
+              onChange={(e) => setFiltroStatusTemp(e.target.value)}
+              className="w-full px-3 py-2 border border-border rounded-lg bg-card focus:outline-none focus:ring-2 focus:ring-primary/20"
             >
               <option value="">Todos</option>
               <option value="ativo">Ativo</option>
@@ -305,11 +357,11 @@ export function ListarContratantes() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-text-primary mb-2">UF</label>
+            <label className="block text-sm font-medium text-foreground mb-2">UF</label>
             <select
-              value={filtroUf}
-              onChange={(e) => setFiltroUf(e.target.value)}
-              className="w-full px-3 py-2 border border-border-primary rounded-lg bg-bg-surface focus:outline-none focus:ring-2 focus:ring-primary/20"
+              value={filtroUfTemp}
+              onChange={(e) => setFiltroUfTemp(e.target.value)}
+              className="w-full px-3 py-2 border border-border rounded-lg bg-card focus:outline-none focus:ring-2 focus:ring-primary/20"
             >
               <option value="">Todas</option>
               <option value="AC">AC</option>
@@ -344,23 +396,33 @@ export function ListarContratantes() {
 
           <div>
             <button
+              onClick={aplicarFiltros}
+              className="w-full px-4 py-2 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-700 hover:to-blue-700 text-white rounded-lg font-semibold transition-all duration-200 flex items-center justify-center gap-2 shadow-lg hover:shadow-xl"
+            >
+              <Icon name="search" />
+              Filtrar
+            </button>
+          </div>
+
+          <div>
+            <button
               className="w-full px-4 py-2 bg-red-50 hover:bg-red-100 dark:bg-red-900/20 dark:hover:bg-red-900/30 text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 border border-red-200 dark:border-red-800 rounded-lg font-semibold transition-all duration-200 flex items-center justify-center gap-2 shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
               onClick={limparFiltros}
-              disabled={!filtro && !filtroTipo && !filtroStatus && !filtroUf}
+              disabled={!filtroTemp && !filtroTipoTemp && !filtroStatusTemp && !filtroUfTemp}
             >
               <Icon name="times" />
-              Limpar Filtros
+              Limpar
             </button>
           </div>
         </div>
       </div>
 
-      <div className="bg-bg-surface rounded-xl border border-border-primary shadow-sm">
+      <div className="bg-card rounded-xl border border-border shadow-sm">
         {carregando ? (
           <div className="flex items-center justify-center py-16">
             <div className="flex items-center gap-4">
               <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
-              <span className="text-text-secondary">Carregando contratantes...</span>
+              <span className="text-muted-foreground">Carregando contratantes...</span>
             </div>
           </div>
         ) : contratantes.length === 0 ? (
@@ -370,7 +432,7 @@ export function ListarContratantes() {
           </div>
         ) : (
           <div className="overflow-x-auto">
-            <div className="grid grid-cols-6 gap-4 p-4 bg-bg-tertiary border-b border-border-primary font-semibold text-text-primary">
+            <div className="grid grid-cols-6 gap-4 p-4 bg-muted border-b border-border font-semibold text-foreground">
               <div className="text-center">CNPJ/CPF</div>
               <div className="text-center">Razão Social</div>
               <div className="text-center">Tipo</div>
@@ -379,7 +441,7 @@ export function ListarContratantes() {
               <div className="text-center">Ações</div>
             </div>
             {contratantes.map((contratante) => (
-              <div key={contratante.id} className="grid grid-cols-6 gap-4 p-4 border-b border-border-primary hover:bg-bg-tertiary transition-colors duration-200">
+              <div key={contratante.id} className="grid grid-cols-6 gap-4 p-4 border-b border-border hover:bg-muted transition-colors duration-200">
                 <div className="text-center">
                   <strong>
                     {contratante.cnpj ? formatCNPJ(contratante.cnpj) : formatCPF(contratante.cpf || '')}
@@ -387,7 +449,7 @@ export function ListarContratantes() {
                 </div>
                 <div className="text-center">
                   <strong>{contratante.razaoSocial}</strong>
-                  {contratante.nomeFantasia && <div className="text-sm text-text-secondary">{contratante.nomeFantasia}</div>}
+                  {contratante.nomeFantasia && <div className="text-sm text-muted-foreground">{contratante.nomeFantasia}</div>}
                 </div>
                 <div className="text-center">
                   <span className="px-2 py-1 bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300 rounded text-xs font-medium">{tipoContratante(contratante)}</span>
@@ -431,9 +493,9 @@ export function ListarContratantes() {
       </div>
 
       {paginacao && paginacao.totalItems > 0 && (
-        <div className="mt-6 bg-bg-surface border-t border-border-primary p-4">
+        <div className="mt-6 bg-card border-t border-border p-4">
           <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
-            <div className="text-sm text-text-secondary">
+            <div className="text-sm text-muted-foreground">
               Mostrando {((paginacao.currentPage - 1) * paginacao.pageSize) + 1} até {Math.min(paginacao.currentPage * paginacao.pageSize, paginacao.totalItems)} de {paginacao.totalItems} contratantes
             </div>
 
@@ -442,19 +504,19 @@ export function ListarContratantes() {
                 <button
                   onClick={() => setPaginaAtual(paginacao.currentPage - 1)}
                   disabled={!paginacao.hasPreviousPage}
-                  className="px-4 py-2 border border-border-primary rounded-lg bg-bg-surface text-text-primary hover:bg-bg-surface-hover disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
+                  className="px-4 py-2 border border-border rounded-lg bg-card text-foreground hover:bg-card-hover disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
                 >
                   ← Anterior
                 </button>
 
-                <span className="px-4 py-2 text-text-primary">
+                <span className="px-4 py-2 text-foreground">
                   Página {paginacao.currentPage} de {paginacao.totalPages}
                 </span>
 
                 <button
                   onClick={() => setPaginaAtual(paginacao.currentPage + 1)}
                   disabled={!paginacao.hasNextPage}
-                  className="px-4 py-2 border border-border-primary rounded-lg bg-bg-surface text-text-primary hover:bg-bg-surface-hover disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
+                  className="px-4 py-2 border border-border rounded-lg bg-card text-foreground hover:bg-card-hover disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
                 >
                   Próxima →
                 </button>
@@ -462,14 +524,14 @@ export function ListarContratantes() {
             )}
 
             <div className="flex items-center gap-2">
-              <label className="text-sm text-text-primary">Itens por página:</label>
+              <label className="text-sm text-foreground">Itens por página:</label>
               <select
                 value={tamanhoPagina}
                 onChange={(e) => {
                   setTamanhoPagina(Number(e.target.value));
                   setPaginaAtual(1);
                 }}
-                className="px-3 py-1 border border-border-primary rounded bg-bg-surface text-text-primary focus:outline-none focus:ring-2 focus:ring-primary"
+                className="px-3 py-1 border border-border rounded bg-card text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
               >
                 <option value={1}>1</option>
                 <option value={2}>2</option>
@@ -494,6 +556,9 @@ export function ListarContratantes() {
         onSave={salvarContratante}
         onEdit={(contratante) => abrirModalEdicao(contratante)}
         onDelete={confirmarExclusao}
+        onCNPJDataFetch={handleCNPJDataFetch}
+        onFieldChange={atualizarCampo}
+        formData={dadosFormulario}
         saving={salvando}
         deleting={excludindo}
       />

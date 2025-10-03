@@ -20,6 +20,12 @@ export function useTokenMonitor() {
       return;
     }
 
+    // Em desenvolvimento, desabilitar monitoramento de token
+    const isDevelopment = process.env.NODE_ENV === 'development';
+    if (isDevelopment) {
+      return;
+    }
+
     // Reset warning quando o token é renovado
     if (tokenTimeRemaining > 5) {
       setWarningShown(false);

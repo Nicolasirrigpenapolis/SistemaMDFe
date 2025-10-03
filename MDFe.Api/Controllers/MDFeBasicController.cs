@@ -196,6 +196,40 @@ namespace MDFeApi.Controllers
         }
 
         /// <summary>
+        /// Gerar e baixar PDF do DAMDFE
+        /// </summary>
+        [HttpGet("{id}/pdf")]
+        public async Task<ActionResult> BaixarPDF(int id)
+        {
+            try
+            {
+                var pdfBytes = await _mdfeService.GerarPDFAsync(id);
+
+                // Buscar o MDFe para pegar o número
+                var mdfe = await _mdfeService.GetByIdAsync(id);
+                var numero = mdfe?.NumeroMdfe.ToString().PadLeft(9, '0') ?? id.ToString();
+                var nomeArquivo = $"DAMDFE_{numero}_{DateTime.Now:yyyyMMdd}.pdf";
+
+                return File(pdfBytes, "application/pdf", nomeArquivo);
+            }
+            catch (FileNotFoundException ex)
+            {
+                _logger.LogWarning(ex, "XML do MDFe {Id} não encontrado", id);
+                return NotFound(new { sucesso = false, mensagem = "XML do MDFe não encontrado. O MDFe foi transmitido?" });
+            }
+            catch (InvalidOperationException ex)
+            {
+                _logger.LogWarning(ex, "Erro ao gerar PDF do MDFe {Id}", id);
+                return BadRequest(new { sucesso = false, mensagem = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erro ao gerar PDF do MDFe {Id}", id);
+                return StatusCode(500, new { sucesso = false, mensagem = "Erro ao gerar PDF do DAMDFE" });
+            }
+        }
+
+        /// <summary>
         /// Consultar status do MDFe na SEFAZ
         /// </summary>
         [HttpPost("consultar-status")]

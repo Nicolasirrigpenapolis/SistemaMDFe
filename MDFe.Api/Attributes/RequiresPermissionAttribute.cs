@@ -29,7 +29,7 @@ namespace MDFeApi.Attributes
 
             if (!int.TryParse(cargoIdClaim, out int cargoId))
             {
-                context.Result = new ForbidResult();
+                context.Result = new UnauthorizedObjectResult(new { message = "Token inválido ou CargoId não encontrado" });
                 return;
             }
 
@@ -38,7 +38,10 @@ namespace MDFeApi.Attributes
 
             if (!hasPermission)
             {
-                context.Result = new ForbidResult();
+                context.Result = new ObjectResult(new { message = $"Acesso negado. Permissão necessária: {_permissionCode}" })
+                {
+                    StatusCode = 403
+                };
                 return;
             }
 

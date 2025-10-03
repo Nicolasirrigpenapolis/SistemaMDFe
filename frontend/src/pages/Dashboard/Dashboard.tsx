@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { entitiesService } from '../../services/entitiesService';
 import { mdfeService } from '../../services/mdfeService';
-import Icon from '../../components/UI/Icon';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/UI/card';
+import { TrendingUp, FileText, CheckCircle2, Clock, Building2, Truck, Users, AlertCircle, ChevronRight, Zap, BarChart3, Activity } from 'lucide-react';
 
 interface DashboardStats {
   totalMDFes: number;
@@ -56,7 +57,6 @@ export function Dashboard() {
     try {
       setCarregando(true);
 
-      // Carregar dados em paralelo usando services
       const [
         emitentesRes,
         veiculosRes,
@@ -69,57 +69,49 @@ export function Dashboard() {
         entitiesService.obterEmitentes(),
         entitiesService.obterVeiculos(),
         entitiesService.obterCondutores(),
-        entitiesService.obterContratantes(), // Contratantes
+        entitiesService.obterContratantes(),
         entitiesService.obterSeguradoras(),
         fetch('https://localhost:5001/api/municipios?tamanhoPagina=1&pagina=1').then(res => res.json()),
         mdfeService.listarMDFes({ tamanhoPagina: 1000 })
       ]);
 
-      // Processar emitentes
       let emitentes: any[] = [];
       if (emitentesRes.status === 'fulfilled') {
         emitentes = emitentesRes.value || [];
       }
 
-      // Processar veículos
       let veiculos: any[] = [];
       if (veiculosRes.status === 'fulfilled') {
         veiculos = veiculosRes.value || [];
       }
 
-      // Processar condutores
       let condutores: any[] = [];
       if (condutoresRes.status === 'fulfilled') {
         condutores = condutoresRes.value || [];
       }
 
-      // Processar contratantes
       let contratantes: any[] = [];
       if (contratantesRes.status === 'fulfilled') {
         contratantes = contratantesRes.value || [];
       }
 
-      // Processar seguradoras
       let seguradoras: any[] = [];
       if (seguradorasRes.status === 'fulfilled') {
         seguradoras = seguradorasRes.value || [];
       }
 
-      // Processar municípios
       let totalMunicipios = 0;
       if (municipiosRes.status === 'fulfilled') {
         const municipiosData = municipiosRes.value;
         totalMunicipios = municipiosData?.totalItens || 0;
       }
 
-      // Processar MDFes
       let mdfes: any[] = [];
       if (mdfesRes.status === 'fulfilled' && mdfesRes.value.sucesso && mdfesRes.value.dados) {
         const dados = mdfesRes.value.dados;
         mdfes = dados.Itens || dados.Items || dados.itens || dados.items || dados || [];
       }
 
-      // Calcular estatísticas
       setStats({
         totalMDFes: mdfes.length,
         mdfesPendentes: mdfes.filter((m: any) => m.status === 'Pendente').length,
@@ -132,10 +124,9 @@ export function Dashboard() {
         emitentesAtivos: emitentes.filter((e: any) => e.ativo).length,
         totalContratantes: contratantes.length,
         totalSeguradoras: seguradoras.length,
-        totalMunicipios: totalMunicipios, // Total real de municípios da API
+        totalMunicipios: totalMunicipios,
       });
 
-      // Definir MDFes recentes (últimos 5)
       const mdfesRecentes = mdfes
         .sort((a: any, b: any) => new Date(b.dataEmissao).getTime() - new Date(a.dataEmissao).getTime())
         .slice(0, 5);
@@ -155,15 +146,30 @@ export function Dashboard() {
   const getStatusConfig = (status: string) => {
     switch (status) {
       case 'Autorizado':
-        return { color: 'success', icon: 'fas fa-check-circle', bgColor: '#dcfce7', textColor: '#166534' };
+        return {
+          variant: 'default' as const,
+          icon: CheckCircle2,
+          className: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400'
+        };
       case 'Pendente':
-        return { color: 'warning', icon: 'fas fa-clock', bgColor: '#fef3c7', textColor: '#92400e' };
+        return {
+          variant: 'secondary' as const,
+          icon: Clock,
+          className: 'bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-400'
+        };
       case 'Cancelado':
-        return { color: 'danger', icon: 'fas fa-times-circle', bgColor: '#fee2e2', textColor: '#dc2626' };
       case 'Rejeitado':
-        return { color: 'danger', icon: 'fas fa-exclamation-circle', bgColor: '#fee2e2', textColor: '#dc2626' };
+        return {
+          variant: 'destructive' as const,
+          icon: AlertCircle,
+          className: 'bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-400'
+        };
       default:
-        return { color: 'secondary', icon: 'fas fa-file-alt', bgColor: '#f3f4f6', textColor: '#6b7280' };
+        return {
+          variant: 'outline' as const,
+          icon: FileText,
+          className: 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-400'
+        };
     }
   };
 
@@ -184,297 +190,283 @@ export function Dashboard() {
     });
   };
 
-
   if (carregando) {
     return (
-      <div className="min-h-screen bg-bg-primary">
-        <div className="flex items-center justify-center min-h-screen">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-primary mx-auto mb-4"></div>
-            <p className="text-text-secondary font-medium">Carregando dados do dashboard...</p>
-          </div>
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-muted-foreground font-medium">Carregando dados do dashboard...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-bg-primary">
+    <div className="min-h-screen p-8 space-y-8">
       {/* Header */}
-      <div className="bg-bg-surface border-b border-border-primary mb-8">
-        <div className="px-6 py-8">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-primary to-primary-hover flex items-center justify-center shadow-lg">
-                <Icon name="chart-pie" color="white" size="lg" />
-              </div>
-              <div>
-                <h1 className="text-3xl font-bold text-text-primary">Dashboard</h1>
-                <p className="text-text-secondary font-medium">Visão geral completa do sistema MDF-e</p>
-              </div>
-            </div>
-
-            <button
-              className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-primary to-primary-hover text-white rounded-lg hover:shadow-lg transition-all duration-200 font-medium"
-              onClick={() => navigate('/mdfes/novo')}
-            >
-              <Icon name="plus" size="sm" />
-              <span>Emitir MDF-e</span>
-            </button>
-          </div>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-4xl font-bold tracking-tight">Dashboard</h1>
+          <p className="text-muted-foreground mt-2">Visão geral completa do sistema MDF-e</p>
         </div>
+        <button
+          className="inline-flex items-center justify-center gap-2 rounded-md text-sm font-medium h-10 px-4 py-2 bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
+          onClick={() => navigate('/mdfes/novo')}
+        >
+          <Zap className="w-4 h-4" />
+          Emitir MDF-e
+        </button>
       </div>
 
-      {/* Main Stats */}
-      <div className="px-6 mb-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-6">
-          <div
-            className="bg-bg-surface rounded-xl p-6 border border-border-primary hover:shadow-lg transition-all duration-200 cursor-pointer group"
-            onClick={() => handleNavigate('mdfes')}
-          >
-            <div className="flex items-center justify-between mb-4">
-              <div className="w-10 h-10 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
-                <Icon name="file-alt" className="text-blue-600 dark:text-blue-400" size="sm" />
-              </div>
-              <Icon name="arrow-up" className="text-success w-4 h-4" />
-            </div>
-            <div className="text-2xl font-bold text-text-primary mb-1">{stats.totalMDFes}</div>
-            <div className="text-sm text-text-secondary">Total MDF-es</div>
-          </div>
+      {/* Stats Grid */}
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
+        <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={() => handleNavigate('mdfes')}>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Total MDF-es</CardTitle>
+            <FileText className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{stats.totalMDFes}</div>
+            <p className="text-xs text-muted-foreground flex items-center gap-1 mt-1">
+              <TrendingUp className="w-3 h-3 text-emerald-600" />
+              Documentos emitidos
+            </p>
+          </CardContent>
+        </Card>
 
-          <div className="bg-bg-surface rounded-xl p-6 border border-border-primary hover:shadow-lg transition-all duration-200">
-            <div className="flex items-center justify-between mb-4">
-              <div className="w-10 h-10 rounded-lg bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
-                <Icon name="check-circle" className="text-success" size="sm" />
-              </div>
-              <Icon name="arrow-up" className="text-success w-4 h-4" />
-            </div>
-            <div className="text-2xl font-bold text-text-primary mb-1">{stats.mdfesAutorizados}</div>
-            <div className="text-sm text-text-secondary">Autorizados</div>
-          </div>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Autorizados</CardTitle>
+            <CheckCircle2 className="h-4 w-4 text-emerald-600" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{stats.mdfesAutorizados}</div>
+            <p className="text-xs text-muted-foreground mt-1">
+              Aprovados pela SEFAZ
+            </p>
+          </CardContent>
+        </Card>
 
-          <div className="bg-bg-surface rounded-xl p-6 border border-border-primary hover:shadow-lg transition-all duration-200">
-            <div className="flex items-center justify-between mb-4">
-              <div className="w-10 h-10 rounded-lg bg-warning-light dark:bg-warning/20 flex items-center justify-center">
-                <Icon name="clock" className="text-warning" size="sm" />
-              </div>
-              <Icon name="minus" className="text-text-tertiary w-4 h-4" />
-            </div>
-            <div className="text-2xl font-bold text-text-primary mb-1">{stats.mdfesPendentes}</div>
-            <div className="text-sm text-text-secondary">Pendentes</div>
-          </div>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Pendentes</CardTitle>
+            <Clock className="h-4 w-4 text-amber-600" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{stats.mdfesPendentes}</div>
+            <p className="text-xs text-muted-foreground mt-1">
+              Aguardando processamento
+            </p>
+          </CardContent>
+        </Card>
 
-          <div
-            className="bg-bg-surface rounded-xl p-6 border border-border-primary hover:shadow-lg transition-all duration-200 cursor-pointer"
-            onClick={() => handleNavigate('emitentes')}
-          >
-            <div className="flex items-center justify-between mb-4">
-              <div className="w-10 h-10 rounded-lg bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center">
-                <Icon name="building" className="text-purple-600 dark:text-purple-400" size="sm" />
-              </div>
-            </div>
-            <div className="text-2xl font-bold text-text-primary mb-1">{stats.totalEmitentes}</div>
-            <div className="text-sm text-text-secondary">Emitentes</div>
-          </div>
+        <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={() => handleNavigate('emitentes')}>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Emitentes</CardTitle>
+            <Building2 className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{stats.totalEmitentes}</div>
+            <p className="text-xs text-muted-foreground mt-1">
+              {stats.emitentesAtivos} ativos
+            </p>
+          </CardContent>
+        </Card>
 
-          <div
-            className="bg-bg-surface rounded-xl p-6 border border-border-primary hover:shadow-lg transition-all duration-200 cursor-pointer"
-            onClick={() => handleNavigate('veiculos')}
-          >
-            <div className="flex items-center justify-between mb-4">
-              <div className="w-10 h-10 rounded-lg bg-orange-100 dark:bg-orange-900/30 flex items-center justify-center">
-                <Icon name="truck" className="text-orange-600 dark:text-orange-400" size="sm" />
-              </div>
-            </div>
-            <div className="text-2xl font-bold text-text-primary mb-1">{stats.totalVeiculos}</div>
-            <div className="text-sm text-text-secondary">Veículos</div>
-          </div>
+        <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={() => handleNavigate('veiculos')}>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Veículos</CardTitle>
+            <Truck className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{stats.totalVeiculos}</div>
+            <p className="text-xs text-muted-foreground mt-1">
+              {stats.veiculosAtivos} ativos
+            </p>
+          </CardContent>
+        </Card>
 
-          <div
-            className="bg-bg-surface rounded-xl p-6 border border-border-primary hover:shadow-lg transition-all duration-200 cursor-pointer"
-            onClick={() => handleNavigate('condutores')}
-          >
-            <div className="flex items-center justify-between mb-4">
-              <div className="w-10 h-10 rounded-lg bg-teal-100 dark:bg-teal-900/30 flex items-center justify-center">
-                <Icon name="users" className="text-teal-600 dark:text-teal-400" size="sm" />
-              </div>
-            </div>
-            <div className="text-2xl font-bold text-text-primary mb-1">{stats.totalCondutores}</div>
-            <div className="text-sm text-text-secondary">Condutores</div>
-          </div>
-        </div>
+        <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={() => handleNavigate('condutores')}>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Condutores</CardTitle>
+            <Users className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{stats.totalCondutores}</div>
+            <p className="text-xs text-muted-foreground mt-1">
+              {stats.condutoresAtivos} ativos
+            </p>
+          </CardContent>
+        </Card>
       </div>
 
       {/* Main Content */}
-      <div className="px-6">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Recent MDFes */}
-          <div className="lg:col-span-2">
-            <div className="bg-bg-surface rounded-xl border border-border-primary">
-              <div className="flex items-center justify-between p-6 border-b border-border-primary">
-                <div className="flex items-center gap-3">
-                  <Icon name="history" className="text-text-secondary" size="sm" />
-                  <span className="font-semibold text-text-primary">Atividade Recente</span>
-                </div>
-                <button
-                  className="flex items-center gap-2 text-primary hover:text-primary-hover transition-colors duration-200 text-sm font-medium"
-                  onClick={() => handleNavigate('mdfes')}
-                >
-                  Ver todos
-                  <Icon name="arrow-right" size="sm" />
-                </button>
+      <div className="grid gap-6 lg:grid-cols-3">
+        {/* Recent Activity */}
+        <Card className="lg:col-span-2">
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Activity className="h-5 w-5" />
+                <CardTitle>Atividade Recente</CardTitle>
               </div>
-
-              {recentMDFes.length === 0 ? (
-                <div className="flex flex-col items-center justify-center p-12 text-center">
-                  <div className="w-16 h-16 rounded-full bg-bg-surface-hover flex items-center justify-center mb-4">
-                    <Icon name="file-alt" className="text-text-tertiary" size="lg" />
-                  </div>
-                  <h3 className="text-lg font-semibold text-text-primary mb-2">Nenhum MDF-e emitido</h3>
-                  <p className="text-text-secondary mb-6">Comece emitindo seu primeiro manifesto eletrônico</p>
-                  <button
-                    className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-primary to-primary-hover text-white rounded-lg hover:shadow-lg transition-all duration-200 font-medium"
-                    onClick={() => handleNavigate('mdfe-editor')}
-                  >
-                    <Icon name="plus" size="sm" />
-                    Emitir primeiro MDF-e
-                  </button>
-                </div>
-              ) : (
-                <div className="p-6">
-                  <div className="space-y-4">
-                    {recentMDFes.map((mdfe) => {
-                      const statusConfig = getStatusConfig(mdfe.status);
-                      return (
-                        <div key={mdfe.id} className="flex items-center justify-between p-4 rounded-lg border border-border-primary hover:bg-bg-surface-hover transition-colors duration-200">
-                          <div className="flex-1">
-                            <div className="font-medium text-text-primary mb-1">
-                              MDF-e Nº {mdfe.numero}/{mdfe.serie}
-                            </div>
-                            <div className="flex flex-wrap gap-3 text-sm text-text-secondary">
-                              <span>{mdfe.emitenteNome}</span>
-                              <span>{formatDate(mdfe.dataEmissao)}</span>
-                              {mdfe.valorTotal && <span>{formatCurrency(mdfe.valorTotal)}</span>}
-                            </div>
-                          </div>
-                          <div className="flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium" style={{ backgroundColor: statusConfig.bgColor, color: statusConfig.textColor }}>
-                            <i className={statusConfig.icon}></i>
-                            {mdfe.status}
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-              )}
+              <button
+                className="text-sm font-medium text-primary hover:underline flex items-center gap-1"
+                onClick={() => handleNavigate('mdfes')}
+              >
+                Ver todos
+                <ChevronRight className="w-4 h-4" />
+              </button>
             </div>
-          </div>
-
-          {/* Quick Actions & System Info */}
-          <div className="space-y-6">
-            {/* Quick Actions */}
-            <div className="bg-bg-surface rounded-xl border border-border-primary">
-              <div className="p-6 border-b border-border-primary">
-                <div className="flex items-center gap-3">
-                  <Icon name="bolt" className="text-text-secondary" size="sm" />
-                  <span className="font-semibold text-text-primary">Ações Rápidas</span>
+            <CardDescription>Últimos MDF-es emitidos no sistema</CardDescription>
+          </CardHeader>
+          <CardContent>
+            {recentMDFes.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-12 text-center">
+                <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center mb-4">
+                  <FileText className="h-8 w-8 text-muted-foreground" />
                 </div>
-              </div>
-
-              <div className="p-6 space-y-3">
+                <h3 className="text-lg font-semibold mb-2">Nenhum MDF-e emitido</h3>
+                <p className="text-muted-foreground mb-6">Comece emitindo seu primeiro manifesto eletrônico</p>
                 <button
-                  className="w-full flex items-center justify-between p-4 rounded-lg border border-border-primary hover:bg-bg-surface-hover transition-colors duration-200 group"
+                  className="inline-flex items-center justify-center gap-2 rounded-md text-sm font-medium h-10 px-4 py-2 bg-primary text-primary-foreground hover:bg-primary/90"
                   onClick={() => handleNavigate('mdfe-editor')}
                 >
-                  <div className="flex items-center gap-4">
-                    <div className="w-10 h-10 rounded-lg bg-primary-light flex items-center justify-center">
-                      <Icon name="plus" className="text-primary" size="sm" />
-                    </div>
-                    <div className="text-left">
-                      <div className="font-medium text-text-primary">Novo MDF-e</div>
-                      <div className="text-sm text-text-secondary">Emitir manifesto</div>
-                    </div>
-                  </div>
-                  <Icon name="chevron-right" className="text-text-tertiary group-hover:text-primary transition-colors duration-200" size="sm" />
-                </button>
-
-                <button
-                  className="w-full flex items-center justify-between p-4 rounded-lg border border-border-primary hover:bg-bg-surface-hover transition-colors duration-200 group"
-                  onClick={() => handleNavigate('veiculos')}
-                >
-                  <div className="flex items-center gap-4">
-                    <div className="w-10 h-10 rounded-lg bg-orange-100 dark:bg-orange-900/30 flex items-center justify-center">
-                      <Icon name="truck" className="text-orange-600 dark:text-orange-400" size="sm" />
-                    </div>
-                    <div className="text-left">
-                      <div className="font-medium text-text-primary">Veículos</div>
-                      <div className="text-sm text-text-secondary">Gerenciar frota</div>
-                    </div>
-                  </div>
-                  <Icon name="chevron-right" className="text-text-tertiary group-hover:text-primary transition-colors duration-200" size="sm" />
-                </button>
-
-                <button
-                  className="w-full flex items-center justify-between p-4 rounded-lg border border-border-primary hover:bg-bg-surface-hover transition-colors duration-200 group"
-                  onClick={() => handleNavigate('condutores')}
-                >
-                  <div className="flex items-center gap-4">
-                    <div className="w-10 h-10 rounded-lg bg-teal-100 dark:bg-teal-900/30 flex items-center justify-center">
-                      <Icon name="users" className="text-teal-600 dark:text-teal-400" size="sm" />
-                    </div>
-                    <div className="text-left">
-                      <div className="font-medium text-text-primary">Condutores</div>
-                      <div className="text-sm text-text-secondary">Motoristas</div>
-                    </div>
-                  </div>
-                  <Icon name="chevron-right" className="text-text-tertiary group-hover:text-primary transition-colors duration-200" size="sm" />
-                </button>
-
-                <button
-                  className="w-full flex items-center justify-between p-4 rounded-lg border border-border-primary hover:bg-bg-surface-hover transition-colors duration-200 group"
-                  onClick={() => handleNavigate('emitentes')}
-                >
-                  <div className="flex items-center gap-4">
-                    <div className="w-10 h-10 rounded-lg bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center">
-                      <Icon name="building" className="text-purple-600 dark:text-purple-400" size="sm" />
-                    </div>
-                    <div className="text-left">
-                      <div className="font-medium text-text-primary">Emitentes</div>
-                      <div className="text-sm text-text-secondary">Empresas</div>
-                    </div>
-                  </div>
-                  <Icon name="chevron-right" className="text-text-tertiary group-hover:text-primary transition-colors duration-200" size="sm" />
+                  <Zap className="w-4 h-4" />
+                  Emitir primeiro MDF-e
                 </button>
               </div>
-            </div>
+            ) : (
+              <div className="space-y-3">
+                {recentMDFes.map((mdfe) => {
+                  const statusConfig = getStatusConfig(mdfe.status);
+                  const StatusIcon = statusConfig.icon;
+                  return (
+                    <div key={mdfe.id} className="flex items-center justify-between p-4 rounded-lg border hover:bg-accent/50 transition-colors">
+                      <div className="flex-1">
+                        <div className="font-medium mb-1">
+                          MDF-e Nº {mdfe.numero}/{mdfe.serie}
+                        </div>
+                        <div className="flex flex-wrap gap-3 text-sm text-muted-foreground">
+                          <span>{mdfe.emitenteNome}</span>
+                          <span>{formatDate(mdfe.dataEmissao)}</span>
+                          {mdfe.valorTotal && <span>{formatCurrency(mdfe.valorTotal)}</span>}
+                        </div>
+                      </div>
+                      <div className={`flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium ${statusConfig.className}`}>
+                        <StatusIcon className="w-3 h-3" />
+                        {mdfe.status}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </CardContent>
+        </Card>
 
-            {/* System Summary */}
-            <div className="bg-bg-surface rounded-xl border border-border-primary">
-              <div className="p-6 border-b border-border-primary">
+        {/* Sidebar */}
+        <div className="space-y-6">
+          {/* Quick Actions */}
+          <Card>
+            <CardHeader>
+              <div className="flex items-center gap-2">
+                <Zap className="h-5 w-5" />
+                <CardTitle>Ações Rápidas</CardTitle>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-2">
+              <button
+                className="w-full flex items-center justify-between p-3 rounded-lg border hover:bg-accent transition-colors group"
+                onClick={() => handleNavigate('mdfe-editor')}
+              >
                 <div className="flex items-center gap-3">
-                  <Icon name="chart-bar" className="text-text-secondary" size="sm" />
-                  <span className="font-semibold text-text-primary">Resumo</span>
+                  <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                    <FileText className="w-5 h-5 text-primary" />
+                  </div>
+                  <div className="text-left">
+                    <div className="font-medium text-sm">Novo MDF-e</div>
+                    <div className="text-xs text-muted-foreground">Emitir manifesto</div>
+                  </div>
                 </div>
-              </div>
+                <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
+              </button>
 
-              <div className="p-6 space-y-4">
-                <div className="flex items-center justify-between">
-                  <span className="text-text-secondary">Contratantes</span>
-                  <span className="font-semibold text-text-primary">{stats.totalContratantes}</span>
+              <button
+                className="w-full flex items-center justify-between p-3 rounded-lg border hover:bg-accent transition-colors group"
+                onClick={() => handleNavigate('veiculos')}
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-lg bg-orange-100 dark:bg-orange-950 flex items-center justify-center">
+                    <Truck className="w-5 h-5 text-orange-600 dark:text-orange-400" />
+                  </div>
+                  <div className="text-left">
+                    <div className="font-medium text-sm">Veículos</div>
+                    <div className="text-xs text-muted-foreground">Gerenciar frota</div>
+                  </div>
                 </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-text-secondary">Seguradoras</span>
-                  <span className="font-semibold text-text-primary">{stats.totalSeguradoras}</span>
+                <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
+              </button>
+
+              <button
+                className="w-full flex items-center justify-between p-3 rounded-lg border hover:bg-accent transition-colors group"
+                onClick={() => handleNavigate('condutores')}
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-lg bg-teal-100 dark:bg-teal-950 flex items-center justify-center">
+                    <Users className="w-5 h-5 text-teal-600 dark:text-teal-400" />
+                  </div>
+                  <div className="text-left">
+                    <div className="font-medium text-sm">Condutores</div>
+                    <div className="text-xs text-muted-foreground">Motoristas</div>
+                  </div>
                 </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-text-secondary">Municípios</span>
-                  <span className="font-semibold text-text-primary">{stats.totalMunicipios}</span>
+                <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
+              </button>
+
+              <button
+                className="w-full flex items-center justify-between p-3 rounded-lg border hover:bg-accent transition-colors group"
+                onClick={() => handleNavigate('emitentes')}
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-lg bg-purple-100 dark:bg-purple-950 flex items-center justify-center">
+                    <Building2 className="w-5 h-5 text-purple-600 dark:text-purple-400" />
+                  </div>
+                  <div className="text-left">
+                    <div className="font-medium text-sm">Emitentes</div>
+                    <div className="text-xs text-muted-foreground">Empresas</div>
+                  </div>
                 </div>
+                <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
+              </button>
+            </CardContent>
+          </Card>
+
+          {/* System Summary */}
+          <Card>
+            <CardHeader>
+              <div className="flex items-center gap-2">
+                <BarChart3 className="h-5 w-5" />
+                <CardTitle>Resumo do Sistema</CardTitle>
               </div>
-            </div>
-          </div>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-muted-foreground">Contratantes</span>
+                <span className="font-semibold">{stats.totalContratantes}</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-muted-foreground">Seguradoras</span>
+                <span className="font-semibold">{stats.totalSeguradoras}</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-muted-foreground">Municípios</span>
+                <span className="font-semibold">{stats.totalMunicipios}</span>
+              </div>
+            </CardContent>
+          </Card>
         </div>
       </div>
     </div>
   );
-};
+}

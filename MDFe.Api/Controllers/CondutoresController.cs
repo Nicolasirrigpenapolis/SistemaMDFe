@@ -4,14 +4,18 @@ using MDFeApi.Data;
 using MDFeApi.Models;
 using MDFeApi.DTOs;
 using MDFeApi.Utils;
+using MDFeApi.Services;
 
 namespace MDFeApi.Controllers
 {
     [Route("api/[controller]")]
     public class CondutoresController : BaseController<Condutor, CondutorListDto, CondutorResponseDto, CondutorCreateDto, CondutorUpdateDto>
     {
-        public CondutoresController(MDFeContext context, ILogger<CondutoresController> logger)
-            : base(context, logger)
+        public CondutoresController(
+            MDFeContext context,
+            ILogger<CondutoresController> logger,
+            ICacheService cacheService)
+            : base(context, logger, cacheService)
         {
         }
 
@@ -45,17 +49,17 @@ namespace MDFeApi.Controllers
         {
             return new Condutor
             {
-                Nome = dto.Nome?.Trim(),
+                Nome = DocumentUtils.RemoverAcentos(dto.Nome?.Trim()) ?? string.Empty,
                 Cpf = DocumentUtils.LimparCpf(dto.Cpf) ?? string.Empty,
-                Telefone = dto.Telefone?.Trim()
+                Telefone = dto.Telefone?.Trim() ?? string.Empty
             };
         }
 
         protected override void UpdateEntityFromDto(Condutor entity, CondutorUpdateDto dto)
         {
-            entity.Nome = dto.Nome?.Trim();
+            entity.Nome = DocumentUtils.RemoverAcentos(dto.Nome?.Trim()) ?? string.Empty;
             entity.Cpf = DocumentUtils.LimparCpf(dto.Cpf) ?? string.Empty;
-            entity.Telefone = dto.Telefone?.Trim();
+            entity.Telefone = dto.Telefone?.Trim() ?? string.Empty;
         }
 
         protected override IQueryable<Condutor> ApplySearchFilter(IQueryable<Condutor> query, string search)

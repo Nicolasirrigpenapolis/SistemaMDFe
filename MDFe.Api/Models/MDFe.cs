@@ -67,34 +67,28 @@ namespace MDFeApi.Models
         [MaxLength(20)]
         public string? EmitenteRntrc { get; set; }
 
-        [Required]
-        public int CondutorId { get; set; }
-        public virtual Condutor Condutor { get; set; } = null!;
+        public int? CondutorId { get; set; }
+        public virtual Condutor? Condutor { get; set; }
 
         // === DADOS DO CONDUTOR (COPIADOS NO MOMENTO DA EMISSÃO) ===
-        [Required]
         [MaxLength(200)]
-        public string CondutorNome { get; set; } = string.Empty;
+        public string? CondutorNome { get; set; }
 
-        [Required]
         [MaxLength(11)]
-        public string CondutorCpf { get; set; } = string.Empty;
+        public string? CondutorCpf { get; set; }
 
         [MaxLength(20)]
         public string? CondutorTelefone { get; set; }
 
-        [Required]
-        public int VeiculoId { get; set; }
-        public virtual Veiculo Veiculo { get; set; } = null!;
+        public int? VeiculoId { get; set; }
+        public virtual Veiculo? Veiculo { get; set; }
 
         // === DADOS DO VEÍCULO (COPIADOS NO MOMENTO DA EMISSÃO) ===
-        [Required]
         [MaxLength(8)]
-        public string VeiculoPlaca { get; set; } = string.Empty;
+        public string? VeiculoPlaca { get; set; }
 
 
-        [Required]
-        public int VeiculoTara { get; set; }
+        public int? VeiculoTara { get; set; }
 
 
         [Required]
@@ -161,6 +155,11 @@ namespace MDFeApi.Models
         [Column(TypeName = "decimal(10,2)")]
         public decimal? ValorTotal { get; set; }
 
+        public int? QuantidadeCTe { get; set; } // Calculado automaticamente
+
+        public int? QuantidadeNFe { get; set; } // Calculado automaticamente
+
+        public int? Lote { get; set; } = 1; // Número do lote de envio
 
         [MaxLength(2)]
         public string UnidadeMedida { get; set; } = "01"; // Fixo em '01' = Quilograma (padrão do sistema)
@@ -575,14 +574,18 @@ namespace MDFeApi.Models
         /// </summary>
         public string GerarChaveAcesso()
         {
-            if (string.IsNullOrEmpty(EmitenteUf) || string.IsNullOrEmpty(EmitenteCnpj))
+            // Usar dados do snapshot se disponíveis, senão usar da entidade relacionada
+            var emitenteUf = !string.IsNullOrEmpty(EmitenteUf) ? EmitenteUf : (Emitente?.Uf ?? "");
+            var emitenteCnpj = !string.IsNullOrEmpty(EmitenteCnpj) ? EmitenteCnpj : (Emitente?.Cnpj ?? "");
+
+            if (string.IsNullOrEmpty(emitenteUf) || string.IsNullOrEmpty(emitenteCnpj))
                 throw new InvalidOperationException("Dados do emitente são obrigatórios para gerar chave");
 
             var agora = DataEmissao;
-            var codigoUf = ObterCodigoUfIBGE(EmitenteUf);
+            var codigoUf = ObterCodigoUfIBGE(emitenteUf);
             var ano = agora.ToString("yy");
             var mes = agora.ToString("MM");
-            var cnpj = EmitenteCnpj.PadLeft(14, '0');
+            var cnpj = emitenteCnpj.PadLeft(14, '0');
             var modelo = "58"; // MDFe
             var serie = Serie.ToString().PadLeft(3, '0');
             var numero = NumeroMdfe.ToString().PadLeft(9, '0');

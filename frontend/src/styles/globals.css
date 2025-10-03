@@ -27,25 +27,26 @@
   }
 
   .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
-    --primary: 217.2 91.2% 59.8%;
-    --primary-foreground: 222.2 47.4% 11.2%;
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 224.3 76.3% 48%;
+    /* Tema azul moderno - inspirado em VSCode, Linear, Vercel */
+    --background: 220 26% 14%;        /* Azul-acinzentado moderno */
+    --foreground: 213 31% 91%;        /* Texto claro e suave */
+    --card: 220 26% 18%;              /* Cards levemente mais claros */
+    --card-foreground: 213 31% 91%;
+    --popover: 220 26% 18%;
+    --popover-foreground: 213 31% 91%;
+    --primary: 217 91% 60%;           /* Azul vibrante */
+    --primary-foreground: 0 0% 100%;
+    --secondary: 220 17% 20%;         /* Elementos secundários */
+    --secondary-foreground: 213 31% 91%;
+    --muted: 220 17% 20%;             /* Fundo de elementos desativados */
+    --muted-foreground: 217 10% 64%;  /* Texto secundário */
+    --accent: 220 26% 22%;            /* Hover states */
+    --accent-foreground: 213 31% 91%;
+    --destructive: 0 84% 60%;         /* Vermelho vibrante */
+    --destructive-foreground: 0 0% 100%;
+    --border: 220 26% 18%;            /* Bordas invisíveis (mesma cor do card) */
+    --input: 220 17% 20%;             /* Inputs */
+    --ring: 217 91% 60%;              /* Focus ring azul */
   }
 }
 
@@ -55,6 +56,108 @@
   }
   body {
     @apply bg-background text-foreground;
+  }
+
+  /* Tema dark ultra-moderno - sem bordas, apenas sombras e elevação */
+  .dark {
+    /* REMOVE TODAS AS BORDAS */
+    * {
+      border-color: transparent !important;
+    }
+
+    /* Cards com sombra sutil para elevação */
+    [class*="Card"],
+    .bg-card,
+    .rounded-lg,
+    .rounded-xl {
+      border: none !important;
+      box-shadow:
+        0 1px 2px 0 rgba(0, 0, 0, 0.3),
+        0 0 0 1px rgba(255, 255, 255, 0.02);
+    }
+
+    /* Inputs modernos sem borda */
+    input,
+    textarea,
+    select {
+      border: none !important;
+      background: hsl(var(--input)) !important;
+      box-shadow:
+        inset 0 0 0 1px rgba(255, 255, 255, 0.05),
+        0 1px 2px 0 rgba(0, 0, 0, 0.2);
+    }
+
+    input:focus,
+    textarea:focus,
+    select:focus {
+      box-shadow:
+        inset 0 0 0 1px hsl(var(--ring) / 0.5),
+        0 0 0 3px hsl(var(--ring) / 0.1);
+      outline: none !important;
+    }
+
+    /* Tabelas sem bordas - apenas separação com background */
+    table {
+      border-collapse: separate !important;
+      border-spacing: 0 !important;
+    }
+
+    thead tr {
+      background: hsl(var(--muted) / 0.5) !important;
+    }
+
+    tbody tr {
+      border: none !important;
+    }
+
+    tbody tr:hover {
+      background: hsl(var(--accent)) !important;
+    }
+
+    td, th {
+      border: none !important;
+    }
+
+    /* Buttons com elevação moderna */
+    button {
+      border: none !important;
+      box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+    }
+
+    button:hover {
+      box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.4);
+    }
+
+    /* Botões ghost mais visíveis no dark mode */
+    button[class*="ghost"] {
+      background: hsl(var(--accent)) !important;
+      color: hsl(var(--foreground)) !important;
+    }
+
+    button[class*="ghost"]:hover {
+      background: hsl(var(--accent)) !important;
+      color: hsl(var(--primary)) !important;
+      box-shadow: 0 0 0 1px hsl(var(--primary) / 0.3) !important;
+    }
+
+    /* Botões outline mais visíveis */
+    button[class*="outline"] {
+      background: hsl(var(--accent)) !important;
+      color: hsl(var(--foreground)) !important;
+      box-shadow: 0 0 0 1px hsl(var(--border)) !important;
+    }
+
+    button[class*="outline"]:hover {
+      background: hsl(var(--primary) / 0.1) !important;
+      color: hsl(var(--primary)) !important;
+      box-shadow: 0 0 0 1px hsl(var(--primary)) !important;
+    }
+
+    /* Remove outline padrão, usa ring bonito */
+    *:focus-visible {
+      outline: none !important;
+      box-shadow: 0 0 0 3px hsl(var(--ring) / 0.3);
+    }
   }
 }
 
@@ -133,14 +236,13 @@ button:focus-visible,
 input:focus-visible,
 select:focus-visible,
 textarea:focus-visible {
-  outline: 2px solid rgb(var(--color-primary));
+  outline: 2px solid hsl(var(--ring));
   outline-offset: 2px;
 }
 
 /* Melhorar seleção de texto */
 ::selection {
-  background-color: rgba(37, 99, 235, 0.2);
-  color: rgb(var(--color-text-primary));
+  background-color: hsl(var(--primary) / 0.2);
 }
 
 /* Estilo para elementos desabilitados */

@@ -59,7 +59,7 @@ export interface GenericViewModalProps<T = any> {
 export interface FormField {
   key: string;
   label: string;
-  type: 'text' | 'email' | 'password' | 'number' | 'select' | 'textarea' | 'checkbox' | 'toggle' | 'file' | 'cnpj' | 'cpf' | 'cep' | 'telefone' | 'date';
+  type: 'text' | 'email' | 'password' | 'number' | 'select' | 'textarea' | 'checkbox' | 'toggle' | 'file' | 'folder' | 'cnpj' | 'cpf' | 'cep' | 'telefone' | 'date' | 'localidade';
   placeholder?: string;
   required?: boolean;
   options?: Array<{ value: string | number; label: string }>;
@@ -67,12 +67,16 @@ export interface FormField {
   colSpan?: 1 | 2 | 3;
   show?: boolean;
   disabled?: boolean;
+  readonly?: boolean;
   icon?: string;
   mask?: string;
   maxLength?: number;
   autoFetch?: boolean;
   onDataFetch?: (data: any) => void;
   conditionalShow?: { field: string; value: string };
+  dependsOn?: string;
+  buttonLabel?: string;
+  accept?: string;
 }
 
 export interface FormSection {

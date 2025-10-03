@@ -73,7 +73,7 @@ export function SmartCNPJInput({
       if (numbers.length === 0) {
         setIsValid(null);
         setError('');
-        setProgress('idle');
+        
         return;
       }
 
@@ -164,8 +164,9 @@ export function SmartCNPJInput({
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const formatted = formatCNPJ(e.target.value);
+    const cleanedValue = formatted.replace(/\D/g, ''); // Remove formatação para enviar ao backend
     const isCurrentValid = isValid === true;
-    onChange(formatted, isCurrentValid);
+    onChange(cleanedValue, isCurrentValid);
   };
 
   // Classes dinâmicas baseadas no estado
@@ -245,7 +246,7 @@ export function SmartCNPJInput({
       <div className="relative">
         <input
           type="text"
-          value={value}
+          value={formatCNPJ(value)}
           onChange={handleChange}
           placeholder={placeholder}
           disabled={disabled}
@@ -260,7 +261,7 @@ export function SmartCNPJInput({
         <p className={`text-xs transition-all duration-200 ${
           isValidating || isFetching ? 'text-blue-600' :
           isValid === true ? 'text-green-600' :
-          isValid === false ? 'text-red-600' : 'text-gray-600'
+          isValid === false ? 'text-red-600' : 'text-muted-foreground'
         }`}>
           {getStatusMessage()}
         </p>

@@ -2,7 +2,7 @@ import React from 'react';
 import { GenericViewModal } from '../UI/Modal/GenericViewModal';
 import { GenericFormModal } from '../UI/Modal/GenericFormModal';
 import { ConfirmDeleteModal } from '../UI/Modal/ConfirmDeleteModal';
-import { seguradoraConfig, SeguradoraFormData } from './SeguradoraConfig';
+import { seguradoraConfig } from './SeguradoraConfig';
 import { formatCNPJ } from '../../utils/formatters';
 
 interface Seguradora {

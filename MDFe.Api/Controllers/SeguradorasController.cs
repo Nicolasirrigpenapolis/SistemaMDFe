@@ -5,14 +5,18 @@ using MDFeApi.DTOs;
 using MDFeApi.Models;
 using MDFeApi.Utils;
 using MDFeApi.Helpers;
+using MDFeApi.Services;
 
 namespace MDFeApi.Controllers
 {
     [Route("api/[controller]")]
     public class SeguradorasController : BaseController<Seguradora, SeguradoraListDto, SeguradoraDetailDto, SeguradoraCreateDto, SeguradoraUpdateDto>
     {
-        public SeguradorasController(MDFeContext context, ILogger<SeguradorasController> logger)
-            : base(context, logger)
+        public SeguradorasController(
+            MDFeContext context,
+            ILogger<SeguradorasController> logger,
+            ICacheService cacheService)
+            : base(context, logger, cacheService)
         {
         }
 
@@ -25,7 +29,6 @@ namespace MDFeApi.Controllers
                 Id = entity.Id,
                 Cnpj = entity.Cnpj,
                 RazaoSocial = entity.RazaoSocial,
-                Uf = entity.Uf,
                 NomeFantasia = entity.NomeFantasia,
                 Apolice = entity.Apolice,
                 Ativo = entity.Ativo,
@@ -40,7 +43,6 @@ namespace MDFeApi.Controllers
                 Id = entity.Id,
                 Cnpj = entity.Cnpj,
                 RazaoSocial = entity.RazaoSocial,
-                Uf = entity.Uf,
                 NomeFantasia = entity.NomeFantasia,
                 Apolice = entity.Apolice,
                 Ativo = entity.Ativo,
@@ -55,18 +57,8 @@ namespace MDFeApi.Controllers
             {
                 Cnpj = dto.Cnpj,
                 RazaoSocial = dto.RazaoSocial?.Trim(),
-                NomeFantasia = dto.NomeFantasia?.Trim(),
-                Endereco = dto.Endereco?.Trim(),
-                Numero = dto.Numero?.Trim(),
-                Complemento = dto.Complemento?.Trim(),
-                Bairro = dto.Bairro?.Trim(),
-                CodMunicipio = dto.CodMunicipio,
-                Municipio = dto.Municipio?.Trim(),
-                Cep = dto.Cep?.Trim(),
-                Uf = dto.Uf?.Trim(),
-                Telefone = dto.Telefone?.Trim(),
-                Email = dto.Email?.Trim(),
-                Apolice = dto.Apolice?.Trim(),
+                NomeFantasia = string.IsNullOrWhiteSpace(dto.NomeFantasia) ? null : dto.NomeFantasia.Trim(),
+                Apolice = string.IsNullOrWhiteSpace(dto.Apolice) ? null : dto.Apolice.Trim(),
                 Ativo = dto.Ativo
             };
 
@@ -78,18 +70,8 @@ namespace MDFeApi.Controllers
         {
             entity.Cnpj = dto.Cnpj;
             entity.RazaoSocial = dto.RazaoSocial?.Trim();
-            entity.NomeFantasia = dto.NomeFantasia?.Trim();
-            entity.Endereco = dto.Endereco?.Trim();
-            entity.Numero = dto.Numero?.Trim();
-            entity.Complemento = dto.Complemento?.Trim();
-            entity.Bairro = dto.Bairro?.Trim();
-            entity.CodMunicipio = dto.CodMunicipio;
-            entity.Municipio = dto.Municipio?.Trim();
-            entity.Cep = dto.Cep?.Trim();
-            entity.Uf = dto.Uf?.Trim();
-            entity.Telefone = dto.Telefone?.Trim();
-            entity.Email = dto.Email?.Trim();
-            entity.Apolice = dto.Apolice?.Trim();
+            entity.NomeFantasia = string.IsNullOrWhiteSpace(dto.NomeFantasia) ? null : dto.NomeFantasia.Trim();
+            entity.Apolice = string.IsNullOrWhiteSpace(dto.Apolice) ? null : dto.Apolice.Trim();
             entity.Ativo = dto.Ativo;
 
             DocumentUtils.LimparDocumentosSeguradora(entity);
@@ -111,7 +93,6 @@ namespace MDFeApi.Controllers
             return sortBy?.ToLower() switch
             {
                 "cnpj" => isDesc ? query.OrderByDescending(s => s.Cnpj) : query.OrderBy(s => s.Cnpj),
-                "uf" => isDesc ? query.OrderByDescending(s => s.Uf) : query.OrderBy(s => s.Uf),
                 "datacriacao" => isDesc ? query.OrderByDescending(s => s.DataCriacao) : query.OrderBy(s => s.DataCriacao),
                 _ => isDesc ? query.OrderByDescending(s => s.RazaoSocial) : query.OrderBy(s => s.RazaoSocial)
             };

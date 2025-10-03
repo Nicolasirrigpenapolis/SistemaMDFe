@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { MDFeData } from '../../../types/mdfe';
+import { MDFeData, EntidadesCarregadas } from '../../../types/mdfe';
 import { useMDFeForm } from '../../../hooks/useMDFeForm';
 import Icon from '../Icon';
-import { OptionalFieldsToggle, OptionalSection } from '../Common/OptionalFieldsToggle';
 import { Combobox } from '../Common/Combobox';
 import { LocalCarregamento } from '../../../services/localidadeService';
 import { LocalidadeSelector } from './LocalidadeSelector';
@@ -18,7 +17,7 @@ interface MDFeFormProps {
   transmitindo?: boolean;
   isEdicao: boolean;
   carregandoDados?: boolean;
-  entidadesCarregadas?: any;
+  entidadesCarregadas?: EntidadesCarregadas;
 }
 
 interface WizardSection {
@@ -41,10 +40,8 @@ export function MDFeForm({
   carregandoDados = false,
   entidadesCarregadas
 }: MDFeFormProps) {
-  const [currentSection, setCurrentSection] = useState('emitente');
-  const [showOptionalContratacao, setShowOptionalContratacao] = useState(false);
-  const [showOptionalSeguro, setShowOptionalSeguro] = useState(false);
-  const [showOptionalReboques, setShowOptionalReboques] = useState(false);
+  const [currentSection, setCurrentSection] = useState('dados-basicos');
+  const [showCancelModal, setShowCancelModal] = useState(false);
 
 
   // Estados para localidades com LocalidadeSelector
@@ -60,43 +57,62 @@ export function MDFeForm({
   const {
     dados: dadosHook,
     selectedIds,
-    updateField,
     selectEntity,
-    setFormData,
-    resetForm
+    setFormData
   } = useMDFeForm();
 
+  // Sincronizar dados do hook com o componente pai - SEM criar loop
   useEffect(() => {
     if (dadosHook && Object.keys(dadosHook).length > 0) {
-      onDadosChange({ ...dados, ...dadosHook });
+      // Apenas atualizar se houver diferença real nos IDs
+      const idsChanged =
+        dadosHook.emitenteId !== dados.emitenteId ||
+        dadosHook.veiculoId !== dados.veiculoId ||
+        dadosHook.condutorId !== dados.condutorId ||
+        dadosHook.contratanteId !== dados.contratanteId ||
+        dadosHook.seguradoraId !== dados.seguradoraId;
 
-      // Também tentar carregar localidades do dadosHook quando disponível
-      if (isEdicao && dadosHook) {
-
-        // Verificar carregamento no dadosHook (usando novo formato)
-        if (dadosHook.localidadesCarregamento && dadosHook.localidadesCarregamento.length > 0) {
-          const locaisCarregamentoHook = dadosHook.localidadesCarregamento.map((mun, index) => ({
-            id: `carregamento-hook-${index}`,
-            uf: mun.uf || '',
-            municipio: mun.municipio || '',
-            codigoIBGE: mun.codigoIBGE || 0
-          }));
-          setLocaisCarregamento(locaisCarregamentoHook);
-        }
-
-        // Verificar descarregamento no dadosHook (usando novo formato)
-        if (dadosHook.localidadesDescarregamento && dadosHook.localidadesDescarregamento.length > 0) {
-          const locaisDescarregamentoHook = dadosHook.localidadesDescarregamento.map((mun, index) => ({
-            id: `descarregamento-hook-${index}`,
-            uf: mun.uf || '',
-            municipio: mun.municipio || '',
-            codigoIBGE: mun.codigoIBGE || 0
-          }));
-          setLocaisDescarregamento(locaisDescarregamentoHook);
-        }
+      if (idsChanged) {
+        onDadosChange({ ...dados, ...dadosHook });
       }
     }
-  }, [dadosHook, isEdicao]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dadosHook]);
+
+  // Carregar localidades quando em modo de edição - APENAS UMA VEZ
+  useEffect(() => {
+    if (isEdicao && dados && !carregandoDados) {
+      // Carregar localidades de carregamento
+      if (dados.localidadesCarregamento && dados.localidadesCarregamento.length > 0 && locaisCarregamento.length === 0) {
+        const locais = dados.localidadesCarregamento.map((mun, index) => ({
+          id: `carregamento-${index}`,
+          uf: mun.uf || '',
+          municipio: mun.municipio || '',
+          codigoIBGE: mun.codigoIBGE || 0
+        }));
+        setLocaisCarregamento(locais);
+      }
+
+      // Carregar localidades de descarregamento
+      if (dados.localidadesDescarregamento && dados.localidadesDescarregamento.length > 0 && locaisDescarregamento.length === 0) {
+        const locais = dados.localidadesDescarregamento.map((mun, index) => ({
+          id: `descarregamento-${index}`,
+          uf: mun.uf || '',
+          municipio: mun.municipio || '',
+          codigoIBGE: mun.codigoIBGE || 0
+        }));
+        setLocaisDescarregamento(locais);
+      }
+
+      // Carregar rota se disponível
+      if (dados.rotaPercurso && dados.rotaPercurso.length > 0 && rotaSelecionada.length === 0) {
+        setRotaSelecionada(dados.rotaPercurso);
+      }
+
+      // Atualizar IDs selecionados do hook
+      setFormData(dados);
+    }
+  }, [isEdicao, carregandoDados, dados, locaisCarregamento.length, locaisDescarregamento.length, rotaSelecionada.length, setFormData]);
 
   // Funções para gerenciar localidades
   const handleLocaisCarregamentoChange = (locais: LocalCarregamento[]) => {
@@ -147,34 +163,23 @@ export function MDFeForm({
     });
   };
 
-  const adicionarTodosReboques = () => {
-    const todosIds = reboquesDisponiveis.map(reboque => reboque.id);
-    setReboquesSelecionados(todosIds);
-    onDadosChange({
-      ...dados,
-      reboquesIds: todosIds
-    });
-  };
-
-  const removerTodosReboques = () => {
-    setReboquesSelecionados([]);
-    onDadosChange({
-      ...dados,
-      reboquesIds: []
-    });
-  };
-
   // Carregar reboques disponíveis
   useEffect(() => {
     const carregarReboques = async () => {
+      console.log('🚛 Carregando reboques...');
       setCarregandoReboques(true);
       try {
         const response = await reboquesService.listarReboquesAtivos();
+        console.log('📦 Resposta do serviço:', response);
+
         if (response.sucesso && response.data) {
+          console.log(`✅ ${response.data.length} reboques ativos encontrados`);
           setReboquesDisponiveis(response.data);
+        } else {
+          console.warn('⚠️ Nenhum reboque retornado:', response.mensagem);
         }
       } catch (error) {
-        console.error('Erro ao carregar reboques:', error);
+        console.error('❌ Erro ao carregar reboques:', error);
       } finally {
         setCarregandoReboques(false);
       }
@@ -183,55 +188,98 @@ export function MDFeForm({
     carregarReboques();
   }, []);
 
+  // Validações mais rigorosas das seções
+  const validarDadosBasicos = () => {
+    // Valida Emitente + Transporte (obrigatórios)
+    // Contratação é opcional, não bloqueia
+    const emitenteValido = !!(selectedIds.emitenteId && selectedIds.emitenteId !== '');
+    const transporteValido = !!(
+      selectedIds.veiculoId && selectedIds.veiculoId !== '' &&
+      selectedIds.condutorId && selectedIds.condutorId !== ''
+    );
+    return emitenteValido && transporteValido;
+  };
+
+  const validarLocalidades = () => {
+    return locaisCarregamento.length > 0 && locaisDescarregamento.length > 0;
+  };
+
+  const validarCargaDocumentos = () => {
+    // Valida Carga + Documentos juntos
+    const cargaValida = !!(
+      dados.valorTotal && dados.valorTotal > 0 &&
+      dados.pesoBrutoTotal && dados.pesoBrutoTotal > 0
+    );
+    const temCTe = dados.documentosCTe && dados.documentosCTe.length > 0 && dados.documentosCTe.every(doc => doc.length === 44);
+    const temNFe = dados.documentosNFe && dados.documentosNFe.length > 0 && dados.documentosNFe.every(doc => doc.length === 44);
+    const documentosValidos = !!(temCTe || temNFe);
+
+    return cargaValida && documentosValidos;
+  };
+
+  const validarTudo = () => {
+    return validarDadosBasicos() && validarLocalidades() && validarCargaDocumentos();
+  };
+
+  // Verificar se há dados preenchidos
+  const temDadosPreenchidos = () => {
+    return !!(
+      selectedIds.emitenteId ||
+      selectedIds.veiculoId ||
+      selectedIds.condutorId ||
+      selectedIds.contratanteId ||
+      selectedIds.seguradoraId ||
+      locaisCarregamento.length > 0 ||
+      locaisDescarregamento.length > 0 ||
+      dados.valorTotal ||
+      dados.pesoBrutoTotal ||
+      dados.documentosCTe?.length ||
+      dados.documentosNFe?.length
+    );
+  };
+
+  // Handle cancelar com confirmação
+  const handleCancelar = () => {
+    if (temDadosPreenchidos()) {
+      setShowCancelModal(true);
+    } else {
+      onCancelar();
+    }
+  };
+
+  const confirmarCancelamento = () => {
+    setShowCancelModal(false);
+    onCancelar();
+  };
+
   const sections: WizardSection[] = [
     {
-      id: 'emitente',
-      title: 'Emitente',
-      description: 'Empresa emissora',
+      id: 'dados-basicos',
+      title: 'Dados Básicos',
+      description: 'Emitente, Transporte e Contratação',
       required: true,
-      completed: !!selectedIds.emitenteId && !!dados.emitenteId
-    },
-    {
-      id: 'transporte',
-      title: 'Transporte',
-      description: 'Veículo e condutor',
-      required: true,
-      completed: !!selectedIds.veiculoId && !!selectedIds.condutorId
+      completed: validarDadosBasicos()
     },
     {
       id: 'localidades',
-      title: 'Localidades',
-      description: 'Carregamento e descarregamento',
+      title: 'Rota e Localidades',
+      description: 'Carregamento, descarregamento e percurso',
       required: true,
-      completed: locaisCarregamento.length > 0 && locaisDescarregamento.length > 0
+      completed: validarLocalidades()
     },
     {
-      id: 'contratacao',
-      title: 'Contratação',
-      description: 'Contratante e seguradora',
+      id: 'carga-documentos',
+      title: 'Carga e Documentos',
+      description: 'Informações da carga e documentos fiscais',
       required: true,
-      completed: (selectedIds.contratanteId !== undefined && selectedIds.contratanteId !== '') || (selectedIds.seguradoraId !== undefined && selectedIds.seguradoraId !== '')
-    },
-    {
-      id: 'carga',
-      title: 'Carga',
-      description: 'Informações da carga',
-      required: true,
-      completed: !!(dados.valorTotal && dados.pesoBrutoTotal)
-    },
-    {
-      id: 'documentos',
-      title: 'Documentos Fiscais',
-      description: 'CTe/NFe vinculados',
-      required: true,
-      completed: !!((dados.documentosCTe && dados.documentosCTe.length > 0) || (dados.documentosNFe && dados.documentosNFe.length > 0))
+      completed: validarCargaDocumentos()
     },
     {
       id: 'resumo',
-      title: 'Resumo',
-      description: 'Revisão final',
+      title: 'Revisão Final',
+      description: 'Validação e transmissão',
       required: true,
-      completed: false
+      completed: validarTudo()
     }
   ];
 
@@ -239,68 +287,62 @@ export function MDFeForm({
   const canGoNext = currentSectionIndex < sections.length - 1;
   const canGoPrev = currentSectionIndex > 0;
 
-  const nextSection = () => {
-    if (canGoNext) {
-      setCurrentSection(sections[currentSectionIndex + 1].id);
-    }
-  };
-
-  const prevSection = () => {
-    if (canGoPrev) {
-      setCurrentSection(sections[currentSectionIndex - 1].id);
-    }
-  };
 
 
-
-  // Sincronizar localidades com dados do MDFe quando há mudanças nas localidades
+  // Sincronizar localidades com dados do MDFe quando há mudanças - OTIMIZADO
   React.useEffect(() => {
-    // Não atualizar se estamos carregando dados (para evitar loop)
-    // Remover loading check
+    // Não sincronizar durante carregamento inicial para evitar loops
+    if (carregandoDados) return;
 
-    // Sincronizar dados apenas se há localidades definidas
-    if (locaisCarregamento.length > 0 || locaisDescarregamento.length > 0) {
-      // Atualizar infMunCarrega
-      const infMunCarrega = locaisCarregamento.map(local => ({
-        cMunCarrega: local.codigoIBGE.toString(),
-        xMunCarrega: local.municipio,
-        uf: local.uf
-      }));
+    // Verificar se há mudanças reais antes de atualizar
+    const localidadesCarregamentoAtuais = dados.localidadesCarregamento || [];
+    const localidadesDescarregamentoAtuais = dados.localidadesDescarregamento || [];
+    const rotaAtual = dados.rotaPercurso || [];
 
-      // Atualizar infMunDescarga
-      const infMunDescarga = locaisDescarregamento.map(local => ({
-        cMunDescarga: local.codigoIBGE.toString(),
-        xMunDescarga: local.municipio,
-        uf: local.uf
-      }));
+    const carregamentoMudou = JSON.stringify(locaisCarregamento) !== JSON.stringify(localidadesCarregamentoAtuais.map((l, i) => ({
+      id: `carregamento-${i}`,
+      uf: l.uf,
+      municipio: l.municipio,
+      codigoIBGE: l.codigoIBGE
+    })));
 
-      // Atualizar os dados com as localidades e rota (usando novo formato)
+    const descarregamentoMudou = JSON.stringify(locaisDescarregamento) !== JSON.stringify(localidadesDescarregamentoAtuais.map((l, i) => ({
+      id: `descarregamento-${i}`,
+      uf: l.uf,
+      municipio: l.municipio,
+      codigoIBGE: l.codigoIBGE
+    })));
+
+    const rotaMudou = JSON.stringify(rotaSelecionada) !== JSON.stringify(rotaAtual);
+
+    // Apenas atualizar se houve mudanças reais
+    if (carregamentoMudou || descarregamentoMudou || rotaMudou) {
       const dadosAtualizados = {
         ...dados,
-        localidadesCarregamento: infMunCarrega.map(local => ({
-          uf: local.uf || '',
-          municipio: local.xMunCarrega || '',
-          codigoIBGE: parseInt(local.cMunCarrega || '0')
+        localidadesCarregamento: locaisCarregamento.map(local => ({
+          uf: local.uf,
+          municipio: local.municipio,
+          codigoIBGE: local.codigoIBGE
         })),
-        localidadesDescarregamento: infMunDescarga.map(local => ({
-          uf: local.uf || '',
-          municipio: local.xMunDescarga || '',
-          codigoIBGE: parseInt(local.cMunDescarga || '0')
+        localidadesDescarregamento: locaisDescarregamento.map(local => ({
+          uf: local.uf,
+          municipio: local.municipio,
+          codigoIBGE: local.codigoIBGE
         })),
         rotaPercurso: rotaSelecionada
       };
 
       onDadosChange(dadosAtualizados);
     }
-  }, [locaisCarregamento, locaisDescarregamento, rotaSelecionada]);
+  }, [locaisCarregamento, locaisDescarregamento, rotaSelecionada, carregandoDados, dados, onDadosChange]);
 
 
   if (carregandoDados) {
     return (
-      <div className="flex items-center justify-center min-h-64 bg-white dark:bg-gray-800 rounded-lg border border-gray-300 dark:border-0">
+      <div className="flex items-center justify-center min-h-64 bg-card rounded-lg border border-gray-300 dark:border-0">
         <div className="flex flex-col items-center space-y-4">
           <Icon name="spinner" className="w-8 h-8 text-primary animate-spin" />
-          <p className="text-text-secondary text-lg">Carregando dados do formulário...</p>
+          <p className="text-muted-foreground text-lg">Carregando dados do formulário...</p>
         </div>
       </div>
     );
@@ -321,36 +363,52 @@ export function MDFeForm({
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="min-h-screen bg-background">
       {/* Header modernizado */}
       <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-gray-800 dark:to-gray-900 border-b border-gray-200 dark:border-0 shadow-lg">
         <div className="w-full px-6 py-8">
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between flex-wrap gap-4">
             <div className="flex items-center space-x-6">
               <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-indigo-600 dark:from-blue-600 dark:to-indigo-700 rounded-xl flex items-center justify-center shadow-lg">
                 <i className="fas fa-file-invoice text-white text-2xl"></i>
               </div>
               <div>
-                <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+                <h1 className="text-3xl font-bold text-foreground mb-2">
                   {isEdicao ? 'Editar MDFe' : 'Novo MDFe'}
                 </h1>
-                <p className="text-gray-600 dark:text-gray-300 text-lg">
+                <p className="text-muted-foreground dark:text-gray-300 text-lg">
                   {isEdicao ? 'Edite os dados do manifesto eletrônico' : 'Preencha os dados para criar um novo manifesto eletrônico'}
                 </p>
               </div>
             </div>
 
-            <div className="flex flex-wrap gap-3">
-
+            <div className="flex items-center gap-4">
+              <div className="bg-blue-50 dark:bg-gray-700 border-2 border-blue-400 dark:border-blue-500 rounded-xl px-6 py-4 shadow-lg">
+                <label className="block text-xs font-semibold text-gray-700 dark:text-gray-200 mb-1 uppercase tracking-wide">Número do MDFe</label>
+                <div className="text-3xl font-bold text-center text-blue-700 dark:text-blue-300 min-w-[8rem] py-1">
+                  {dados.numero || '---'}
+                </div>
+              </div>
+              <div className="bg-indigo-50 dark:bg-gray-700 border-2 border-indigo-400 dark:border-indigo-500 rounded-xl px-6 py-4 shadow-lg">
+                <label className="block text-xs font-semibold text-gray-700 dark:text-gray-200 mb-1 uppercase tracking-wide text-center">Série</label>
+                <input
+                  type="text"
+                  value={dados.serie || '1'}
+                  onChange={(e) => onDadosChange({ ...dados, serie: e.target.value })}
+                  placeholder="1"
+                  maxLength={3}
+                  className="w-20 text-3xl font-bold text-center text-indigo-700 dark:text-indigo-300 bg-transparent border-0 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 rounded py-1"
+                />
+              </div>
             </div>
           </div>
         </div>
       </div>
 
       {/* Navegação modernizada */}
-      <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-0 shadow-sm">
+      <div className="bg-card border-b border-gray-200 dark:border-0 shadow-sm">
         <div className="w-full px-6">
-          <nav className="flex space-x-2 overflow-x-auto py-4 scrollbar-hide">
+          <nav className="grid grid-cols-4 gap-3 py-4">
             {sections.map((section, index) => {
               const isCurrent = section.id === currentSection;
               const isCompleted = section.completed;
@@ -359,19 +417,19 @@ export function MDFeForm({
                 <button
                   key={section.id}
                   onClick={() => setCurrentSection(section.id)}
-                  className={`flex-shrink-0 px-4 py-3 rounded-lg font-medium text-sm transition-all duration-300 hover:shadow-md ${
+                  className={`w-full px-4 py-3 rounded-lg font-medium text-sm transition-all duration-300 hover:shadow-md ${
                     isCurrent
                       ? 'bg-gradient-to-r from-blue-500 to-indigo-600 text-white shadow-lg'
                       : isCompleted
                       ? 'bg-gradient-to-r from-green-500 to-emerald-600 text-white shadow-md'
-                      : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300'
+                      : 'bg-gray-100 dark:bg-gray-700 text-muted-foreground dark:text-gray-300'
                   }`}
                 >
                   <div className="flex items-center space-x-2">
-                    <span className="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold bg-white/20">
+                    <span className="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold bg-card/20">
                       {isCompleted ? <i className="fas fa-check"></i> : index + 1}
                     </span>
-                    <div className="text-left">
+                    <div className="text-left flex-1">
                       <div className="font-semibold text-xs">{section.title}</div>
                       <div className="text-xs mt-0.5 opacity-75 hidden md:block">{section.description}</div>
                     </div>
@@ -385,67 +443,76 @@ export function MDFeForm({
 
       {/* Conteúdo */}
       <div className="w-full px-6 py-8">
-        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-200 dark:border-0 p-6 lg:p-8">
+        <div className="bg-card rounded-2xl shadow-xl border border-gray-200 dark:border-0 p-6 lg:p-8">
 
-          {/* Seção Emitente */}
-          {currentSection === 'emitente' && (
+          {/* Etapa 1: Dados Básicos (Emitente + Transporte + Contratação) */}
+          {currentSection === 'dados-basicos' && (
             <div>
               <div className="flex items-center mb-8">
                 <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center mr-4 shadow-lg">
-                  <i className="fas fa-building text-white text-lg"></i>
+                  <i className="fas fa-id-card text-white text-lg"></i>
                 </div>
                 <div>
-                  <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Dados do Emitente</h2>
-                  <p className="text-gray-600 dark:text-gray-400 mt-1">Selecione a empresa que emitirá o MDFe</p>
+                  <h2 className="text-2xl font-bold text-foreground">Dados Básicos do Transporte</h2>
+                  <p className="text-muted-foreground mt-1">Preencha as informações essenciais do MDFe</p>
                 </div>
               </div>
 
-              <div className="space-y-6">
+              <div className="space-y-8">
+                {/* Seção: Emitente */}
                 <div>
-                  <Combobox
-                    label="Selecionar Emitente"
-                    options={entidadesCarregadas?.emitentes?.map((emitente: any) => ({
-                      id: emitente.id,
-                      label: emitente.label,
-                      sublabel: emitente.description,
-                      icon: "fas fa-building"
-                    })) || []}
-                    selectedValue={selectedIds.emitenteId}
-                    onSelect={(value) => selectEntity('emitenteId', value.toString())}
-                    placeholder="Selecione um emitente..."
-                    searchPlaceholder="Buscar emitente..."
-                    required={true}
-                  />
+                  <div className="flex items-center gap-2 mb-4">
+                    <div className="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center">
+                      <i className="fas fa-building text-white text-sm"></i>
+                    </div>
+                    <h3 className="text-lg font-semibold text-foreground">
+                      Emitente
+                      <span className="text-red-500 ml-1">*</span>
+                    </h3>
+                  </div>
+                  <div className="pl-10">
+                    <Combobox
+                      label="Empresa Emissora"
+                      options={entidadesCarregadas?.emitentes?.map((emitente: any) => ({
+                        id: emitente.id,
+                        label: emitente.label,
+                        sublabel: emitente.description,
+                        icon: "fas fa-building"
+                      })) || []}
+                      selectedValue={selectedIds.emitenteId}
+                      onSelect={(value) => selectEntity('emitenteId', value)}
+                      placeholder="Selecione o emitente do MDFe..."
+                      searchPlaceholder="Buscar emitente..."
+                      required={true}
+                    />
+                    {!selectedIds.emitenteId && (
+                      <p className="text-red-500 text-sm mt-2 flex items-center gap-2">
+                        <i className="fas fa-exclamation-circle"></i>
+                        Campo obrigatório
+                      </p>
+                    )}
+                  </div>
                 </div>
 
-              </div>
-            </div>
-          )}
+                {/* Divisor */}
+                <div className="border-t border-gray-200 dark:border-gray-700"></div>
 
-          {/* Seção Transporte */}
-          {currentSection === 'transporte' && (
-            <div>
-              <div className="flex items-center mb-8">
-                <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-red-600 rounded-xl flex items-center justify-center mr-4 shadow-lg">
-                  <i className="fas fa-truck text-white text-lg"></i>
-                </div>
+                {/* Seção: Veículo e Condutor */}
                 <div>
-                  <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Dados do Transporte</h2>
-                  <p className="text-gray-600 dark:text-gray-400 mt-1">Selecione o veículo e condutor para o transporte</p>
-                </div>
-              </div>
-
-              <div className="space-y-6">
-                {/* Seleção de Veículo */}
-                <div className="bg-gradient-to-r from-orange-50 to-red-50 dark:from-orange-900/20 dark:to-red-900/20 p-6 rounded-xl border border-orange-200 dark:border-0">
-                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
-                    <i className="fas fa-truck text-orange-500 mr-2"></i>
-                    Veículo
-                  </h3>
-                  <div className="space-y-4">
+                  <div className="flex items-center gap-2 mb-4">
+                    <div className="w-8 h-8 bg-orange-500 rounded-lg flex items-center justify-center">
+                      <i className="fas fa-truck text-white text-sm"></i>
+                    </div>
+                    <h3 className="text-lg font-semibold text-foreground">
+                      Veículo e Condutor
+                      <span className="text-red-500 ml-1">*</span>
+                    </h3>
+                  </div>
+                  <div className="pl-10 grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {/* Veículo */}
                     <div>
                       <Combobox
-                        label="Selecionar Veículo"
+                        label="Veículo"
                         options={entidadesCarregadas?.veiculos?.map((veiculo: any) => ({
                           id: veiculo.id,
                           label: veiculo.label,
@@ -453,26 +520,23 @@ export function MDFeForm({
                           icon: "fas fa-truck"
                         })) || []}
                         selectedValue={selectedIds.veiculoId}
-                        onSelect={(value) => selectEntity('veiculoId', value.toString())}
-                        placeholder="Selecione um veículo..."
+                        onSelect={(value) => selectEntity('veiculoId', value)}
+                        placeholder="Selecione o veículo..."
                         searchPlaceholder="Buscar veículo..."
                         required={true}
                       />
+                      {!selectedIds.veiculoId && (
+                        <p className="text-red-500 text-sm mt-2 flex items-center gap-2">
+                          <i className="fas fa-exclamation-circle"></i>
+                          Campo obrigatório
+                        </p>
+                      )}
                     </div>
 
-                  </div>
-                </div>
-
-                {/* Seleção de Condutor */}
-                <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 p-6 rounded-xl border border-blue-200 dark:border-0">
-                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
-                    <i className="fas fa-user text-blue-500 mr-2"></i>
-                    Condutor
-                  </h3>
-                  <div className="space-y-4">
+                    {/* Condutor */}
                     <div>
                       <Combobox
-                        label="Selecionar Condutor"
+                        label="Condutor"
                         options={entidadesCarregadas?.condutores?.map((condutor: any) => ({
                           id: condutor.id,
                           label: condutor.label,
@@ -480,128 +544,154 @@ export function MDFeForm({
                           icon: "fas fa-id-card"
                         })) || []}
                         selectedValue={selectedIds.condutorId}
-                        onSelect={(value) => selectEntity('condutorId', value.toString())}
-                        placeholder="Selecione um condutor..."
+                        onSelect={(value) => selectEntity('condutorId', value)}
+                        placeholder="Selecione o condutor..."
                         searchPlaceholder="Buscar condutor..."
                         required={true}
                       />
+                      {!selectedIds.condutorId && (
+                        <p className="text-red-500 text-sm mt-2 flex items-center gap-2">
+                          <i className="fas fa-exclamation-circle"></i>
+                          Campo obrigatório
+                        </p>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Reboques */}
+                  <div className="pl-10 mt-6">
+                    <div className="flex items-center justify-between mb-3">
+                      <label className="block text-sm font-medium text-foreground">
+                        Reboques
+                        <span className="text-xs text-muted-foreground ml-2">(Opcional)</span>
+                      </label>
+                      {reboquesDisponiveis.length > 0 && reboquesSelecionados.length > 0 && (
+                        <span className="text-xs text-muted-foreground">
+                          {reboquesSelecionados.length} de {reboquesDisponiveis.length} selecionado{reboquesSelecionados.length !== 1 ? 's' : ''}
+                        </span>
+                      )}
                     </div>
 
-                    {/* Seção Reboques - Opcional */}
-                    <OptionalFieldsToggle
-                      label="Reboques (Opcional)"
-                      description="Adicionar reboques ao veículo de transporte"
-                      isExpanded={showOptionalReboques}
-                      onToggle={() => setShowOptionalReboques(!showOptionalReboques)}
-                      icon="fas fa-trailer"
-                    />
-                    <OptionalSection isVisible={showOptionalReboques}>
-                        <div className="space-y-4">
-                          <div className="flex items-center justify-between">
-                            <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 flex items-center gap-2">
-                              <i className="fas fa-trailer text-blue-600"></i>
-                              Seleção de Reboques
-                            </h4>
-                            <div className="flex gap-2">
-                              <button
-                                type="button"
-                                onClick={adicionarTodosReboques}
-                                className="text-xs px-3 py-1 bg-blue-100 text-blue-700 rounded hover:bg-blue-200 transition-colors"
-                                disabled={carregandoReboques || reboquesDisponiveis.length === 0}
-                              >
-                                Selecionar Todos
-                              </button>
-                              <button
-                                type="button"
-                                onClick={removerTodosReboques}
-                                className="text-xs px-3 py-1 bg-gray-100 text-gray-700 rounded hover:bg-gray-200 transition-colors"
-                                disabled={reboquesSelecionados.length === 0}
-                              >
-                                Limpar
-                              </button>
-                            </div>
-                          </div>
-
-                          {carregandoReboques ? (
-                            <div className="flex items-center gap-2 text-sm text-gray-500">
-                              <i className="fas fa-spinner fa-spin"></i>
-                              Carregando reboques...
-                            </div>
-                          ) : reboquesDisponiveis.length === 0 ? (
-                            <div className="text-sm text-gray-500 text-center py-4">
-                              <i className="fas fa-exclamation-triangle text-yellow-500 mr-2"></i>
-                              Nenhum reboque ativo encontrado.
-                              <a href="/reboques" className="text-blue-600 hover:underline ml-1">
-                                Cadastre reboques aqui
-                              </a>
-                            </div>
-                          ) : (
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-64 overflow-y-auto">
-                              {reboquesDisponiveis.map((reboque) => (
-                                <div
-                                  key={reboque.id}
-                                  className={`p-3 border rounded-lg cursor-pointer transition-all hover:shadow-md ${
-                                    reboquesSelecionados.includes(reboque.id)
-                                      ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
-                                      : 'border-gray-300 hover:border-gray-400'
-                                  }`}
-                                  onClick={() => handleReboqueToggle(reboque.id)}
-                                >
-                                  <div className="flex items-center justify-between">
-                                    <div className="flex items-center gap-2">
-                                      <input
-                                        type="checkbox"
-                                        checked={reboquesSelecionados.includes(reboque.id)}
-                                        onChange={() => handleReboqueToggle(reboque.id)}
-                                        className="w-4 h-4 text-blue-600 rounded"
-                                      />
-                                      <div>
-                                        <div className="font-medium text-sm">
-                                          {reboquesService.formatarPlaca(reboque.placa)}
-                                        </div>
-                                        <div className="text-xs text-gray-500">
-                                          {reboque.tipoCarroceria} • {reboque.uf}
-                                        </div>
-                                      </div>
-                                    </div>
-                                    <div className="text-right">
-                                      <div className="text-xs text-gray-600">
-                                        {reboquesService.formatarTara(reboque.tara)}
-                                      </div>
-                                      <div className="text-xs text-gray-500">
-                                        {reboque.tipoRodado}
-                                      </div>
-                                    </div>
-                                  </div>
+                    {carregandoReboques ? (
+                      <div className="flex items-center gap-2 text-sm text-gray-500 py-4">
+                        <i className="fas fa-spinner fa-spin"></i>
+                        Carregando reboques...
+                      </div>
+                    ) : reboquesDisponiveis.length === 0 ? (
+                      <div className="text-sm text-gray-500 text-center py-4 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg">
+                        <i className="fas fa-exclamation-triangle text-yellow-500 mr-2"></i>
+                        Nenhum reboque ativo encontrado
+                      </div>
+                    ) : (
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-64 overflow-y-auto pr-1">
+                        {reboquesDisponiveis.map((reboque) => {
+                          const isSelected = reboquesSelecionados.includes(reboque.id);
+                          return (
+                            <div
+                              key={reboque.id}
+                              onClick={() => handleReboqueToggle(reboque.id)}
+                              className={`flex items-start gap-3 p-3 border-2 rounded-lg cursor-pointer transition-all ${
+                                isSelected
+                                  ? 'border-orange-500 bg-orange-50 dark:bg-orange-900/20'
+                                  : 'border-gray-300 dark:border-gray-600 hover:border-orange-400 bg-card'
+                              }`}
+                            >
+                              <div className={`flex-shrink-0 w-5 h-5 rounded border-2 flex items-center justify-center transition-all ${
+                                isSelected
+                                  ? 'bg-orange-500 border-orange-500'
+                                  : 'border-gray-400 dark:border-gray-400 bg-white dark:bg-gray-700'
+                              }`}>
+                                {isSelected && (
+                                  <svg className="w-3 h-3 text-white" fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path d="M5 13l4 4L19 7"></path>
+                                  </svg>
+                                )}
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <div className="font-semibold text-foreground mb-1">
+                                  {reboquesService.formatarPlaca(reboque.placa)}
                                 </div>
-                              ))}
-                            </div>
-                          )}
-
-                          {reboquesSelecionados.length > 0 && (
-                            <div className="bg-green-50 dark:bg-green-900/20 p-3 rounded-lg">
-                              <div className="text-sm text-green-800 dark:text-green-300">
-                                <i className="fas fa-check text-green-600 mr-2"></i>
-                                {reboquesSelecionados.length} reboque(s) selecionado(s)
+                                <div className="flex flex-wrap gap-x-3 gap-y-1 text-xs text-muted-foreground">
+                                  <span className="flex items-center gap-1">
+                                    <i className="fas fa-map-marker-alt text-[10px]"></i>
+                                    {reboque.uf}
+                                  </span>
+                                  <span className="flex items-center gap-1">
+                                    <i className="fas fa-weight-hanging text-[10px]"></i>
+                                    {reboquesService.formatarTara(reboque.tara)}
+                                  </span>
+                                  {reboque.tipoCarroceria && (
+                                    <span className="flex items-center gap-1 truncate">
+                                      <i className="fas fa-truck-loading text-[10px]"></i>
+                                      {reboque.tipoCarroceria}
+                                    </span>
+                                  )}
+                                </div>
                               </div>
-                              <div className="text-xs text-green-700 dark:text-green-400 mt-1">
-                                {reboquesDisponiveis
-                                  .filter(r => reboquesSelecionados.includes(r.id))
-                                  .map(r => reboquesService.formatarPlaca(r.placa))
-                                  .join(', ')}
-                              </div>
                             </div>
-                          )}
-                        </div>
-                    </OptionalSection>
-
+                          );
+                        })}
+                      </div>
+                    )}
                   </div>
                 </div>
+
+                {/* Divisor */}
+                <div className="border-t border-gray-200 dark:border-gray-700"></div>
+
+                {/* Seção: Contratação (Opcional) */}
+                <div>
+                  <div className="flex items-center gap-2 mb-4">
+                    <div className="w-8 h-8 bg-purple-500 rounded-lg flex items-center justify-center">
+                      <i className="fas fa-handshake text-white text-sm"></i>
+                    </div>
+                    <h3 className="text-lg font-semibold text-foreground">
+                      Contratação
+                      <span className="text-xs text-muted-foreground ml-2">(Opcional)</span>
+                    </h3>
+                  </div>
+                  <div className="pl-10 grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {/* Contratante */}
+                    <div>
+                      <Combobox
+                        label="Contratante"
+                        options={entidadesCarregadas?.contratantes?.map((contratante: any) => ({
+                          id: contratante.id,
+                          label: contratante.label,
+                          sublabel: contratante.description,
+                          icon: "fas fa-building"
+                        })) || []}
+                        selectedValue={selectedIds.contratanteId}
+                        onSelect={(value) => selectEntity('contratanteId', value)}
+                        placeholder="Selecione o contratante (opcional)..."
+                        searchPlaceholder="Buscar contratante..."
+                      />
+                    </div>
+
+                    {/* Seguradora */}
+                    <div>
+                      <Combobox
+                        label="Seguradora"
+                        options={entidadesCarregadas?.seguradoras?.map((seguradora: any) => ({
+                          id: seguradora.id,
+                          label: seguradora.label,
+                          sublabel: seguradora.description,
+                          icon: "fas fa-shield-alt"
+                        })) || []}
+                        selectedValue={selectedIds.seguradoraId}
+                        onSelect={(value) => selectEntity('seguradoraId', value)}
+                        placeholder="Selecione a seguradora (opcional)..."
+                        searchPlaceholder="Buscar seguradora..."
+                      />
+                    </div>
+                  </div>
+                </div>
+
               </div>
             </div>
           )}
 
-          {/* Seção Localidades (Carregamento + Descarregamento) */}
+          {/* Etapa 2: Rota e Localidades (Carregamento + Descarregamento) */}
           {currentSection === 'localidades' && (
             <div>
               <div className="flex items-center mb-8">
@@ -609,8 +699,8 @@ export function MDFeForm({
                   <i className="fas fa-map-marker-alt text-white text-lg"></i>
                 </div>
                 <div>
-                  <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Localidades de Carregamento e Descarregamento</h2>
-                  <p className="text-gray-600 dark:text-gray-400 mt-1">Informe os locais de carregamento e descarregamento da carga</p>
+                  <h2 className="text-2xl font-bold text-foreground">Localidades de Carregamento e Descarregamento</h2>
+                  <p className="text-muted-foreground mt-1">Informe os locais de carregamento e descarregamento da carga</p>
                 </div>
               </div>
 
@@ -636,7 +726,7 @@ export function MDFeForm({
                 {/* Exibir rota selecionada se houver */}
                 {rotaSelecionada.length > 0 && (
                   <div className="bg-gradient-to-r from-emerald-50 to-green-50 dark:from-emerald-900/20 dark:to-green-900/20 p-6 rounded-xl border border-emerald-200 dark:border-0">
-                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
+                    <h3 className="text-lg font-semibold text-foreground mb-4 flex items-center">
                       <i className="fas fa-route text-emerald-500 mr-2"></i>
                       Rota de Percurso Selecionada
                     </h3>
@@ -659,184 +749,16 @@ export function MDFeForm({
           )}
 
 
-          {/* Seção Contratação */}
-          {currentSection === 'contratacao' && (
-            <div>
-              <div className="flex items-center mb-8">
-                <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-600 rounded-xl flex items-center justify-center mr-4 shadow-lg">
-                  <i className="fas fa-handshake text-white text-lg"></i>
-                </div>
-                <div>
-                  <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Dados de Contratação</h2>
-                  <p className="text-gray-600 dark:text-gray-400 mt-1">Informações do contratante e seguradora</p>
-                </div>
-              </div>
-
-              <div className="space-y-6">
-                {/* Toggle Contratante */}
-                <OptionalFieldsToggle
-                  label="Informações do Contratante"
-                  description="Dados da empresa contratante do transporte"
-                  isExpanded={showOptionalContratacao}
-                  onToggle={() => setShowOptionalContratacao(!showOptionalContratacao)}
-                  icon="fas fa-building"
-                />
-
-                <OptionalSection isVisible={showOptionalContratacao}>
-                  <div className="bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 p-6 rounded-xl border border-purple-200 dark:border-0">
-                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
-                      <i className="fas fa-building text-purple-500 mr-2"></i>
-                      Contratante
-                    </h3>
-                    <div className="space-y-4">
-                      <div>
-                        <label className="block text-sm font-semibold text-gray-900 dark:text-white mb-2">
-                          Selecionar Contratante
-                        </label>
-                        <select
-                          value={selectedIds.contratanteId || ''}
-                          onChange={(e) => selectEntity('contratanteId', e.target.value)}
-                          className="w-full px-4 py-3 border-2 border-gray-300 dark:border-0 rounded-xl bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
-                        >
-                          <option value="">Selecione um contratante...</option>
-                          {(entidadesCarregadas?.contratantes || []).map((contratante: any) => (
-                            <option key={contratante.id} value={contratante.id}>
-                              {contratante.label} - {contratante.description}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-
-                      {/* Dados do contratante preenchidos automaticamente */}
-                      {false && (
-                        <div className="bg-white dark:bg-gray-800 border border-purple-200 dark:border-purple-700 rounded-lg p-4">
-                          <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-3 flex items-center">
-                            <i className="fas fa-info-circle text-purple-500 mr-2"></i>
-                            Dados do Contratante
-                          </h4>
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                            <div>
-                              <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">CNPJ/CPF</label>
-                              <input
-                                type="text"
-                                value={'Dados removidos - agora via ID'}
-                                readOnly
-                                className="w-full px-2 py-1 border border-gray-300 dark:border-0 rounded bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white text-sm"
-                              />
-                            </div>
-                            <div>
-                              <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Razão Social</label>
-                              <input
-                                type="text"
-                                value={"Dados via ID"}
-                                readOnly
-                                className="w-full px-2 py-1 border border-gray-300 dark:border-0 rounded bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white text-sm"
-                              />
-                            </div>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </OptionalSection>
-
-                {/* Toggle Seguradora */}
-                <OptionalFieldsToggle
-                  label="Informações da Seguradora"
-                  description="Dados da seguradora responsável pela carga"
-                  isExpanded={showOptionalSeguro}
-                  onToggle={() => setShowOptionalSeguro(!showOptionalSeguro)}
-                  icon="fas fa-shield-alt"
-                />
-
-                <OptionalSection isVisible={showOptionalSeguro}>
-                  <div className="bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-blue-900/20 dark:to-cyan-900/20 p-6 rounded-xl border border-blue-200 dark:border-0">
-                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
-                      <i className="fas fa-shield-alt text-blue-500 mr-2"></i>
-                      Seguradora
-                    </h3>
-                    <div className="space-y-4">
-                      <div>
-                        <label className="block text-sm font-semibold text-gray-900 dark:text-white mb-2">
-                          Selecionar Seguradora
-                        </label>
-                        <select
-                          value={selectedIds.seguradoraId || ''}
-                          onChange={(e) => selectEntity('seguradoraId', e.target.value)}
-                          className="w-full px-4 py-3 border-2 border-gray-300 dark:border-0 rounded-xl bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                        >
-                          <option value="">Selecione uma seguradora...</option>
-                          {(entidadesCarregadas?.seguradoras || []).map((seguradora: any) => (
-                            <option key={seguradora.id} value={seguradora.id}>
-                              {seguradora.label} - {seguradora.description}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-
-                      {/* Dados da seguradora preenchidos automaticamente */}
-                      {false && (
-                        <div className="bg-white dark:bg-gray-800 border border-blue-200 dark:border-blue-700 rounded-lg p-4">
-                          <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-3 flex items-center">
-                            <i className="fas fa-info-circle text-blue-500 mr-2"></i>
-                            Dados da Seguradora
-                          </h4>
-                          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                            <div>
-                              <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">CNPJ</label>
-                              <input
-                                type="text"
-                                value={"Dados via ID"}
-                                readOnly
-                                className="w-full px-2 py-1 border border-gray-300 dark:border-0 rounded bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white text-sm"
-                              />
-                            </div>
-                            <div>
-                              <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Razão Social</label>
-                              <input
-                                type="text"
-                                value={"Dados via ID"}
-                                readOnly
-                                className="w-full px-2 py-1 border border-gray-300 dark:border-0 rounded bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white text-sm"
-                              />
-                            </div>
-                            <div>
-                              <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Número da Apólice</label>
-                              <input
-                                type="text"
-                                value={"Dados via ID"}
-                                readOnly
-                                className="w-full px-2 py-1 border border-gray-300 dark:border-0 rounded bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white text-sm"
-                              />
-                            </div>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </OptionalSection>
-
-                {!showOptionalContratacao && !showOptionalSeguro && (
-                  <div className="text-center py-8 text-gray-500 dark:text-gray-400">
-                    <i className="fas fa-handshake text-4xl mb-4 opacity-50"></i>
-                    <p>Seção opcional</p>
-                    <p className="text-sm">Ative os campos acima se necessário</p>
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
-
-          {/* Seção Carga */}
-          {currentSection === 'carga' && (
+          {/* Etapa 3: Carga e Documentos (Unificada) */}
+          {currentSection === 'carga-documentos' && (
             <div>
               <div className="flex items-center mb-8">
                 <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-teal-600 rounded-xl flex items-center justify-center mr-4 shadow-lg">
                   <i className="fas fa-boxes text-white text-lg"></i>
                 </div>
                 <div>
-                  <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Informações da Carga</h2>
-                  <p className="text-gray-600 dark:text-gray-400 mt-1">Dados sobre a carga a ser transportada</p>
+                  <h2 className="text-2xl font-bold text-foreground">Carga e Documentos Fiscais</h2>
+                  <p className="text-muted-foreground mt-1">Informações da carga e documentos fiscais vinculados (CTe/NFe)</p>
                 </div>
               </div>
 
@@ -844,7 +766,7 @@ export function MDFeForm({
                 <div className="bg-gradient-to-r from-green-50 to-teal-50 dark:from-green-900/20 dark:to-teal-900/20 p-6 rounded-xl border border-green-200 dark:border-0">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
-                      <label className="block text-sm font-semibold text-gray-900 dark:text-white mb-2">
+                      <label className="block text-sm font-semibold text-foreground mb-2">
                         Valor Total da Carga (R$)
                       </label>
                       <input
@@ -860,12 +782,12 @@ export function MDFeForm({
                           onDadosChange({ ...dados, valorTotal: numericValue });
                         }}
                         placeholder="0,00"
-                        className="w-full px-4 py-3 border-2 border-gray-300 dark:border-0 rounded-xl bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                        className="w-full px-4 py-3 border-2 border-gray-300 dark:border-0 rounded-xl bg-card text-foreground focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
                       />
                     </div>
 
                     <div>
-                      <label className="block text-sm font-semibold text-gray-900 dark:text-white mb-2">
+                      <label className="block text-sm font-semibold text-foreground mb-2">
                         Peso Total (kg)
                       </label>
                       <input
@@ -881,15 +803,15 @@ export function MDFeForm({
                           onDadosChange({ ...dados, pesoBrutoTotal: numericValue });
                         }}
                         placeholder="0,000"
-                        className="w-full px-4 py-3 border-2 border-gray-300 dark:border-0 rounded-xl bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                        className="w-full px-4 py-3 border-2 border-gray-300 dark:border-0 rounded-xl bg-card text-foreground focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
                       />
                     </div>
 
                     <div>
-                      <label className="block text-sm font-semibold text-gray-900 dark:text-white mb-2">
+                      <label className="block text-sm font-semibold text-foreground mb-2">
                         Unidade de Medida
                       </label>
-                      <div className="w-full px-4 py-3 border-2 border-gray-300 dark:border-0 rounded-xl bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white flex items-center">
+                      <div className="w-full px-4 py-3 border-2 border-gray-300 dark:border-0 rounded-xl bg-background dark:bg-gray-700 text-foreground flex items-center">
                         <i className="fas fa-weight-hanging text-green-500 mr-2"></i>
                         <span className="font-medium">Quilograma (kg)</span>
                         <span className="ml-auto text-xs text-gray-500 dark:text-gray-400">Padrão do sistema</span>
@@ -897,11 +819,11 @@ export function MDFeForm({
                     </div>
 
                     <div>
-                      <label className="block text-sm font-semibold text-gray-900 dark:text-white mb-2">
+                      <label className="block text-sm font-semibold text-foreground mb-2">
                         Tipo de Carga
                       </label>
                       <select
-                        className="w-full px-4 py-3 border-2 border-gray-300 dark:border-0 rounded-xl bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                        className="w-full px-4 py-3 border-2 border-gray-300 dark:border-0 rounded-xl bg-card text-foreground focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
                       >
                         <option value="">Selecione...</option>
                         <option value="01">Carga Geral</option>
@@ -916,224 +838,170 @@ export function MDFeForm({
                   </div>
 
                   <div className="mt-6">
-                    <label className="block text-sm font-semibold text-gray-900 dark:text-white mb-2">
+                    <label className="block text-sm font-semibold text-foreground mb-2">
                       Descrição da Carga
                     </label>
                     <textarea
                       rows={3}
                       placeholder="Descreva brevemente a carga a ser transportada..."
-                      className="w-full px-4 py-3 border-2 border-gray-300 dark:border-0 rounded-xl bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 resize-none"
+                      className="w-full px-4 py-3 border-2 border-gray-300 dark:border-0 rounded-xl bg-card text-foreground focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 resize-none"
                     />
                   </div>
                 </div>
-              </div>
-            </div>
-          )}
 
-          {/* Seção Documentos Fiscais */}
-          {currentSection === 'documentos' && (
-            <div>
-              <div className="flex items-center mb-8">
-                <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-red-600 rounded-xl flex items-center justify-center mr-4 shadow-lg">
-                  <i className="fas fa-file-invoice text-white text-lg"></i>
-                </div>
-                <div>
-                  <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Documentos Fiscais</h2>
-                  <p className="text-gray-600 dark:text-gray-400 mt-1">Vincule os CTe/NFe que serão transportados</p>
-                </div>
-              </div>
-
-              <div className="space-y-6">
-                {/* Seção CTe */}
-                <div className="bg-white dark:bg-gray-800 p-6 rounded-xl border-2 border-gray-200 dark:border-0">
-                  <div className="flex items-center justify-between mb-6">
-                    <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center">
-                        <i className="fas fa-truck text-white text-sm"></i>
+                {/* Seção Documentos Fiscais - Integrada */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {/* Card CTe */}
+                  <div className="bg-card p-6 rounded-xl border-2 border-blue-200 dark:border-blue-800">
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center">
+                          <i className="fas fa-truck text-white text-sm"></i>
+                        </div>
+                        <h3 className="text-lg font-semibold text-foreground">
+                          CTe
+                        </h3>
                       </div>
-                      <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                        CTe - Conhecimento de Transporte Eletrônico
-                      </h3>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const novosCTe = [...(dados.documentosCTe || []), ''];
+                          onDadosChange({ ...dados, documentosCTe: novosCTe });
+                        }}
+                        className="flex items-center gap-2 px-3 py-1 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg text-sm font-semibold hover:shadow-lg transition-all"
+                      >
+                        <i className="fas fa-plus text-xs"></i>
+                        Adicionar
+                      </button>
                     </div>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        const novosCTe = [...(dados.documentosCTe || []), ''];
-                        onDadosChange({ ...dados, documentosCTe: novosCTe });
-                      }}
-                      className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg font-semibold hover:shadow-lg transition-all"
-                    >
-                      <i className="fas fa-plus"></i>
-                      Adicionar CTe
-                    </button>
+
+                    {dados.documentosCTe && dados.documentosCTe.length > 0 ? (
+                      <div className="space-y-2 max-h-64 overflow-y-auto">
+                        {dados.documentosCTe.map((chaveAcesso: string, index: number) => (
+                          <div key={index} className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg border border-blue-200 dark:border-0">
+                            <div className="flex items-center gap-2">
+                              <div className="flex-1">
+                                <input
+                                  type="text"
+                                  value={chaveAcesso || ''}
+                                  onChange={(e) => {
+                                    const valor = e.target.value.replace(/\D/g, '');
+                                    if (valor.length <= 44) {
+                                      const novosCTe = [...dados.documentosCTe!];
+                                      novosCTe[index] = valor;
+                                      onDadosChange({ ...dados, documentosCTe: novosCTe });
+                                    }
+                                  }}
+                                  placeholder="44 dígitos"
+                                  className="w-full px-3 py-2 border border-blue-300 dark:border-blue-600 rounded-lg bg-card text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                  maxLength={44}
+                                />
+                                {chaveAcesso && chaveAcesso.length !== 44 && (
+                                  <p className="text-red-500 text-xs mt-1">
+                                    Deve ter 44 dígitos
+                                  </p>
+                                )}
+                              </div>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  const novosCTe = dados.documentosCTe!.filter((_: string, i: number) => i !== index);
+                                  onDadosChange({ ...dados, documentosCTe: novosCTe });
+                                }}
+                                className="text-red-500 hover:text-red-700 p-2"
+                              >
+                                <i className="fas fa-trash text-xs"></i>
+                              </button>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="text-center py-6 border-2 border-dashed border-blue-300 dark:border-0 rounded-xl bg-blue-50 dark:bg-blue-900/10">
+                        <i className="fas fa-truck text-blue-400 text-2xl mb-2"></i>
+                        <p className="text-sm text-muted-foreground">Nenhum CTe</p>
+                      </div>
+                    )}
                   </div>
 
-                  {dados.documentosCTe && dados.documentosCTe.length > 0 ? (
-                    <div className="space-y-3">
-                      {dados.documentosCTe.map((chaveAcesso: string, index: number) => (
-                        <div key={index} className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-200 dark:border-0">
-                          <div className="flex items-center gap-4">
-                            <div className="flex-1">
-                              <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                                Chave de Acesso CTe {index + 1} *
-                              </label>
-                              <input
-                                type="text"
-                                value={chaveAcesso || ''}
-                                onChange={(e) => {
-                                  const valor = e.target.value.replace(/\D/g, '');
-                                  if (valor.length <= 44) {
-                                    const novosCTe = [...dados.documentosCTe!];
-                                    novosCTe[index] = valor;
-                                    onDadosChange({ ...dados, documentosCTe: novosCTe });
-                                  }
-                                }}
-                                placeholder="Digite a chave de acesso do CTe (44 dígitos)"
-                                className="w-full px-4 py-3 border-2 border-blue-300 dark:border-blue-600 rounded-xl bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                                maxLength={44}
-                              />
-                              {chaveAcesso && chaveAcesso.length !== 44 && (
-                                <p className="text-red-500 text-sm mt-1">
-                                  A chave de acesso deve ter exatamente 44 dígitos
-                                </p>
-                              )}
-                            </div>
-                            <button
-                              type="button"
-                              onClick={() => {
-                                const novosCTe = dados.documentosCTe!.filter((_: string, i: number) => i !== index);
-                                onDadosChange({ ...dados, documentosCTe: novosCTe });
-                              }}
-                              className="text-red-500 hover:text-red-700 p-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20"
-                            >
-                              <i className="fas fa-trash"></i>
-                            </button>
-                          </div>
+                  {/* Card NFe */}
+                  <div className="bg-card p-6 rounded-xl border-2 border-green-200 dark:border-green-800">
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 bg-gradient-to-br from-green-500 to-green-600 rounded-lg flex items-center justify-center">
+                          <i className="fas fa-file-invoice text-white text-sm"></i>
                         </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="text-center py-8 border-2 border-dashed border-blue-300 dark:border-0 rounded-xl bg-blue-50 dark:bg-blue-900/10">
-                      <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center mx-auto mb-3">
-                        <i className="fas fa-truck text-white"></i>
+                        <h3 className="text-lg font-semibold text-foreground">
+                          NFe
+                        </h3>
                       </div>
-                      <h4 className="text-md font-semibold text-gray-900 dark:text-white mb-2">
-                        Nenhum CTe vinculado
-                      </h4>
-                      <p className="text-gray-600 dark:text-gray-400 text-sm">
-                        Adicione as chaves de acesso dos CTe transportados
-                      </p>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const novosNFe = [...(dados.documentosNFe || []), ''];
+                          onDadosChange({ ...dados, documentosNFe: novosNFe });
+                        }}
+                        className="flex items-center gap-2 px-3 py-1 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-lg text-sm font-semibold hover:shadow-lg transition-all"
+                      >
+                        <i className="fas fa-plus text-xs"></i>
+                        Adicionar
+                      </button>
                     </div>
-                  )}
-                </div>
 
-                {/* Seção NFe */}
-                <div className="bg-white dark:bg-gray-800 p-6 rounded-xl border-2 border-gray-200 dark:border-0">
-                  <div className="flex items-center justify-between mb-6">
-                    <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 bg-gradient-to-br from-green-500 to-green-600 rounded-lg flex items-center justify-center">
-                        <i className="fas fa-file-invoice text-white text-sm"></i>
-                      </div>
-                      <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                        NFe - Nota Fiscal Eletrônica
-                      </h3>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        const novosNFe = [...(dados.documentosNFe || []), ''];
-                        onDadosChange({ ...dados, documentosNFe: novosNFe });
-                      }}
-                      className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-lg font-semibold hover:shadow-lg transition-all"
-                    >
-                      <i className="fas fa-plus"></i>
-                      Adicionar NFe
-                    </button>
-                  </div>
-
-                  {dados.documentosNFe && dados.documentosNFe.length > 0 ? (
-                    <div className="space-y-3">
-                      {dados.documentosNFe.map((chaveAcesso: string, index: number) => (
-                        <div key={index} className="bg-green-50 dark:bg-green-900/20 p-4 rounded-lg border border-green-200 dark:border-0">
-                          <div className="flex items-center gap-4">
-                            <div className="flex-1">
-                              <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                                Chave de Acesso NFe {index + 1} *
-                              </label>
-                              <input
-                                type="text"
-                                value={chaveAcesso || ''}
-                                onChange={(e) => {
-                                  const valor = e.target.value.replace(/\D/g, '');
-                                  if (valor.length <= 44) {
-                                    const novosNFe = [...dados.documentosNFe!];
-                                    novosNFe[index] = valor;
-                                    onDadosChange({ ...dados, documentosNFe: novosNFe });
-                                  }
+                    {dados.documentosNFe && dados.documentosNFe.length > 0 ? (
+                      <div className="space-y-2 max-h-64 overflow-y-auto">
+                        {dados.documentosNFe.map((chaveAcesso: string, index: number) => (
+                          <div key={index} className="bg-green-50 dark:bg-green-900/20 p-3 rounded-lg border border-green-200 dark:border-0">
+                            <div className="flex items-center gap-2">
+                              <div className="flex-1">
+                                <input
+                                  type="text"
+                                  value={chaveAcesso || ''}
+                                  onChange={(e) => {
+                                    const valor = e.target.value.replace(/\D/g, '');
+                                    if (valor.length <= 44) {
+                                      const novosNFe = [...dados.documentosNFe!];
+                                      novosNFe[index] = valor;
+                                      onDadosChange({ ...dados, documentosNFe: novosNFe });
+                                    }
+                                  }}
+                                  placeholder="44 dígitos"
+                                  className="w-full px-3 py-2 border border-green-300 dark:border-green-600 rounded-lg bg-card text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+                                  maxLength={44}
+                                />
+                                {chaveAcesso && chaveAcesso.length !== 44 && (
+                                  <p className="text-red-500 text-xs mt-1">
+                                    Deve ter 44 dígitos
+                                  </p>
+                                )}
+                              </div>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  const novosNFe = dados.documentosNFe!.filter((_: string, i: number) => i !== index);
+                                  onDadosChange({ ...dados, documentosNFe: novosNFe });
                                 }}
-                                placeholder="Digite a chave de acesso da NFe (44 dígitos)"
-                                className="w-full px-4 py-3 border-2 border-green-300 dark:border-green-600 rounded-xl bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
-                                maxLength={44}
-                              />
-                              {chaveAcesso && chaveAcesso.length !== 44 && (
-                                <p className="text-red-500 text-sm mt-1">
-                                  A chave de acesso deve ter exatamente 44 dígitos
-                                </p>
-                              )}
+                                className="text-red-500 hover:text-red-700 p-2"
+                              >
+                                <i className="fas fa-trash text-xs"></i>
+                              </button>
                             </div>
-                            <button
-                              type="button"
-                              onClick={() => {
-                                const novosNFe = dados.documentosNFe!.filter((_: string, i: number) => i !== index);
-                                onDadosChange({ ...dados, documentosNFe: novosNFe });
-                              }}
-                              className="text-red-500 hover:text-red-700 p-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20"
-                            >
-                              <i className="fas fa-trash"></i>
-                            </button>
                           </div>
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="text-center py-8 border-2 border-dashed border-green-300 dark:border-0 rounded-xl bg-green-50 dark:bg-green-900/10">
-                      <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-green-600 rounded-full flex items-center justify-center mx-auto mb-3">
-                        <i className="fas fa-file-invoice text-white"></i>
+                        ))}
                       </div>
-                      <h4 className="text-md font-semibold text-gray-900 dark:text-white mb-2">
-                        Nenhuma NFe vinculada
-                      </h4>
-                      <p className="text-gray-600 dark:text-gray-400 text-sm">
-                        Adicione as chaves de acesso das NFe transportadas
-                      </p>
-                    </div>
-                  )}
-                </div>
-
-                {/* Informações importantes */}
-                <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-0 rounded-xl p-4">
-                  <div className="flex items-start gap-3">
-                    <div className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                      <i className="fas fa-info text-white text-xs"></i>
-                    </div>
-                    <div>
-                      <h4 className="font-semibold text-blue-900 dark:text-blue-200 mb-1">
-                        Informações Importantes
-                      </h4>
-                      <ul className="text-sm text-blue-800 dark:text-blue-300 space-y-1">
-                        <li>• Informe apenas a chave de acesso (44 dígitos numéricos)</li>
-                        <li>• Vincule apenas documentos autorizados e em vigor</li>
-                        <li>• Você pode adicionar CTe e NFe separadamente conforme necessário</li>
-                        <li>• Todos os documentos devem estar relacionados ao transporte</li>
-                      </ul>
-                    </div>
+                    ) : (
+                      <div className="text-center py-6 border-2 border-dashed border-green-300 dark:border-0 rounded-xl bg-green-50 dark:bg-green-900/10">
+                        <i className="fas fa-file-invoice text-green-400 text-2xl mb-2"></i>
+                        <p className="text-sm text-muted-foreground">Nenhuma NFe</p>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
             </div>
           )}
 
-          {/* Seção Resumo */}
+          {/* Etapa 4: Resumo Final */}
           {currentSection === 'resumo' && (
             <div>
               <div className="flex items-center mb-8">
@@ -1141,8 +1009,8 @@ export function MDFeForm({
                   <i className="fas fa-clipboard-check text-white text-lg"></i>
                 </div>
                 <div>
-                  <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Resumo do MDFe</h2>
-                  <p className="text-gray-600 dark:text-gray-400 mt-1">Revise todas as informações antes de salvar e transmitir</p>
+                  <h2 className="text-2xl font-bold text-foreground">Resumo do MDFe</h2>
+                  <p className="text-muted-foreground mt-1">Revise todas as informações antes de salvar e transmitir</p>
                 </div>
               </div>
 
@@ -1154,8 +1022,8 @@ export function MDFeForm({
                       <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center mx-auto mb-3">
                         <i className="fas fa-file-alt text-white text-xl"></i>
                       </div>
-                      <h3 className="font-bold text-gray-900 dark:text-white mb-1">Documento</h3>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">
+                      <h3 className="font-bold text-foreground mb-1">Documento</h3>
+                      <p className="text-sm text-muted-foreground">
                         {isEdicao ? 'Editando MDFe' : 'Novo MDFe'}
                       </p>
                     </div>
@@ -1163,8 +1031,8 @@ export function MDFeForm({
                       <div className="w-16 h-16 bg-gradient-to-br from-green-500 to-green-600 rounded-full flex items-center justify-center mx-auto mb-3">
                         <i className="fas fa-check-circle text-white text-xl"></i>
                       </div>
-                      <h3 className="font-bold text-gray-900 dark:text-white mb-1">Status</h3>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">
+                      <h3 className="font-bold text-foreground mb-1">Status</h3>
+                      <p className="text-sm text-muted-foreground">
                         Pronto para transmissão
                       </p>
                     </div>
@@ -1174,17 +1042,17 @@ export function MDFeForm({
                 {/* Informações Principais */}
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                   {/* Emitente */}
-                  <div className="bg-white dark:bg-gray-800 p-6 rounded-xl border border-gray-200 dark:border-0 shadow-sm">
+                  <div className="bg-card p-6 rounded-xl border border-gray-200 dark:border-0 shadow-sm">
                     <div className="flex items-center mb-4">
                       <div className="w-8 h-8 bg-blue-100 dark:bg-blue-900/50 rounded-lg flex items-center justify-center mr-3">
                         <i className="fas fa-building text-blue-600 dark:text-blue-400"></i>
                       </div>
-                      <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Emitente</h3>
+                      <h3 className="text-lg font-semibold text-foreground">Emitente</h3>
                     </div>
                     <div className="space-y-2">
                       <div>
                         <span className="text-sm font-medium text-gray-500 dark:text-gray-400">Razão Social:</span>
-                        <p className="text-gray-900 dark:text-white font-medium">
+                        <p className="text-foreground font-medium">
                           {(() => {
                             if (!selectedIds.emitenteId) return 'Não selecionado';
                             const emitente = entidadesCarregadas?.emitentes?.find((e: any) => e.id === selectedIds.emitenteId);
@@ -1194,7 +1062,7 @@ export function MDFeForm({
                       </div>
                       <div>
                         <span className="text-sm font-medium text-gray-500 dark:text-gray-400">CNPJ:</span>
-                        <p className="text-gray-900 dark:text-white">
+                        <p className="text-foreground">
                           {(() => {
                             if (!selectedIds.emitenteId) return 'Não selecionado';
                             const emitente = entidadesCarregadas?.emitentes?.find((e: any) => e.id === selectedIds.emitenteId);
@@ -1206,17 +1074,17 @@ export function MDFeForm({
                   </div>
 
                   {/* Transporte */}
-                  <div className="bg-white dark:bg-gray-800 p-6 rounded-xl border border-gray-200 dark:border-0 shadow-sm">
+                  <div className="bg-card p-6 rounded-xl border border-gray-200 dark:border-0 shadow-sm">
                     <div className="flex items-center mb-4">
                       <div className="w-8 h-8 bg-green-100 dark:bg-green-900/50 rounded-lg flex items-center justify-center mr-3">
                         <i className="fas fa-truck text-green-600 dark:text-green-400"></i>
                       </div>
-                      <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Transporte</h3>
+                      <h3 className="text-lg font-semibold text-foreground">Transporte</h3>
                     </div>
                     <div className="space-y-2">
                       <div>
                         <span className="text-sm font-medium text-gray-500 dark:text-gray-400">Veículo:</span>
-                        <p className="text-gray-900 dark:text-white font-medium">
+                        <p className="text-foreground font-medium">
                           {(() => {
                             if (!selectedIds.veiculoId) return 'Não selecionado';
                             const veiculo = entidadesCarregadas?.veiculos?.find((v: any) => v.id === selectedIds.veiculoId);
@@ -1226,7 +1094,7 @@ export function MDFeForm({
                       </div>
                       <div>
                         <span className="text-sm font-medium text-gray-500 dark:text-gray-400">Condutor:</span>
-                        <p className="text-gray-900 dark:text-white">
+                        <p className="text-foreground">
                           {(() => {
                             if (!selectedIds.condutorId) return 'Não selecionado';
                             const condutor = entidadesCarregadas?.condutores?.find((c: any) => c.id === selectedIds.condutorId);
@@ -1237,7 +1105,7 @@ export function MDFeForm({
                       {reboquesSelecionados.length > 0 && (
                         <div>
                           <span className="text-sm font-medium text-gray-500 dark:text-gray-400">Reboques:</span>
-                          <p className="text-gray-900 dark:text-white">
+                          <p className="text-foreground">
                             {reboquesDisponiveis
                               .filter(r => reboquesSelecionados.includes(r.id))
                               .map(r => reboquesService.formatarPlaca(r.placa))
@@ -1250,20 +1118,20 @@ export function MDFeForm({
                 </div>
 
                 {/* Localidades */}
-                <div className="bg-white dark:bg-gray-800 p-6 rounded-xl border border-gray-200 dark:border-0 shadow-sm">
+                <div className="bg-card p-6 rounded-xl border border-gray-200 dark:border-0 shadow-sm">
                   <div className="flex items-center mb-4">
                     <div className="w-8 h-8 bg-purple-100 dark:bg-purple-900/50 rounded-lg flex items-center justify-center mr-3">
                       <i className="fas fa-map-marker-alt text-purple-600 dark:text-purple-400"></i>
                     </div>
-                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Localidades</h3>
+                    <h3 className="text-lg font-semibold text-foreground">Localidades</h3>
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
-                      <h4 className="font-medium text-gray-900 dark:text-white mb-2">Carregamento</h4>
+                      <h4 className="font-medium text-foreground mb-2">Carregamento</h4>
                       {locaisCarregamento.length > 0 ? (
                         <div className="space-y-1">
                           {locaisCarregamento.map((local, index) => (
-                            <p key={index} className="text-sm text-gray-600 dark:text-gray-400">
+                            <p key={index} className="text-sm text-muted-foreground">
                               {local.municipio} - {local.uf}
                             </p>
                           ))}
@@ -1273,11 +1141,11 @@ export function MDFeForm({
                       )}
                     </div>
                     <div>
-                      <h4 className="font-medium text-gray-900 dark:text-white mb-2">Descarregamento</h4>
+                      <h4 className="font-medium text-foreground mb-2">Descarregamento</h4>
                       {locaisDescarregamento.length > 0 ? (
                         <div className="space-y-1">
                           {locaisDescarregamento.map((local, index) => (
-                            <p key={index} className="text-sm text-gray-600 dark:text-gray-400">
+                            <p key={index} className="text-sm text-muted-foreground">
                               {local.municipio} - {local.uf}
                             </p>
                           ))}
@@ -1289,7 +1157,7 @@ export function MDFeForm({
                   </div>
                   {rotaSelecionada.length > 0 && (
                     <div className="mt-4 pt-4 border-t border-gray-200 dark:border-0">
-                      <h4 className="font-medium text-gray-900 dark:text-white mb-2">Percurso Fiscal</h4>
+                      <h4 className="font-medium text-foreground mb-2">Percurso Fiscal</h4>
                       <div className="flex flex-wrap gap-2">
                         {rotaSelecionada.map((uf: string, index: number) => (
                           <span
@@ -1306,17 +1174,17 @@ export function MDFeForm({
 
                 {/* Contratação */}
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                  <div className="bg-white dark:bg-gray-800 p-6 rounded-xl border border-gray-200 dark:border-0 shadow-sm">
+                  <div className="bg-card p-6 rounded-xl border border-gray-200 dark:border-0 shadow-sm">
                     <div className="flex items-center mb-4">
                       <div className="w-8 h-8 bg-orange-100 dark:bg-orange-900/50 rounded-lg flex items-center justify-center mr-3">
                         <i className="fas fa-handshake text-orange-600 dark:text-orange-400"></i>
                       </div>
-                      <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Contratante</h3>
+                      <h3 className="text-lg font-semibold text-foreground">Contratante</h3>
                     </div>
                     <div className="space-y-2">
                       <div>
                         <span className="text-sm font-medium text-gray-500 dark:text-gray-400">Empresa:</span>
-                        <p className="text-gray-900 dark:text-white">
+                        <p className="text-foreground">
                           {(() => {
                             if (!selectedIds.contratanteId) return 'Não selecionado';
                             const contratante = entidadesCarregadas?.contratantes?.find((c: any) => c.id === selectedIds.contratanteId);
@@ -1327,17 +1195,17 @@ export function MDFeForm({
                     </div>
                   </div>
 
-                  <div className="bg-white dark:bg-gray-800 p-6 rounded-xl border border-gray-200 dark:border-0 shadow-sm">
+                  <div className="bg-card p-6 rounded-xl border border-gray-200 dark:border-0 shadow-sm">
                     <div className="flex items-center mb-4">
                       <div className="w-8 h-8 bg-teal-100 dark:bg-teal-900/50 rounded-lg flex items-center justify-center mr-3">
                         <i className="fas fa-shield-alt text-teal-600 dark:text-teal-400"></i>
                       </div>
-                      <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Seguradora</h3>
+                      <h3 className="text-lg font-semibold text-foreground">Seguradora</h3>
                     </div>
                     <div className="space-y-2">
                       <div>
                         <span className="text-sm font-medium text-gray-500 dark:text-gray-400">Empresa:</span>
-                        <p className="text-gray-900 dark:text-white">
+                        <p className="text-foreground">
                           {(() => {
                             if (!selectedIds.seguradoraId) return 'Não selecionado';
                             const seguradora = entidadesCarregadas?.seguradoras?.find((s: any) => s.id === selectedIds.seguradoraId);
@@ -1351,46 +1219,46 @@ export function MDFeForm({
 
                 {/* Carga e Documentos */}
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                  <div className="bg-white dark:bg-gray-800 p-6 rounded-xl border border-gray-200 dark:border-0 shadow-sm">
+                  <div className="bg-card p-6 rounded-xl border border-gray-200 dark:border-0 shadow-sm">
                     <div className="flex items-center mb-4">
                       <div className="w-8 h-8 bg-emerald-100 dark:bg-emerald-900/50 rounded-lg flex items-center justify-center mr-3">
                         <i className="fas fa-boxes text-emerald-600 dark:text-emerald-400"></i>
                       </div>
-                      <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Informações da Carga</h3>
+                      <h3 className="text-lg font-semibold text-foreground">Informações da Carga</h3>
                     </div>
                     <div className="space-y-2">
                       <div>
                         <span className="text-sm font-medium text-gray-500 dark:text-gray-400">Valor:</span>
-                        <p className="text-gray-900 dark:text-white font-medium">
+                        <p className="text-foreground font-medium">
                           {dados.valorTotal ? `R$ ${dados.valorTotal.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}` : 'Não informado'}
                         </p>
                       </div>
                       <div>
                         <span className="text-sm font-medium text-gray-500 dark:text-gray-400">Peso:</span>
-                        <p className="text-gray-900 dark:text-white">
+                        <p className="text-foreground">
                           {dados.pesoBrutoTotal ? `${dados.pesoBrutoTotal} kg` : 'Não informado'}
                         </p>
                       </div>
                     </div>
                   </div>
 
-                  <div className="bg-white dark:bg-gray-800 p-6 rounded-xl border border-gray-200 dark:border-0 shadow-sm">
+                  <div className="bg-card p-6 rounded-xl border border-gray-200 dark:border-0 shadow-sm">
                     <div className="flex items-center mb-4">
                       <div className="w-8 h-8 bg-red-100 dark:bg-red-900/50 rounded-lg flex items-center justify-center mr-3">
                         <i className="fas fa-file-invoice text-red-600 dark:text-red-400"></i>
                       </div>
-                      <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Documentos Fiscais</h3>
+                      <h3 className="text-lg font-semibold text-foreground">Documentos Fiscais</h3>
                     </div>
                     <div className="space-y-2">
                       <div>
                         <span className="text-sm font-medium text-gray-500 dark:text-gray-400">CTe:</span>
-                        <p className="text-gray-900 dark:text-white">
+                        <p className="text-foreground">
                           {dados.documentosCTe?.length || 0} documento(s)
                         </p>
                       </div>
                       <div>
                         <span className="text-sm font-medium text-gray-500 dark:text-gray-400">NFe:</span>
-                        <p className="text-gray-900 dark:text-white">
+                        <p className="text-foreground">
                           {dados.documentosNFe?.length || 0} documento(s)
                         </p>
                       </div>
@@ -1439,66 +1307,93 @@ export function MDFeForm({
         </div>
 
         {/* Botões */}
-        <div className="bg-gray-50 dark:bg-gray-800 border-t border-gray-200 dark:border-0 mt-8 -mx-6 lg:-mx-8 px-6 lg:px-8 py-6">
-          <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-            {/* Navegação */}
-            <div className="flex space-x-3">
-              <button
-                onClick={prevSection}
-                disabled={!canGoPrev}
-                className={`px-4 py-2 border-2 rounded-lg font-medium transition-all duration-200 flex items-center gap-2 ${
-                  !canGoPrev
-                    ? 'border-gray-300 dark:border-0 bg-gray-100 dark:bg-gray-700 text-gray-400 dark:text-gray-500 cursor-not-allowed'
-                    : 'border-gray-400 dark:border-0 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:border-gray-500 hover:bg-gray-50 dark:hover:bg-gray-700'
-                }`}
-              >
-                <i className="fas fa-chevron-left text-sm"></i>
-                <span className="hidden sm:inline">Anterior</span>
-              </button>
-              <button
-                onClick={nextSection}
-                disabled={!canGoNext}
-                className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 flex items-center gap-2 ${
-                  !canGoNext
-                    ? 'bg-gray-300 dark:bg-gray-600 text-gray-500 dark:text-gray-400 cursor-not-allowed'
-                    : 'bg-gradient-to-r from-blue-500 to-indigo-600 text-white hover:from-blue-600 hover:to-indigo-700 shadow-md hover:shadow-lg'
-                }`}
-              >
-                <span className="hidden sm:inline">Próximo</span>
-                <i className="fas fa-chevron-right text-sm"></i>
-              </button>
-            </div>
+        <div className="bg-gray-50 dark:bg-gray-900 border-t-2 border-gray-200 dark:border-gray-700 mt-8 -mx-6 lg:-mx-8 px-6 lg:px-8 py-6 shadow-lg">
+          <div className="flex justify-between items-center">
+            {/* Botão Cancelar - Esquerda */}
+            <button
+              onClick={handleCancelar}
+              disabled={salvando || transmitindo}
+              className="px-6 py-3 rounded-lg font-semibold bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-600 border-2 border-gray-300 dark:border-gray-600 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+            >
+              <i className="fas fa-times"></i>
+              Cancelar
+            </button>
 
-            {/* Ações principais */}
-            <div className="flex space-x-3">
-              <button
-                onClick={onCancelar}
-                disabled={salvando || transmitindo}
-                className="px-4 py-2 border-2 border-gray-400 dark:border-0 rounded-lg font-medium bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:border-gray-500 hover:bg-gray-50 dark:hover:bg-gray-700 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                Cancelar
-              </button>
+            {/* Botões Salvar/Transmitir - Direita */}
+            <div className="flex items-center gap-3">
               <button
                 onClick={onSalvar}
                 disabled={salvando || transmitindo}
-                className="px-6 py-2 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-lg font-medium hover:from-green-600 hover:to-emerald-700 shadow-md hover:shadow-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                className="px-8 py-3 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-lg font-bold text-base hover:from-green-600 hover:to-emerald-700 shadow-lg hover:shadow-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
               >
-                {salvando && <i className="fas fa-spinner fa-spin"></i>}
-                {salvando ? 'Salvando...' : 'Salvar'}
+                {salvando ? (
+                  <>
+                    <i className="fas fa-spinner fa-spin"></i>
+                    Salvando...
+                  </>
+                ) : (
+                  <>
+                    <i className="fas fa-save"></i>
+                    Salvar MDFe
+                  </>
+                )}
               </button>
               {onTransmitir && currentSection === 'resumo' && (
                 <button
                   onClick={onTransmitir}
-                  disabled={salvando || transmitindo}
-                  className="px-6 py-2 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-lg font-medium hover:from-blue-600 hover:to-indigo-700 shadow-md hover:shadow-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                  disabled={salvando || transmitindo || !validarTudo()}
+                  className="px-8 py-3 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-lg font-bold text-base hover:from-blue-600 hover:to-indigo-700 shadow-lg hover:shadow-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                  title={!validarTudo() ? 'Preencha todos os campos obrigatórios antes de transmitir' : ''}
                 >
-                  {transmitindo && <i className="fas fa-spinner fa-spin"></i>}
-                  {transmitindo ? 'Transmitindo...' : 'Transmitir'}
+                  {transmitindo ? (
+                    <>
+                      <i className="fas fa-spinner fa-spin"></i>
+                      Transmitindo...
+                    </>
+                  ) : (
+                    <>
+                      <i className="fas fa-paper-plane"></i>
+                      Transmitir para SEFAZ
+                    </>
+                  )}
                 </button>
               )}
             </div>
           </div>
         </div>
+
+        {/* Modal de Confirmação de Cancelamento */}
+        {showCancelModal && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-card rounded-xl shadow-2xl p-8 max-w-md w-full mx-4 border-2 border-gray-200 dark:border-gray-600">
+              <div className="flex items-center gap-4 mb-6">
+                <div className="w-12 h-12 bg-yellow-100 dark:bg-yellow-900/40 rounded-full flex items-center justify-center">
+                  <i className="fas fa-exclamation-triangle text-yellow-600 dark:text-yellow-400 text-xl"></i>
+                </div>
+                <h3 className="text-xl font-bold text-foreground">Confirmar Cancelamento</h3>
+              </div>
+
+              <p className="text-muted-foreground mb-6 leading-relaxed">
+                Você preencheu dados no formulário. Tem certeza que deseja cancelar? Todos os dados não salvos serão perdidos.
+              </p>
+
+              <div className="flex justify-end gap-3">
+                <button
+                  onClick={() => setShowCancelModal(false)}
+                  className="px-4 py-2 rounded-lg font-medium bg-gray-100 dark:bg-gray-600 text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-500 border border-gray-300 dark:border-gray-500 transition-all duration-200"
+                >
+                  Continuar editando
+                </button>
+                <button
+                  onClick={confirmarCancelamento}
+                  className="px-4 py-2 rounded-lg font-medium bg-red-500 text-white hover:bg-red-600 transition-all duration-200"
+                >
+                  Sim, cancelar
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

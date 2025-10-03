@@ -422,15 +422,13 @@ namespace MDFeApi.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("CondutorCpf")
-                        .IsRequired()
                         .HasMaxLength(11)
                         .HasColumnType("nvarchar(11)");
 
-                    b.Property<int>("CondutorId")
+                    b.Property<int?>("CondutorId")
                         .HasColumnType("int");
 
                     b.Property<string>("CondutorNome")
-                        .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
 
@@ -635,6 +633,9 @@ namespace MDFeApi.Migrations
                     b.Property<decimal?>("LongitudeDescarregamento")
                         .HasColumnType("decimal(10,6)");
 
+                    b.Property<int?>("Lote")
+                        .HasColumnType("int");
+
                     b.Property<int>("Modal")
                         .HasColumnType("int");
 
@@ -685,6 +686,12 @@ namespace MDFeApi.Migrations
                     b.Property<string>("Protocolo")
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
+
+                    b.Property<int?>("QuantidadeCTe")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("QuantidadeNFe")
+                        .HasColumnType("int");
 
                     b.Property<string>("RntrcProprietario")
                         .HasMaxLength(20)
@@ -812,15 +819,14 @@ namespace MDFeApi.Migrations
                     b.Property<decimal?>("ValorTotalContrato")
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<int>("VeiculoId")
+                    b.Property<int?>("VeiculoId")
                         .HasColumnType("int");
 
                     b.Property<string>("VeiculoPlaca")
-                        .IsRequired()
                         .HasMaxLength(8)
                         .HasColumnType("nvarchar(8)");
 
-                    b.Property<int>("VeiculoTara")
+                    b.Property<int?>("VeiculoTara")
                         .HasColumnType("int");
 
                     b.Property<string>("VeiculoTipoCarroceria")
@@ -1787,27 +1793,10 @@ namespace MDFeApi.Migrations
                     b.Property<bool>("Ativo")
                         .HasColumnType("bit");
 
-                    b.Property<string>("Bairro")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<string>("Cep")
-                        .IsRequired()
-                        .HasMaxLength(8)
-                        .HasColumnType("nvarchar(8)");
-
                     b.Property<string>("Cnpj")
                         .IsRequired()
                         .HasMaxLength(14)
                         .HasColumnType("nvarchar(14)");
-
-                    b.Property<int>("CodMunicipio")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Complemento")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
 
                     b.Property<DateTime>("DataCriacao")
                         .HasColumnType("datetime2");
@@ -1815,41 +1804,14 @@ namespace MDFeApi.Migrations
                     b.Property<DateTime?>("DataUltimaAlteracao")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("Email")
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
-                    b.Property<string>("Endereco")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
-                    b.Property<string>("Municipio")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
                     b.Property<string>("NomeFantasia")
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
-
-                    b.Property<string>("Numero")
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
 
                     b.Property<string>("RazaoSocial")
                         .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
-
-                    b.Property<string>("Telefone")
-                        .HasMaxLength(15)
-                        .HasColumnType("nvarchar(15)");
-
-                    b.Property<string>("Uf")
-                        .IsRequired()
-                        .HasMaxLength(2)
-                        .HasColumnType("nvarchar(2)");
 
                     b.HasKey("Id");
 
@@ -1982,8 +1944,7 @@ namespace MDFeApi.Migrations
                     b.HasOne("MDFeApi.Models.Condutor", "Condutor")
                         .WithMany("MDFes")
                         .HasForeignKey("CondutorId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("MDFeApi.Models.Contratante", "Contratante")
                         .WithMany("MDFes")
@@ -2009,8 +1970,7 @@ namespace MDFeApi.Migrations
                     b.HasOne("MDFeApi.Models.Veiculo", "Veiculo")
                         .WithMany("MDFes")
                         .HasForeignKey("VeiculoId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.Navigation("Condutor");
 

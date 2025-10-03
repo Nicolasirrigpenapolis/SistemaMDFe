@@ -99,7 +99,7 @@ export function PermissionMatrix({ cargoId, onPermissionsChange }: PermissionMat
       <div className="flex items-center justify-center py-8">
         <div className="flex items-center gap-3">
           <div className="w-6 h-6 border-3 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
-          <span className="text-gray-600">Carregando permissões...</span>
+          <span className="text-muted-foreground">Carregando permissões...</span>
         </div>
       </div>
     );
@@ -108,10 +108,10 @@ export function PermissionMatrix({ cargoId, onPermissionsChange }: PermissionMat
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+        <h3 className="text-lg font-semibold text-foreground">
           Matriz de Permissões
         </h3>
-        <div className="text-sm text-gray-600 dark:text-gray-400">
+        <div className="text-sm text-muted-foreground">
           {cargoPermissions.length} de {allPermissions.length} permissões ativas
         </div>
       </div>
@@ -123,9 +123,9 @@ export function PermissionMatrix({ cargoId, onPermissionsChange }: PermissionMat
 
         return (
           <div key={modulo} className="border border-gray-200 dark:border-0 rounded-lg">
-            <div className="bg-gray-50 dark:bg-gray-800 px-4 py-3 border-b border-gray-200 dark:border-0">
+            <div className="bg-background dark:bg-gray-800 px-4 py-3 border-b border-gray-200 dark:border-0">
               <div className="flex items-center justify-between">
-                <h4 className="font-medium text-gray-900 dark:text-white">{modulo}</h4>
+                <h4 className="font-medium text-foreground">{modulo}</h4>
                 <button
                   onClick={() => toggleAllInModule(modulo)}
                   disabled={saving}
@@ -138,7 +138,7 @@ export function PermissionMatrix({ cargoId, onPermissionsChange }: PermissionMat
                   {hasAllPermissions ? 'Remover Todas' : 'Adicionar Todas'}
                 </button>
               </div>
-              <div className="mt-1 text-sm text-gray-600 dark:text-gray-400">
+              <div className="mt-1 text-sm text-muted-foreground">
                 {modulePermissions.filter(p => hasPermission(p.id)).length} de {modulePermissions.length} permissões
               </div>
             </div>
@@ -151,7 +151,7 @@ export function PermissionMatrix({ cargoId, onPermissionsChange }: PermissionMat
                     className={`flex items-start gap-3 p-3 rounded-lg border transition-colors ${
                       hasPermission(permissao.id)
                         ? 'bg-green-50 border-green-200 dark:bg-green-900/20 dark:border-green-800'
-                        : 'bg-gray-50 border-gray-200 dark:bg-gray-800 dark:border-0'
+                        : 'bg-background border-gray-200 dark:bg-gray-800 dark:border-0'
                     }`}
                   >
                     <input
@@ -159,14 +159,14 @@ export function PermissionMatrix({ cargoId, onPermissionsChange }: PermissionMat
                       checked={hasPermission(permissao.id)}
                       onChange={() => togglePermission(permissao)}
                       disabled={saving}
-                      className="mt-1 w-4 h-4 text-blue-600 bg-white border-gray-300 rounded focus:ring-blue-500"
+                      className="mt-1 w-4 h-4 text-blue-600 bg-card border-gray-300 rounded focus:ring-blue-500"
                     />
                     <div className="flex-1 min-w-0">
-                      <div className="font-medium text-sm text-gray-900 dark:text-white">
+                      <div className="font-medium text-sm text-foreground">
                         {permissao.nome}
                       </div>
                       {permissao.descricao && (
-                        <div className="text-xs text-gray-600 dark:text-gray-400 mt-1">
+                        <div className="text-xs text-muted-foreground mt-1">
                           {permissao.descricao}
                         </div>
                       )}
@@ -184,9 +184,9 @@ export function PermissionMatrix({ cargoId, onPermissionsChange }: PermissionMat
 
       {saving && (
         <div className="fixed inset-0 bg-black bg-opacity-25 flex items-center justify-center z-50">
-          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 flex items-center gap-3">
+          <div className="bg-card rounded-lg p-6 flex items-center gap-3">
             <div className="w-6 h-6 border-3 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
-            <span className="text-gray-900 dark:text-white">Atualizando permissões...</span>
+            <span className="text-foreground">Atualizando permissões...</span>
           </div>
         </div>
       )}

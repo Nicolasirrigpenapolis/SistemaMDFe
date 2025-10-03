@@ -43,6 +43,14 @@ interface PaginationData {
 export function ListarEmitentes() {
   const [emitentes, setEmitentes] = useState<Emitente[]>([]);
   const [carregando, setCarregando] = useState(false);
+
+  // Estados temporários dos filtros (antes de aplicar)
+  const [filtroTemp, setFiltroTemp] = useState('');
+  const [filtroTipoTemp, setFiltroTipoTemp] = useState('');
+  const [filtroStatusTemp, setFiltroStatusTemp] = useState('');
+  const [filtroUfTemp, setFiltroUfTemp] = useState('');
+
+  // Estados dos filtros aplicados
   const [filtro, setFiltro] = useState('');
   const [filtroTipo, setFiltroTipo] = useState('');
   const [filtroStatus, setFiltroStatus] = useState('');
@@ -70,24 +78,7 @@ export function ListarEmitentes() {
   useEffect(() => {
     carregarEmitentes(paginaAtual, filtro, filtroTipo, filtroStatus, filtroUf);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [paginaAtual, tamanhoPagina]);
-
-  // Carregamento inicial sem filtros
-  useEffect(() => {
-    carregarEmitentes(1, '', '', '', '');
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  // Filtragem em tempo real
-  useEffect(() => {
-    const timeoutId = setTimeout(() => {
-      setPaginaAtual(1);
-      carregarEmitentes(1, filtro, filtroTipo, filtroStatus, filtroUf);
-    }, 300); // Debounce de 300ms para evitar muitas requisições
-
-    return () => clearTimeout(timeoutId);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filtro, filtroTipo, filtroStatus, filtroUf]);
+  }, [paginaAtual, tamanhoPagina, filtro, filtroTipo, filtroStatus, filtroUf]);
 
   const carregarEmitentes = async (
     pagina: number = paginaAtual,
@@ -156,17 +147,36 @@ export function ListarEmitentes() {
     setModalFormulario(true);
   };
 
-  const abrirModalEdicao = (emitente: Emitente) => {
-    setEmitenteAtual({
-      ...emitente,
-      senhaCertificado: '' // Sempre limpar senha no modo edição
-    });
+  const abrirModalEdicao = async (emitente: Emitente) => {
+    try {
+      // Buscar detalhes completos do emitente para edição
+      const resposta = await entitiesService.buscarEmitentePorId(emitente.id!);
+      if (resposta.sucesso && resposta.dados) {
+        setEmitenteAtual(resposta.dados);
+      } else {
+        setEmitenteAtual(emitente);
+      }
+    } catch (error) {
+      console.error('Erro ao buscar detalhes do emitente:', error);
+      setEmitenteAtual(emitente);
+    }
     setModoEdicao(true);
     setModalFormulario(true);
   };
 
-  const abrirModalVisualizacao = (emitente: Emitente) => {
-    setEmitenteAtual(emitente);
+  const abrirModalVisualizacao = async (emitente: Emitente) => {
+    try {
+      // Buscar detalhes completos do emitente
+      const resposta = await entitiesService.buscarEmitentePorId(emitente.id!);
+      if (resposta.sucesso && resposta.dados) {
+        setEmitenteAtual(resposta.dados);
+      } else {
+        setEmitenteAtual(emitente);
+      }
+    } catch (error) {
+      console.error('Erro ao buscar detalhes do emitente:', error);
+      setEmitenteAtual(emitente);
+    }
     setModalVisualizacao(true);
   };
 
@@ -199,7 +209,11 @@ export function ListarEmitentes() {
         endereco: dadosEmitente.endereco.trim(),
         bairro: dadosEmitente.bairro.trim(),
         municipio: dadosEmitente.municipio.trim(),
-        uf: dadosEmitente.uf.toUpperCase()
+        uf: dadosEmitente.uf.toUpperCase(),
+        rntrc: dadosEmitente.rntrc?.trim() || undefined,
+        caminhoArquivoCertificado: dadosEmitente.caminhoArquivoCertificado?.trim() || undefined,
+        senhaCertificado: dadosEmitente.senhaCertificado?.trim() || undefined,
+        caminhoSalvarXml: dadosEmitente.caminhoSalvarXml?.trim() || undefined
       };
 
       let resposta;
@@ -250,23 +264,34 @@ export function ListarEmitentes() {
     console.log('Dados do CNPJ consultados:', data);
   };
 
+  const aplicarFiltros = () => {
+    setFiltro(filtroTemp);
+    setFiltroTipo(filtroTipoTemp);
+    setFiltroStatus(filtroStatusTemp);
+    setFiltroUf(filtroUfTemp);
+    setPaginaAtual(1);
+  };
+
   const limparFiltros = () => {
+    setFiltroTemp('');
+    setFiltroTipoTemp('');
+    setFiltroStatusTemp('');
+    setFiltroUfTemp('');
     setFiltro('');
     setFiltroTipo('');
     setFiltroStatus('');
     setFiltroUf('');
     setPaginaAtual(1);
-    setTimeout(() => carregarEmitentes(1, '', '', '', ''), 0);
   };
 
   if (carregando) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      <div className="min-h-screen bg-background">
         <div className="w-full px-6 py-8">
           <div className="flex items-center justify-center py-16">
             <div className="flex items-center gap-4">
               <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
-              <span className="text-gray-600 dark:text-gray-400">Carregando emitentes...</span>
+              <span className="text-muted-foreground">Carregando emitentes...</span>
             </div>
           </div>
         </div>
@@ -275,7 +300,7 @@ export function ListarEmitentes() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="min-h-screen bg-background">
       <div className="w-full px-2 py-4">
         {/* Header */}
         <div className="flex items-center justify-between mb-4">
@@ -284,8 +309,8 @@ export function ListarEmitentes() {
               <Icon name="building" className="text-white" size="xl" />
             </div>
             <div>
-              <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-1">Emitentes</h1>
-              <p className="text-gray-600 dark:text-gray-400 text-lg">Gerencie as empresas emissoras de MDF-e</p>
+              <h1 className="text-3xl font-bold text-foreground mb-1">Emitentes</h1>
+              <p className="text-muted-foreground text-lg">Gerencie as empresas emissoras de MDF-e</p>
             </div>
           </div>
           <button
@@ -298,25 +323,26 @@ export function ListarEmitentes() {
         </div>
 
         {/* Filtros */}
-        <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-0 p-6 mb-6">
-          <div className="grid grid-cols-5 gap-4 items-end">
+        <div className="bg-card rounded-lg border border-gray-200 dark:border-0 p-6 mb-6">
+          <div className="grid grid-cols-6 gap-4 items-end">
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Buscar</label>
+              <label className="block text-sm font-medium text-foreground mb-2">Buscar</label>
               <input
                 type="text"
                 placeholder="Razão social ou CNPJ..."
-                value={filtro}
-                onChange={(e) => setFiltro(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-0 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+                value={filtroTemp}
+                onChange={(e) => setFiltroTemp(e.target.value)}
+                onKeyPress={(e) => e.key === 'Enter' && aplicarFiltros()}
+                className="w-full px-3 py-2 border border-gray-300 dark:border-0 rounded-lg bg-card text-foreground placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Tipo</label>
+              <label className="block text-sm font-medium text-foreground mb-2">Tipo</label>
               <select
-                value={filtroTipo}
-                onChange={(e) => setFiltroTipo(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-0 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+                value={filtroTipoTemp}
+                onChange={(e) => setFiltroTipoTemp(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 dark:border-0 rounded-lg bg-card text-foreground focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
               >
                 <option value="">Todos os tipos</option>
                 <option value="PrestadorServico">Prestador de Serviço</option>
@@ -325,11 +351,11 @@ export function ListarEmitentes() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Status</label>
+              <label className="block text-sm font-medium text-foreground mb-2">Status</label>
               <select
-                value={filtroStatus}
-                onChange={(e) => setFiltroStatus(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-0 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+                value={filtroStatusTemp}
+                onChange={(e) => setFiltroStatusTemp(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 dark:border-0 rounded-lg bg-card text-foreground focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
               >
                 <option value="">Todos os status</option>
                 <option value="ativo">Ativo</option>
@@ -338,11 +364,11 @@ export function ListarEmitentes() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">UF</label>
+              <label className="block text-sm font-medium text-foreground mb-2">UF</label>
               <select
-                value={filtroUf}
-                onChange={(e) => setFiltroUf(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-0 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+                value={filtroUfTemp}
+                onChange={(e) => setFiltroUfTemp(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 dark:border-0 rounded-lg bg-card text-foreground focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
               >
                 <option value="">Todas as UF</option>
                 <option value="AC">AC</option>
@@ -377,12 +403,22 @@ export function ListarEmitentes() {
 
             <div>
               <button
+                onClick={aplicarFiltros}
+                className="w-full px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-lg font-semibold transition-all duration-200 flex items-center justify-center gap-2 shadow-lg hover:shadow-xl"
+              >
+                <Icon name="search" />
+                Filtrar
+              </button>
+            </div>
+
+            <div>
+              <button
                 onClick={limparFiltros}
                 className="w-full px-4 py-2 bg-red-50 hover:bg-red-100 dark:bg-red-900/20 dark:hover:bg-red-900/30 text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 border border-red-200 dark:border-red-800 rounded-lg font-semibold transition-all duration-200 flex items-center justify-center gap-2 shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
-                disabled={!filtro && !filtroTipo && !filtroStatus && !filtroUf}
+                disabled={!filtroTemp && !filtroTipoTemp && !filtroStatusTemp && !filtroUfTemp}
               >
                 <Icon name="times" />
-                Limpar Filtros
+                Limpar
               </button>
             </div>
           </div>
@@ -405,22 +441,22 @@ export function ListarEmitentes() {
         )}
 
         {/* Tabela */}
-        <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-0 shadow-sm">
+        <div className="bg-card rounded-lg border border-gray-200 dark:border-0 shadow-sm">
           {emitentes.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-16 px-6">
               <div className="w-16 h-16 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center mb-4">
                 <Icon name="building" className="text-2xl text-gray-400" />
               </div>
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+              <h3 className="text-lg font-semibold text-foreground mb-2">
                 {(filtro || filtroTipo || filtroStatus || filtroUf) ? 'Nenhum emitente encontrado com os filtros aplicados' : 'Nenhum emitente encontrado'}
               </h3>
-              <p className="text-gray-600 dark:text-gray-400 text-center">
+              <p className="text-muted-foreground text-center">
                 {(filtro || filtroTipo || filtroStatus || filtroUf) ? 'Tente ajustar os filtros ou limpar para ver todos os emitentes.' : 'Adicione um novo emitente para começar.'}
               </p>
             </div>
           ) : (
             <>
-              <div className="grid grid-cols-6 gap-4 p-4 bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-0 font-semibold text-gray-900 dark:text-white">
+              <div className="grid grid-cols-6 gap-4 p-4 bg-background dark:bg-gray-800 border-b border-gray-200 dark:border-0 font-semibold text-foreground">
                 <div className="text-center">Documento</div>
                 <div className="text-center">Empresa</div>
                 <div className="text-center">Tipo</div>
@@ -430,9 +466,9 @@ export function ListarEmitentes() {
               </div>
 
               {emitentes.map((emitente) => (
-                <div key={emitente.id} className="grid grid-cols-6 gap-4 p-4 border-b border-gray-200 dark:border-0 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200">
+                <div key={emitente.id} className="grid grid-cols-6 gap-4 p-4 border-b border-gray-200 dark:border-0 hover:bg-background dark:hover:bg-gray-700 transition-colors duration-200">
                   <div className="text-center">
-                    <div className="font-medium text-gray-900 dark:text-white">
+                    <div className="font-medium text-foreground">
                       {emitente.cnpj ? formatCNPJ(emitente.cnpj) :
                        emitente.cpf ? formatCPF(emitente.cpf) :
                        'Não informado'}
@@ -442,9 +478,9 @@ export function ListarEmitentes() {
                     )}
                   </div>
                   <div className="text-center">
-                    <div className="font-medium text-gray-900 dark:text-white">{emitente.razaoSocial}</div>
+                    <div className="font-medium text-foreground">{emitente.razaoSocial}</div>
                     {emitente.nomeFantasia && (
-                      <div className="text-sm text-gray-600 dark:text-gray-400">{emitente.nomeFantasia}</div>
+                      <div className="text-sm text-muted-foreground">{emitente.nomeFantasia}</div>
                     )}
                   </div>
                   <div className="text-center flex justify-center">
@@ -457,7 +493,7 @@ export function ListarEmitentes() {
                     </span>
                   </div>
                   <div className="text-center">
-                    <div className="font-medium text-gray-900 dark:text-white text-sm">
+                    <div className="font-medium text-foreground text-sm">
                       {emitente.endereco ? `${emitente.endereco}${emitente.numero ? ', ' + emitente.numero : ''}` : 'Não informado'}
                     </div>
                     <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
@@ -504,9 +540,9 @@ export function ListarEmitentes() {
 
         {/* Paginação */}
         {paginacao && paginacao.totalItems > 0 && (
-          <div className="mt-6 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-0 p-4 rounded-b-lg">
+          <div className="mt-6 bg-card border-t border-gray-200 dark:border-0 p-4 rounded-b-lg">
             <div className="flex flex-row justify-between items-center gap-4">
-              <div className="text-sm text-gray-600 dark:text-gray-400 text-left">
+              <div className="text-sm text-muted-foreground text-left">
                 Mostrando {paginacao.startItem || ((paginacao.currentPage - 1) * paginacao.pageSize) + 1} até {paginacao.endItem || Math.min(paginacao.currentPage * paginacao.pageSize, paginacao.totalItems)} de {paginacao.totalItems} emitentes
               </div>
 
@@ -515,19 +551,19 @@ export function ListarEmitentes() {
                   <button
                     onClick={() => setPaginaAtual(paginacao.currentPage - 1)}
                     disabled={!paginacao.hasPreviousPage}
-                    className="px-4 py-2 border border-gray-300 dark:border-0 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200 text-sm"
+                    className="px-4 py-2 border border-gray-300 dark:border-0 rounded-lg bg-card text-foreground hover:bg-background dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200 text-sm"
                   >
                     Anterior
                   </button>
 
-                  <span className="px-4 py-2 text-gray-900 dark:text-white font-medium text-sm whitespace-nowrap">
+                  <span className="px-4 py-2 text-foreground font-medium text-sm whitespace-nowrap">
                     {paginacao.currentPage} / {paginacao.totalPages}
                   </span>
 
                   <button
                     onClick={() => setPaginaAtual(paginacao.currentPage + 1)}
                     disabled={!paginacao.hasNextPage}
-                    className="px-4 py-2 border border-gray-300 dark:border-0 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200 text-sm"
+                    className="px-4 py-2 border border-gray-300 dark:border-0 rounded-lg bg-card text-foreground hover:bg-background dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200 text-sm"
                   >
                     Próxima
                   </button>
@@ -535,14 +571,14 @@ export function ListarEmitentes() {
               )}
 
               <div className="flex items-center gap-2">
-                <label className="text-sm text-gray-700 dark:text-gray-300">Itens por página:</label>
+                <label className="text-sm text-foreground">Itens por página:</label>
                 <select
                   value={tamanhoPagina}
                   onChange={(e) => {
                     setTamanhoPagina(Number(e.target.value));
                     setPaginaAtual(1);
                   }}
-                  className="px-3 py-1 border border-gray-300 dark:border-0 rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+                  className="px-3 py-1 border border-gray-300 dark:border-0 rounded bg-card text-foreground focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
                 >
                   <option value={5}>5</option>
                   <option value={10}>10</option>

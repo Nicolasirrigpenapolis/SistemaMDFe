@@ -70,11 +70,11 @@ export function GenericViewModal<T = any>({
 
     return (
       <div key={field.label} className={`space-y-2 ${colSpanClass}`}>
-        <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300">
+        <label className="flex items-center gap-2 text-sm font-semibold text-foreground">
           {field.icon && <Icon name={field.icon} className={sectionColor} size="sm" />}
           {field.label}
         </label>
-        <div className="px-4 py-3 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-0">
+        <div className="px-4 py-3 bg-card rounded-xl border border-gray-200 dark:border-0">
           {field.type === 'status' && statusConfig ? (
             <div
               className="flex items-center gap-2 px-3 py-1 rounded-full text-sm font-medium w-fit"
@@ -88,7 +88,7 @@ export function GenericViewModal<T = any>({
             </div>
           ) : field.type === 'code' ? (
             <div className="flex items-center gap-2">
-              <code className="flex-1 text-sm font-mono text-gray-700 dark:text-gray-300 break-all">
+              <code className="flex-1 text-sm font-mono text-foreground break-all">
                 {formattedValue}
               </code>
               {copyableFields.some(cf => cf.fieldKey === field.label) && (
@@ -104,7 +104,7 @@ export function GenericViewModal<T = any>({
           ) : field.type === 'currency' ? (
             <span className="text-xl font-bold text-green-600 dark:text-green-400">{formattedValue}</span>
           ) : (
-            <span className="font-medium text-gray-900 dark:text-white">{formattedValue}</span>
+            <span className="font-medium text-foreground">{formattedValue}</span>
           )}
         </div>
       </div>
@@ -128,9 +128,9 @@ export function GenericViewModal<T = any>({
             <Icon name={section.icon} className="text-white" size="sm" />
           </div>
           <div>
-            <h3 className="text-xl font-bold text-gray-900 dark:text-white">{section.title}</h3>
+            <h3 className="text-xl font-bold text-foreground">{section.title}</h3>
             {section.subtitle && (
-              <p className="text-gray-600 dark:text-gray-400 text-sm">{section.subtitle}</p>
+              <p className="text-muted-foreground text-sm">{section.subtitle}</p>
             )}
           </div>
         </div>
@@ -152,7 +152,7 @@ export function GenericViewModal<T = any>({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm" onClick={onClose}>
-      <div className={`bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-0 shadow-xl ${modalSizeClass} w-full mx-4 max-h-[85vh] overflow-hidden`} onClick={(e) => e.stopPropagation()}>
+      <div className={`bg-card dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-0 shadow-xl ${modalSizeClass} w-full mx-4 max-h-[85vh] flex flex-col`} onClick={(e) => e.stopPropagation()}>
 
         {/* Header */}
         <div
@@ -161,7 +161,7 @@ export function GenericViewModal<T = any>({
         >
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4 min-w-0 flex-1">
-              <div className="w-12 h-12 bg-white/15 backdrop-blur-sm rounded-xl flex items-center justify-center shadow-lg flex-shrink-0">
+              <div className="w-12 h-12 bg-card/15 backdrop-blur-sm rounded-xl flex items-center justify-center shadow-lg flex-shrink-0">
                 <Icon name={headerIcon} className="text-white" size="lg" />
               </div>
               <div className="min-w-0 flex-1">
@@ -190,7 +190,7 @@ export function GenericViewModal<T = any>({
             )}
 
             <button
-              className="w-10 h-10 bg-white/10 hover:bg-white/20 rounded-xl flex items-center justify-center transition-all duration-200 group backdrop-blur-sm flex-shrink-0"
+              className="w-10 h-10 bg-card/10 hover:bg-card/20 rounded-xl flex items-center justify-center transition-all duration-200 group backdrop-blur-sm flex-shrink-0"
               onClick={onClose}
             >
               <Icon name="times" className="text-white group-hover:scale-110 transition-transform" size="lg" />
@@ -205,8 +205,8 @@ export function GenericViewModal<T = any>({
 
         {/* Footer */}
         {(actions.length > 0 || idField) && (
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 px-6 py-4 border-t border-gray-200 dark:border-0 bg-gray-50 dark:bg-gray-800">
-            <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 px-6 py-4 border-t border-gray-200 dark:border-0 bg-background dark:bg-gray-800">
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <Icon name="info-circle" size="sm" />
               <span>ID: {(item as any)[idField] || 'N/A'}</span>
             </div>
@@ -244,7 +244,7 @@ export function GenericViewModal<T = any>({
                 })}
 
                 <button
-                  className="order-1 px-6 py-3 border border-gray-300 dark:border-0 rounded-xl bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 font-medium hover:bg-gray-50 dark:hover:bg-gray-600 transition-all duration-200 shadow-sm hover:shadow-md"
+                  className="order-1 px-6 py-3 border border-gray-300 dark:border-0 rounded-xl bg-card dark:bg-gray-700 text-foreground font-medium hover:bg-background dark:hover:bg-gray-600 transition-all duration-200 shadow-sm hover:shadow-md"
                   onClick={onClose}
                 >
                   Fechar

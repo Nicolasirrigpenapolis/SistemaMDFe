@@ -9,37 +9,29 @@ namespace MDFeApi.DTOs
         [Range(1, int.MaxValue, ErrorMessage = "ID do emitente deve ser maior que zero")]
         public int EmitenteId { get; set; }
 
-        [Required(ErrorMessage = "Veículo é obrigatório")]
         [Range(1, int.MaxValue, ErrorMessage = "ID do veículo deve ser maior que zero")]
-        public int VeiculoId { get; set; }
+        public int? VeiculoId { get; set; }
 
-        [Required(ErrorMessage = "Condutor é obrigatório")]
         [Range(1, int.MaxValue, ErrorMessage = "ID do condutor deve ser maior que zero")]
-        public int CondutorId { get; set; }
+        public int? CondutorId { get; set; }
 
-        [Required(ErrorMessage = "Data de emissão é obrigatória")]
-        public DateTime DataEmissao { get; set; }
+        public DateTime? DataEmissao { get; set; }
 
-        [Required(ErrorMessage = "Data de início da viagem é obrigatória")]
-        public DateTime DataInicioViagem { get; set; }
+        public DateTime? DataInicioViagem { get; set; }
 
-        [Required(ErrorMessage = "UF de início é obrigatória")]
         [RegularExpression(@"^[A-Z]{2}$", ErrorMessage = "UF de início deve ter 2 letras maiúsculas")]
-        public string UfIni { get; set; } = string.Empty;
+        public string? UfIni { get; set; }
 
-        [Required(ErrorMessage = "UF de fim é obrigatória")]
         [RegularExpression(@"^[A-Z]{2}$", ErrorMessage = "UF de fim deve ter 2 letras maiúsculas")]
-        public string UfFim { get; set; } = string.Empty;
+        public string? UfFim { get; set; }
 
-        [Required(ErrorMessage = "Município de início é obrigatório")]
         [MinLength(2, ErrorMessage = "Município de início deve ter pelo menos 2 caracteres")]
         [MaxLength(100, ErrorMessage = "Município de início deve ter no máximo 100 caracteres")]
-        public string MunicipioIni { get; set; } = string.Empty;
+        public string? MunicipioIni { get; set; }
 
-        [Required(ErrorMessage = "Município de fim é obrigatório")]
         [MinLength(2, ErrorMessage = "Município de fim deve ter pelo menos 2 caracteres")]
         [MaxLength(100, ErrorMessage = "Município de fim deve ter no máximo 100 caracteres")]
-        public string MunicipioFim { get; set; } = string.Empty;
+        public string? MunicipioFim { get; set; }
 
         // === ETAPA CARGA ===
         [Range(0.01, 999999.99, ErrorMessage = "Peso bruto total deve estar entre 0,01 e 999.999,99 kg")]

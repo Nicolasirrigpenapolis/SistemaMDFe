@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../contexts/AuthContext';
 import { ThemeToggle } from '../../UI/Common/ThemeToggle';
 import Icon from '../../UI/Icon';
@@ -11,17 +12,22 @@ interface HeaderProps {
 
 export function Header({ onToggleSidebar, sidebarAberta, isMobile }: HeaderProps) {
   const { user, logout } = useAuth();
+  const navigate = useNavigate();
 
   const handleLogout = () => {
     if (window.confirm('Tem certeza que deseja sair?')) {
       logout();
     }
   };
+
+  const handleLogoClick = () => {
+    navigate('/dashboard');
+  };
   return (
     <header className="
       fixed top-0 left-0 right-0 z-50
       flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4
-      bg-white dark:bg-gray-800
+      bg-card
       border-b border-gray-200 dark:border-0
       shadow-sm dark:shadow-gray-900/20
       transition-colors duration-200
@@ -31,9 +37,9 @@ export function Header({ onToggleSidebar, sidebarAberta, isMobile }: HeaderProps
         <button
           className="
             p-2 rounded-lg transition-all duration-200
-            text-gray-600 dark:text-gray-300
-            hover:bg-gray-100 dark:hover:bg-gray-700
-            hover:text-gray-900 dark:hover:text-white
+            text-muted-foreground dark:text-gray-300
+            hover:bg-accent
+            hover:text-foreground dark:hover:text-white
             focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50
           "
           onClick={onToggleSidebar}
@@ -42,7 +48,11 @@ export function Header({ onToggleSidebar, sidebarAberta, isMobile }: HeaderProps
           <Icon name="bars" size="md" />
         </button>
 
-        <div className="flex items-center gap-2 sm:gap-3">
+        <button
+          onClick={handleLogoClick}
+          className="flex items-center gap-2 sm:gap-3 hover:opacity-80 transition-opacity duration-200 cursor-pointer"
+          title="Ir para Dashboard"
+        >
           <div className="
             w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-blue-600 to-blue-700 dark:from-blue-500 dark:to-blue-600
             flex items-center justify-center shadow-lg
@@ -50,14 +60,14 @@ export function Header({ onToggleSidebar, sidebarAberta, isMobile }: HeaderProps
             <Icon name="truck" color="white" size={isMobile ? "sm" : "md"} />
           </div>
           <div className="hidden sm:block">
-            <h1 className="text-xl font-bold text-gray-900 dark:text-white">
+            <h1 className="text-xl font-bold text-foreground">
               MDFe System
             </h1>
             <span className="text-xs text-gray-500 dark:text-gray-400 font-medium">
               Gestão Profissional
             </span>
           </div>
-        </div>
+        </button>
       </div>
 
       <div className="flex items-center gap-2 sm:gap-4">
@@ -74,7 +84,7 @@ export function Header({ onToggleSidebar, sidebarAberta, isMobile }: HeaderProps
               <Icon name="user" size="sm" />
             </div>
             <div className="hidden md:block">
-              <span className="block text-sm font-medium text-gray-900 dark:text-white">
+              <span className="block text-sm font-medium text-foreground">
                 {user?.nome || 'Usuário'}
               </span>
               <span className="block text-xs text-gray-500 dark:text-gray-400">
@@ -84,7 +94,7 @@ export function Header({ onToggleSidebar, sidebarAberta, isMobile }: HeaderProps
             <button className="
               hidden sm:block p-1 rounded-md transition-colors duration-200
               text-gray-400 dark:text-gray-500
-              hover:text-gray-600 dark:hover:text-gray-300
+              hover:text-muted-foreground dark:hover:text-gray-300
             ">
               <Icon name="chevron-down" size="sm" />
             </button>

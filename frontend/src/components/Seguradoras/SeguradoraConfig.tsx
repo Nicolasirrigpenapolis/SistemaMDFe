@@ -91,8 +91,8 @@ export const seguradoraConfig: CRUDConfig<SeguradoraFormData> = {
             autoFetch: true,
             validation: (value) => {
               if (!value) return 'CNPJ é obrigatório';
-              const cnpjPattern = /^\d{2}\.\d{3}\.\d{3}\/\d{4}-\d{2}$/;
-              return cnpjPattern.test(value) ? null : 'CNPJ deve ter formato válido (00.000.000/0000-00)';
+              const cnpjLimpo = value.replace(/\D/g, '');
+              return cnpjLimpo.length === 14 ? null : 'CNPJ deve ter 14 dígitos';
             }
           },
           {

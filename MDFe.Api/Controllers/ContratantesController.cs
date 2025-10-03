@@ -4,14 +4,18 @@ using MDFeApi.Data;
 using MDFeApi.DTOs;
 using MDFeApi.Models;
 using MDFeApi.Utils;
+using MDFeApi.Services;
 
 namespace MDFeApi.Controllers
 {
     [Route("api/[controller]")]
     public class ContratantesController : BaseController<Contratante, ContratanteListDto, ContratanteDetailDto, ContratanteCreateDto, ContratanteUpdateDto>
     {
-        public ContratantesController(MDFeContext context, ILogger<ContratantesController> logger)
-            : base(context, logger)
+        public ContratantesController(
+            MDFeContext context,
+            ILogger<ContratantesController> logger,
+            ICacheService cacheService)
+            : base(context, logger, cacheService)
         {
         }
 
@@ -70,20 +74,20 @@ namespace MDFeApi.Controllers
         {
             var contratante = new Contratante
             {
-                Cnpj = dto.Cnpj?.Trim(),
-                Cpf = dto.Cpf?.Trim(),
-                RazaoSocial = dto.RazaoSocial?.Trim(),
-                NomeFantasia = dto.NomeFantasia?.Trim(),
-                Endereco = dto.Endereco?.Trim(),
-                Numero = dto.Numero?.Trim(),
-                Complemento = dto.Complemento?.Trim(),
-                Bairro = dto.Bairro?.Trim(),
+                Cnpj = dto.Cnpj?.Trim() ?? string.Empty,
+                Cpf = dto.Cpf?.Trim() ?? string.Empty,
+                RazaoSocial = dto.RazaoSocial?.Trim() ?? string.Empty,
+                NomeFantasia = dto.NomeFantasia?.Trim() ?? string.Empty,
+                Endereco = dto.Endereco?.Trim() ?? string.Empty,
+                Numero = dto.Numero?.Trim() ?? string.Empty,
+                Complemento = dto.Complemento?.Trim() ?? string.Empty,
+                Bairro = dto.Bairro?.Trim() ?? string.Empty,
                 CodMunicipio = dto.CodMunicipio,
-                Municipio = dto.Municipio?.Trim(),
-                Cep = dto.Cep?.Trim(),
-                Uf = dto.Uf?.Trim(),
-                Telefone = dto.Telefone?.Trim(),
-                Email = dto.Email?.Trim()
+                Municipio = dto.Municipio?.Trim() ?? string.Empty,
+                Cep = dto.Cep?.Trim() ?? string.Empty,
+                Uf = dto.Uf?.Trim() ?? string.Empty,
+                Telefone = dto.Telefone?.Trim() ?? string.Empty,
+                Email = dto.Email?.Trim() ?? string.Empty
             };
 
             DocumentUtils.LimparDocumentosContratante(contratante);
@@ -92,20 +96,20 @@ namespace MDFeApi.Controllers
 
         protected override void UpdateEntityFromDto(Contratante entity, ContratanteUpdateDto dto)
         {
-            entity.Cnpj = dto.Cnpj?.Trim();
-            entity.Cpf = dto.Cpf?.Trim();
-            entity.RazaoSocial = dto.RazaoSocial?.Trim();
-            entity.NomeFantasia = dto.NomeFantasia?.Trim();
-            entity.Endereco = dto.Endereco?.Trim();
-            entity.Numero = dto.Numero?.Trim();
-            entity.Complemento = dto.Complemento?.Trim();
-            entity.Bairro = dto.Bairro?.Trim();
+            entity.Cnpj = dto.Cnpj?.Trim() ?? string.Empty;
+            entity.Cpf = dto.Cpf?.Trim() ?? string.Empty;
+            entity.RazaoSocial = dto.RazaoSocial?.Trim() ?? string.Empty;
+            entity.NomeFantasia = dto.NomeFantasia?.Trim() ?? string.Empty;
+            entity.Endereco = dto.Endereco?.Trim() ?? string.Empty;
+            entity.Numero = dto.Numero?.Trim() ?? string.Empty;
+            entity.Complemento = dto.Complemento?.Trim() ?? string.Empty;
+            entity.Bairro = dto.Bairro?.Trim() ?? string.Empty;
             entity.CodMunicipio = dto.CodMunicipio;
-            entity.Municipio = dto.Municipio?.Trim();
-            entity.Cep = dto.Cep?.Trim();
-            entity.Uf = dto.Uf?.Trim();
-            entity.Telefone = dto.Telefone?.Trim();
-            entity.Email = dto.Email?.Trim();
+            entity.Municipio = dto.Municipio?.Trim() ?? string.Empty;
+            entity.Cep = dto.Cep?.Trim() ?? string.Empty;
+            entity.Uf = dto.Uf?.Trim() ?? string.Empty;
+            entity.Telefone = dto.Telefone?.Trim() ?? string.Empty;
+            entity.Email = dto.Email?.Trim() ?? string.Empty;
 
             DocumentUtils.LimparDocumentosContratante(entity);
         }

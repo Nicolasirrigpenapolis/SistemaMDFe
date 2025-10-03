@@ -155,12 +155,7 @@ export const contratanteConfig: CRUDConfig<ContratanteFormData> = {
             placeholder: '00.000.000/0000-00',
             show: true,
             autoFetch: true,
-            conditionalShow: { field: 'tipoDocumento', value: 'cnpj' },
-            validation: (value) => {
-              if (!value || value.length === 0) return null;
-              const cnpjPattern = /^\d{2}\.\d{3}\.\d{3}\/\d{4}-\d{2}$/;
-              return cnpjPattern.test(value) ? null : 'CNPJ deve ter formato válido';
-            }
+            conditionalShow: { field: 'tipoDocumento', value: 'cnpj' }
           },
           {
             key: 'cpf',
@@ -168,12 +163,7 @@ export const contratanteConfig: CRUDConfig<ContratanteFormData> = {
             type: 'cpf',
             placeholder: '000.000.000-00',
             show: true,
-            conditionalShow: { field: 'tipoDocumento', value: 'cpf' },
-            validation: (value) => {
-              if (!value || value.length === 0) return null;
-              const cpfPattern = /^\d{3}\.\d{3}\.\d{3}-\d{2}$/;
-              return cpfPattern.test(value) ? null : 'CPF deve ter formato válido';
-            }
+            conditionalShow: { field: 'tipoDocumento', value: 'cpf' }
           },
           {
             key: 'razaoSocial',
@@ -209,12 +199,7 @@ export const contratanteConfig: CRUDConfig<ContratanteFormData> = {
             label: 'CEP',
             type: 'cep',
             required: true,
-            placeholder: '00000-000',
-            validation: (value) => {
-              if (!value) return 'CEP é obrigatório';
-              const cepPattern = /^\d{5}-\d{3}$/;
-              return cepPattern.test(value) ? null : 'CEP deve ter formato válido (00000-000)';
-            }
+            placeholder: '00000-000'
           },
           {
             key: 'endereco',
@@ -251,37 +236,9 @@ export const contratanteConfig: CRUDConfig<ContratanteFormData> = {
           {
             key: 'uf',
             label: 'UF',
-            type: 'select',
+            type: 'text',
             required: true,
-            options: [
-              { value: 'AC', label: 'Acre' },
-              { value: 'AL', label: 'Alagoas' },
-              { value: 'AP', label: 'Amapá' },
-              { value: 'AM', label: 'Amazonas' },
-              { value: 'BA', label: 'Bahia' },
-              { value: 'CE', label: 'Ceará' },
-              { value: 'DF', label: 'Distrito Federal' },
-              { value: 'ES', label: 'Espírito Santo' },
-              { value: 'GO', label: 'Goiás' },
-              { value: 'MA', label: 'Maranhão' },
-              { value: 'MT', label: 'Mato Grosso' },
-              { value: 'MS', label: 'Mato Grosso do Sul' },
-              { value: 'MG', label: 'Minas Gerais' },
-              { value: 'PA', label: 'Pará' },
-              { value: 'PB', label: 'Paraíba' },
-              { value: 'PR', label: 'Paraná' },
-              { value: 'PE', label: 'Pernambuco' },
-              { value: 'PI', label: 'Piauí' },
-              { value: 'RJ', label: 'Rio de Janeiro' },
-              { value: 'RN', label: 'Rio Grande do Norte' },
-              { value: 'RS', label: 'Rio Grande do Sul' },
-              { value: 'RO', label: 'Rondônia' },
-              { value: 'RR', label: 'Roraima' },
-              { value: 'SC', label: 'Santa Catarina' },
-              { value: 'SP', label: 'São Paulo' },
-              { value: 'SE', label: 'Sergipe' },
-              { value: 'TO', label: 'Tocantins' }
-            ],
+            readonly: true,
             validation: (value) => !value ? 'UF é obrigatória' : null
           },
           {
@@ -289,8 +246,8 @@ export const contratanteConfig: CRUDConfig<ContratanteFormData> = {
             label: 'Município',
             type: 'text',
             required: true,
-            placeholder: 'Município',
-            maxLength: 60,
+            placeholder: 'Município (preenchido automaticamente)',
+            readonly: true,
             validation: (value) => !value ? 'Município é obrigatório' : null
           }
         ]
@@ -298,7 +255,9 @@ export const contratanteConfig: CRUDConfig<ContratanteFormData> = {
     ],
 
     defaultValues: {
-      ativo: true
+      ativo: true,
+      codMunicipio: 0,
+      municipio: ''
     }
   }
 };

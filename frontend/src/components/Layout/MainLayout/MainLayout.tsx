@@ -36,7 +36,7 @@ export function MainLayout({ children }: MainLayoutProps) {
     handleResize(); // Executar imediatamente
 
     return () => window.removeEventListener('resize', handleResize);
-  }, []);
+  }, [sidebarAberta]);
 
   // Não mostrar layout para páginas de autenticação
   const isAuthPage = location.pathname.startsWith('/login') || location.pathname.startsWith('/auth');
@@ -50,7 +50,7 @@ export function MainLayout({ children }: MainLayoutProps) {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-200">
+    <div className="min-h-screen bg-background transition-colors duration-200">
       {/* Header fixo no topo */}
       <Header
         onToggleSidebar={toggleSidebar}
@@ -59,7 +59,7 @@ export function MainLayout({ children }: MainLayoutProps) {
       />
 
       {/* Container principal com altura calculada (100vh - altura do header) */}
-      <div className="flex h-screen pt-16 sm:pt-20">
+      <div className="flex h-screen pt-16">
         {/* Sidebar */}
         <Sidebar
           aberta={sidebarAberta}
@@ -79,7 +79,7 @@ export function MainLayout({ children }: MainLayoutProps) {
         <main className={`
           flex-1 overflow-auto transition-all duration-300 ease-in-out
           ${!isMobile ? (sidebarAberta ? 'lg:ml-64' : 'lg:ml-16') : 'ml-0'}
-          bg-gray-50 dark:bg-gray-900
+          bg-background
         `}>
           <div className="p-2 sm:p-4 h-full">
             {children}

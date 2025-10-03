@@ -23,7 +23,12 @@ export function Usuarios() {
   const [cargos, setCargos] = useState<Cargo[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Estados de filtro
+  // Estados de filtro temporários
+  const [filtroTemp, setFiltroTemp] = useState('');
+  const [filtroStatusTemp, setFiltroStatusTemp] = useState('');
+  const [filtroCargoTemp, setFilterCargoTemp] = useState('');
+
+  // Estados de filtro aplicados
   const [filtro, setFiltro] = useState('');
   const [filtroStatus, setFiltroStatus] = useState('');
   const [filtroCargo, setFiltroCargo] = useState('');
@@ -184,7 +189,7 @@ export function Usuarios() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="min-h-screen bg-background">
       <div className="w-full px-2 py-4">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-4">
@@ -192,8 +197,8 @@ export function Usuarios() {
               <i className="fas fa-users text-white text-xl"></i>
             </div>
             <div>
-              <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-1">Usuários</h1>
-              <p className="text-gray-600 dark:text-gray-400 text-lg">Gerencie os usuários com acesso ao sistema MDFe</p>
+              <h1 className="text-3xl font-bold text-foreground mb-1">Usuários</h1>
+              <p className="text-muted-foreground text-lg">Gerencie os usuários com acesso ao sistema MDFe</p>
             </div>
           </div>
           <button
@@ -206,25 +211,26 @@ export function Usuarios() {
         </div>
 
         {/* Filtros */}
-        <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-0 p-6 mb-6">
-          <div className="grid grid-cols-4 gap-4 items-end">
+        <div className="bg-card rounded-lg border border-gray-200 dark:border-0 p-6 mb-6">
+          <div className="grid grid-cols-5 gap-4 items-end">
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Buscar</label>
+              <label className="block text-sm font-medium text-foreground mb-2">Buscar</label>
               <input
                 type="text"
                 placeholder="Nome ou username..."
-                value={filtro}
-                onChange={(e) => setFiltro(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-0 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500/20 focus:border-green-500"
+                value={filtroTemp}
+                onChange={(e) => setFiltroTemp(e.target.value)}
+                onKeyPress={(e) => e.key === 'Enter' && (setFiltro(filtroTemp), setFiltroStatus(filtroStatusTemp), setFiltroCargo(filtroCargoTemp))}
+                className="w-full px-3 py-2 border border-gray-300 dark:border-0 rounded-lg bg-card text-foreground placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500/20 focus:border-green-500"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Status</label>
+              <label className="block text-sm font-medium text-foreground mb-2">Status</label>
               <select
-                value={filtroStatus}
-                onChange={(e) => setFiltroStatus(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-0 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-green-500/20 focus:border-green-500"
+                value={filtroStatusTemp}
+                onChange={(e) => setFiltroStatusTemp(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 dark:border-0 rounded-lg bg-card text-foreground focus:outline-none focus:ring-2 focus:ring-green-500/20 focus:border-green-500"
               >
                 <option value="">Todos os status</option>
                 <option value="ativo">Ativo</option>
@@ -233,11 +239,11 @@ export function Usuarios() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Cargo</label>
+              <label className="block text-sm font-medium text-foreground mb-2">Cargo</label>
               <select
-                value={filtroCargo}
-                onChange={(e) => setFiltroCargo(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-0 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-green-500/20 focus:border-green-500"
+                value={filtroCargoTemp}
+                onChange={(e) => setFilterCargoTemp(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 dark:border-0 rounded-lg bg-card text-foreground focus:outline-none focus:ring-2 focus:ring-green-500/20 focus:border-green-500"
               >
                 <option value="">Todos os cargos</option>
                 {cargos.map(cargo => (
@@ -250,12 +256,22 @@ export function Usuarios() {
 
             <div>
               <button
-                onClick={limparFiltros}
+                onClick={() => { setFiltro(filtroTemp); setFiltroStatus(filtroStatusTemp); setFiltroCargo(filtroCargoTemp); }}
+                className="w-full px-4 py-2 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white rounded-lg font-semibold transition-all duration-200 flex items-center justify-center gap-2 shadow-lg hover:shadow-xl"
+              >
+                <Icon name="search" />
+                Filtrar
+              </button>
+            </div>
+
+            <div>
+              <button
+                onClick={() => { setFiltroTemp(''); setFiltroStatusTemp(''); setFilterCargoTemp(''); setFiltro(''); setFiltroStatus(''); setFiltroCargo(''); }}
                 className="w-full px-4 py-2 bg-red-50 hover:bg-red-100 dark:bg-red-900/20 dark:hover:bg-red-900/30 text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 border border-red-200 dark:border-red-800 rounded-lg font-semibold transition-all duration-200 flex items-center justify-center gap-2 shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
-                disabled={!filtro && !filtroStatus && !filtroCargo}
+                disabled={!filtroTemp && !filtroStatusTemp && !filtroCargoTemp}
               >
                 <Icon name="times" />
-                Limpar Filtros
+                Limpar
               </button>
             </div>
           </div>
@@ -277,22 +293,22 @@ export function Usuarios() {
         )}
 
         {/* Tabela */}
-        <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-0 shadow-sm">
+        <div className="bg-card rounded-lg border border-gray-200 dark:border-0 shadow-sm">
           {usuariosFiltrados.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-16 px-6">
               <div className="w-16 h-16 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center mb-4">
                 <Icon name="users" className="text-2xl text-gray-400" />
               </div>
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+              <h3 className="text-lg font-semibold text-foreground mb-2">
                 {(filtro || filtroStatus || filtroCargo) ? 'Nenhum usuário encontrado com os filtros aplicados' : 'Nenhum usuário encontrado'}
               </h3>
-              <p className="text-gray-600 dark:text-gray-400 text-center">
+              <p className="text-muted-foreground text-center">
                 {(filtro || filtroStatus || filtroCargo) ? 'Tente ajustar os filtros ou limpar para ver todos os usuários.' : 'Adicione um novo usuário para começar.'}
               </p>
             </div>
           ) : (
             <>
-              <div className="grid grid-cols-5 gap-4 p-4 bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-0 font-semibold text-gray-900 dark:text-white">
+              <div className="grid grid-cols-5 gap-4 p-4 bg-background dark:bg-gray-800 border-b border-gray-200 dark:border-0 font-semibold text-foreground">
                 <div className="text-center">Nome</div>
                 <div className="text-center">Username</div>
                 <div className="text-center">Cargo</div>
@@ -301,15 +317,15 @@ export function Usuarios() {
               </div>
 
               {usuariosFiltrados.map((user) => (
-                <div key={user.id} className="grid grid-cols-5 gap-4 p-4 border-b border-gray-200 dark:border-0 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200">
+                <div key={user.id} className="grid grid-cols-5 gap-4 p-4 border-b border-gray-200 dark:border-0 hover:bg-background dark:hover:bg-gray-700 transition-colors duration-200">
                   <div className="text-center">
-                    <div className="font-medium text-gray-900 dark:text-white">{user.nome}</div>
+                    <div className="font-medium text-foreground">{user.nome}</div>
                   </div>
                   <div className="text-center">
-                    <div className="text-gray-700 dark:text-gray-300">{user.username || '-'}</div>
+                    <div className="text-foreground">{user.username || '-'}</div>
                   </div>
                   <div className="text-center">
-                    <div className="text-gray-700 dark:text-gray-300">{user.cargoNome || '-'}</div>
+                    <div className="text-foreground">{user.cargoNome || '-'}</div>
                   </div>
                   <div className="text-center flex justify-center">
                     <span className={`text-sm font-semibold ${

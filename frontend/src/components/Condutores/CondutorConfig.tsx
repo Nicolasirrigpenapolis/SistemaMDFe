@@ -5,6 +5,7 @@ interface Condutor {
   id?: number;
   nome: string;
   cpf: string;
+  telefone?: string;
   ativo?: boolean;
 }
 
@@ -42,6 +43,11 @@ export const condutorConfig: CRUDConfig<Condutor> = {
             formatter: (value) => value ? formatCPF(value) : 'N/A'
           },
           {
+            label: 'Telefone',
+            value: condutor.telefone || 'Não informado',
+            icon: 'phone'
+          },
+          {
             label: 'Status',
             value: condutor.ativo ? 'Ativo' : 'Inativo',
             icon: 'circle',
@@ -72,6 +78,7 @@ export const condutorConfig: CRUDConfig<Condutor> = {
     defaultValues: {
       nome: '',
       cpf: '',
+      telefone: '',
       ativo: true
     },
 
@@ -108,6 +115,14 @@ export const condutorConfig: CRUDConfig<Condutor> = {
               }
               return null;
             }
+          },
+          {
+            key: 'telefone',
+            label: 'Telefone',
+            type: 'telefone',
+            icon: 'phone',
+            placeholder: '(00) 00000-0000',
+            required: false
           },
           {
             key: 'ativo',

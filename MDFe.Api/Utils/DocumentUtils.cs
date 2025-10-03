@@ -1,9 +1,36 @@
+using System.Text;
 using System.Text.RegularExpressions;
+using System.Globalization;
 
 namespace MDFeApi.Utils
 {
     public static class DocumentUtils
     {
+        /// <summary>
+        /// Remove acentos de uma string
+        /// </summary>
+        /// <param name="text">Texto com acentos (ex: José, João, Ação)</param>
+        /// <returns>Texto sem acentos (ex: Jose, Joao, Acao)</returns>
+        public static string? RemoverAcentos(string? text)
+        {
+            if (string.IsNullOrWhiteSpace(text))
+                return text;
+
+            var normalizedString = text.Normalize(NormalizationForm.FormD);
+            var stringBuilder = new StringBuilder();
+
+            foreach (var c in normalizedString)
+            {
+                var unicodeCategory = CharUnicodeInfo.GetUnicodeCategory(c);
+                if (unicodeCategory != UnicodeCategory.NonSpacingMark)
+                {
+                    stringBuilder.Append(c);
+                }
+            }
+
+            return stringBuilder.ToString().Normalize(NormalizationForm.FormC);
+        }
+
         /// <summary>
         /// Remove formatação do CNPJ, mantendo apenas números
         /// </summary>

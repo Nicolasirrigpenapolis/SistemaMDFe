@@ -36,7 +36,13 @@ export interface Entities {
 export const useMDFeForm = () => {
   // Estados simples para UI
   const [dados, setDados] = useState<Partial<MDFeData>>({});
-  const [selectedIds, setSelectedIds] = useState({
+  const [selectedIds, setSelectedIds] = useState<{
+    emitenteId: string | number;
+    veiculoId: string | number;
+    condutorId: string | number;
+    contratanteId: string | number;
+    seguradoraId: string | number;
+  }>({
     emitenteId: '',
     veiculoId: '',
     condutorId: '',
@@ -50,12 +56,13 @@ export const useMDFeForm = () => {
   }, []);
 
   // ✅ Atualizar seleção de entidade (UI apenas)
-  const selectEntity = useCallback((entityType: string, id: string) => {
-    setSelectedIds(prev => ({ ...prev, [`${entityType}Id`]: id }));
+  const selectEntity = useCallback((entityType: string, id: string | number) => {
+    // entityType já vem com 'Id' no final (ex: 'emitenteId', 'veiculoId')
+    setSelectedIds(prev => ({ ...prev, [entityType]: id }));
 
-    // Atualizar o dado correspondente
-    const numericId = id ? parseInt(id) : undefined;
-    setDados(prev => ({ ...prev, [`${entityType}Id`]: numericId }));
+    // Atualizar o dado correspondente - converter para número se necessário
+    const numericId = typeof id === 'string' ? (id ? parseInt(id) : undefined) : id;
+    setDados(prev => ({ ...prev, [entityType]: numericId }));
   }, []);
 
   // ✅ Definir dados completos (vem do componente pai)

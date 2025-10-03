@@ -4,14 +4,18 @@ using MDFeApi.Data;
 using MDFeApi.Models;
 using MDFeApi.DTOs;
 using MDFeApi.Utils;
+using MDFeApi.Services;
 
 namespace MDFeApi.Controllers
 {
     [Route("api/[controller]")]
     public class ReboquesController : BaseController<Reboque, ReboqueListDto, ReboqueResponseDto, ReboqueCreateDto, ReboqueUpdateDto>
     {
-        public ReboquesController(MDFeContext context, ILogger<ReboquesController> logger)
-            : base(context, logger)
+        public ReboquesController(
+            MDFeContext context,
+            ILogger<ReboquesController> logger,
+            ICacheService cacheService)
+            : base(context, logger, cacheService)
         {
         }
 

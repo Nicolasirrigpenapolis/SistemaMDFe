@@ -142,7 +142,7 @@ export function Sidebar({ aberta, isMobile, onClose }: SidebarProps) {
         : `${aberta ? 'w-64' : 'w-16'} transition-all duration-300 ease-in-out
            min-h-full fixed top-16 sm:top-20 left-0 z-40`
       }
-      bg-white dark:bg-gray-900
+      bg-card dark:bg-gray-900
       border-r border-gray-200 dark:border-0
       shadow-lg dark:shadow-gray-900/50
       flex flex-col
@@ -156,42 +156,29 @@ export function Sidebar({ aberta, isMobile, onClose }: SidebarProps) {
                 <li key={item.id}>
                   <button
                     className={`
-                      w-full flex items-center gap-3 px-3 py-3 rounded-xl
-                      transition-all duration-200 ease-in-out group
+                      w-full flex items-center gap-3 px-3 py-2.5 rounded-lg
+                      transition-all duration-200 ease-in-out group relative
                       ${active
-                        ? 'bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 shadow-sm'
-                        : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white'
+                        ? 'bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300'
+                        : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
                       }
-                      focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50
                       ${!aberta ? 'justify-center' : ''}
                     `}
                     onClick={() => handleNavigate(item.path)}
                     title={!aberta && !isMobile ? item.label : undefined}
                   >
-                    <span className={`
-                      flex-shrink-0 transition-colors duration-200
-                      ${active
-                        ? 'text-blue-600 dark:text-blue-400'
-                        : 'text-gray-500 dark:text-gray-400 group-hover:text-gray-700 dark:group-hover:text-gray-200'
-                      }
-                    `}>
+                    <span className={`flex-shrink-0`}>
                       <Icon name={item.icon} size="md" />
                     </span>
 
                     {(aberta || isMobile) && (
-                      <span className={`
-                        font-medium transition-colors duration-200 truncate
-                        ${active
-                          ? 'text-blue-700 dark:text-blue-300'
-                          : 'text-gray-700 dark:text-gray-300 group-hover:text-gray-900 dark:group-hover:text-white'
-                        }
-                      `}>
+                      <span className="font-medium truncate">
                         {item.label}
                       </span>
                     )}
 
                     {active && (
-                      <div className="absolute left-0 top-0 bottom-0 w-1 bg-blue-600 dark:bg-blue-400 rounded-r-full"></div>
+                      <div className="absolute left-0 top-0 bottom-0 w-1 bg-blue-600 dark:bg-blue-400 rounded-r"></div>
                     )}
                   </button>
                 </li>
@@ -206,7 +193,7 @@ export function Sidebar({ aberta, isMobile, onClose }: SidebarProps) {
               <span className="block text-xs font-medium text-gray-500 dark:text-gray-400">
                 Versão
               </span>
-              <span className="block text-sm font-semibold text-gray-700 dark:text-gray-300">
+              <span className="block text-sm font-semibold text-foreground">
                 1.0.0
               </span>
             </div>

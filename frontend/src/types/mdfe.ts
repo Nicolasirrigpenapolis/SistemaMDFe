@@ -11,6 +11,8 @@ export type MDFeStep =
 export interface MDFeData {
   // === IDENTIFICAÇÃO ===
   id?: string;
+  numero?: string;
+  serie?: string;
 
   // === ENTIDADES OBRIGATÓRIAS ===
   emitenteId?: number;
@@ -156,3 +158,19 @@ export interface VeiculoCadastrado {
 
 // ❌ INTERFACES XML REMOVIDAS - COMPLEXIDADE DESNECESSÁRIA NO FRONTEND
 // ✅ Backend será responsável por TODA lógica SEFAZ
+
+// Interface para entidades disponíveis no combobox
+export interface EntidadeOpcao {
+  id: number;
+  label: string;
+  description?: string;
+  data?: any; // Dados completos da entidade se disponível
+}
+
+export interface EntidadesCarregadas {
+  emitentes?: EntidadeOpcao[];
+  veiculos?: EntidadeOpcao[];
+  condutores?: EntidadeOpcao[];
+  contratantes?: EntidadeOpcao[];
+  seguradoras?: EntidadeOpcao[];
+}

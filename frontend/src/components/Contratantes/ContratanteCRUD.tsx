@@ -2,7 +2,7 @@ import React from 'react';
 import { GenericViewModal } from '../UI/Modal/GenericViewModal';
 import { GenericFormModal } from '../UI/Modal/GenericFormModal';
 import { ConfirmDeleteModal } from '../UI/Modal/ConfirmDeleteModal';
-import { contratanteConfig, ContratanteFormData } from './ContratanteConfig';
+import { contratanteConfig } from './ContratanteConfig';
 import { formatCNPJ, formatCPF } from '../../utils/formatters';
 
 interface Contratante {
@@ -31,6 +31,7 @@ interface ContratanteCRUDProps {
   // Dados
   selectedContratante: Contratante | null;
   isEdit: boolean;
+  formData?: Partial<Contratante>;
 
   // Callbacks
   onViewClose: () => void;
@@ -40,6 +41,7 @@ interface ContratanteCRUDProps {
   onEdit: (contratante: Contratante) => void;
   onDelete: () => Promise<void>;
   onCNPJDataFetch?: (data: any) => void;
+  onFieldChange?: (field: string, value: any) => void;
 
   // Estados
   saving?: boolean;
@@ -52,6 +54,7 @@ export function ContratanteCRUD({
   deleteModalOpen,
   selectedContratante,
   isEdit,
+  formData,
   onViewClose,
   onFormClose,
   onDeleteClose,
@@ -59,6 +62,7 @@ export function ContratanteCRUD({
   onEdit,
   onDelete,
   onCNPJDataFetch,
+  onFieldChange,
   saving = false,
   deleting = false
 }: ContratanteCRUDProps) {
@@ -84,7 +88,7 @@ export function ContratanteCRUD({
     if (onCNPJDataFetch) {
       sections.forEach(section => {
         section.fields.forEach(field => {
-          if (field.key === 'cnpj' && field.onDataFetch) {
+          if (field.key === 'cnpj') {
             field.onDataFetch = onCNPJDataFetch;
           }
         });
@@ -127,6 +131,7 @@ export function ContratanteCRUD({
         onClose={onFormClose}
         onSave={onSave}
         item={selectedContratante}
+        data={formData}
         title={isEdit ? (contratanteConfig.form.editTitle || contratanteConfig.form.title) : contratanteConfig.form.title}
         subtitle={isEdit ? (contratanteConfig.form.editSubtitle || contratanteConfig.form.subtitle) : contratanteConfig.form.subtitle}
         headerIcon={contratanteConfig.form.headerIcon}
@@ -134,6 +139,7 @@ export function ContratanteCRUD({
         sections={getFormSections(selectedContratante)}
         loading={saving}
         isEdit={isEdit}
+        onFieldChange={onFieldChange}
       />
 
       {/* Modal de Confirmação de Exclusão */}

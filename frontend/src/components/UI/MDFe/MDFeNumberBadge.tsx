@@ -54,7 +54,7 @@ export function MDFeNumberBadge({
         </div>
         <div className={`
           font-semibold text-blue-600 dark:text-blue-400 uppercase tracking-wide
-          bg-white/80 dark:bg-slate-700/80 border border-blue-300/50 dark:border-blue-500/50 rounded-lg w-fit leading-none
+          bg-card/80 dark:bg-slate-700/80 border border-blue-300/50 dark:border-blue-500/50 rounded-lg w-fit leading-none
           ${variant === 'minimal' ? 'bg-blue-50/50 dark:bg-blue-900/30 border-blue-200 dark:border-blue-600 rounded-xl' : ''}
           ${serieSizeClasses[size]}
         `}>

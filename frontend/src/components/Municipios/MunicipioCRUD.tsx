@@ -2,7 +2,7 @@ import React from 'react';
 import { GenericViewModal } from '../UI/Modal/GenericViewModal';
 import { GenericFormModal } from '../UI/Modal/GenericFormModal';
 import { ConfirmDeleteModal } from '../UI/Modal/ConfirmDeleteModal';
-import { municipioConfig, MunicipioFormData } from './MunicipioConfig';
+import { municipioConfig } from './MunicipioConfig';
 
 interface Municipio {
   id?: number;

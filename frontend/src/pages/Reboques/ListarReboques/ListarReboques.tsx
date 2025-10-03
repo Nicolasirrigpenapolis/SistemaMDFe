@@ -4,6 +4,7 @@ import { reboquesService, ReboqueList, ReboqueDetail } from '../../../services/r
 import Icon from '../../../components/UI/Icon';
 
 import { formatPlaca } from '../../../utils/formatters';
+import { getTipoRodadoNome, getTipoCarroceriaNome } from '../../../utils/mappings';
 interface PaginationData {
   totalItems: number;
   totalPages: number;
@@ -18,6 +19,11 @@ interface PaginationData {
 export function ListarReboques() {
   const [reboques, setReboques] = useState<ReboqueList[]>([]);
   const [carregando, setCarregando] = useState(false);
+
+  const [filtroTemp, setFiltroTemp] = useState('');
+  const [filtroUfTemp, setFiltroUfTemp] = useState('');
+  const [filtroStatusTemp, setFiltroStatusTemp] = useState('');
+
   const [filtro, setFiltro] = useState('');
   const [filtroUf, setFiltroUf] = useState('');
   const [filtroStatus, setFiltroStatus] = useState('');
@@ -40,12 +46,7 @@ export function ListarReboques() {
 
   useEffect(() => {
     carregarReboques();
-  }, [paginaAtual, tamanhoPagina]);
-
-  useEffect(() => {
-    setPaginaAtual(1);
-    carregarReboques(1, filtro);
-  }, [filtro]);
+  }, [paginaAtual, tamanhoPagina, filtro, filtroUf, filtroStatus]);
 
   const carregarReboques = async (pagina: number = paginaAtual, busca: string = filtro) => {
     try {
@@ -59,20 +60,20 @@ export function ListarReboques() {
         'asc'
       );
 
-      if (response.sucesso && response.data && Array.isArray(response.data.data)) {
-        setReboques(response.data.data);
+      if (response.sucesso && response.data && Array.isArray(response.data.items)) {
+        setReboques(response.data.items);
         setPaginacao({
           totalItems: response.data.totalItems,
           totalPages: response.data.totalPages,
-          currentPage: response.data.currentPage,
+          currentPage: response.data.page || response.data.currentPage,
           pageSize: response.data.pageSize,
           hasNextPage: response.data.hasNextPage,
           hasPreviousPage: response.data.hasPreviousPage,
-          startItem: response.data.startItem || ((response.data.currentPage - 1) * response.data.pageSize) + 1,
-          endItem: response.data.endItem || Math.min(response.data.currentPage * response.data.pageSize, response.data.totalItems)
+          startItem: response.data.startItem || ((response.data.page - 1) * response.data.pageSize) + 1,
+          endItem: response.data.endItem || Math.min(response.data.page * response.data.pageSize, response.data.totalItems)
         });
       } else {
-        console.error('Erro ao carregar reboques:', response.mensagem);
+        console.error('Erro ao carregar reboques:', response.mensagem || 'Erro ao carregar reboques');
         setReboques([]);
       }
     } catch (error) {
@@ -182,12 +183,21 @@ export function ListarReboques() {
     }
   };
 
+  const aplicarFiltros = () => {
+    setFiltro(filtroTemp);
+    setFiltroUf(filtroUfTemp);
+    setFiltroStatus(filtroStatusTemp);
+    setPaginaAtual(1);
+  };
+
   const limparFiltros = () => {
+    setFiltroTemp('');
+    setFiltroUfTemp('');
+    setFiltroStatusTemp('');
     setFiltro('');
     setFiltroUf('');
     setFiltroStatus('');
     setPaginaAtual(1);
-    carregarReboques(1, '');
   };
 
   const formatarData = (dataString: string) => {
@@ -199,15 +209,12 @@ export function ListarReboques() {
     });
   };
 
-  const formatarPlaca = (placa: string) => {
-    return reboquesService.formatarPlaca(placa);
-  };
-
   const formatarTara = (tara: number) => {
     return reboquesService.formatarTara(tara);
   };
 
-  const aplicarFiltros = () => {
+  // Filtragem local adicional (UF e Status que não são suportados pela API)
+  const reboquesFiltrados = (() => {
     // Garantir que reboques seja um array válido
     if (!Array.isArray(reboques)) {
       return [];
@@ -225,18 +232,16 @@ export function ListarReboques() {
     }
 
     return reboquesFiltraods;
-  };
-
-  const reboquesFiltrados = aplicarFiltros();
+  })();
 
   if (carregando) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      <div className="min-h-screen bg-background">
         <div className="w-full px-6 py-8">
           <div className="flex items-center justify-center py-16">
             <div className="flex items-center gap-4">
               <div className="w-8 h-8 border-4 border-orange-600 border-t-transparent rounded-full animate-spin"></div>
-              <span className="text-gray-600 dark:text-gray-400">Carregando reboques...</span>
+              <span className="text-muted-foreground">Carregando reboques...</span>
             </div>
           </div>
         </div>
@@ -245,7 +250,7 @@ export function ListarReboques() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="min-h-screen bg-background">
       <div className="w-full px-2 py-4">
         {/* Header */}
         <div className="flex items-center justify-between mb-4">
@@ -254,8 +259,8 @@ export function ListarReboques() {
               <Icon name="truck" className="text-white" size="xl" />
             </div>
             <div>
-              <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-1">Reboques</h1>
-              <p className="text-gray-600 dark:text-gray-400 text-lg">Gerencie os reboques para transporte de carga</p>
+              <h1 className="text-3xl font-bold text-foreground mb-1">Reboques</h1>
+              <p className="text-muted-foreground text-lg">Gerencie os reboques para transporte de carga</p>
             </div>
           </div>
           <button
@@ -268,25 +273,26 @@ export function ListarReboques() {
         </div>
 
         {/* Filtros */}
-        <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-0 p-6 mb-6">
-          <div className="grid grid-cols-4 gap-4 items-end">
+        <div className="bg-card rounded-lg border border-gray-200 dark:border-0 p-6 mb-6">
+          <div className="grid grid-cols-5 gap-4 items-end">
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Buscar</label>
+              <label className="block text-sm font-medium text-foreground mb-2">Buscar</label>
               <input
                 type="text"
-                value={filtro}
-                onChange={(e) => setFiltro(e.target.value)}
+                value={filtroTemp}
+                onChange={(e) => setFiltroTemp(e.target.value)}
+                onKeyPress={(e) => e.key === 'Enter' && aplicarFiltros()}
                 placeholder="Placa ou RNTRC..."
-                className="w-full px-3 py-2 border border-gray-300 dark:border-0 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-0 rounded-lg bg-card text-foreground placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">UF</label>
+              <label className="block text-sm font-medium text-foreground mb-2">UF</label>
               <select
-                value={filtroUf}
-                onChange={(e) => setFiltroUf(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-0 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500"
+                value={filtroUfTemp}
+                onChange={(e) => setFiltroUfTemp(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 dark:border-0 rounded-lg bg-card text-foreground focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500"
               >
                 <option value="">Todos os estados</option>
                 {reboquesService.getEstados().map(estado => (
@@ -298,11 +304,11 @@ export function ListarReboques() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Status</label>
+              <label className="block text-sm font-medium text-foreground mb-2">Status</label>
               <select
-                value={filtroStatus}
-                onChange={(e) => setFiltroStatus(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-0 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500"
+                value={filtroStatusTemp}
+                onChange={(e) => setFiltroStatusTemp(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 dark:border-0 rounded-lg bg-card text-foreground focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500"
               >
                 <option value="">Todos</option>
                 <option value="ativo">Ativo</option>
@@ -312,12 +318,22 @@ export function ListarReboques() {
 
             <div>
               <button
+                onClick={aplicarFiltros}
+                className="w-full px-4 py-2 bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 text-white rounded-lg font-semibold transition-all duration-200 flex items-center justify-center gap-2 shadow-lg hover:shadow-xl"
+              >
+                <Icon name="search" />
+                Filtrar
+              </button>
+            </div>
+
+            <div>
+              <button
                 onClick={limparFiltros}
                 className="w-full px-4 py-2 bg-red-50 hover:bg-red-100 dark:bg-red-900/20 dark:hover:bg-red-900/30 text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 border border-red-200 dark:border-red-800 rounded-lg font-semibold transition-all duration-200 flex items-center justify-center gap-2 shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
-                disabled={!filtro && !filtroUf && !filtroStatus}
+                disabled={!filtroTemp && !filtroUfTemp && !filtroStatusTemp}
               >
                 <Icon name="times" />
-                Limpar Filtros
+                Limpar
               </button>
             </div>
           </div>
@@ -339,18 +355,18 @@ export function ListarReboques() {
         )}
 
         {/* Tabela */}
-        <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-0 shadow-sm">
+        <div className="bg-card rounded-lg border border-gray-200 dark:border-0 shadow-sm">
           {reboquesFiltrados.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-16 px-6">
               <div className="w-16 h-16 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center mb-4">
                 <Icon name="truck" className="text-2xl text-gray-400" />
               </div>
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Nenhum reboque encontrado</h3>
-              <p className="text-gray-600 dark:text-gray-400 text-center">Tente ajustar os filtros ou cadastre um novo reboque.</p>
+              <h3 className="text-lg font-semibold text-foreground mb-2">Nenhum reboque encontrado</h3>
+              <p className="text-muted-foreground text-center">Tente ajustar os filtros ou cadastre um novo reboque.</p>
             </div>
           ) : (
             <>
-              <div className="grid grid-cols-9 gap-4 p-4 bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-0 font-semibold text-gray-900 dark:text-white">
+              <div className="grid grid-cols-9 gap-4 p-4 bg-background dark:bg-gray-800 border-b border-gray-200 dark:border-0 font-semibold text-foreground">
                 <div className="text-center">Placa</div>
                 <div className="text-center">Tara</div>
                 <div className="text-center">Tipo Rodado</div>
@@ -362,17 +378,17 @@ export function ListarReboques() {
                 <div className="text-center">Ações</div>
               </div>
               {reboquesFiltrados.map((reboque) => (
-                <div key={reboque.id} className="grid grid-cols-9 gap-4 p-4 border-b border-gray-200 dark:border-0 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200">
+                <div key={reboque.id} className="grid grid-cols-9 gap-4 p-4 border-b border-gray-200 dark:border-0 hover:bg-background dark:hover:bg-gray-700 transition-colors duration-200">
                   <div className="text-center">
-                    <strong className="text-gray-900 dark:text-white">{formatPlaca(reboque.placa)}</strong>
+                    <strong className="text-foreground">{formatPlaca(reboque.placa)}</strong>
                   </div>
-                  <div className="text-center text-gray-900 dark:text-white">{formatarTara(reboque.tara)}</div>
-                  <div className="text-center text-gray-900 dark:text-white">{reboque.tipoRodado}</div>
-                  <div className="text-center text-gray-900 dark:text-white">{reboque.tipoCarroceria}</div>
+                  <div className="text-center text-foreground">{formatarTara(reboque.tara)}</div>
+                  <div className="text-center text-foreground">{getTipoRodadoNome(reboque.tipoRodado)}</div>
+                  <div className="text-center text-foreground">{getTipoCarroceriaNome(reboque.tipoCarroceria)}</div>
                   <div className="text-center">
                     <span className="px-2 py-1 bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300 rounded text-xs font-medium">{reboque.uf}</span>
                   </div>
-                  <div className="text-center text-gray-900 dark:text-white">{reboque.rntrc || '-'}</div>
+                  <div className="text-center text-foreground">{reboque.rntrc || '-'}</div>
                   <div className="text-center">
                     <span className={`px-2 py-1 rounded-full text-xs font-medium ${
                       reboque.ativo
@@ -382,7 +398,7 @@ export function ListarReboques() {
                       {reboque.ativo ? 'Ativo' : 'Inativo'}
                     </span>
                   </div>
-                  <div className="text-center text-gray-900 dark:text-white">{formatarData(reboque.dataCriacao)}</div>
+                  <div className="text-center text-foreground">{formatarData(reboque.dataCriacao)}</div>
                   <div className="flex items-center justify-center gap-2">
                     <button
                       className="p-2 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors duration-200"
@@ -414,9 +430,9 @@ export function ListarReboques() {
 
         {/* Paginação */}
         {paginacao && paginacao.totalItems > 0 && (
-          <div className="mt-6 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-0 p-4 rounded-b-lg">
+          <div className="mt-6 bg-card border-t border-gray-200 dark:border-0 p-4 rounded-b-lg">
             <div className="flex flex-row justify-between items-center gap-4">
-              <div className="text-sm text-gray-600 dark:text-gray-400 text-left">
+              <div className="text-sm text-muted-foreground text-left">
                 Mostrando {paginacao.startItem} até {paginacao.endItem} de {paginacao.totalItems} registros
               </div>
 
@@ -425,19 +441,19 @@ export function ListarReboques() {
                   <button
                     onClick={() => setPaginaAtual(paginaAtual - 1)}
                     disabled={!paginacao.hasPreviousPage}
-                    className="px-4 py-2 border border-gray-300 dark:border-0 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200 text-sm"
+                    className="px-4 py-2 border border-gray-300 dark:border-0 rounded-lg bg-card text-foreground hover:bg-background dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200 text-sm"
                   >
                     Anterior
                   </button>
 
-                  <span className="px-4 py-2 text-gray-900 dark:text-white font-medium text-sm whitespace-nowrap">
+                  <span className="px-4 py-2 text-foreground font-medium text-sm whitespace-nowrap">
                     Página {paginacao.currentPage} de {paginacao.totalPages}
                   </span>
 
                   <button
                     onClick={() => setPaginaAtual(paginaAtual + 1)}
                     disabled={!paginacao.hasNextPage}
-                    className="px-4 py-2 border border-gray-300 dark:border-0 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200 text-sm"
+                    className="px-4 py-2 border border-gray-300 dark:border-0 rounded-lg bg-card text-foreground hover:bg-background dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200 text-sm"
                   >
                     Próxima
                   </button>
@@ -445,14 +461,14 @@ export function ListarReboques() {
               )}
 
               <div className="flex items-center gap-2">
-                <label className="text-sm text-gray-700 dark:text-gray-300">Itens por página:</label>
+                <label className="text-sm text-foreground">Itens por página:</label>
                 <select
                   value={tamanhoPagina}
                   onChange={(e) => {
                     setTamanhoPagina(Number(e.target.value));
                     setPaginaAtual(1);
                   }}
-                  className="px-3 py-1 border border-gray-300 dark:border-0 rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500"
+                  className="px-3 py-1 border border-gray-300 dark:border-0 rounded bg-card text-foreground focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500"
                 >
                   <option value={5}>5</option>
                   <option value={10}>10</option>

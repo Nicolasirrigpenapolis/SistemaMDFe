@@ -1,6 +1,7 @@
 /**
  * 🔐 SERVIÇO DE AUTENTICAÇÃO
  * Sistema completo de autenticação JWT com gestão de tokens e usuários
+ * Teste de modificação - authService.ts
  */
 
 // ✅ IMPORTANDO TIPOS CENTRALIZADOS
@@ -149,6 +150,12 @@ class AuthService {
     const token = this.getToken();
     if (!token) return false;
 
+    // Em desenvolvimento, não verificar expiração do token
+    const isDevelopment = process.env.NODE_ENV === 'development';
+    if (isDevelopment) {
+      return true;
+    }
+
     // Verificar se token não expirou
     try {
       const payload = this.parseJWT(token);
@@ -231,8 +238,9 @@ class AuthService {
       },
     });
 
-    // Se retornar 401, token expirou
-    if (response.status === 401) {
+    // Se retornar 401, token expirou (desabilitado em desenvolvimento)
+    const isDevelopment = process.env.NODE_ENV === 'development';
+    if (response.status === 401 && !isDevelopment) {
       this.clearAuthData();
       throw new Error('Sessão expirada');
     }

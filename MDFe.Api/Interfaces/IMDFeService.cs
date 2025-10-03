@@ -21,9 +21,10 @@ namespace MDFeApi.Interfaces
         Task<object> ConsultarProtocoloAsync(int mdfeId, string protocolo);
         Task<object> ConsultarMDFeAsync(int mdfeId);
         Task<object> CancelarAsync(int mdfeId, string justificativa);
-        Task<object> EncerrarAsync(int mdfeId, string protocolo);
+        Task<object> EncerrarAsync(int mdfeId, string? codigoMunicipioEncerramento = null, DateTime? dataEncerramento = null);
         Task<object> ConsultarStatusServicoAsync(string uf);
         Task<object> ConsultarPorChaveAsync(string chave);
         Task<object> ConsultarReciboAsync(string recibo);
+        Task<byte[]> GerarPDFAsync(int mdfeId);
     }
 }

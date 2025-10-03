@@ -14,6 +14,11 @@ export const cleanPlaca = (value: string): string => {
   return value.toUpperCase().replace(/[^A-Z0-9]/g, '');
 };
 
+// Remover acentos para enviar ao backend (banco de dados)
+export const removeAccents = (value: string): string => {
+  return value.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+};
+
 // ✅ MÁSCARAS VISUAIS APENAS (para UX)
 export const formatCNPJ = (value: string): string => {
   const cleanValue = cleanNumericString(value);
@@ -57,10 +62,16 @@ export const formatPlaca = (value: string): string => {
 export const formatTelefone = (value: string): string => {
   const cleanValue = cleanNumericString(value);
 
-  // Formato telefone: (XX) XXXXX-XXXX
-  return cleanValue
-    .replace(/(\d{2})(\d)/, '($1) $2')
-    .replace(/(\d{5})(\d{4})$/, '$1-$2');
+  // Aplica máscara progressivamente conforme o usuário digita
+  if (cleanValue.length === 0) return '';
+  if (cleanValue.length <= 2) return `(${cleanValue}`;
+  if (cleanValue.length <= 6) return `(${cleanValue.slice(0, 2)}) ${cleanValue.slice(2)}`;
+  if (cleanValue.length <= 10) {
+    // Telefone fixo: (XX) XXXX-XXXX
+    return `(${cleanValue.slice(0, 2)}) ${cleanValue.slice(2, 6)}-${cleanValue.slice(6)}`;
+  }
+  // Celular: (XX) XXXXX-XXXX
+  return `(${cleanValue.slice(0, 2)}) ${cleanValue.slice(2, 7)}-${cleanValue.slice(7, 11)}`;
 };
 
 export const formatChaveAcesso = (value: string): string => {

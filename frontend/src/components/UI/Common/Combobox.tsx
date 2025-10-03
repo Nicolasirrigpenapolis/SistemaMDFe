@@ -74,7 +74,7 @@ export const Combobox: React.FC<ComboboxProps> = ({
   return (
     <div className="relative w-full" ref={comboboxRef}>
       {label && (
-        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
+        <label className="block text-sm font-medium text-foreground mb-1.5">
           {label}
           {required && <span className="text-red-500 ml-0.5">*</span>}
         </label>
@@ -83,11 +83,11 @@ export const Combobox: React.FC<ComboboxProps> = ({
       <div className="relative w-full">
         <div
           className={`
-            flex items-center justify-between px-4 py-3 bg-white dark:bg-gray-800
+            flex items-center justify-between px-4 py-3 bg-card
             border-2 border-gray-300 dark:border-0 rounded-lg cursor-pointer
             transition-colors duration-200 min-h-[48px]
             ${isOpen ? 'border-slate-500 ring-2 ring-slate-500/10' : 'hover:border-gray-400 dark:hover:border-gray-500'}
-            ${disabled ? 'bg-gray-50 dark:bg-gray-900 text-gray-400 cursor-not-allowed' : ''}
+            ${disabled ? 'bg-background text-gray-400 cursor-not-allowed' : ''}
           `}
           onClick={handleToggle}
         >
@@ -95,7 +95,7 @@ export const Combobox: React.FC<ComboboxProps> = ({
             {selectedOption ? (
               <div className="flex items-center gap-2">
                 {selectedOption.icon && <i className={`${selectedOption.icon} text-slate-500 w-4 text-center`}></i>}
-                <span className="font-medium text-gray-900 dark:text-white">{selectedOption.label}</span>
+                <span className="font-medium text-foreground">{selectedOption.label}</span>
                 {selectedOption.sublabel && (
                   <span className="text-xs text-gray-500 ml-1">{selectedOption.sublabel}</span>
                 )}
@@ -108,7 +108,7 @@ export const Combobox: React.FC<ComboboxProps> = ({
         </div>
 
         {isOpen && (
-          <div className="absolute top-full left-0 right-0 z-50 bg-white dark:bg-gray-800 border border-gray-200 dark:border-0 rounded-lg shadow-xl mt-1 max-h-80 overflow-hidden">
+          <div className="absolute top-full left-0 right-0 z-50 bg-card border border-gray-200 dark:border-0 rounded-lg shadow-xl mt-1 max-h-80 overflow-hidden">
             <div className="relative p-3 border-b border-gray-100 dark:border-0">
               <i className="fas fa-search absolute left-6 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm"></i>
               <input
@@ -116,7 +116,7 @@ export const Combobox: React.FC<ComboboxProps> = ({
                 placeholder={searchPlaceholder}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-9 pr-3 py-2 border border-gray-200 dark:border-0 rounded-md text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-slate-500/20 focus:border-slate-500"
+                className="w-full pl-9 pr-3 py-2 border border-gray-200 dark:border-0 rounded-md text-sm bg-card dark:bg-gray-700 text-foreground placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-slate-500/20 focus:border-slate-500"
                 autoFocus
               />
             </div>
@@ -128,14 +128,14 @@ export const Combobox: React.FC<ComboboxProps> = ({
                     key={option.id}
                     className={`
                       flex items-center gap-3 px-4 py-3 cursor-pointer transition-colors duration-150
-                      hover:bg-gray-50 dark:hover:bg-gray-700
-                      ${selectedValue === option.id ? 'bg-gray-50 dark:bg-gray-700 text-slate-600 dark:text-slate-400' : ''}
+                      hover:bg-background dark:hover:bg-gray-700
+                      ${selectedValue === option.id ? 'bg-background dark:bg-gray-700 text-slate-600 dark:text-slate-400' : ''}
                     `}
                     onClick={() => handleOptionSelect(option)}
                   >
                     {option.icon && <i className={`${option.icon} text-slate-500 w-4 text-center`}></i>}
                     <div className="flex-1 min-w-0">
-                      <div className="font-medium text-gray-900 dark:text-white">{option.label}</div>
+                      <div className="font-medium text-foreground">{option.label}</div>
                       {option.sublabel && (
                         <div className="text-xs text-gray-500 mt-0.5">{option.sublabel}</div>
                       )}

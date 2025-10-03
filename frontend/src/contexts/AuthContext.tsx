@@ -76,10 +76,19 @@ export function AuthProvider({ children }: AuthProviderProps) {
    * ⏰ Atualizar informações do token
    */
   const updateTokenInfo = () => {
+    // Em desenvolvimento, não verificar expiração do token
+    const isDevelopment = process.env.NODE_ENV === 'development';
+
+    if (isDevelopment) {
+      // Em dev, manter token válido artificialmente
+      setTokenTimeRemaining(9999);
+      return;
+    }
+
     const timeRemaining = authService.getTokenTimeRemaining();
     setTokenTimeRemaining(timeRemaining);
 
-    // Se token expirou, fazer logout automático
+    // Se token expirou, fazer logout automático (apenas em produção)
     if (timeRemaining <= 0 && isAuthenticated) {
       handleLogout();
     }

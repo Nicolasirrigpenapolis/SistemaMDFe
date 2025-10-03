@@ -51,10 +51,11 @@ export interface ApiResponse<T> {
 }
 
 export interface PaginationResponse<T> {
-  data: T[];
+  items: T[];
   totalItems: number;
   totalPages: number;
   currentPage: number;
+  page: number;
   pageSize: number;
   hasNextPage: boolean;
   hasPreviousPage: boolean;
@@ -82,7 +83,15 @@ class ReboquesService {
         ...(sortDirection && { SortDirection: sortDirection })
       });
 
-      const response = await fetch(`${API_BASE_URL}/reboques?${params}`);
+      const token = localStorage.getItem('mdfe_token');
+      const headers: HeadersInit = {
+        'Content-Type': 'application/json',
+      };
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+
+      const response = await fetch(`${API_BASE_URL}/reboques?${params}`, { headers });
       const result = await response.json();
 
       return {
@@ -104,7 +113,15 @@ class ReboquesService {
    */
   async buscarReboque(id: number): Promise<ApiResponse<ReboqueDetail>> {
     try {
-      const response = await fetch(`${API_BASE_URL}/reboques/${id}`);
+      const token = localStorage.getItem('mdfe_token');
+      const headers: HeadersInit = {
+        'Content-Type': 'application/json',
+      };
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+
+      const response = await fetch(`${API_BASE_URL}/reboques/${id}`, { headers });
       const result = await response.json();
 
       return {
@@ -126,11 +143,17 @@ class ReboquesService {
    */
   async criarReboque(dados: ReboqueCreate): Promise<ApiResponse<ReboqueDetail>> {
     try {
+      const token = localStorage.getItem('mdfe_token');
+      const headers: HeadersInit = {
+        'Content-Type': 'application/json',
+      };
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+
       const response = await fetch(`${API_BASE_URL}/reboques`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers,
         body: JSON.stringify(dados)
       });
 
@@ -155,20 +178,27 @@ class ReboquesService {
    */
   async atualizarReboque(id: number, dados: ReboqueUpdate): Promise<ApiResponse<ReboqueDetail>> {
     try {
+      const token = localStorage.getItem('mdfe_token');
+      const headers: HeadersInit = {
+        'Content-Type': 'application/json',
+      };
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+
       const response = await fetch(`${API_BASE_URL}/reboques/${id}`, {
         method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers,
         body: JSON.stringify(dados)
       });
 
-      const result = await response.json();
+      // 204 No Content não tem body
+      const result = response.status === 204 ? null : await response.json();
 
       return {
         sucesso: response.ok,
         data: result,
-        mensagem: response.ok ? 'Reboque atualizado com sucesso' : result.mensagem || 'Erro ao atualizar reboque'
+        mensagem: response.ok ? 'Reboque atualizado com sucesso' : result?.mensagem || 'Erro ao atualizar reboque'
       };
     } catch (error) {
       console.error('Erro ao atualizar reboque:', error);
@@ -184,8 +214,17 @@ class ReboquesService {
    */
   async excluirReboque(id: number): Promise<ApiResponse<void>> {
     try {
+      const token = localStorage.getItem('mdfe_token');
+      const headers: HeadersInit = {
+        'Content-Type': 'application/json',
+      };
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+
       const response = await fetch(`${API_BASE_URL}/reboques/${id}`, {
-        method: 'DELETE'
+        method: 'DELETE',
+        headers
       });
 
       const result = response.status !== 204 ? await response.json() : null;
@@ -208,12 +247,41 @@ class ReboquesService {
    */
   async listarReboquesAtivos(): Promise<ApiResponse<ReboqueList[]>> {
     try {
-      const response = await fetch(`${API_BASE_URL}/reboques?PageSize=1000&SortBy=placa`);
-      const result = await response.json();
+      const url = `${API_BASE_URL}/reboques?PageSize=100&SortBy=placa`;
+      console.log('🔗 Chamando API:', url);
 
-      if (response.ok && result.data) {
+      const token = localStorage.getItem('mdfe_token');
+      const headers: HeadersInit = {
+        'Content-Type': 'application/json',
+      };
+
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+        console.log('🔐 Token adicionado ao header');
+      } else {
+        console.warn('⚠️ Nenhum token encontrado no localStorage');
+      }
+
+      const response = await fetch(url, { headers });
+      console.log('📡 Status da resposta:', response.status, response.statusText);
+
+      const result = await response.json();
+      console.log('📄 Dados recebidos:', result);
+
+      if (!response.ok) {
+        console.error('❌ Erro da API:', result);
+        return {
+          sucesso: false,
+          mensagem: result.mensagem || result.message || result.title || 'Erro ao carregar reboques'
+        };
+      }
+
+      if (result.items) {
+        console.log(`📊 Total de reboques na resposta: ${result.items.length}`);
+
         // Filtrar apenas ativos
-        const reboquesAtivos = result.data.filter((reboque: ReboqueList) => reboque.ativo);
+        const reboquesAtivos = result.items.filter((reboque: ReboqueList) => reboque.ativo);
+        console.log(`✅ Reboques ativos filtrados: ${reboquesAtivos.length}`);
 
         return {
           sucesso: true,
@@ -222,12 +290,13 @@ class ReboquesService {
         };
       }
 
+      console.warn('⚠️ Resposta sem items');
       return {
         sucesso: false,
-        mensagem: result.mensagem || 'Erro ao carregar reboques'
+        mensagem: 'Nenhum reboque encontrado'
       };
     } catch (error) {
-      console.error('Erro ao listar reboques ativos:', error);
+      console.error('❌ Erro ao listar reboques ativos:', error);
       return {
         sucesso: false,
         mensagem: 'Erro de conexão com o servidor'

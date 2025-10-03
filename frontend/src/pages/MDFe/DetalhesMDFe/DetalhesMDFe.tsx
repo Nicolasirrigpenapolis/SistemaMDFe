@@ -259,7 +259,7 @@ export function DetalhesMDFe() {
       <div className="flex flex-col items-center justify-center min-h-[400px] text-center">
         <i className="fas fa-exclamation-triangle"></i>
         <span>MDFe não encontrado</span>
-        <button onClick={() => navigate('/mdfes')} className="px-4 py-2 border border-border-primary rounded-lg bg-bg-surface text-text-primary hover:bg-bg-tertiary transition-colors duration-200">
+        <button onClick={() => navigate('/mdfes')} className="px-4 py-2 border border-border rounded-lg bg-card text-foreground hover:bg-muted transition-colors duration-200">
           Voltar à Listagem
         </button>
       </div>
@@ -291,11 +291,11 @@ export function DetalhesMDFe() {
       )}
 
       {/* Header */}
-      <header className="flex items-center justify-between mb-8 bg-bg-surface rounded-xl border border-border-primary p-6">
+      <header className="flex items-center justify-between mb-8 bg-card rounded-xl border border-border p-6">
         <div className="flex items-center gap-4">
           <button
             onClick={() => navigate('/mdfes')}
-            className="px-4 py-2 border border-border-primary rounded-lg bg-bg-surface text-text-primary hover:bg-bg-tertiary transition-colors duration-200"
+            className="px-4 py-2 border border-border rounded-lg bg-card text-foreground hover:bg-muted transition-colors duration-200"
           >
             <i className="fas fa-arrow-left"></i>
             Voltar
@@ -413,78 +413,78 @@ export function DetalhesMDFe() {
       {/* Conteúdo Principal */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Informações Básicas */}
-        <div className="bg-bg-surface rounded-xl border border-border-primary p-6">
-          <h2 className="text-lg font-semibold text-text-primary mb-4 flex items-center gap-2">
+        <div className="bg-card rounded-xl border border-border p-6">
+          <h2 className="text-lg font-semibold text-foreground mb-4 flex items-center gap-2">
             <i className="fas fa-info-circle"></i>
             Informações Básicas
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-1">
-              <label className="text-sm font-medium text-text-secondary">Número:</label>
-              <span className="block text-text-primary">{mdfe.numero}</span>
+              <label className="text-sm font-medium text-muted-foreground">Número:</label>
+              <span className="block text-foreground">{mdfe.numero}</span>
             </div>
             <div className="space-y-1">
-              <label className="text-sm font-medium text-text-secondary">Série:</label>
-              <span className="block text-text-primary">{mdfe.serie}</span>
+              <label className="text-sm font-medium text-muted-foreground">Série:</label>
+              <span className="block text-foreground">{mdfe.serie}</span>
             </div>
             <div className="space-y-1">
-              <label className="text-sm font-medium text-text-secondary">Data Emissão:</label>
-              <span className="block text-text-primary">{new Date(mdfe.dataEmissao).toLocaleString('pt-BR')}</span>
+              <label className="text-sm font-medium text-muted-foreground">Data Emissão:</label>
+              <span className="block text-foreground">{new Date(mdfe.dataEmissao).toLocaleString('pt-BR')}</span>
             </div>
             <div className="space-y-1">
-              <label className="text-sm font-medium text-text-secondary">UF Origem:</label>
-              <span className="block text-text-primary">{mdfe.ufIni}</span>
+              <label className="text-sm font-medium text-muted-foreground">UF Origem:</label>
+              <span className="block text-foreground">{mdfe.ufIni}</span>
             </div>
             <div className="space-y-1">
-              <label className="text-sm font-medium text-text-secondary">UF Destino:</label>
-              <span className="block text-text-primary">{mdfe.ufFim}</span>
+              <label className="text-sm font-medium text-muted-foreground">UF Destino:</label>
+              <span className="block text-foreground">{mdfe.ufFim}</span>
             </div>
             <div className="space-y-1">
-              <label className="text-sm font-medium text-text-secondary">Valor da Carga:</label>
-              <span className="block text-text-primary">R$ {mdfe.valorTotal.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
+              <label className="text-sm font-medium text-muted-foreground">Valor da Carga:</label>
+              <span className="block text-foreground">R$ {mdfe.valorTotal.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
             </div>
             {mdfe.chaveAcesso && (
               <div className="space-y-1 md:col-span-2">
-                <label className="text-sm font-medium text-text-secondary">Chave de Acesso:</label>
-                <span className="block font-mono text-sm bg-bg-tertiary px-2 py-1 rounded text-text-primary">{mdfe.chaveAcesso}</span>
+                <label className="text-sm font-medium text-muted-foreground">Chave de Acesso:</label>
+                <span className="block font-mono text-sm bg-muted px-2 py-1 rounded text-foreground">{mdfe.chaveAcesso}</span>
               </div>
             )}
           </div>
         </div>
 
         {/* Emitente */}
-        <div className="bg-bg-surface rounded-xl border border-border-primary p-6">
-          <h2 className="text-lg font-semibold text-text-primary mb-4 flex items-center gap-2">
+        <div className="bg-card rounded-xl border border-border p-6">
+          <h2 className="text-lg font-semibold text-foreground mb-4 flex items-center gap-2">
             <i className="fas fa-building"></i>
             Emitente
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-1">
-              <label className="text-sm font-medium text-text-secondary">Razão Social:</label>
-              <span className="block text-text-primary">{mdfe.emitenteNome}</span>
+              <label className="text-sm font-medium text-muted-foreground">Razão Social:</label>
+              <span className="block text-foreground">{mdfe.emitenteNome}</span>
             </div>
             <div className="space-y-1">
-              <label className="text-sm font-medium text-text-secondary">CNPJ:</label>
-              <span className="block text-text-primary">{mdfe.emitenteCnpj}</span>
+              <label className="text-sm font-medium text-muted-foreground">CNPJ:</label>
+              <span className="block text-foreground">{mdfe.emitenteCnpj}</span>
             </div>
           </div>
         </div>
 
         {/* Transporte */}
-        <div className="bg-bg-surface rounded-xl border border-border-primary p-6">
-          <h2 className="text-lg font-semibold text-text-primary mb-4 flex items-center gap-2">
+        <div className="bg-card rounded-xl border border-border p-6">
+          <h2 className="text-lg font-semibold text-foreground mb-4 flex items-center gap-2">
             <i className="fas fa-truck"></i>
             Transporte
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-1">
-              <label className="text-sm font-medium text-text-secondary">Veículo:</label>
-              <span className="block text-text-primary">{mdfe.veiculoPlaca}</span>
+              <label className="text-sm font-medium text-muted-foreground">Veículo:</label>
+              <span className="block text-foreground">{mdfe.veiculoPlaca}</span>
             </div>
             {mdfe.condutorNome && (
               <div className="space-y-1">
-                <label className="text-sm font-medium text-text-secondary">Condutor:</label>
-                <span className="block text-text-primary">{mdfe.condutorNome}</span>
+                <label className="text-sm font-medium text-muted-foreground">Condutor:</label>
+                <span className="block text-foreground">{mdfe.condutorNome}</span>
               </div>
             )}
           </div>
@@ -492,27 +492,27 @@ export function DetalhesMDFe() {
 
         {/* Status e Protocolo */}
         {(mdfe.dataTransmissao || mdfe.protocoloSefaz || mdfe.motivoRejeicao) && (
-          <div className="bg-bg-surface rounded-xl border border-border-primary p-6">
-            <h2 className="text-lg font-semibold text-text-primary mb-4 flex items-center gap-2">
+          <div className="bg-card rounded-xl border border-border p-6">
+            <h2 className="text-lg font-semibold text-foreground mb-4 flex items-center gap-2">
               <i className="fas fa-exchange-alt"></i>
               Status SEFAZ
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {mdfe.dataTransmissao && (
                 <div className="space-y-1">
-                  <label className="text-sm font-medium text-text-secondary">Data Transmissão:</label>
-                  <span className="block text-text-primary">{new Date(mdfe.dataTransmissao).toLocaleString('pt-BR')}</span>
+                  <label className="text-sm font-medium text-muted-foreground">Data Transmissão:</label>
+                  <span className="block text-foreground">{new Date(mdfe.dataTransmissao).toLocaleString('pt-BR')}</span>
                 </div>
               )}
               {mdfe.protocoloSefaz && (
                 <div className="space-y-1">
-                  <label className="text-sm font-medium text-text-secondary">Protocolo:</label>
-                  <span className="block text-text-primary">{mdfe.protocoloSefaz}</span>
+                  <label className="text-sm font-medium text-muted-foreground">Protocolo:</label>
+                  <span className="block text-foreground">{mdfe.protocoloSefaz}</span>
                 </div>
               )}
               {mdfe.motivoRejeicao && (
                 <div className="space-y-1 md:col-span-2">
-                  <label className="text-sm font-medium text-text-secondary">Motivo Rejeição:</label>
+                  <label className="text-sm font-medium text-muted-foreground">Motivo Rejeição:</label>
                   <span className="block text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 p-3 rounded-lg">{mdfe.motivoRejeicao}</span>
                 </div>
               )}
@@ -522,12 +522,12 @@ export function DetalhesMDFe() {
 
         {/* Observações */}
         {mdfe.observacoes && (
-          <div className="bg-bg-surface rounded-xl border border-border-primary p-6">
-            <h2 className="text-lg font-semibold text-text-primary mb-4 flex items-center gap-2">
+          <div className="bg-card rounded-xl border border-border p-6">
+            <h2 className="text-lg font-semibold text-foreground mb-4 flex items-center gap-2">
               <i className="fas fa-sticky-note"></i>
               Observações
             </h2>
-            <div className="text-text-secondary bg-bg-tertiary p-4 rounded-lg">
+            <div className="text-muted-foreground bg-muted p-4 rounded-lg">
               {mdfe.observacoes}
             </div>
           </div>

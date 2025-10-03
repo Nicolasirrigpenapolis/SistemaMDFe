@@ -21,41 +21,55 @@ class EntitiesService {
         ...options,
       });
 
-      if (!response.ok) {
-        let errorData = null;
-        try {
-          errorData = await response.json();
-        } catch {
-          // Resposta não tem JSON válido
-        }
+      // Tenta obter o corpo da resposta, mesmo em caso de erro
+      let responseData;
+      try {
+        responseData = await response.json();
+      } catch {
+        responseData = null;
+      }
 
+      if (!response.ok) {
         return {
           sucesso: false,
-          mensagem: errorData?.message || 'Erro na operação',
-          codigoErro: response.status.toString()
+          mensagem: responseData?.message || `Erro HTTP: ${response.status}`,
+          codigoErro: response.status.toString(),
+          dados: responseData, // Inclui os dados do erro se houver
         };
       }
 
-      // Sucesso - verificar se tem conteúdo
-      let data = null;
-      if (response.status !== 204) { // 204 = No Content
-        try {
-          data = await response.json();
-        } catch {
-          // Resposta de sucesso sem JSON válido (normal para alguns endpoints)
+      // Para respostas de sucesso (2xx)
+      // A estrutura da resposta da API agora é { success, message, data }
+      if (responseData && typeof responseData.success === 'boolean') {
+        if (responseData.success) {
+          return {
+            sucesso: true,
+            mensagem: responseData.message || 'Operação realizada com sucesso',
+            dados: responseData.data, // Retorna apenas o campo 'data'
+          };
+        } else {
+          return {
+            sucesso: false,
+            mensagem: responseData.message || 'A API indicou uma falha na operação',
+            dados: responseData.errors, // Pode haver detalhes de erro
+          };
         }
       }
 
+      // Fallback para respostas que não seguem o padrão { success, message, data }
+      // mas que ainda são 2xx. Ex: 204 No Content
       return {
         sucesso: true,
         mensagem: 'Operação realizada com sucesso',
-        dados: data
+        dados: responseData,
       };
+
     } catch (error) {
+      console.error(`Erro na chamada da API para ${endpoint}:`, error);
       return {
         sucesso: false,
-        mensagem: 'Erro de conexão com o servidor',
-        codigoErro: 'NETWORK_ERROR'
+        mensagem: 'Erro de conexão com o servidor. Verifique o console para mais detalhes.',
+        codigoErro: 'NETWORK_ERROR',
       };
     }
   }
@@ -112,6 +126,10 @@ class EntitiesService {
   // ✅ CRUD SIMPLIFICADO - backend aceita dados diretos
 
   // Emitentes
+  async buscarEmitentePorId(id: number): Promise<RespostaACBr> {
+    return await this.request(`/emitentes/${id}`);
+  }
+
   async criarEmitente(dados: any): Promise<RespostaACBr> {
     return await this.request('/emitentes', {
       method: 'POST',

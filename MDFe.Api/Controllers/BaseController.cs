@@ -1,9 +1,11 @@
+// Teste de modificação - BaseController.cs
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MDFeApi.Data;
 using MDFeApi.DTOs;
 using MDFeApi.Extensions;
 using MDFeApi.Utils;
+using MDFeApi.Services;
 
 namespace MDFeApi.Controllers
 {
@@ -20,11 +22,18 @@ namespace MDFeApi.Controllers
     {
         protected readonly MDFeContext _context;
         protected readonly ILogger _logger;
+        protected readonly ICacheService? _cacheService;
 
-        protected BaseController(MDFeContext context, ILogger logger)
+        protected BaseController(MDFeContext context, ILogger logger, ICacheService? cacheService = null)
         {
             _context = context;
             _logger = logger;
+            _cacheService = cacheService;
+        }
+
+        protected virtual string GetCacheKeyPrefix()
+        {
+            return typeof(TEntity).Name.ToLower();
         }
 
         /// <summary>
@@ -168,6 +177,18 @@ namespace MDFeApi.Controllers
         {
             try
             {
+                var cacheKey = $"{GetCacheKeyPrefix()}:detail:{id}";
+
+                // Tentar obter do cache
+                if (_cacheService != null)
+                {
+                    var cached = _cacheService.Get<TDetailDto>(cacheKey);
+                    if (cached != null)
+                    {
+                        return Ok(cached);
+                    }
+                }
+
                 var entity = await GetDbSet().FindAsync(id);
 
                 if (entity == null || !IsEntityActive(entity))
@@ -175,7 +196,12 @@ namespace MDFeApi.Controllers
                     return NotFound(new { message = "Registro não encontrado" });
                 }
 
-                return Ok(EntityToDetailDto(entity));
+                var dto = EntityToDetailDto(entity);
+
+                // Adicionar ao cache (5 minutos)
+                _cacheService?.Set(cacheKey, dto, TimeSpan.FromMinutes(5));
+
+                return Ok(dto);
             }
             catch (Exception ex)
             {
@@ -190,8 +216,12 @@ namespace MDFeApi.Controllers
         [HttpPost]
         public virtual async Task<ActionResult<TDetailDto>> Create([FromBody] TCreateDto dto)
         {
+            _logger.LogInformation("POST Create - Recebido: {Dto}", System.Text.Json.JsonSerializer.Serialize(dto));
+
             if (!ModelState.IsValid)
             {
+                _logger.LogWarning("POST Create - ModelState inválido: {Errors}",
+                    string.Join(", ", ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage)));
                 return BadRequest(ModelState);
             }
 
@@ -215,6 +245,9 @@ namespace MDFeApi.Controllers
                 GetDbSet().Add(entity);
                 await _context.SaveChangesAsync();
 
+                // Invalidar cache de listagens
+                _cacheService?.RemoveByPrefix(GetCacheKeyPrefix());
+
                 var result = EntityToDetailDto(entity);
                 var entityId = GetEntityId(entity);
 
@@ -233,16 +266,22 @@ namespace MDFeApi.Controllers
         [HttpPut("{id}")]
         public virtual async Task<IActionResult> Update(int id, [FromBody] TUpdateDto dto)
         {
+            _logger.LogInformation("PUT Update - ID recebido: {Id}, DTO: {Dto}",
+                id, System.Text.Json.JsonSerializer.Serialize(dto));
+
             if (!ModelState.IsValid)
             {
+                _logger.LogWarning("PUT Update - ModelState inválido: {Errors}",
+                    string.Join(", ", ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage)));
                 return BadRequest(ModelState);
             }
 
             try
             {
                 var entity = await GetDbSet().FindAsync(id);
-                if (entity == null || !IsEntityActive(entity))
+                if (entity == null)
                 {
+                    _logger.LogWarning("PUT Update - Entidade não encontrada para ID: {Id}", id);
                     return NotFound(new { message = "Registro não encontrado" });
                 }
 
@@ -259,6 +298,10 @@ namespace MDFeApi.Controllers
                 ReflectionCache.SetDataUltimaAlteracaoValue(entity, DateTime.Now);
 
                 await _context.SaveChangesAsync();
+
+                // Invalidar cache específico e listagens
+                _cacheService?.Remove($"{GetCacheKeyPrefix()}:detail:{id}");
+                _cacheService?.RemoveByPrefix(GetCacheKeyPrefix());
 
                 return NoContent();
             }
@@ -294,6 +337,10 @@ namespace MDFeApi.Controllers
                 GetDbSet().Remove(entity);
 
                 await _context.SaveChangesAsync();
+
+                // Invalidar cache específico e listagens
+                _cacheService?.Remove($"{GetCacheKeyPrefix()}:detail:{id}");
+                _cacheService?.RemoveByPrefix(GetCacheKeyPrefix());
 
                 return NoContent();
             }

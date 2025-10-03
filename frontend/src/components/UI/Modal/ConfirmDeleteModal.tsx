@@ -24,12 +24,12 @@ export function ConfirmDeleteModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm" onClick={onCancel}>
-      <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-0 shadow-xl max-w-md w-full mx-4 overflow-hidden" onClick={(e) => e.stopPropagation()}>
+      <div className="bg-card dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-0 shadow-xl max-w-md w-full mx-4 overflow-hidden" onClick={(e) => e.stopPropagation()}>
 
         {/* Header com gradiente de perigo */}
         <div className="px-6 py-4 bg-gradient-to-r from-red-600 to-red-700">
           <div className="flex items-center gap-4">
-            <div className="w-12 h-12 bg-white/15 backdrop-blur-sm rounded-xl flex items-center justify-center shadow-lg">
+            <div className="w-12 h-12 bg-card/15 backdrop-blur-sm rounded-xl flex items-center justify-center shadow-lg">
               <Icon name="exclamation-triangle" className="text-white" size="lg" />
             </div>
             <h2 className="text-xl font-bold text-white">{title}</h2>
@@ -38,10 +38,10 @@ export function ConfirmDeleteModal({
 
         {/* Content */}
         <div className="p-6 space-y-4">
-          <p className="text-gray-600 dark:text-gray-400">{message}</p>
+          <p className="text-muted-foreground">{message}</p>
           {itemName && (
-            <div className="p-3 rounded-lg bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-0">
-              <strong className="text-gray-900 dark:text-white">{itemName}</strong>
+            <div className="p-3 rounded-lg bg-background dark:bg-gray-800 border border-gray-200 dark:border-0">
+              <strong className="text-foreground">{itemName}</strong>
             </div>
           )}
           <div className="flex items-center gap-2 p-3 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800">
@@ -51,11 +51,11 @@ export function ConfirmDeleteModal({
         </div>
 
         {/* Footer */}
-        <div className="flex items-center justify-end gap-3 p-6 border-t border-gray-200 dark:border-0 bg-gray-50 dark:bg-gray-800">
+        <div className="flex items-center justify-end gap-3 p-6 border-t border-gray-200 dark:border-0 bg-background dark:bg-gray-800">
           <button
             type="button"
             onClick={onCancel}
-            className="px-4 py-2 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-0 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200 font-medium"
+            className="px-4 py-2 text-foreground border border-gray-300 dark:border-0 rounded-lg hover:bg-background dark:hover:bg-gray-700 transition-colors duration-200 font-medium"
             disabled={loading}
           >
             Cancelar

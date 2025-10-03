@@ -24,11 +24,11 @@ export function ImportarIBGEModal({ isOpen, onClose, onConfirm, isImporting }: I
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm">
-      <div className="bg-bg-surface rounded-xl border border-border-primary shadow-xl max-w-md w-full mx-4" onClick={(e) => e.stopPropagation()}>
+      <div className="bg-card rounded-xl border border-border shadow-xl max-w-md w-full mx-4" onClick={(e) => e.stopPropagation()}>
         {/* Header com gradiente azul para representar dados governamentais */}
-        <div className="flex items-center justify-between p-6 border-b border-border-primary bg-gradient-to-r from-blue-600 to-blue-700 rounded-t-xl">
+        <div className="flex items-center justify-between p-6 border-b border-border bg-gradient-to-r from-blue-600 to-blue-700 rounded-t-xl">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-white bg-opacity-20 rounded-lg flex items-center justify-center relative">
+            <div className="w-10 h-10 bg-card bg-opacity-20 rounded-lg flex items-center justify-center relative">
               <i className="fas fa-download text-white text-lg absolute"></i>
               {/* Fallback se FontAwesome falhar - aparece apenas se o ícone acima não estiver visível */}
               <span className="text-white text-xl" style={{ fontFamily: 'monospace' }}>↓</span>
@@ -56,10 +56,10 @@ export function ImportarIBGEModal({ isOpen, onClose, onConfirm, isImporting }: I
               <div className="w-16 h-16 bg-gradient-to-br from-blue-100 to-blue-200 dark:from-blue-900 dark:to-blue-800 rounded-full flex items-center justify-center mx-auto mb-4">
                 <i className="fas fa-map-marked-alt text-2xl text-blue-600 dark:text-blue-300"></i>
               </div>
-              <h3 className="text-lg font-semibold text-text-primary mb-2">
+              <h3 className="text-lg font-semibold text-foreground mb-2">
                 Base Completa de Municípios
               </h3>
-              <p className="text-text-secondary text-sm leading-relaxed">
+              <p className="text-muted-foreground text-sm leading-relaxed">
                 Deseja importar todos os municípios brasileiros da base oficial do IBGE?
                 Esta operação irá adicionar mais de <strong>5.570 municípios</strong> ao sistema.
               </p>
@@ -102,12 +102,12 @@ export function ImportarIBGEModal({ isOpen, onClose, onConfirm, isImporting }: I
         </div>
 
         {/* Footer com botões */}
-        <div className="flex items-center justify-end gap-3 p-6 border-t border-border-primary bg-bg-tertiary rounded-b-xl">
+        <div className="flex items-center justify-end gap-3 p-6 border-t border-border bg-muted rounded-b-xl">
           <button
             type="button"
             onClick={handleClose}
             disabled={isImporting}
-            className="px-4 py-2 border border-border-primary rounded-lg bg-bg-surface text-text-primary hover:bg-bg-surface-hover disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
+            className="px-4 py-2 border border-border rounded-lg bg-card text-foreground hover:bg-card-hover disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
           >
             Cancelar
           </button>

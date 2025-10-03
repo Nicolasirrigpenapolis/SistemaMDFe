@@ -1,1 +1,0 @@
-import { formatPlaca } from '../../../utils/formatters';

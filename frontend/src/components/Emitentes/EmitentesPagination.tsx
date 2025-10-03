@@ -59,10 +59,10 @@ export const EmitentesPagination = memo(({
   }
 
   return (
-    <div className="bg-white dark:bg-gray-800 px-4 py-3 border-t border-gray-200 dark:border-0 sm:px-6">
+    <div className="bg-card px-4 py-3 border-t border-gray-200 dark:border-0 sm:px-6">
       <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
         {/* Informações da paginação */}
-        <div className="flex items-center text-sm text-gray-700 dark:text-gray-300">
+        <div className="flex items-center text-sm text-foreground">
           <span>
             Mostrando <span className="font-medium">{paginacao.startItem}</span> a{' '}
             <span className="font-medium">{paginacao.endItem}</span> de{' '}
@@ -74,14 +74,14 @@ export const EmitentesPagination = memo(({
         <div className="flex items-center gap-4">
           {/* Tamanho da página */}
           <div className="flex items-center gap-2">
-            <label className="text-sm text-gray-700 dark:text-gray-300">
+            <label className="text-sm text-foreground">
               Por página:
             </label>
             <select
               value={paginacao.pageSize}
               onChange={(e) => onTamanhoChange(Number(e.target.value))}
               className="px-2 py-1 border border-gray-300 dark:border-0 rounded
-                         bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100
+                         bg-card dark:bg-gray-700 text-foreground dark:text-gray-100
                          focus:ring-2 focus:ring-blue-500 focus:border-transparent
                          transition-colors duration-200 text-sm"
               disabled={carregando}
@@ -102,7 +102,7 @@ export const EmitentesPagination = memo(({
               disabled={paginacao.currentPage === 1 || carregando}
               className="p-2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200
                          disabled:opacity-50 disabled:cursor-not-allowed
-                         hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md
+                         hover:bg-accent rounded-md
                          transition-colors duration-200"
               title="Primeira página"
             >
@@ -115,7 +115,7 @@ export const EmitentesPagination = memo(({
               disabled={!paginacao.hasPreviousPage || carregando}
               className="p-2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200
                          disabled:opacity-50 disabled:cursor-not-allowed
-                         hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md
+                         hover:bg-accent rounded-md
                          transition-colors duration-200"
               title="Página anterior"
             >
@@ -147,7 +147,7 @@ export const EmitentesPagination = memo(({
                     className={`px-3 py-2 text-sm font-medium rounded-md transition-colors duration-200
                       ${isAtual
                         ? 'bg-blue-600 text-white shadow-sm'
-                        : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
+                        : 'text-foreground hover:bg-accent'
                       }
                       disabled:opacity-50 disabled:cursor-not-allowed`}
                   >
@@ -163,7 +163,7 @@ export const EmitentesPagination = memo(({
               disabled={!paginacao.hasNextPage || carregando}
               className="p-2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200
                          disabled:opacity-50 disabled:cursor-not-allowed
-                         hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md
+                         hover:bg-accent rounded-md
                          transition-colors duration-200"
               title="Próxima página"
             >
@@ -176,7 +176,7 @@ export const EmitentesPagination = memo(({
               disabled={paginacao.currentPage === paginacao.totalPages || carregando}
               className="p-2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200
                          disabled:opacity-50 disabled:cursor-not-allowed
-                         hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md
+                         hover:bg-accent rounded-md
                          transition-colors duration-200"
               title="Última página"
             >

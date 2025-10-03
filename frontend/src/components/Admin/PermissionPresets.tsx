@@ -204,10 +204,10 @@ export function PermissionPresets({ onApplyPreset, disabled = false }: Permissio
           <Icon name="magic" size="sm" className="text-white" />
         </div>
         <div>
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+          <h3 className="text-lg font-semibold text-foreground">
             Templates de Permissões
           </h3>
-          <p className="text-sm text-gray-600 dark:text-gray-400">
+          <p className="text-sm text-muted-foreground">
             Configure rapidamente com perfis pré-definidos
           </p>
         </div>
@@ -229,7 +229,7 @@ export function PermissionPresets({ onApplyPreset, disabled = false }: Permissio
                 <h4 className={`font-bold text-lg ${colors.text} mb-1`}>
                   {preset.name}
                 </h4>
-                <p className="text-sm text-gray-600 dark:text-gray-400">
+                <p className="text-sm text-muted-foreground">
                   {preset.description}
                 </p>
               </div>

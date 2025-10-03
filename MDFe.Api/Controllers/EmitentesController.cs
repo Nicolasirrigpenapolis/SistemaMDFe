@@ -6,6 +6,7 @@ using MDFeApi.DTOs;
 using MDFeApi.Interfaces;
 using MDFeApi.Utils;
 using MDFeApi.Helpers;
+using MDFeApi.Services;
 
 namespace MDFeApi.Controllers
 {
@@ -17,8 +18,9 @@ namespace MDFeApi.Controllers
         public EmitentesController(
             MDFeContext context,
             ICertificadoService certificadoService,
-            ILogger<EmitentesController> logger)
-            : base(context, logger)
+            ILogger<EmitentesController> logger,
+            ICacheService cacheService)
+            : base(context, logger, cacheService)
         {
             _certificadoService = certificadoService;
         }
@@ -73,6 +75,7 @@ namespace MDFeApi.Controllers
                 Ativo = entity.Ativo,
                 TipoEmitente = entity.TipoEmitente,
                 CaminhoArquivoCertificado = entity.CaminhoArquivoCertificado,
+                SenhaCertificado = entity.SenhaCertificado,
                 CaminhoSalvarXml = entity.CaminhoSalvarXml,
                 Rntrc = entity.Rntrc,
                 SerieInicial = entity.SerieInicial,

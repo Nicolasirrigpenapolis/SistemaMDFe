@@ -36,16 +36,42 @@ export function usePermissions(): UsePermissionsReturn {
         if (response.ok) {
           const userPermissions = await response.json();
           console.log('usePermissions: Permissions loaded:', userPermissions);
-          setPermissions(userPermissions || []);
+
+          // Em desenvolvimento, se não houver permissões (token antigo sem CargoId),
+          // dar acesso total para não bloquear o desenvolvedor
+          const isDevelopment = process.env.NODE_ENV === 'development';
+          if (isDevelopment && (!userPermissions || userPermissions.length === 0)) {
+            console.warn('usePermissions: [DEV MODE] No permissions returned. Token may be old. Granting full access. Please logout and login again for proper permissions.');
+            // Retornar todas as permissões possíveis em dev
+            setPermissions(['*']); // Wildcard para aceitar qualquer permissão
+          } else {
+            setPermissions(userPermissions || []);
+          }
         } else {
           console.error('usePermissions: Error response status:', response.status);
           const errorText = await response.text();
           console.error('usePermissions: Error response body:', errorText);
-          setPermissions([]);
+
+          // Em desenvolvimento, dar acesso total em caso de erro
+          const isDevelopment = process.env.NODE_ENV === 'development';
+          if (isDevelopment) {
+            console.warn('usePermissions: [DEV MODE] Permission fetch failed. Granting full access.');
+            setPermissions(['*']);
+          } else {
+            setPermissions([]);
+          }
         }
       } catch (error) {
         console.error('usePermissions: Exception loading permissions:', error);
-        setPermissions([]);
+
+        // Em desenvolvimento, dar acesso total em caso de erro
+        const isDevelopment = process.env.NODE_ENV === 'development';
+        if (isDevelopment) {
+          console.warn('usePermissions: [DEV MODE] Permission exception. Granting full access.');
+          setPermissions(['*']);
+        } else {
+          setPermissions([]);
+        }
       } finally {
         setLoading(false);
       }
@@ -55,14 +81,26 @@ export function usePermissions(): UsePermissionsReturn {
   }, [token, user]);
 
   const hasPermission = (permission: string): boolean => {
+    // Wildcard em desenvolvimento dá acesso total
+    if (permissions.includes('*')) {
+      return true;
+    }
     return permissions.includes(permission);
   };
 
   const hasAnyPermission = (permissionList: string[]): boolean => {
+    // Wildcard em desenvolvimento dá acesso total
+    if (permissions.includes('*')) {
+      return true;
+    }
     return permissionList.some(permission => permissions.includes(permission));
   };
 
   const hasAllPermissions = (permissionList: string[]): boolean => {
+    // Wildcard em desenvolvimento dá acesso total
+    if (permissions.includes('*')) {
+      return true;
+    }
     return permissionList.every(permission => permissions.includes(permission));
   };
 

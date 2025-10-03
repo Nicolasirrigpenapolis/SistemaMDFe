@@ -159,6 +159,19 @@ export const emitenteConfig: CRUDConfig<Emitente> = {
             colSpan: 2
           },
           {
+            label: 'Senha do Certificado',
+            value: emitente.senhaCertificado ? '••••••••' : 'Não configurada',
+            icon: 'key',
+            show: !!emitente.caminhoArquivoCertificado
+          },
+          {
+            label: 'Pasta para Salvar XMLs',
+            value: emitente.caminhoSalvarXml,
+            icon: 'folder',
+            show: !!emitente.caminhoSalvarXml,
+            colSpan: 2
+          },
+          {
             label: 'Status',
             value: emitente.ativo ? 'Ativo' : 'Inativo',
             icon: 'circle',
@@ -369,7 +382,7 @@ export const emitenteConfig: CRUDConfig<Emitente> = {
         color: '#2563eb',
         bgColor: '#ede9fe',
         collapsible: true,
-        defaultCollapsed: true,
+        defaultCollapsed: false,
         fields: [
           {
             key: 'rntrc',
@@ -392,10 +405,12 @@ export const emitenteConfig: CRUDConfig<Emitente> = {
           {
             key: 'caminhoArquivoCertificado',
             label: 'Certificado Digital',
-            type: 'text',
+            type: 'file' as const,
             icon: 'certificate',
             placeholder: 'Selecione o arquivo .pfx ou .p12',
-            colSpan: 2
+            colSpan: 2,
+            buttonLabel: 'Buscar Certificado',
+            accept: '.pfx,.p12'
           },
           {
             key: 'senhaCertificado',
@@ -407,10 +422,11 @@ export const emitenteConfig: CRUDConfig<Emitente> = {
           {
             key: 'caminhoSalvarXml',
             label: 'Pasta para Salvar XMLs',
-            type: 'text',
+            type: 'folder' as const,
             icon: 'folder',
             placeholder: 'Selecione onde salvar os XMLs gerados',
-            colSpan: 2
+            colSpan: 2,
+            buttonLabel: 'Buscar Pasta'
           },
           {
             key: 'ativo',

@@ -116,12 +116,19 @@ namespace MDFeApi.Services
         {
             // Buscar entidades relacionadas
             var emitente = await _context.Emitentes.FindAsync(mdfeDto.EmitenteId);
-            var condutor = await _context.Condutores.FindAsync(mdfeDto.CondutorId);
-            var veiculo = await _context.Veiculos.FindAsync(mdfeDto.VeiculoId);
-
             if (emitente == null) throw new ArgumentException("Emitente não encontrado");
-            if (condutor == null) throw new ArgumentException("Condutor não encontrado");
-            if (veiculo == null) throw new ArgumentException("Veículo não encontrado");
+
+            Condutor? condutor = null;
+            if (mdfeDto.CondutorId.HasValue)
+            {
+                condutor = await _context.Condutores.FindAsync(mdfeDto.CondutorId.Value);
+            }
+
+            Veiculo? veiculo = null;
+            if (mdfeDto.VeiculoId.HasValue)
+            {
+                veiculo = await _context.Veiculos.FindAsync(mdfeDto.VeiculoId.Value);
+            }
 
             // ✅ Usar método estático do modelo para gerar próximo número
             var mdfesExistentes = await _context.MDFes
@@ -133,18 +140,18 @@ namespace MDFeApi.Services
             {
                 NumeroMdfe = proximoNumero,
                 Serie = emitente.SerieInicial,
-                UfIni = emitente.Uf,
+                UfIni = mdfeDto.UfIni ?? emitente.Uf,
                 UfFim = mdfeDto.UfFim ?? emitente.Uf,
-                DataEmissao = mdfeDto.DataEmissao,
-                DataInicioViagem = mdfeDto.DataInicioViagem,
+                DataEmissao = mdfeDto.DataEmissao ?? DateTime.Now,
+                DataInicioViagem = mdfeDto.DataInicioViagem ?? DateTime.Now,
                 Modal = emitente.ModalTransporte,
                 TipoTransportador = emitente.TipoTransportador,
                 UnidadeMedida = "01", // Quilograma (padrão do sistema)
                 EmitenteId = mdfeDto.EmitenteId,
                 CondutorId = mdfeDto.CondutorId,
                 VeiculoId = mdfeDto.VeiculoId,
-                ValorTotal = 0,
-                PesoBrutoTotal = 0,
+                ValorTotal = mdfeDto.ValorTotal ?? 0,
+                PesoBrutoTotal = mdfeDto.PesoBrutoTotal ?? 0,
                 StatusSefaz = "RASCUNHO",
                 DataCriacao = DateTime.Now,
                 // Relacionamentos para permitir snapshots
@@ -175,12 +182,19 @@ namespace MDFeApi.Services
 
             // Buscar entidades relacionadas
             var emitente = await _context.Emitentes.FindAsync(mdfeDto.EmitenteId);
-            var condutor = await _context.Condutores.FindAsync(mdfeDto.CondutorId);
-            var veiculo = await _context.Veiculos.FindAsync(mdfeDto.VeiculoId);
-
             if (emitente == null) throw new ArgumentException("Emitente não encontrado");
-            if (condutor == null) throw new ArgumentException("Condutor não encontrado");
-            if (veiculo == null) throw new ArgumentException("Veículo não encontrado");
+
+            Condutor? condutor = null;
+            if (mdfeDto.CondutorId.HasValue)
+            {
+                condutor = await _context.Condutores.FindAsync(mdfeDto.CondutorId.Value);
+            }
+
+            Veiculo? veiculo = null;
+            if (mdfeDto.VeiculoId.HasValue)
+            {
+                veiculo = await _context.Veiculos.FindAsync(mdfeDto.VeiculoId.Value);
+            }
 
             // Atualizar dados do MDFe
             mdfe.EmitenteId = mdfeDto.EmitenteId;
@@ -188,10 +202,10 @@ namespace MDFeApi.Services
             mdfe.VeiculoId = mdfeDto.VeiculoId;
             mdfe.UfIni = mdfeDto.UfIni;
             mdfe.UfFim = mdfeDto.UfFim;
-            mdfe.DataEmissao = mdfeDto.DataEmissao;
+            mdfe.DataEmissao = mdfeDto.DataEmissao ?? mdfe.DataEmissao;
             mdfe.DataInicioViagem = mdfeDto.DataInicioViagem;
-            mdfe.ValorTotal = mdfeDto.ValorTotal;
-            mdfe.PesoBrutoTotal = mdfeDto.PesoBrutoTotal;
+            mdfe.ValorTotal = mdfeDto.ValorTotal ?? mdfe.ValorTotal;
+            mdfe.PesoBrutoTotal = mdfeDto.PesoBrutoTotal ?? mdfe.PesoBrutoTotal;
             mdfe.InfoAdicional = mdfeDto.Observacoes;
 
             // Atribuir entidades relacionadas

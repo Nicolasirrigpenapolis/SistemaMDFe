@@ -112,6 +112,7 @@ namespace MDFeApi.DTOs
         public bool Ativo { get; set; }
         public string TipoEmitente { get; set; } = string.Empty;
         public string? CaminhoArquivoCertificado { get; set; }
+        public string? SenhaCertificado { get; set; }
         public string? CaminhoSalvarXml { get; set; }
         public string? Rntrc { get; set; }
         public int SerieInicial { get; set; }

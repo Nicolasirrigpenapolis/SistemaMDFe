@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { mdfeService } from '../../../services/mdfeService';
 import { entitiesService } from '../../../services/entitiesService';
-import { MDFeData } from '../../../types/mdfe';
+import { MDFeData, EntidadesCarregadas } from '../../../types/mdfe';
 import { MDFeForm } from '../../../components/UI/Forms/MDFeForm';
 import { ErrorDisplay } from '../../../components/UI/ErrorDisplay/ErrorDisplay';
 
@@ -14,8 +14,10 @@ export function FormularioMDFe() {
   const [transmitindo, setTransmitindo] = useState(false);
   const [mensagemSucesso, setMensagemSucesso] = useState<string>('');
   const [carregandoDados, setCarregandoDados] = useState(false);
+  const [mostrarModalCancelamento, setMostrarModalCancelamento] = useState(false);
+  const [temAlteracoesNaoSalvas, setTemAlteracoesNaoSalvas] = useState(false);
 
-  const [entidadesCarregadas, setEntidadesCarregadas] = useState<any>(null);
+  const [entidadesCarregadas, setEntidadesCarregadas] = useState<EntidadesCarregadas | null>(null);
   const [dados, setDados] = useState<Partial<MDFeData>>({
     // Nova interface simplificada - apenas campos básicos
     documentosCTe: [],
@@ -30,6 +32,21 @@ export function FormularioMDFe() {
     }
   }, [id]);
 
+  // Detectar alterações nos dados para ativar o aviso
+  useEffect(() => {
+    // Se há dados preenchidos, marca como tendo alterações não salvas
+    const temDados =
+      dados.emitenteId ||
+      dados.veiculoId ||
+      dados.condutorId ||
+      dados.ufIni ||
+      dados.ufFim ||
+      (dados.localidadesCarregamento && dados.localidadesCarregamento.length > 0) ||
+      (dados.localidadesDescarregamento && dados.localidadesDescarregamento.length > 0);
+
+    setTemAlteracoesNaoSalvas(!!temDados);
+  }, [dados]);
+
   // Cleanup ao desmontar componente
   useEffect(() => {
     return () => {
@@ -38,9 +55,26 @@ export function FormularioMDFe() {
     };
   }, []);
 
+  // 🚨 Bloquear navegação se houver alterações não salvas
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (temAlteracoesNaoSalvas) {
+        e.preventDefault();
+        e.returnValue = '';
+      }
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
+  }, [temAlteracoesNaoSalvas]);
+
   const carregarDadosIniciais = async () => {
     try {
-      await entitiesService.obterEmitentes();
+      const entidades = await entitiesService.obterTodasEntidades();
+      setEntidadesCarregadas(entidades);
       if (!id) {
         await gerarProximoNumero();
       }
@@ -82,22 +116,70 @@ export function FormularioMDFe() {
         const { mdfe, entities } = resultado.dados as any;
 
         if (mdfe) {
-          // Usar os dados do MDFe diretamente (snapshots já incluídos pelo backend)
-          setDados(mdfe);
+          // 🎯 Mapear APENAS os campos essenciais que o usuário preencheu
+          const dadosMapeados: Partial<MDFeData> = {
+            id: mdfe.id?.toString(),
+            numero: mdfe.numeroMdfe?.toString(),
+            serie: mdfe.serie?.toString(),
+
+            // IDs das entidades selecionadas
+            emitenteId: mdfe.emitenteId,
+            veiculoId: mdfe.veiculoId,
+            condutorId: mdfe.condutorId,
+            contratanteId: mdfe.contratanteId || undefined,
+            seguradoraId: mdfe.seguradoraId || undefined,
+
+            // Dados da viagem
+            dataEmissao: mdfe.dataEmissao ? new Date(mdfe.dataEmissao) : new Date(),
+            dataInicioViagem: mdfe.dataInicioViagem ? new Date(mdfe.dataInicioViagem) : new Date(),
+            ufIni: mdfe.ufIni,
+            ufFim: mdfe.ufFim,
+            municipioIni: mdfe.municipioIni || '',
+            municipioFim: mdfe.municipioFim || '',
+
+            // Valores
+            pesoBrutoTotal: mdfe.pesoBrutoTotal || 0,
+            valorTotal: mdfe.valorTotal || 0,
+            observacoes: mdfe.observacoes || '',
+
+            // Localidades (parseadas do JSON se existirem)
+            localidadesCarregamento: mdfe.localidadesCarregamentoJson
+              ? JSON.parse(mdfe.localidadesCarregamentoJson)
+              : [],
+            localidadesDescarregamento: mdfe.localidadesDescarregamentoJson
+              ? JSON.parse(mdfe.localidadesDescarregamentoJson)
+              : [],
+            rotaPercurso: mdfe.rotaPercursoJson
+              ? JSON.parse(mdfe.rotaPercursoJson)
+              : [],
+
+            // Documentos (parseados do JSON se existirem)
+            documentosCTe: mdfe.documentosCTeJson
+              ? JSON.parse(mdfe.documentosCTeJson)
+              : [],
+            documentosNFe: mdfe.documentosNFeJson
+              ? JSON.parse(mdfe.documentosNFeJson)
+              : [],
+
+            // Reboques (IDs apenas)
+            reboquesIds: mdfe.reboques?.map((r: any) => r.id) || [],
+
+            // Status (apenas para exibição)
+            chaveAcesso: mdfe.chaveAcesso,
+            protocolo: mdfe.protocolo,
+            statusSefaz: mdfe.statusSefaz
+          };
+
+          setDados(dadosMapeados);
 
           // Definir as entidades carregadas
           setEntidadesCarregadas(entities);
-
-          // Log para debug das entidades carregadas
-          if (process.env.NODE_ENV === 'development') {
-
-            // Debug específico para localidades
-          }
         }
       } else {
         setErro(`Erro ao carregar MDFe: ${resultado.mensagem}`);
       }
     } catch (error) {
+      console.error('Erro ao carregar MDFe:', error);
       setErro('Erro inesperado ao carregar MDFe. Tente novamente.');
     } finally {
       setCarregandoDados(false);
@@ -109,23 +191,25 @@ export function FormularioMDFe() {
   const salvar = async () => {
     setSalvando(true);
     try {
-      const agora = new Date().toISOString().slice(0, 16);
-
-      // Nova interface simplificada - datas serão gerenciadas pelo backend
       const dadosAtualizados = {
         ...dados,
         dataEmissao: new Date(),
         dataInicioViagem: new Date()
       };
 
+      // Backend decide se é rascunho ou completo
       const resultado = id
         ? await mdfeService.atualizarMDFe(parseInt(id), dadosAtualizados as MDFeData)
         : await mdfeService.criarMDFe(dadosAtualizados as MDFeData);
 
       if (resultado.sucesso) {
-        setMensagemSucesso('MDFe salvo com sucesso! Agora você pode transmitir para a SEFAZ.');
-        // Remover mensagem após 3 segundos
-        setTimeout(() => setMensagemSucesso(''), 3000);
+        setTemAlteracoesNaoSalvas(false);
+        setMensagemSucesso('MDFe salvo com sucesso');
+
+        // Redirecionar para listagem
+        setTimeout(() => {
+          navigate('/mdfes');
+        }, 1500);
       } else {
         setErro(`Erro ao salvar MDFe: ${resultado.mensagem}`);
         console.error('Erro detalhado:', resultado);
@@ -138,7 +222,21 @@ export function FormularioMDFe() {
   };
 
   const cancelar = () => {
+    if (temAlteracoesNaoSalvas) {
+      setMostrarModalCancelamento(true);
+    } else {
+      navigate('/mdfes');
+    }
+  };
+
+  const confirmarCancelamento = () => {
+    setTemAlteracoesNaoSalvas(false);
+    setMostrarModalCancelamento(false);
     navigate('/mdfes');
+  };
+
+  const continuarEditando = () => {
+    setMostrarModalCancelamento(false);
   };
 
   const transmitir = async () => {
@@ -191,30 +289,73 @@ export function FormularioMDFe() {
 
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="min-h-screen bg-background">
+      {/* Modal de Confirmação de Cancelamento */}
+      {mostrarModalCancelamento && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm">
+          <div className="bg-card border border-border rounded-xl shadow-2xl max-w-md w-full mx-4 overflow-hidden">
+            {/* Header */}
+            <div className="bg-gradient-to-r from-amber-500 to-orange-600 px-6 py-4 flex items-center gap-3">
+              <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center">
+                <i className="fas fa-exclamation-triangle text-amber-600 text-lg"></i>
+              </div>
+              <h3 className="text-white font-bold text-lg">Cancelar Edição?</h3>
+            </div>
+
+            {/* Content */}
+            <div className="p-6">
+              <p className="text-foreground mb-4 text-base leading-relaxed">
+                Você tem <strong>alterações não salvas</strong>. Se sair agora, todas as modificações serão perdidas.
+              </p>
+              <p className="text-muted-foreground text-sm">
+                Deseja realmente cancelar e descartar as alterações?
+              </p>
+            </div>
+
+            {/* Actions */}
+            <div className="bg-muted px-6 py-4 flex gap-3 justify-end border-t border-border">
+              <button
+                onClick={continuarEditando}
+                className="px-6 py-2.5 bg-card hover:bg-background border-2 border-border text-foreground rounded-lg font-semibold transition-all duration-200 hover:scale-105"
+              >
+                <i className="fas fa-arrow-left mr-2"></i>
+                Continuar Editando
+              </button>
+              <button
+                onClick={confirmarCancelamento}
+                className="px-6 py-2.5 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white rounded-lg font-semibold transition-all duration-200 hover:scale-105 shadow-lg"
+              >
+                <i className="fas fa-times mr-2"></i>
+                Descartar e Sair
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Indicador de carregamento */}
       {carregandoDados && (
-        <div className="fixed top-5 left-1/2 transform -translate-x-1/2 z-50 px-6 py-4 bg-gradient-to-r from-blue-500 to-blue-700 text-white rounded-xl flex items-center space-x-3 shadow-lg animate-pulse">
-          <i className="fas fa-spinner fa-spin text-xl"></i>
-          <span className="font-medium">Carregando dados do MDFe...</span>
+        <div className="fixed top-5 right-5 z-50 px-4 py-3 bg-blue-500 text-white rounded-lg flex items-center gap-2 shadow-lg">
+          <i className="fas fa-spinner fa-spin"></i>
+          <span className="text-sm font-medium">Carregando...</span>
         </div>
       )}
 
       {erro && (
-        <div className="fixed top-5 left-1/2 transform -translate-x-1/2 z-50 max-w-md">
-          <ErrorDisplay
-            error={erro}
-            type="block"
-            onClose={() => setErro('')}
-          />
+        <div className="fixed top-5 right-5 z-50 px-4 py-3 bg-red-500 text-white rounded-lg flex items-center gap-2 shadow-lg max-w-sm">
+          <i className="fas fa-exclamation-circle"></i>
+          <span className="text-sm font-medium">{erro}</span>
+          <button onClick={() => setErro('')} className="ml-2 hover:opacity-75">
+            <i className="fas fa-times"></i>
+          </button>
         </div>
       )}
 
       {/* Mensagem de sucesso */}
       {mensagemSucesso && (
-        <div className="fixed top-5 left-1/2 transform -translate-x-1/2 z-50 px-8 py-5 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-xl flex items-center space-x-3 shadow-lg border-2 border-green-400 min-w-96">
-          <i className="fas fa-check-circle text-2xl"></i>
-          <span className="font-semibold text-lg">{mensagemSucesso}</span>
+        <div className="fixed top-5 right-5 z-50 px-4 py-3 bg-green-500 text-white rounded-lg flex items-center gap-2 shadow-lg">
+          <i className="fas fa-check-circle"></i>
+          <span className="text-sm font-medium">{mensagemSucesso}</span>
         </div>
       )}
 

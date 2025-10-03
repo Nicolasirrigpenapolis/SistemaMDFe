@@ -4,14 +4,18 @@ using MDFeApi.Data;
 using MDFeApi.Models;
 using MDFeApi.DTOs;
 using MDFeApi.Utils;
+using MDFeApi.Services;
 
 namespace MDFeApi.Controllers
 {
     [Route("api/[controller]")]
     public class VeiculosController : BaseController<Veiculo, VeiculoListDto, VeiculoResponseDto, VeiculoCreateDto, VeiculoUpdateDto>
     {
-        public VeiculosController(MDFeContext context, ILogger<VeiculosController> logger)
-            : base(context, logger)
+        public VeiculosController(
+            MDFeContext context,
+            ILogger<VeiculosController> logger,
+            ICacheService cacheService)
+            : base(context, logger, cacheService)
         {
         }
 
@@ -23,6 +27,7 @@ namespace MDFeApi.Controllers
             {
                 Id = entity.Id,
                 Placa = entity.Placa,
+                Marca = entity.Marca,
                 Tara = entity.Tara,
                 TipoRodado = entity.TipoRodado,
                 TipoCarroceria = entity.TipoCarroceria,
@@ -37,6 +42,7 @@ namespace MDFeApi.Controllers
             {
                 Id = entity.Id,
                 Placa = entity.Placa,
+                Marca = entity.Marca,
                 Tara = entity.Tara,
                 TipoRodado = entity.TipoRodado,
                 TipoCarroceria = entity.TipoCarroceria,
@@ -51,10 +57,11 @@ namespace MDFeApi.Controllers
             var veiculo = new Veiculo
             {
                 Placa = dto.Placa,
+                Marca = dto.Marca?.Trim() ?? string.Empty,
                 Tara = dto.Tara,
-                TipoRodado = dto.TipoRodado?.Trim(),
-                TipoCarroceria = dto.TipoCarroceria?.Trim(),
-                Uf = dto.Uf?.Trim()
+                TipoRodado = dto.TipoRodado?.Trim() ?? string.Empty,
+                TipoCarroceria = dto.TipoCarroceria?.Trim() ?? string.Empty,
+                Uf = dto.Uf?.Trim() ?? string.Empty
             };
 
             // Aplicar limpeza automática de documentos
@@ -65,10 +72,11 @@ namespace MDFeApi.Controllers
         protected override void UpdateEntityFromDto(Veiculo entity, VeiculoUpdateDto dto)
         {
             entity.Placa = dto.Placa;
+            entity.Marca = dto.Marca?.Trim() ?? string.Empty;
             entity.Tara = dto.Tara;
-            entity.TipoRodado = dto.TipoRodado?.Trim();
-            entity.TipoCarroceria = dto.TipoCarroceria?.Trim();
-            entity.Uf = dto.Uf?.Trim();
+            entity.TipoRodado = dto.TipoRodado?.Trim() ?? string.Empty;
+            entity.TipoCarroceria = dto.TipoCarroceria?.Trim() ?? string.Empty;
+            entity.Uf = dto.Uf?.Trim() ?? string.Empty;
 
             // Aplicar limpeza automática de documentos
             DocumentUtils.LimparDocumentosVeiculo(entity);

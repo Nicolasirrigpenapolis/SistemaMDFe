@@ -8,6 +8,7 @@ interface Condutor {
   id?: number;
   nome: string;
   cpf: string;
+  telefone?: string;
   ativo?: boolean;
 }
 
@@ -25,6 +26,11 @@ interface PaginationData {
 export function ListarCondutores() {
   const [condutores, setCondutores] = useState<Condutor[]>([]);
   const [carregando, setCarregando] = useState(false);
+
+  const [filtroTemp, setFiltroTemp] = useState('');
+  const [filtroStatusTemp, setFiltroStatusTemp] = useState('');
+  const [filtroCPFTemp, setFiltroCPFTemp] = useState('');
+
   const [filtro, setFiltro] = useState('');
   const [filtroStatus, setFiltroStatus] = useState('');
   const [filtroCPF, setFiltroCPF] = useState('');
@@ -81,6 +87,7 @@ export function ListarCondutores() {
         id: condutor.id || condutor.Id,
         nome: condutor.nome || condutor.Nome,
         cpf: condutor.cpf || condutor.Cpf,
+        telefone: condutor.telefone || condutor.Telefone,
         ativo: condutor.ativo !== undefined ? condutor.ativo : (condutor.Ativo !== undefined ? condutor.Ativo : true)
       }));
 
@@ -144,7 +151,8 @@ export function ListarCondutores() {
       const dadosLimpos = {
         ...dadosCondutor,
         cpf: cleanNumericString(dadosCondutor.cpf),
-        nome: dadosCondutor.nome.trim()
+        nome: dadosCondutor.nome.trim(),
+        telefone: dadosCondutor.telefone || undefined
       };
 
       let resposta;
@@ -188,7 +196,17 @@ export function ListarCondutores() {
     }
   };
 
+  const aplicarFiltros = () => {
+    setFiltro(filtroTemp);
+    setFiltroCPF(filtroCPFTemp);
+    setFiltroStatus(filtroStatusTemp);
+    setPaginaAtual(1);
+  };
+
   const limparFiltros = () => {
+    setFiltroTemp('');
+    setFiltroCPFTemp('');
+    setFiltroStatusTemp('');
     setFiltro('');
     setFiltroCPF('');
     setFiltroStatus('');
@@ -197,12 +215,12 @@ export function ListarCondutores() {
 
   if (carregando) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      <div className="min-h-screen bg-background">
         <div className="w-full px-6 py-8">
           <div className="flex items-center justify-center py-16">
             <div className="flex items-center gap-4">
               <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
-              <span className="text-gray-600 dark:text-gray-400">Carregando condutores...</span>
+              <span className="text-muted-foreground">Carregando condutores...</span>
             </div>
           </div>
         </div>
@@ -211,7 +229,7 @@ export function ListarCondutores() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="min-h-screen bg-background">
       <div className="w-full px-2 py-4">
         {/* Header */}
         <div className="flex items-center justify-between mb-4">
@@ -220,8 +238,8 @@ export function ListarCondutores() {
               <Icon name="user" className="text-white" size="xl" />
             </div>
             <div>
-              <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-1">Condutores</h1>
-              <p className="text-gray-600 dark:text-gray-400 text-lg">Gerencie os condutores cadastrados</p>
+              <h1 className="text-3xl font-bold text-foreground mb-1">Condutores</h1>
+              <p className="text-muted-foreground text-lg">Gerencie os condutores cadastrados</p>
             </div>
           </div>
           <button
@@ -234,36 +252,38 @@ export function ListarCondutores() {
         </div>
 
         {/* Filtros */}
-        <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-0 p-6 mb-6">
-          <div className="grid grid-cols-4 gap-4 items-end">
+        <div className="bg-card rounded-lg border border-gray-200 dark:border-0 p-6 mb-6">
+          <div className="grid grid-cols-5 gap-4 items-end">
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Buscar por Nome</label>
+              <label className="block text-sm font-medium text-foreground mb-2">Buscar por Nome</label>
               <input
                 type="text"
                 placeholder="Nome do condutor..."
-                value={filtro}
-                onChange={(e) => setFiltro(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-0 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500/20 focus:border-green-500"
+                value={filtroTemp}
+                onChange={(e) => setFiltroTemp(e.target.value)}
+                onKeyPress={(e) => e.key === 'Enter' && aplicarFiltros()}
+                className="w-full px-3 py-2 border border-gray-300 dark:border-0 rounded-lg bg-card text-foreground placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500/20 focus:border-green-500"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Buscar por CPF</label>
+              <label className="block text-sm font-medium text-foreground mb-2">Buscar por CPF</label>
               <input
                 type="text"
                 placeholder="000.000.000-00"
-                value={filtroCPF}
-                onChange={(e) => setFiltroCPF(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-0 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500/20 focus:border-green-500"
+                value={filtroCPFTemp}
+                onChange={(e) => setFiltroCPFTemp(e.target.value)}
+                onKeyPress={(e) => e.key === 'Enter' && aplicarFiltros()}
+                className="w-full px-3 py-2 border border-gray-300 dark:border-0 rounded-lg bg-card text-foreground placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500/20 focus:border-green-500"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Status</label>
+              <label className="block text-sm font-medium text-foreground mb-2">Status</label>
               <select
-                value={filtroStatus}
-                onChange={(e) => setFiltroStatus(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-0 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-green-500/20 focus:border-green-500"
+                value={filtroStatusTemp}
+                onChange={(e) => setFiltroStatusTemp(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 dark:border-0 rounded-lg bg-card text-foreground focus:outline-none focus:ring-2 focus:ring-green-500/20 focus:border-green-500"
               >
                 <option value="">Todos os status</option>
                 <option value="ativo">Ativo</option>
@@ -273,12 +293,22 @@ export function ListarCondutores() {
 
             <div>
               <button
+                onClick={aplicarFiltros}
+                className="w-full px-4 py-2 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white rounded-lg font-semibold transition-all duration-200 flex items-center justify-center gap-2 shadow-lg hover:shadow-xl"
+              >
+                <Icon name="search" />
+                Filtrar
+              </button>
+            </div>
+
+            <div>
+              <button
                 onClick={limparFiltros}
                 className="w-full px-4 py-2 bg-red-50 hover:bg-red-100 dark:bg-red-900/20 dark:hover:bg-red-900/30 text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 border border-red-200 dark:border-red-800 rounded-lg font-semibold transition-all duration-200 flex items-center justify-center gap-2 shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
-                disabled={!filtro && !filtroCPF && !filtroStatus}
+                disabled={!filtroTemp && !filtroCPFTemp && !filtroStatusTemp}
               >
                 <Icon name="times" />
-                Limpar Filtros
+                Limpar
               </button>
             </div>
           </div>
@@ -300,22 +330,22 @@ export function ListarCondutores() {
         )}
 
         {/* Tabela */}
-        <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-0 shadow-sm">
+        <div className="bg-card rounded-lg border border-gray-200 dark:border-0 shadow-sm">
           {condutores.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-16 px-6">
               <div className="w-16 h-16 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center mb-4">
                 <Icon name="user" className="text-2xl text-gray-400" />
               </div>
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+              <h3 className="text-lg font-semibold text-foreground mb-2">
                 {(filtro || filtroStatus) ? 'Nenhum condutor encontrado com os filtros aplicados' : 'Nenhum condutor encontrado'}
               </h3>
-              <p className="text-gray-600 dark:text-gray-400 text-center">
+              <p className="text-muted-foreground text-center">
                 {(filtro || filtroStatus) ? 'Tente ajustar os filtros ou limpar para ver todos os condutores.' : 'Adicione um novo condutor para começar.'}
               </p>
             </div>
           ) : (
             <>
-              <div className="grid grid-cols-4 gap-4 p-4 bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-0 font-semibold text-gray-900 dark:text-white">
+              <div className="grid grid-cols-4 gap-4 p-4 bg-background dark:bg-gray-800 border-b border-gray-200 dark:border-0 font-semibold text-foreground">
                 <div className="text-center">Nome</div>
                 <div className="text-center">CPF</div>
                 <div className="text-center">Status</div>
@@ -323,12 +353,12 @@ export function ListarCondutores() {
               </div>
 
               {condutores.map((condutor) => (
-                <div key={condutor.id} className="grid grid-cols-4 gap-4 p-4 border-b border-gray-200 dark:border-0 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200">
+                <div key={condutor.id} className="grid grid-cols-4 gap-4 p-4 border-b border-gray-200 dark:border-0 hover:bg-background dark:hover:bg-gray-700 transition-colors duration-200">
                   <div className="text-center">
-                    <div className="font-medium text-gray-900 dark:text-white">{condutor.nome}</div>
+                    <div className="font-medium text-foreground">{condutor.nome}</div>
                   </div>
                   <div className="text-center">
-                    <div className="font-medium text-gray-900 dark:text-white">{formatCPF(condutor.cpf)}</div>
+                    <div className="font-medium text-foreground">{formatCPF(condutor.cpf)}</div>
                   </div>
                   <div className="text-center flex justify-center">
                     <span className={`text-sm font-semibold ${
@@ -370,9 +400,9 @@ export function ListarCondutores() {
 
         {/* Paginação */}
         {paginacao && paginacao.totalItems > 0 && (
-          <div className="mt-6 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-0 p-4 rounded-b-lg">
+          <div className="mt-6 bg-card border-t border-gray-200 dark:border-0 p-4 rounded-b-lg">
             <div className="flex flex-row justify-between items-center gap-4">
-              <div className="text-sm text-gray-600 dark:text-gray-400 text-left">
+              <div className="text-sm text-muted-foreground text-left">
                 Mostrando {paginacao.startItem || ((paginacao.currentPage - 1) * paginacao.pageSize) + 1} até {paginacao.endItem || Math.min(paginacao.currentPage * paginacao.pageSize, paginacao.totalItems)} de {paginacao.totalItems} condutores
               </div>
 
@@ -381,19 +411,19 @@ export function ListarCondutores() {
                   <button
                     onClick={() => setPaginaAtual(paginacao.currentPage - 1)}
                     disabled={!paginacao.hasPreviousPage}
-                    className="px-4 py-2 border border-gray-300 dark:border-0 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200 text-sm"
+                    className="px-4 py-2 border border-gray-300 dark:border-0 rounded-lg bg-card text-foreground hover:bg-background dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200 text-sm"
                   >
                     Anterior
                   </button>
 
-                  <span className="px-4 py-2 text-gray-900 dark:text-white font-medium text-sm whitespace-nowrap">
+                  <span className="px-4 py-2 text-foreground font-medium text-sm whitespace-nowrap">
                     {paginacao.currentPage} / {paginacao.totalPages}
                   </span>
 
                   <button
                     onClick={() => setPaginaAtual(paginacao.currentPage + 1)}
                     disabled={!paginacao.hasNextPage}
-                    className="px-4 py-2 border border-gray-300 dark:border-0 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200 text-sm"
+                    className="px-4 py-2 border border-gray-300 dark:border-0 rounded-lg bg-card text-foreground hover:bg-background dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200 text-sm"
                   >
                     Próxima
                   </button>
@@ -401,14 +431,14 @@ export function ListarCondutores() {
               )}
 
               <div className="flex items-center gap-2">
-                <label className="text-sm text-gray-700 dark:text-gray-300">Itens por página:</label>
+                <label className="text-sm text-foreground">Itens por página:</label>
                 <select
                   value={tamanhoPagina}
                   onChange={(e) => {
                     setTamanhoPagina(Number(e.target.value));
                     setPaginaAtual(1);
                   }}
-                  className="px-3 py-1 border border-gray-300 dark:border-0 rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-green-500/20 focus:border-green-500"
+                  className="px-3 py-1 border border-gray-300 dark:border-0 rounded bg-card text-foreground focus:outline-none focus:ring-2 focus:ring-green-500/20 focus:border-green-500"
                 >
                   <option value={5}>5</option>
                   <option value={10}>10</option>

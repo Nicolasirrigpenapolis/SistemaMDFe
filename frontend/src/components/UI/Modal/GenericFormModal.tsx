@@ -1,3 +1,4 @@
+// Teste de modificação - GenericFormModal.tsx
 import React, { useState, useEffect, useMemo } from 'react';
 import Icon from '../Icon';
 import { GenericFormModalProps, FormField, FormSection } from '../../../types/modal';
@@ -124,15 +125,26 @@ export function GenericFormModal<T = any>({
     }
   }, [isOpen, isEdit, isEditing]);
 
-  const handleFieldChange = (fieldKey: string, value: any) => {
-    // Use external field change handler if provided
-    if (onFieldChange) {
-      onFieldChange(fieldKey, value);
-    } else {
+  // Update internal formData when external data changes
+  useEffect(() => {
+    if (data && isOpen) {
       setFormData(prev => ({
         ...prev,
-        [fieldKey]: value
+        ...data
       }));
+    }
+  }, [data, isOpen]);
+
+  const handleFieldChange = (fieldKey: string, value: any) => {
+    // Always update internal state
+    setFormData(prev => ({
+      ...prev,
+      [fieldKey]: value
+    }));
+
+    // Also call external field change handler if provided
+    if (onFieldChange) {
+      onFieldChange(fieldKey, value);
     }
 
     // Clear error when user starts typing
@@ -221,7 +233,7 @@ export function GenericFormModal<T = any>({
     const hasError = !!errors[field.key];
     const colSpanClass = field.colSpan === 2 ? 'col-span-2' : field.colSpan === 3 ? 'col-span-3' : '';
 
-    const baseInputClass = `w-full px-4 py-3 border rounded-xl bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 transition-all duration-200 shadow-sm hover:shadow-md ${
+    const baseInputClass = `w-full px-4 py-3 border rounded-xl bg-card text-foreground focus:outline-none focus:ring-2 transition-all duration-200 shadow-sm hover:shadow-md ${
       hasError
         ? 'border-red-500 focus:ring-red-500 focus:border-red-500'
         : 'border-gray-300 dark:border-0 focus:ring-blue-500 focus:border-blue-500'
@@ -229,7 +241,7 @@ export function GenericFormModal<T = any>({
 
     return (
       <div key={field.key} className={`space-y-2 ${colSpanClass}`}>
-        <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300">
+        <label className="flex items-center gap-2 text-sm font-semibold text-foreground">
           {field.icon && <Icon name={field.icon} className={sectionColor} size="sm" />}
           {field.label}
           {field.required && <span className="text-red-500">*</span>}
@@ -239,7 +251,35 @@ export function GenericFormModal<T = any>({
           <SmartCNPJInput
             value={value}
             onChange={(cnpj, isValid) => handleFieldChange(field.key, cnpj)}
-            onDataFetch={field.onDataFetch}
+            onDataFetch={(data) => {
+              // Chamar o callback original se existir
+              if (field.onDataFetch) {
+                field.onDataFetch(data);
+              }
+
+              // Atualizar os campos do formulário automaticamente
+              if (data) {
+                const updates: Record<string, any> = {
+                  razaoSocial: data.razaoSocial || data.nome,
+                  nomeFantasia: data.nomeFantasia || data.fantasia,
+                  cep: data.cep,
+                  endereco: data.logradouro || data.endereco,
+                  numero: data.numero,
+                  complemento: data.complemento,
+                  bairro: data.bairro,
+                  municipio: data.municipio,
+                  uf: data.uf,
+                  codMunicipio: data.codMunicipio || 0
+                };
+
+                // Atualizar apenas campos que têm valores e não estão preenchidos
+                Object.entries(updates).forEach(([key, val]) => {
+                  if (val !== undefined && val !== null && (!formData[key] || formData[key] === '' || formData[key] === 0)) {
+                    handleFieldChange(key, val);
+                  }
+                });
+              }
+            }}
             autoValidate={true}
             autoFetch={field.autoFetch !== false}
             className={baseInputClass}
@@ -279,12 +319,12 @@ export function GenericFormModal<T = any>({
               className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
               disabled={field.disabled}
             />
-            <span className="text-sm text-gray-700 dark:text-gray-300">
+            <span className="text-sm text-foreground">
               {field.placeholder || field.label}
             </span>
           </div>
         ) : field.type === 'toggle' ? (
-          <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700/50 rounded-xl">
+          <div className="flex items-center justify-between p-4 bg-background dark:bg-gray-700/50 rounded-xl">
             <div className="flex items-center gap-3">
               <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
                 value ? 'bg-green-100 dark:bg-green-900/30' : 'bg-red-100 dark:bg-red-900/30'
@@ -294,7 +334,7 @@ export function GenericFormModal<T = any>({
                       size="lg" />
               </div>
               <div>
-                <div className="font-medium text-gray-900 dark:text-white">
+                <div className="font-medium text-foreground">
                   {value ? 'Ativo' : 'Inativo'}
                 </div>
                 <div className="text-sm text-gray-500 dark:text-gray-400">
@@ -313,7 +353,7 @@ export function GenericFormModal<T = any>({
               }`}
             >
               <span
-                className={`inline-block h-6 w-6 transform rounded-full bg-white transition-transform duration-200 ${
+                className={`inline-block h-6 w-6 transform rounded-full bg-card transition-transform duration-200 ${
                   value ? 'translate-x-7' : 'translate-x-1'
                 }`}
               />
@@ -371,6 +411,78 @@ export function GenericFormModal<T = any>({
             disabled={field.disabled}
             required={field.required}
           />
+        ) : field.type === 'file' || field.type === 'folder' ? (
+          <div className="flex gap-2">
+            <input
+              type="text"
+              value={value || ''}
+              onChange={(e) => handleFieldChange(field.key, e.target.value)}
+              className={baseInputClass}
+              placeholder={field.placeholder}
+              disabled={field.disabled}
+              required={field.required}
+            />
+            <button
+              type="button"
+              onClick={() => {
+                const input = document.createElement('input');
+                input.type = 'file';
+
+                if (field.type === 'file') {
+                  // Seletor de arquivo
+                  if (field.accept) {
+                    input.accept = field.accept;
+                  }
+                  input.onchange = (e: any) => {
+                    const file = e.target?.files?.[0];
+                    if (file) {
+                      // Tenta pegar o caminho completo (funciona em Electron)
+                      const path = (file as any).path || file.name;
+                      handleFieldChange(field.key, path);
+                    }
+                  };
+                } else {
+                  // Seletor de pasta
+                  (input as any).webkitdirectory = true;
+                  (input as any).directory = true;
+
+                  input.onchange = (e: any) => {
+                    const files = e.target?.files;
+                    if (files && files.length > 0) {
+                      const firstFile = files[0];
+
+                      // Tenta extrair o caminho da pasta
+                      let folderPath = '';
+
+                      // Método 1: Usar file.path do Electron
+                      if ((firstFile as any).path) {
+                        const fullPath = (firstFile as any).path;
+                        // Remove o nome do arquivo para ficar só com a pasta
+                        folderPath = fullPath.substring(0, fullPath.lastIndexOf('\\') || fullPath.lastIndexOf('/'));
+                      }
+                      // Método 2: Usar webkitRelativePath
+                      else if (firstFile.webkitRelativePath) {
+                        const parts = firstFile.webkitRelativePath.split('/');
+                        // O primeiro elemento é o nome da pasta selecionada
+                        folderPath = parts[0];
+                      }
+
+                      if (folderPath) {
+                        handleFieldChange(field.key, folderPath);
+                      }
+                    }
+                  };
+                }
+
+                input.click();
+              }}
+              className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors whitespace-nowrap flex items-center gap-2"
+              title={field.type === 'folder' ? 'Selecionar pasta' : 'Selecionar arquivo'}
+            >
+              <Icon name={field.type === 'file' ? 'file-alt' : 'folder'} size="sm" />
+              {(field as any).buttonLabel || 'Buscar'}
+            </button>
+          </div>
         ) : (
           <input
             type={field.type}
@@ -380,6 +492,7 @@ export function GenericFormModal<T = any>({
             placeholder={field.placeholder}
             maxLength={field.maxLength}
             disabled={field.disabled}
+            readOnly={field.readonly}
             required={field.required}
           />
         )}
@@ -412,9 +525,9 @@ export function GenericFormModal<T = any>({
             <Icon name={section.icon} className="text-white" size="sm" />
           </div>
           <div className="flex-1">
-            <h3 className="text-xl font-bold text-gray-900 dark:text-white">{section.title}</h3>
+            <h3 className="text-xl font-bold text-foreground">{section.title}</h3>
             {section.subtitle && (
-              <p className="text-gray-600 dark:text-gray-400 text-sm">{section.subtitle}</p>
+              <p className="text-muted-foreground text-sm">{section.subtitle}</p>
             )}
           </div>
           {section.collapsible && (
@@ -449,7 +562,7 @@ export function GenericFormModal<T = any>({
 
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className={`bg-white dark:bg-gray-900 rounded-xl shadow-2xl w-full ${modalSizeClass} max-h-[90vh] flex flex-col`}>
+      <div className={`bg-card dark:bg-gray-900 rounded-xl shadow-2xl w-full ${modalSizeClass} max-h-[90vh] flex flex-col`}>
 
         {/* Header */}
         <div
@@ -458,7 +571,7 @@ export function GenericFormModal<T = any>({
         >
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4 min-w-0 flex-1">
-              <div className="w-12 h-12 bg-white/15 backdrop-blur-sm rounded-xl flex items-center justify-center shadow-lg flex-shrink-0">
+              <div className="w-12 h-12 bg-card/15 backdrop-blur-sm rounded-xl flex items-center justify-center shadow-lg flex-shrink-0">
                 <Icon name={modalHeaderIcon} className="text-white" size="lg" />
               </div>
               <div className="min-w-0 flex-1">
@@ -473,7 +586,7 @@ export function GenericFormModal<T = any>({
               </div>
             </div>
             <button
-              className="w-10 h-10 bg-white/10 hover:bg-white/20 rounded-xl flex items-center justify-center transition-all duration-200 group backdrop-blur-sm flex-shrink-0"
+              className="w-10 h-10 bg-card/10 hover:bg-card/20 rounded-xl flex items-center justify-center transition-all duration-200 group backdrop-blur-sm flex-shrink-0"
               onClick={onCancel || onClose}
             >
               <Icon name="times" className="text-white group-hover:scale-110 transition-transform" size="lg" />
@@ -489,7 +602,7 @@ export function GenericFormModal<T = any>({
           </div>
 
           {/* Footer */}
-          <div className="flex-shrink-0 bg-gray-50 dark:bg-gray-800 border-t border-gray-200 dark:border-0 px-8 py-6">
+          <div className="flex-shrink-0 bg-background dark:bg-gray-800 border-t border-gray-200 dark:border-0 px-8 py-6">
             <div className="flex flex-row items-center justify-between gap-4">
               <p className="text-sm text-gray-500 dark:text-gray-400 text-left">
                 * Campos obrigatórios
@@ -517,7 +630,7 @@ export function GenericFormModal<T = any>({
                   type="button"
                   onClick={onCancel || onClose}
                   disabled={saving}
-                  className="w-auto order-1 px-6 py-3 border border-gray-300 dark:border-0 rounded-xl bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 font-medium hover:bg-gray-50 dark:hover:bg-gray-600 transition-all duration-200 shadow-sm hover:shadow-md disabled:opacity-50"
+                  className="w-auto order-1 px-6 py-3 border border-gray-300 dark:border-0 rounded-xl bg-card dark:bg-gray-700 text-foreground font-medium hover:bg-background dark:hover:bg-gray-600 transition-all duration-200 shadow-sm hover:shadow-md disabled:opacity-50"
                 >
                   Cancelar
                 </button>

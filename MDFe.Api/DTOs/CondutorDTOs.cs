@@ -11,7 +11,7 @@ namespace MDFeApi.DTOs
         public string Nome { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "CPF é obrigatório")]
-        [MaxLength(11, ErrorMessage = "CPF deve ter no máximo 11 caracteres")]
+        [MaxLength(14, ErrorMessage = "CPF deve ter no máximo 14 caracteres")]
         [Cpf(ErrorMessage = "CPF deve ser válido")]
         public string Cpf { get; set; } = string.Empty;
 

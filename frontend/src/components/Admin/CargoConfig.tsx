@@ -1,4 +1,4 @@
-import { FormField, ModalConfig } from '../../types/modal';
+import { ModalConfig } from '../../types/modal';
 
 export interface CargoFormData {
   nome: string;

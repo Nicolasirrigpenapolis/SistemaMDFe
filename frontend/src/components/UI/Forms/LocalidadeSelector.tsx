@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { localidadeService, Estado, Municipio, LocalCarregamento, RotaCalculada, OpcaoRota } from '../../../services/localidadeService';
+import React, { useState, useEffect, useCallback } from 'react';
+import { localidadeService, Estado, Municipio, LocalCarregamento, OpcaoRota } from '../../../services/localidadeService';
 import Icon from '../Icon';
 
 interface LocalidadeSelectorProps {
@@ -19,74 +19,38 @@ export function LocalidadeSelector({ locais, onChange, title, tipo, onRotaChange
   const [rotaCustomizada, setRotaCustomizada] = useState<string[]>([]);
   const [modoCustomizado, setModoCustomizado] = useState<boolean>(false);
   const [novoEstadoCustomizado, setNovoEstadoCustomizado] = useState<string>('');
+  const [isDarkMode, setIsDarkMode] = useState<boolean>(false);
 
+  // Detectar tema escuro
   useEffect(() => {
-    carregarEstados();
-  }, []);
-
-  // ✅ CORREÇÃO: Carregar municípios automaticamente quando dados forem restaurados
-  useEffect(() => {
-    const carregarMunicipiosRestaurados = async () => {
-      const ufsPendentes: string[] = [];
-
-      // Identificar UFs que precisam ter municípios carregados
-      for (const local of locais) {
-        if (local.uf && local.municipio && !municipiosPorUF[local.uf] && !ufsPendentes.includes(local.uf)) {
-          ufsPendentes.push(local.uf);
-        }
-      }
-
-      // Carregar municípios para cada UF pendente
-      for (const uf of ufsPendentes) {
-        await carregarMunicipios(uf);
-      }
+    const checkDarkMode = () => {
+      const isDark = document.documentElement.classList.contains('dark');
+      setIsDarkMode(isDark);
     };
 
-    if (locais.length > 0) {
-      carregarMunicipiosRestaurados();
-    }
-  }, [locais]);
+    // Verificar inicialmente
+    checkDarkMode();
 
-  // Recalcular rotas quando dados são carregados inicialmente ou restaurados
-  useEffect(() => {
-    // Para componente de descarregamento, verificar se temos dados válidos para rotas
-    if (tipo === 'descarregamento' && locaisOrigem && locais.length > 0) {
-      const carregamentoValido = locaisOrigem.find(local =>
-        local.uf && local.municipio && local.uf.trim() !== '' && local.municipio.trim() !== ''
-      );
-      const descarregamentoValido = locais.find(local =>
-        local.uf && local.municipio && local.uf.trim() !== '' && local.municipio.trim() !== ''
-      );
+    // Observar mudanças no tema
+    const observer = new MutationObserver(checkDarkMode);
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['class']
+    });
 
-      if (carregamentoValido && descarregamentoValido) {
-        setTimeout(() => {
-          calcularRota();
-        }, 100); // Small delay para garantir que o estado está atualizado
-      }
-    }
-  }, [locais, locaisOrigem, tipo]);
-
-  useEffect(() => {
-    if (locais.length >= 2) {
-      calcularRota();
-    } else {
-      // Rota limpa
-    }
-  }, [locais]);
-
-  // Recalcular rotas quando locais de origem mudarem (para componente de descarregamento)
-  useEffect(() => {
-    if (tipo === 'descarregamento' && locaisOrigem && locais.length > 0) {
-      calcularRota();
-    }
-  }, [locaisOrigem, locais]);
+    return () => observer.disconnect();
+  }, []);
 
   const carregarEstados = async () => {
     const estadosData = await localidadeService.obterEstados();
     setEstados(estadosData);
   };
 
-  const carregarMunicipios = async (uf: string) => {
+  useEffect(() => {
+    carregarEstados();
+  }, []);
+
+  const carregarMunicipios = useCallback(async (uf: string) => {
     if (!municipiosPorUF[uf]) {
       try {
         const municipios = await localidadeService.obterMunicipiosPorEstado(uf);
@@ -101,9 +65,9 @@ export function LocalidadeSelector({ locais, onChange, title, tipo, onRotaChange
         }));
       }
     }
-  };
+  }, [municipiosPorUF]);
 
-  const calcularRota = async () => {
+  const calcularRota = useCallback(async () => {
     // Para gerar rotas, precisamos ter pelo menos 1 local no componente atual
     // E para componente de descarregamento, precisamos ter locaisOrigem também
     if (locais.length > 0) {
@@ -144,7 +108,40 @@ export function LocalidadeSelector({ locais, onChange, title, tipo, onRotaChange
       setOpcoesRotas([]);
       setRotaSelecionada('');
     }
-  };
+  }, [locais, tipo, locaisOrigem, rotaSelecionada, onRotaChange]);
+
+  // Carregar municípios para UFs restauradas
+  useEffect(() => {
+    const carregarMunicipiosRestaurados = async () => {
+      const ufsPendentes: string[] = [];
+      for (const local of locais) {
+        if (local.uf && local.municipio && !municipiosPorUF[local.uf] && !ufsPendentes.includes(local.uf)) {
+          ufsPendentes.push(local.uf);
+        }
+      }
+      for (const uf of ufsPendentes) {
+        await carregarMunicipios(uf);
+      }
+    };
+    if (locais.length > 0) {
+      carregarMunicipiosRestaurados();
+    }
+  }, [locais, municipiosPorUF, carregarMunicipios]);
+
+  // Recalcular rotas
+  useEffect(() => {
+    if (tipo === 'descarregamento' && locaisOrigem && locais.length > 0) {
+      const carregamentoValido = locaisOrigem.find(local =>
+        local.uf && local.municipio && local.uf.trim() !== '' && local.municipio.trim() !== ''
+      );
+      const descarregamentoValido = locais.find(local =>
+        local.uf && local.municipio && local.uf.trim() !== '' && local.municipio.trim() !== ''
+      );
+      if (carregamentoValido && descarregamentoValido) {
+        setTimeout(() => calcularRota(), 100);
+      }
+    }
+  }, [locais, locaisOrigem, tipo, calcularRota]);
 
   const adicionarLocal = () => {
     const novoLocal: LocalCarregamento = {
@@ -282,13 +279,13 @@ export function LocalidadeSelector({ locais, onChange, title, tipo, onRotaChange
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
-        marginBottom: 'var(--space-4)'
+        marginBottom: '1.5rem'
       }}>
         <h5 style={{
           margin: 0,
           fontSize: '1.1rem',
           fontWeight: '600',
-          color: 'var(--color-text-primary)',
+          color: 'hsl(var(--foreground))',
           display: 'flex',
           alignItems: 'center',
           gap: '0.5rem'
@@ -330,15 +327,16 @@ export function LocalidadeSelector({ locais, onChange, title, tipo, onRotaChange
       {/* Lista de Locais */}
       {locais.length > 0 ? (
         <div style={{
-          border: '1px solid var(--color-border)',
+          border: '1px solid hsl(var(--border))',
           borderRadius: 'var(--border-radius-lg)',
-          background: 'var(--color-background-secondary)',
+          background: 'hsl(var(--muted))',
           overflow: 'hidden'
         }}>
           {locais.map((local, index) => (
             <div key={local.id || index} style={{
-              padding: 'var(--space-4)',
-              borderBottom: index < locais.length - 1 ? '1px solid var(--color-border)' : 'none'
+              padding: '1.5rem',
+              borderBottom: index < locais.length - 1 ? '1px solid hsl(var(--border))' : 'none',
+              marginBottom: index < locais.length - 1 ? '0.75rem' : '0'
             }}>
               <div style={{
                 display: 'flex',
@@ -367,7 +365,7 @@ export function LocalidadeSelector({ locais, onChange, title, tipo, onRotaChange
                     margin: 0,
                     fontSize: '0.9rem',
                     fontWeight: '600',
-                    color: 'var(--color-text-primary)'
+                    color: 'hsl(var(--foreground))'
                   }}>
                     Local {index + 1} de {tipo}
                   </h6>
@@ -401,7 +399,7 @@ export function LocalidadeSelector({ locais, onChange, title, tipo, onRotaChange
                     display: 'block',
                     fontSize: '0.875rem',
                     fontWeight: '600',
-                    color: 'var(--color-text-primary)',
+                    color: 'hsl(var(--foreground))',
                     marginBottom: '0.5rem'
                   }}>
                     Estado (UF) *
@@ -409,14 +407,13 @@ export function LocalidadeSelector({ locais, onChange, title, tipo, onRotaChange
                   <select
                     value={local.uf || ''}
                     onChange={(e) => atualizarLocal(index, 'uf', e.target.value)}
+                    className="bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
                     style={{
                       width: '100%',
                       padding: '0.75rem',
                       border: `2px solid ${'#d1d5db'}`,
                       borderRadius: '8px',
-                      fontSize: '0.875rem',
-                      background: 'white',
-                      color: '#1f2937'
+                      fontSize: '0.875rem'
                     }}
                     required
                   >
@@ -434,7 +431,7 @@ export function LocalidadeSelector({ locais, onChange, title, tipo, onRotaChange
                     display: 'block',
                     fontSize: '0.875rem',
                     fontWeight: '600',
-                    color: 'var(--color-text-primary)',
+                    color: 'hsl(var(--foreground))',
                     marginBottom: '0.5rem'
                   }}>
                     Município *
@@ -443,14 +440,13 @@ export function LocalidadeSelector({ locais, onChange, title, tipo, onRotaChange
                     value={local.municipio || ''}
                     onChange={(e) => atualizarLocal(index, 'municipio', e.target.value)}
                     disabled={!local.uf}
+                    className="bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
                     style={{
                       width: '100%',
                       padding: '0.75rem',
                       border: `2px solid ${'#d1d5db'}`,
                       borderRadius: '8px',
                       fontSize: '0.875rem',
-                      background: 'white',
-                      color: '#1f2937',
                       cursor: !local.uf ? 'not-allowed' : 'pointer',
                       opacity: !local.uf ? 0.6 : 1
                     }}
@@ -475,7 +471,7 @@ export function LocalidadeSelector({ locais, onChange, title, tipo, onRotaChange
                   background: 'rgba(16, 185, 129, 0.1)',
                   borderRadius: '6px',
                   fontSize: '0.75rem',
-                  color: 'var(--color-text-secondary)'
+                  color: 'hsl(var(--muted-foreground))'
                 }}>
                   <Icon name="check-circle" style={{ marginRight: '0.25rem' }} />
                   Código IBGE: {local.codigoIBGE}
@@ -486,11 +482,11 @@ export function LocalidadeSelector({ locais, onChange, title, tipo, onRotaChange
         </div>
       ) : (
         <div style={{
-          border: '2px dashed var(--color-border)',
+          border: '2px dashed hsl(var(--border))',
           borderRadius: 'var(--border-radius-lg)',
           padding: 'var(--space-6)',
           textAlign: 'center',
-          background: 'var(--color-background-secondary)'
+          background: 'hsl(var(--muted))'
         }}>
           <div style={{
             width: '48px',
@@ -511,13 +507,13 @@ export function LocalidadeSelector({ locais, onChange, title, tipo, onRotaChange
             margin: '0 0 0.5rem 0',
             fontSize: '1rem',
             fontWeight: '600',
-            color: 'var(--color-text-primary)'
+            color: 'hsl(var(--foreground))'
           }}>
             Nenhum local de {tipo} definido
           </h6>
           <p style={{
             margin: '0',
-            color: 'var(--color-text-secondary)',
+            color: 'hsl(var(--muted-foreground))',
             fontSize: '0.875rem'
           }}>
             Clique em "Adicionar Local" para definir os locais de {tipo}
@@ -530,14 +526,14 @@ export function LocalidadeSelector({ locais, onChange, title, tipo, onRotaChange
         <div style={{
           marginTop: '1.5rem',
           padding: '1.25rem',
-          background: false
+          background: isDarkMode
             ? 'linear-gradient(135deg, #1f2937 0%, #111827 100%)'
             : 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
           borderRadius: '12px',
-          border: false
+          border: isDarkMode
             ? '2px solid rgba(55, 65, 81, 0.8)'
             : '2px solid rgba(229, 231, 235, 0.8)',
-          boxShadow: false
+          boxShadow: isDarkMode
             ? '0 4px 20px rgba(0, 0, 0, 0.2)'
             : '0 4px 20px rgba(0, 0, 0, 0.08)',
           position: 'relative',
@@ -550,7 +546,7 @@ export function LocalidadeSelector({ locais, onChange, title, tipo, onRotaChange
             gap: '0.75rem',
             marginBottom: '1rem',
             paddingBottom: '0.75rem',
-            borderBottom: `2px solid ${false ? '#374151' : '#e5e7eb'}`
+            borderBottom: `2px solid ${isDarkMode ? '#374151' : '#e5e7eb'}`
           }}>
             <div style={{
               width: '36px',
@@ -571,7 +567,7 @@ export function LocalidadeSelector({ locais, onChange, title, tipo, onRotaChange
                 margin: 0,
                 fontSize: '1rem',
                 fontWeight: '700',
-                color: 'var(--color-text-primary)',
+                color: 'hsl(var(--foreground))',
                 letterSpacing: '-0.025em'
               }}>
                 Seleção de Percurso Fiscal
@@ -579,7 +575,7 @@ export function LocalidadeSelector({ locais, onChange, title, tipo, onRotaChange
               <p style={{
                 margin: '0.25rem 0 0 0',
                 fontSize: '0.8rem',
-                color: 'var(--color-text-secondary)',
+                color: 'hsl(var(--muted-foreground))',
                 fontWeight: '500'
               }}>
                 Configure o trajeto para emissão do MDF-e
@@ -588,10 +584,10 @@ export function LocalidadeSelector({ locais, onChange, title, tipo, onRotaChange
           </div>
 
           <div style={{
-            background: false
+            background: isDarkMode
               ? 'rgba(16, 185, 129, 0.1)'
               : 'rgba(16, 185, 129, 0.05)',
-            border: `1px solid ${false ? 'rgba(16, 185, 129, 0.3)' : 'rgba(16, 185, 129, 0.2)'}`,
+            border: `1px solid ${isDarkMode ? 'rgba(16, 185, 129, 0.3)' : 'rgba(16, 185, 129, 0.2)'}`,
             borderRadius: '6px',
             padding: '0.6rem 0.8rem',
             marginBottom: '1rem',
@@ -614,7 +610,7 @@ export function LocalidadeSelector({ locais, onChange, title, tipo, onRotaChange
             <p style={{
               margin: 0,
               fontSize: '0.8rem',
-              color: 'var(--color-text-primary)',
+              color: 'hsl(var(--foreground))',
               fontWeight: '500',
               lineHeight: '1.3'
             }}>
@@ -631,13 +627,13 @@ export function LocalidadeSelector({ locais, onChange, title, tipo, onRotaChange
                   padding: '1rem',
                   border: rotaSelecionada === opcao.id
                     ? '2px solid #059669'
-                    : `2px solid ${false ? '#374151' : '#e5e7eb'}`,
+                    : `2px solid ${isDarkMode ? '#374151' : '#e5e7eb'}`,
                   borderRadius: '8px',
                   background: rotaSelecionada === opcao.id
-                    ? false
+                    ? isDarkMode
                       ? 'rgba(5, 150, 105, 0.15)'
                       : 'rgba(5, 150, 105, 0.08)'
-                    : false
+                    : isDarkMode
                       ? 'rgba(55, 65, 81, 0.3)'
                       : 'rgba(255, 255, 255, 0.8)',
                   cursor: 'pointer',
@@ -645,13 +641,13 @@ export function LocalidadeSelector({ locais, onChange, title, tipo, onRotaChange
                   position: 'relative',
                   boxShadow: rotaSelecionada === opcao.id
                     ? '0 2px 12px rgba(5, 150, 105, 0.2)'
-                    : false
+                    : isDarkMode
                       ? '0 1px 4px rgba(0, 0, 0, 0.3)'
                       : '0 1px 4px rgba(0, 0, 0, 0.08)'
                 }}
                 onMouseEnter={(e) => {
                   if (rotaSelecionada !== opcao.id) {
-                    e.currentTarget.style.background = false
+                    e.currentTarget.style.background = isDarkMode
                       ? 'rgba(55, 65, 81, 0.5)'
                       : 'rgba(249, 250, 251, 1)';
                     e.currentTarget.style.borderColor = '#059669';
@@ -661,11 +657,11 @@ export function LocalidadeSelector({ locais, onChange, title, tipo, onRotaChange
                 }}
                 onMouseLeave={(e) => {
                   if (rotaSelecionada !== opcao.id) {
-                    e.currentTarget.style.background = false
+                    e.currentTarget.style.background = isDarkMode
                       ? 'rgba(55, 65, 81, 0.3)'
                       : 'rgba(255, 255, 255, 0.8)';
-                    e.currentTarget.style.borderColor = false ? '#374151' : '#e5e7eb';
-                    e.currentTarget.style.boxShadow = false
+                    e.currentTarget.style.borderColor = isDarkMode ? '#374151' : '#e5e7eb';
+                    e.currentTarget.style.boxShadow = isDarkMode
                       ? '0 2px 8px rgba(0, 0, 0, 0.3)'
                       : '0 2px 8px rgba(0, 0, 0, 0.08)';
                     e.currentTarget.style.transform = 'translateY(0)';
@@ -701,7 +697,7 @@ export function LocalidadeSelector({ locais, onChange, title, tipo, onRotaChange
                       margin: 0,
                       fontSize: '0.85rem',
                       fontWeight: '700',
-                      color: 'var(--color-text-primary)',
+                      color: 'hsl(var(--foreground))',
                       display: 'flex',
                       alignItems: 'center',
                       gap: '0.4rem'
@@ -714,7 +710,7 @@ export function LocalidadeSelector({ locais, onChange, title, tipo, onRotaChange
                     display: 'flex',
                     gap: '0.75rem',
                     fontSize: '0.7rem',
-                    color: 'var(--color-text-secondary)'
+                    color: 'hsl(var(--muted-foreground))'
                   }}>
                     <span>~{opcao.distancia.toLocaleString()} km</span>
                     <span>{opcao.estados} estados</span>
@@ -734,7 +730,7 @@ export function LocalidadeSelector({ locais, onChange, title, tipo, onRotaChange
                         background: index === 0 ? 'rgba(16, 185, 129, 0.2)' :
                                    index === opcao.percurso.length - 1 ? 'rgba(239, 68, 68, 0.2)' :
                                    'rgba(59, 130, 246, 0.2)',
-                        color: 'var(--color-text-primary)',
+                        color: 'hsl(var(--foreground))',
                         borderRadius: '16px',
                         fontSize: '0.8rem',
                         fontWeight: '700',
@@ -769,7 +765,7 @@ export function LocalidadeSelector({ locais, onChange, title, tipo, onRotaChange
                   alignItems: 'center',
                   gap: '0.5rem',
                   padding: '0.75rem 1.5rem',
-                  background: false
+                  background: isDarkMode
                     ? 'linear-gradient(135deg, #7c3aed, #5b21b6)'
                     : 'linear-gradient(135deg, #8b5cf6, #7c3aed)',
                   color: 'white',
@@ -802,10 +798,10 @@ export function LocalidadeSelector({ locais, onChange, title, tipo, onRotaChange
             <div style={{
               marginTop: '1.5rem',
               padding: '1.5rem',
-              background: false
+              background: isDarkMode
                 ? 'rgba(124, 58, 237, 0.1)'
                 : 'rgba(139, 92, 246, 0.05)',
-              border: `2px solid ${false ? 'rgba(124, 58, 237, 0.3)' : 'rgba(139, 92, 246, 0.2)'}`,
+              border: `2px solid ${isDarkMode ? 'rgba(124, 58, 237, 0.3)' : 'rgba(139, 92, 246, 0.2)'}`,
               borderRadius: '12px'
             }}>
               <div style={{
@@ -814,7 +810,7 @@ export function LocalidadeSelector({ locais, onChange, title, tipo, onRotaChange
                 gap: '1rem',
                 marginBottom: '1rem',
                 paddingBottom: '1rem',
-                borderBottom: `1px solid ${false ? 'rgba(124, 58, 237, 0.3)' : 'rgba(139, 92, 246, 0.2)'}`
+                borderBottom: `1px solid ${isDarkMode ? 'rgba(124, 58, 237, 0.3)' : 'rgba(139, 92, 246, 0.2)'}`
               }}>
                 <div style={{
                   width: '32px',
@@ -832,7 +828,7 @@ export function LocalidadeSelector({ locais, onChange, title, tipo, onRotaChange
                   margin: 0,
                   fontSize: '1rem',
                   fontWeight: '700',
-                  color: 'var(--color-text-primary)'
+                  color: 'hsl(var(--foreground))'
                 }}>
                   Rota Personalizada
                 </h6>
@@ -844,7 +840,7 @@ export function LocalidadeSelector({ locais, onChange, title, tipo, onRotaChange
                   display: 'block',
                   fontSize: '0.875rem',
                   fontWeight: '600',
-                  color: 'var(--color-text-primary)',
+                  color: 'hsl(var(--foreground))',
                   marginBottom: '0.5rem'
                 }}>
                   Percurso Atual:
@@ -855,9 +851,9 @@ export function LocalidadeSelector({ locais, onChange, title, tipo, onRotaChange
                   gap: '0.5rem',
                   minHeight: '2.5rem',
                   padding: '0.75rem',
-                  border: `2px solid ${false ? '#4b5563' : '#e5e7eb'}`,
+                  border: `2px solid ${isDarkMode ? '#4b5563' : '#e5e7eb'}`,
                   borderRadius: '8px',
-                  background: false ? '#374151' : '#f9fafb'
+                  background: isDarkMode ? '#374151' : '#f9fafb'
                 }}>
                   {rotaCustomizada.length > 0 ? (
                     rotaCustomizada.map((uf, index) => (
@@ -906,7 +902,7 @@ export function LocalidadeSelector({ locais, onChange, title, tipo, onRotaChange
                     ))
                   ) : (
                     <span style={{
-                      color: 'var(--color-text-secondary)',
+                      color: 'hsl(var(--muted-foreground))',
                       fontSize: '0.875rem',
                       fontStyle: 'italic'
                     }}>
@@ -925,14 +921,13 @@ export function LocalidadeSelector({ locais, onChange, title, tipo, onRotaChange
                 <select
                   value={novoEstadoCustomizado}
                   onChange={(e) => setNovoEstadoCustomizado(e.target.value)}
+                  className="bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
                   style={{
                     flex: 1,
                     padding: '0.75rem',
-                    border: `2px solid ${false ? '#4b5563' : '#e5e7eb'}`,
+                    border: `2px solid ${isDarkMode ? '#4b5563' : '#e5e7eb'}`,
                     borderRadius: '8px',
-                    fontSize: '0.875rem',
-                    background: 'white',
-                    color: '#1f2937'
+                    fontSize: '0.875rem'
                   }}
                 >
                   <option value="">Selecione um estado para adicionar</option>
@@ -951,8 +946,8 @@ export function LocalidadeSelector({ locais, onChange, title, tipo, onRotaChange
                     padding: '0.75rem 1.5rem',
                     background: novoEstadoCustomizado
                       ? 'linear-gradient(135deg, #10b981, #059669)'
-                      : 'var(--color-border)',
-                    color: novoEstadoCustomizado ? 'white' : 'var(--color-text-secondary)',
+                      : 'hsl(var(--border))',
+                    color: novoEstadoCustomizado ? 'white' : 'hsl(var(--muted-foreground))',
                     border: 'none',
                     borderRadius: '8px',
                     cursor: novoEstadoCustomizado ? 'pointer' : 'not-allowed',
@@ -979,8 +974,8 @@ export function LocalidadeSelector({ locais, onChange, title, tipo, onRotaChange
                   style={{
                     padding: '0.75rem 1.5rem',
                     background: 'transparent',
-                    color: 'var(--color-text-secondary)',
-                    border: `2px solid ${false ? '#4b5563' : '#e5e7eb'}`,
+                    color: 'hsl(var(--muted-foreground))',
+                    border: `2px solid ${isDarkMode ? '#4b5563' : '#e5e7eb'}`,
                     borderRadius: '8px',
                     cursor: 'pointer',
                     fontWeight: '600',
@@ -996,8 +991,8 @@ export function LocalidadeSelector({ locais, onChange, title, tipo, onRotaChange
                     padding: '0.75rem 1.5rem',
                     background: rotaCustomizada.length >= 2
                       ? 'linear-gradient(135deg, #8b5cf6, #7c3aed)'
-                      : 'var(--color-border)',
-                    color: rotaCustomizada.length >= 2 ? 'white' : 'var(--color-text-secondary)',
+                      : 'hsl(var(--border))',
+                    color: rotaCustomizada.length >= 2 ? 'white' : 'hsl(var(--muted-foreground))',
                     border: 'none',
                     borderRadius: '8px',
                     cursor: rotaCustomizada.length >= 2 ? 'pointer' : 'not-allowed',
@@ -1018,10 +1013,10 @@ export function LocalidadeSelector({ locais, onChange, title, tipo, onRotaChange
           <div style={{
             marginTop: '1.5rem',
             padding: '1rem',
-            background: false
+            background: isDarkMode
               ? 'rgba(55, 65, 81, 0.3)'
               : 'rgba(249, 250, 251, 0.8)',
-            border: `1px solid ${false ? '#4b5563' : '#d1d5db'}`,
+            border: `1px solid ${isDarkMode ? '#4b5563' : '#d1d5db'}`,
             borderRadius: '8px',
             display: 'flex',
             alignItems: 'flex-start',
@@ -1044,7 +1039,7 @@ export function LocalidadeSelector({ locais, onChange, title, tipo, onRotaChange
               <p style={{
                 margin: '0 0 0.25rem 0',
                 fontSize: '0.8rem',
-                color: 'var(--color-text-primary)',
+                color: 'hsl(var(--foreground))',
                 fontWeight: '600'
               }}>
                 Informações Técnicas
@@ -1052,7 +1047,7 @@ export function LocalidadeSelector({ locais, onChange, title, tipo, onRotaChange
               <p style={{
                 margin: 0,
                 fontSize: '0.75rem',
-                color: 'var(--color-text-secondary)',
+                color: 'hsl(var(--muted-foreground))',
                 lineHeight: '1.4'
               }}>
                 As rotas são calculadas considerando as divisas estaduais e legislação de trânsito interestadual.

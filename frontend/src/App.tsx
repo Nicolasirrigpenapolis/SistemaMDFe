@@ -1,4 +1,8 @@
+// Teste de modificação - App.tsx
 import { BrowserRouter, useLocation } from 'react-router-dom';
+import { QueryClientProvider } from '@tanstack/react-query';
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
+import { queryClient } from './config/queryClient';
 import { ThemeProvider } from './contexts/ThemeContext';
 import { AuthProvider } from './contexts/AuthContext';
 import { PermissionProvider } from './contexts/PermissionContext';
@@ -24,15 +28,18 @@ function AppContent() {
 
 function App() {
   return (
-    <ThemeProvider>
-      <AuthProvider>
-        <PermissionProvider>
-          <BrowserRouter>
-            <AppContent />
-          </BrowserRouter>
-        </PermissionProvider>
-      </AuthProvider>
-    </ThemeProvider>
+    <QueryClientProvider client={queryClient}>
+      <ThemeProvider>
+        <AuthProvider>
+          <PermissionProvider>
+            <BrowserRouter>
+              <AppContent />
+            </BrowserRouter>
+          </PermissionProvider>
+        </AuthProvider>
+      </ThemeProvider>
+      <ReactQueryDevtools initialIsOpen={false} />
+    </QueryClientProvider>
   );
 }
 

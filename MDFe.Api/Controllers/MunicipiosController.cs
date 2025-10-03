@@ -4,6 +4,7 @@ using MDFeApi.Data;
 using MDFeApi.Models;
 using MDFeApi.DTOs;
 using MDFeApi.Interfaces;
+using MDFeApi.Services;
 using System.Diagnostics;
 
 namespace MDFeApi.Controllers
@@ -13,8 +14,12 @@ namespace MDFeApi.Controllers
     {
         private readonly IIBGEService _ibgeService;
 
-        public MunicipiosController(MDFeContext context, IIBGEService ibgeService, ILogger<MunicipiosController> logger)
-            : base(context, logger)
+        public MunicipiosController(
+            MDFeContext context,
+            IIBGEService ibgeService,
+            ILogger<MunicipiosController> logger,
+            ICacheService cacheService)
+            : base(context, logger, cacheService)
         {
             _ibgeService = ibgeService;
         }
@@ -113,15 +118,37 @@ namespace MDFeApi.Controllers
         #region Métodos específicos de Município
 
         /// <summary>
-        /// Obter municípios por UF (método personalizado)
+        /// Obter municípios por UF (método personalizado com paginação)
         /// </summary>
         [HttpGet("por-uf/{uf}")]
         public async Task<ActionResult<PagedResult<MunicipioDto>>> GetMunicipiosPorUf(
             string uf,
-            [FromQuery] PaginationRequest request)
+            [FromQuery] PaginationRequest? request)
         {
             try
             {
+                // Se não vier request, retornar TODOS os municípios (para dropdowns/combobox)
+                if (request == null || (request.Page == 1 && request.PageSize == 10))
+                {
+                    var todosMunicipios = await _context.Municipios
+                        .Where(m => m.Ativo && m.Uf == uf.ToUpper())
+                        .OrderBy(m => m.Nome)
+                        .ToListAsync();
+
+                    var result = new PagedResult<MunicipioListDto>
+                    {
+                        Items = todosMunicipios.Select(EntityToListDto).ToList(),
+                        TotalItems = todosMunicipios.Count,
+                        Page = 1,
+                        PageSize = todosMunicipios.Count,
+                        TotalPages = 1,
+                        HasNextPage = false,
+                        HasPreviousPage = false
+                    };
+
+                    return Ok(result);
+                }
+
                 var query = _context.Municipios
                     .Where(m => m.Ativo && m.Uf == uf.ToUpper())
                     .AsQueryable();
@@ -142,7 +169,7 @@ namespace MDFeApi.Controllers
                     .Take(request.PageSize)
                     .ToListAsync();
 
-                var result = new PagedResult<MunicipioListDto>
+                var pagedResult = new PagedResult<MunicipioListDto>
                 {
                     Items = items.Select(EntityToListDto).ToList(),
                     TotalItems = totalItems,
@@ -153,7 +180,7 @@ namespace MDFeApi.Controllers
                     HasPreviousPage = request.Page > 1
                 };
 
-                return Ok(result);
+                return Ok(pagedResult);
             }
             catch (Exception ex)
             {

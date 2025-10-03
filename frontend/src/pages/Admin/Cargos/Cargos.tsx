@@ -11,6 +11,11 @@ export function Cargos() {
   const { user } = useAuth();
   const [cargos, setCargos] = useState<Cargo[]>([]);
   const [carregando, setCarregando] = useState(false);
+
+  const [filtroTemp, setFiltroTemp] = useState('');
+  const [filtroStatusTemp, setFiltroStatusTemp] = useState('');
+  const [filtroDescricaoTemp, setFiltroDescricaoTemp] = useState('');
+
   const [filtro, setFiltro] = useState('');
   const [filtroStatus, setFiltroStatus] = useState('');
   const [filtroDescricao, setFiltroDescricao] = useState('');
@@ -149,7 +154,7 @@ export function Cargos() {
       <div className="max-w-7xl mx-auto px-6 py-8">
         <div className="text-center py-16">
           <Icon name="lock" className="text-gray-400 mx-auto mb-4" size="lg" />
-          <h3 className="text-lg font-medium text-gray-900 mb-2">Acesso Restrito</h3>
+          <h3 className="text-lg font-medium text-foreground mb-2">Acesso Restrito</h3>
           <p className="text-gray-500">
             Apenas usuários com cargo 'Programador' podem gerenciar cargos.
           </p>
@@ -159,7 +164,7 @@ export function Cargos() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="min-h-screen bg-background">
       <div className="w-full px-6 py-8">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-4">
@@ -167,8 +172,8 @@ export function Cargos() {
               <i className="fas fa-user-cog text-white text-xl"></i>
             </div>
             <div>
-              <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-1">Cargos</h1>
-              <p className="text-gray-600 dark:text-gray-400 text-lg">Gerencie os cargos e permissões do sistema</p>
+              <h1 className="text-3xl font-bold text-foreground mb-1">Cargos</h1>
+              <p className="text-muted-foreground text-lg">Gerencie os cargos e permissões do sistema</p>
             </div>
           </div>
           <button
@@ -181,36 +186,38 @@ export function Cargos() {
         </div>
 
       {/* Filtros */}
-      <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-0 p-6 mb-6">
-        <div className="grid grid-cols-4 gap-4 items-end">
+      <div className="bg-card rounded-lg border border-gray-200 dark:border-0 p-6 mb-6">
+        <div className="grid grid-cols-5 gap-4 items-end">
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Buscar por Nome</label>
+            <label className="block text-sm font-medium text-foreground mb-2">Buscar por Nome</label>
             <input
               type="text"
               placeholder="Nome do cargo..."
-              value={filtro}
-              onChange={(e) => setFiltro(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-0 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+              value={filtroTemp}
+              onChange={(e) => setFiltroTemp(e.target.value)}
+              onKeyPress={(e) => e.key === 'Enter' && (setFiltro(filtroTemp), setFiltroDescricao(filtroDescricaoTemp), setFiltroStatus(filtroStatusTemp))}
+              className="w-full px-3 py-2 border border-gray-300 dark:border-0 rounded-lg bg-card text-foreground placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Buscar por Descrição</label>
+            <label className="block text-sm font-medium text-foreground mb-2">Buscar por Descrição</label>
             <input
               type="text"
               placeholder="Descrição do cargo..."
-              value={filtroDescricao}
-              onChange={(e) => setFiltroDescricao(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-0 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+              value={filtroDescricaoTemp}
+              onChange={(e) => setFiltroDescricaoTemp(e.target.value)}
+              onKeyPress={(e) => e.key === 'Enter' && (setFiltro(filtroTemp), setFiltroDescricao(filtroDescricaoTemp), setFiltroStatus(filtroStatusTemp))}
+              className="w-full px-3 py-2 border border-gray-300 dark:border-0 rounded-lg bg-card text-foreground placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Status</label>
+            <label className="block text-sm font-medium text-foreground mb-2">Status</label>
             <select
-              value={filtroStatus}
-              onChange={(e) => setFiltroStatus(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-0 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+              value={filtroStatusTemp}
+              onChange={(e) => setFiltroStatusTemp(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 dark:border-0 rounded-lg bg-card text-foreground focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
             >
               <option value="">Todos os status</option>
               <option value="ativo">Ativo</option>
@@ -220,12 +227,22 @@ export function Cargos() {
 
           <div>
             <button
-              onClick={limparFiltros}
+              onClick={() => { setFiltro(filtroTemp); setFiltroDescricao(filtroDescricaoTemp); setFiltroStatus(filtroStatusTemp); }}
+              className="w-full px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-lg font-semibold transition-all duration-200 flex items-center justify-center gap-2 shadow-lg hover:shadow-xl"
+            >
+              <Icon name="search" />
+              Filtrar
+            </button>
+          </div>
+
+          <div>
+            <button
+              onClick={() => { setFiltroTemp(''); setFiltroDescricaoTemp(''); setFiltroStatusTemp(''); setFiltro(''); setFiltroDescricao(''); setFiltroStatus(''); }}
               className="w-full px-4 py-2 bg-red-50 hover:bg-red-100 dark:bg-red-900/20 dark:hover:bg-red-900/30 text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 border border-red-200 dark:border-red-800 rounded-lg font-semibold transition-all duration-200 flex items-center justify-center gap-2 shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
-              disabled={!filtro && !filtroDescricao && !filtroStatus}
+              disabled={!filtroTemp && !filtroDescricaoTemp && !filtroStatusTemp}
             >
               <Icon name="times" />
-              Limpar Filtros
+              Limpar
             </button>
           </div>
         </div>
@@ -246,25 +263,25 @@ export function Cargos() {
         </div>
       )}
 
-      <div className="bg-bg-surface rounded-xl border border-border-primary shadow-sm">
+      <div className="bg-card rounded-xl border border-border shadow-sm">
         {carregando ? (
           <div className="flex items-center justify-center py-16">
             <div className="flex items-center gap-4">
               <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
-              <span className="text-text-secondary">Carregando cargos...</span>
+              <span className="text-muted-foreground">Carregando cargos...</span>
             </div>
           </div>
         ) : cargosFiltrados.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-16 px-6">
             <Icon name="briefcase" className="text-gray-400 mx-auto mb-4" size="lg" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">Nenhum cargo encontrado</h3>
+            <h3 className="text-lg font-medium text-foreground mb-2">Nenhum cargo encontrado</h3>
             <p className="text-gray-500 mb-4">
               {filtro ? 'Nenhum cargo corresponde aos critérios de busca.' : 'Adicione um novo cargo para começar.'}
             </p>
           </div>
         ) : (
           <div className="overflow-x-auto">
-            <div className="grid grid-cols-6 gap-4 p-4 bg-bg-tertiary border-b border-border-primary font-semibold text-text-primary">
+            <div className="grid grid-cols-6 gap-4 p-4 bg-muted border-b border-border font-semibold text-foreground">
               <div>Nome</div>
               <div>Descrição</div>
               <div>Usuários</div>
@@ -273,12 +290,12 @@ export function Cargos() {
               <div>Ações</div>
             </div>
             {cargosFiltrados.map((cargo) => (
-              <div key={cargo.id} className="grid grid-cols-6 gap-4 p-4 border-b border-border-primary hover:bg-bg-tertiary transition-colors duration-200">
+              <div key={cargo.id} className="grid grid-cols-6 gap-4 p-4 border-b border-border hover:bg-muted transition-colors duration-200">
                 <div>
-                  <strong className="text-text-primary">{cargo.nome}</strong>
+                  <strong className="text-foreground">{cargo.nome}</strong>
                 </div>
                 <div>
-                  <span className="text-text-secondary">
+                  <span className="text-muted-foreground">
                     {cargo.descricao || '-'}
                   </span>
                 </div>

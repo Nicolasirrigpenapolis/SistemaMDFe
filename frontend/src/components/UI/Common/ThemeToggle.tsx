@@ -10,10 +10,10 @@ export function ThemeToggle() {
       onClick={toggleTheme}
       className="
         p-2 rounded-lg border-2 transition-all duration-200 ease-in-out
-        bg-white dark:bg-gray-800
+        bg-card
         border-gray-200 dark:border-0
-        text-gray-700 dark:text-gray-300
-        hover:bg-gray-50 dark:hover:bg-gray-700
+        text-foreground
+        hover:bg-background dark:hover:bg-gray-700
         hover:border-gray-300 dark:hover:border-0
         focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50
         shadow-sm hover:shadow-md

@@ -27,22 +27,4 @@
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
   </ItemGroup>
 
-  <!-- Copiar DLLs ACBr x64 MultiThread Cdecl (recomendado para ASP.NET) -->
-  <ItemGroup>
-    <Content Include="../MDFe_Package/Binaries/x64/MT_Cdecl/*.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-  </ItemGroup>
-
-  <!-- Copiar arquivos de configuração e schemas do MDFe_Package -->
-  <ItemGroup>
-    <Content Include="../MDFe_Package/Config/*.ini">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="../MDFe_Package/Schemas/MDFe/*.xsd">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      <TargetPath>Schemas/MDFe/%(Filename)%(Extension)</TargetPath>
-    </Content>
-  </ItemGroup>
-
 </Project>

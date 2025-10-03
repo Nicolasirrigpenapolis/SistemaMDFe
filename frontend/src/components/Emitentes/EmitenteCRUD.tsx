@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { GenericViewModal } from '../UI/Modal/GenericViewModal';
 import { GenericFormModal } from '../UI/Modal/GenericFormModal';
 import { ConfirmDeleteModal } from '../UI/Modal/ConfirmDeleteModal';
 import { emitenteConfig } from './EmitenteConfig';
-import { formatCNPJ, formatCPF, cleanNumericString } from '../../utils/formatters';
+import { formatCNPJ, formatCPF } from '../../utils/formatters';
 
 interface Emitente {
   id?: number;

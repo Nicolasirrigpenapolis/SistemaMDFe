@@ -1,3 +1,4 @@
+// Teste de modificação - Program.cs
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -56,6 +57,9 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
+// Register cache service
+builder.Services.AddSingleton<ICacheService, CacheService>();
+
 // Register application services
 builder.Services.AddScoped<IMDFeService, MDFeService>();
 builder.Services.AddScoped<IMDFeBusinessService, MDFeBusinessService>();
@@ -78,12 +82,25 @@ builder.Services.AddHttpClient();
 // Configure Health Checks
 builder.Services.AddHealthChecks()
     .AddCheck<DatabaseHealthCheck>("database", tags: new[] { "db", "ready" })
-    .AddCheck<IBGEServiceHealthCheck>("ibge_service", tags: new[] { "external", "ready" });
+    .AddCheck<IBGEServiceHealthCheck>("ibge_service", tags: new[] { "external", "ready" })
+    .AddCheck<ACBrMonitorHealthCheck>("acbr_monitor", tags: new[] { "acbr", "ready" });
 
 // Register health check dependencies
 builder.Services.AddHttpClient<IBGEServiceHealthCheck>();
 
-// ACBr configuration removed - will be reintegrated in future versions
+// Registrar serviços ACBr Monitor
+builder.Services.AddSingleton<IACBrMonitorClient>(provider =>
+{
+    var logger = provider.GetRequiredService<ILogger<ACBrMonitorClient>>();
+    var host = builder.Configuration["ACBrMonitor:Host"] ?? "127.0.0.1";
+    var port = builder.Configuration.GetValue<int>("ACBrMonitor:Port", 3434);
+    var timeout = builder.Configuration.GetValue<int>("ACBrMonitor:Timeout", 30000);
+
+    return new ACBrMonitorClient(host, port, timeout, logger);
+});
+
+builder.Services.AddScoped<IACBrResponseParser, ACBrResponseParser>();
+builder.Services.AddScoped<IMDFeIniGenerator, MDFeIniGenerator>();
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();

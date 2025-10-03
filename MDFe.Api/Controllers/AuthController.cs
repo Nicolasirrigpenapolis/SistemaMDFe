@@ -1,3 +1,4 @@
+// Teste de modificação - AuthController.cs
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
@@ -221,6 +222,13 @@ namespace MDFeApi.Controllers
                     await _context.SaveChangesAsync();
                 }
 
+                // Atribuir todas as permissões ao cargo Programador
+                var todasPermissoes = await _context.Permissoes.Where(p => p.Ativo).ToListAsync();
+                foreach (var permissao in todasPermissoes)
+                {
+                    await _permissaoService.AtribuirPermissaoToCargoAsync(cargo.Id, permissao.Id);
+                }
+
                 // Criar usuário master
                 var masterUser = new Usuario
                 {
@@ -235,7 +243,53 @@ namespace MDFeApi.Controllers
                 _context.Usuarios.Add(masterUser);
                 await _context.SaveChangesAsync();
 
-                return Ok(new { message = "Usuário master criado com sucesso", username = "master", password = "master123" });
+                return Ok(new {
+                    message = "Usuário master criado com sucesso",
+                    username = "master",
+                    password = "master123",
+                    permissoesAtribuidas = todasPermissoes.Count
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Erro interno do servidor", error = ex.Message });
+            }
+        }
+
+        [HttpPost("fix-programador-permissions")]
+        public async Task<IActionResult> FixProgramadorPermissions()
+        {
+            try
+            {
+                // Buscar cargo Programador
+                var cargo = await _context.Cargos.FirstOrDefaultAsync(c => c.Nome == "Programador");
+                if (cargo == null)
+                {
+                    return BadRequest(new { message = "Cargo Programador não encontrado" });
+                }
+
+                // Obter todas as permissões ativas
+                var todasPermissoes = await _context.Permissoes.Where(p => p.Ativo).ToListAsync();
+
+                // Atribuir todas as permissões ao cargo Programador
+                int permissoesAdicionadas = 0;
+                foreach (var permissao in todasPermissoes)
+                {
+                    var existe = await _context.CargoPermissoes
+                        .AnyAsync(cp => cp.CargoId == cargo.Id && cp.PermissaoId == permissao.Id);
+
+                    if (!existe)
+                    {
+                        await _permissaoService.AtribuirPermissaoToCargoAsync(cargo.Id, permissao.Id);
+                        permissoesAdicionadas++;
+                    }
+                }
+
+                return Ok(new {
+                    message = "Permissões do cargo Programador atualizadas",
+                    totalPermissoes = todasPermissoes.Count,
+                    permissoesAdicionadas = permissoesAdicionadas
+                });
             }
             catch (Exception ex)
             {
