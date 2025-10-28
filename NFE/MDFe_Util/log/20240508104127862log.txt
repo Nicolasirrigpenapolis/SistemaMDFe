@@ -1,0 +1,10 @@
+Timestamp=[08/05/2024 10:41:27]
+WS=[ConsultaMDFe]
+URL=[]
+ambiente=[1]
+certificado=[]
+erro=[6206 - Erro: O nome do titular do certificado deve ser informado]
+msgDados=[]
+msgRetWS=[]
+
+DLL=[MDFe_Utilv3.04d [3.0.4.4] 19-09-2019 - © 2019 - www.flexdocs.com.br - Todos os direitos reservados]

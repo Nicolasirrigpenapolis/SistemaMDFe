@@ -1,0 +1,20 @@
+'CUIDADO: ROTINA MANUAL
+'PROPOSITO: Quando o Grid pegar foco deixar em modo de digitação
+Private Sub picSel_Click()
+   'Inicio Manual
+   If mdiNFe.ActiveForm.vgTipo <> 5 Then picSel_DblClick
+   If mdiNFe.ActiveForm.vgTipo = 1 Then ItemClick SelectedItem 'Manual
+   If mdiNFe.ActiveForm.vgTipo = TP_RELAT Then ItemClick SelectedItem 'Manual
+   If mdiNFe.ActiveForm.vgTipo = TP_COMUM Then ItemClick SelectedItem 'Manual
+   'Fim Manual
+   
+   'RETIRADO AS LINHAS DE BAIXO
+   
+   'If Not vgHasChanged And Not vgIsPreEditing And Not vgFullRowSelect Then
+   '   If Timer - vgTimerLastClick < 1 Then
+   '      picSel_DblClick
+   '   End If
+   'ElseIf vgFullRowSelect Then
+   '   ItemClick SelectedItem
+   'End If
+End Sub

@@ -1,0 +1,18 @@
+'ROTINA MANUAL
+'PROPOSITO: Apagar o filtro da pesquisa sempre que fechar ela
+Public Sub ClearFilterBar()
+   'Antes
+   'Dim i As Integer
+   'For i = 1 To vgColumns.Count - 1
+   '   txtFilter(i).Text = ""
+   'Next
+   'Agora
+   'Inicio Manual
+   Dim i As Integer, Limpou As Boolean
+   For i = 0 To vgColumns.Count - 1
+      If txtFilter(i).Text <> "" Then Limpou = True
+      txtFilter(i).Text = ""
+   Next
+   If Limpou Then ApplyFilterAndOrder
+   'Fim Manual
+End Sub

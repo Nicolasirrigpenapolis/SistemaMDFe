@@ -1,0 +1,15 @@
+Use DADOSNFE
+
+INSERT INTO Icms ([Sequencia do icms], Uf, [Região], [Aliquota do icms], [Aliquota interna], [Codigo da uf], Inativo) Values(0,'','',0,0,0,0);
+INSERT INTO [Classificação Fiscal] ([Sequencia da Classificação], Ncm, [Descrição do ncm], [Percentual de ipi], [Produto diferido], Iva, Cest, Inativo) Values(0,'','',0,0,0,'',0);
+INSERT INTO Municipios ([Sequencia do municipio]) Values(0);
+INSERT INTO Geral ([Sequencia do geral]) Values(0);
+INSERT INTO Manifesto ([Sequencia do manifesto]) Values(0);
+INSERT INTO Geral ([Sequencia do geral], Transportadora, [Razão Social], Observação) Values(1,1,'O Mesmo', 'Obs não Deletar esse Registro usado Como Transportadora qdo o Proprio Cliente Fizer o Frete');
+INSERT INTO [Natureza de operação] ([Sequencia da natureza]) Values(0);
+INSERT INTO [Nota fiscal] ([Sequencia da nota fiscal]) Values(0);
+INSERT INTO Unidades ([Sequencia da unidade]) Values(0);
+INSERT INTO [Produtos] ([Sequencia do produto]) Values(0);
+INSERT INTO [Finalidade da nfe] (Codigo,[Descrição]) Values(1,'Normal');
+INSERT INTO [Finalidade da nfe] (Codigo,[Descrição]) Values(2,'Complementar');
+INSERT INTO [Finalidade da nfe] (Codigo,[Descrição]) Values(4,'Devolução');

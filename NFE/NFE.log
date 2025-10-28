@@ -1,0 +1,119 @@
+Line 12: Class NFE.GPainel of control panTools was not a loaded control class.
+Line 31: Class NFE.GPainel of control Painel was not a loaded control class.
+Line 51: Class NFE.GBotao of control botInclui was not a loaded control class.
+Line 78: Class NFE.GBotao of control botCancela was not a loaded control class.
+Line 105: Class NFE.GBotao of control botBrowse was not a loaded control class.
+Line 154: Class NFE.GBotao of control botPrimeiro was not a loaded control class.
+Line 181: Class NFE.GBotao of control botAnterior was not a loaded control class.
+Line 208: Class NFE.GBotao of control botSeguinte was not a loaded control class.
+Line 235: Class NFE.GBotao of control botUltimo was not a loaded control class.
+Line 262: Class NFE.GBotao of control botImprime was not a loaded control class.
+Line 289: Class NFE.GBotao of control botExclui was not a loaded control class.
+Line 316: Class NFE.GBotao of control botSalva was not a loaded control class.
+Line 344: Class NFE.GBotao of control Botao was not a loaded control class.
+Line 15: The property name BevelOuter in panTools is invalid.
+Line 16: The property name BevelInner in panTools is invalid.
+Line 17: The property name BorderWidth in panTools is invalid.
+Line 18: The property name BevelWidth in panTools is invalid.
+Line 21: The property name Stretch in panTools is invalid.
+Line 22: The property name Stripes in panTools is invalid.
+Line 23: The property name SaveGridBars in panTools is invalid.
+Line 29: The property name _extentx in panTools is invalid.
+Line 30: The property name _extenty in panTools is invalid.
+Line 34: The property name BevelOuter in Painel is invalid.
+Line 35: The property name BevelInner in Painel is invalid.
+Line 36: The property name BorderWidth in Painel is invalid.
+Line 37: The property name BevelWidth in Painel is invalid.
+Line 40: The property name Stretch in Painel is invalid.
+Line 41: The property name Stripes in Painel is invalid.
+Line 42: The property name SaveGridBars in Painel is invalid.
+Line 48: The property name _extentx in Painel is invalid.
+Line 49: The property name _extenty in Painel is invalid.
+Line 52: The property name ButtonStyle in botInclui is invalid.
+Line 53: The property name JoinSeparators in botInclui is invalid.
+Line 54: The property name LeftSeparator in botInclui is invalid.
+Line 55: The property name TopSeparator in botInclui is invalid.
+Line 58: The property name ButtonType in botInclui is invalid.
+Line 63: The property name CaptionAlign in botInclui is invalid.
+Line 64: The property name CaptionOffset in botInclui is invalid.
+Line 75: The property name Caption in botInclui is invalid.
+Line 79: The property name ButtonStyle in botCancela is invalid.
+Line 80: The property name JoinSeparators in botCancela is invalid.
+Line 81: The property name LeftSeparator in botCancela is invalid.
+Line 82: The property name TopSeparator in botCancela is invalid.
+Line 85: The property name ButtonType in botCancela is invalid.
+Line 90: The property name CaptionAlign in botCancela is invalid.
+Line 91: The property name CaptionOffset in botCancela is invalid.
+Line 102: The property name Caption in botCancela is invalid.
+Line 106: The property name ButtonStyle in botBrowse is invalid.
+Line 107: The property name JoinSeparators in botBrowse is invalid.
+Line 108: The property name LeftSeparator in botBrowse is invalid.
+Line 109: The property name TopSeparator in botBrowse is invalid.
+Line 112: The property name ButtonType in botBrowse is invalid.
+Line 117: The property name CaptionAlign in botBrowse is invalid.
+Line 118: The property name CaptionOffset in botBrowse is invalid.
+Line 129: The property name Caption in botBrowse is invalid.
+Line 155: The property name ButtonStyle in botPrimeiro is invalid.
+Line 156: The property name JoinSeparators in botPrimeiro is invalid.
+Line 157: The property name LeftSeparator in botPrimeiro is invalid.
+Line 158: The property name TopSeparator in botPrimeiro is invalid.
+Line 161: The property name ButtonType in botPrimeiro is invalid.
+Line 166: The property name CaptionAlign in botPrimeiro is invalid.
+Line 167: The property name CaptionOffset in botPrimeiro is invalid.
+Line 178: The property name Caption in botPrimeiro is invalid.
+Line 182: The property name ButtonStyle in botAnterior is invalid.
+Line 183: The property name JoinSeparators in botAnterior is invalid.
+Line 184: The property name LeftSeparator in botAnterior is invalid.
+Line 185: The property name TopSeparator in botAnterior is invalid.
+Line 188: The property name ButtonType in botAnterior is invalid.
+Line 193: The property name CaptionAlign in botAnterior is invalid.
+Line 194: The property name CaptionOffset in botAnterior is invalid.
+Line 205: The property name Caption in botAnterior is invalid.
+Line 209: The property name ButtonStyle in botSeguinte is invalid.
+Line 210: The property name JoinSeparators in botSeguinte is invalid.
+Line 211: The property name LeftSeparator in botSeguinte is invalid.
+Line 212: The property name TopSeparator in botSeguinte is invalid.
+Line 215: The property name ButtonType in botSeguinte is invalid.
+Line 220: The property name CaptionAlign in botSeguinte is invalid.
+Line 221: The property name CaptionOffset in botSeguinte is invalid.
+Line 232: The property name Caption in botSeguinte is invalid.
+Line 236: The property name ButtonStyle in botUltimo is invalid.
+Line 237: The property name JoinSeparators in botUltimo is invalid.
+Line 238: The property name LeftSeparator in botUltimo is invalid.
+Line 239: The property name TopSeparator in botUltimo is invalid.
+Line 242: The property name ButtonType in botUltimo is invalid.
+Line 247: The property name CaptionAlign in botUltimo is invalid.
+Line 248: The property name CaptionOffset in botUltimo is invalid.
+Line 259: The property name Caption in botUltimo is invalid.
+Line 263: The property name ButtonStyle in botImprime is invalid.
+Line 264: The property name JoinSeparators in botImprime is invalid.
+Line 265: The property name LeftSeparator in botImprime is invalid.
+Line 266: The property name TopSeparator in botImprime is invalid.
+Line 269: The property name ButtonType in botImprime is invalid.
+Line 274: The property name CaptionAlign in botImprime is invalid.
+Line 275: The property name CaptionOffset in botImprime is invalid.
+Line 286: The property name Caption in botImprime is invalid.
+Line 290: The property name ButtonStyle in botExclui is invalid.
+Line 291: The property name JoinSeparators in botExclui is invalid.
+Line 292: The property name LeftSeparator in botExclui is invalid.
+Line 293: The property name TopSeparator in botExclui is invalid.
+Line 296: The property name ButtonType in botExclui is invalid.
+Line 301: The property name CaptionAlign in botExclui is invalid.
+Line 302: The property name CaptionOffset in botExclui is invalid.
+Line 313: The property name Caption in botExclui is invalid.
+Line 317: The property name ButtonStyle in botSalva is invalid.
+Line 318: The property name JoinSeparators in botSalva is invalid.
+Line 319: The property name LeftSeparator in botSalva is invalid.
+Line 320: The property name TopSeparator in botSalva is invalid.
+Line 323: The property name ButtonType in botSalva is invalid.
+Line 328: The property name CaptionAlign in botSalva is invalid.
+Line 329: The property name CaptionOffset in botSalva is invalid.
+Line 340: The property name Caption in botSalva is invalid.
+Line 345: The property name ButtonStyle in Botao is invalid.
+Line 346: The property name JoinSeparators in Botao is invalid.
+Line 347: The property name LeftSeparator in Botao is invalid.
+Line 348: The property name TopSeparator in Botao is invalid.
+Line 351: The property name ButtonType in Botao is invalid.
+Line 356: The property name CaptionAlign in Botao is invalid.
+Line 357: The property name CaptionOffset in Botao is invalid.
+Line 368: The property name Caption in Botao is invalid.

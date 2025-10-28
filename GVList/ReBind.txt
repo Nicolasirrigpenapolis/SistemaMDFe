@@ -1,0 +1,38 @@
+'ROTINA MANUAL
+'PROPOSITO: QUANDO SELECIONAR TODOS OS ITENS DO GRID RECALCULAR O SOMATORIO
+Public Sub ReBind()
+   On Error Resume Next
+   If Not vgTabela Is Nothing And vgHasChanged = False Then
+
+      'vamos zerar controle de bookmark
+      Call ResetBookMark
+      PrepareCacheTable -1
+
+      If Len(vgTabela.Source) > 0 Or Len(vgTabela.RsSource) > 0 Then
+         If vgTabela.AsyncComplete And vgTabela.RecordCount < 200000 Then
+            vgTabela.Requery
+            vgCacheFirst = -1
+            SetItemCount vgTabela.RecordCount
+         End If
+         'caso esteja em grid filho e está navegando no pai, sempre que reabrir o rs precisamos retirar a seleção para que
+         'quando o primeiro item for selecionado o evento LVN_ITEMCHANGED seja disparado...
+         SelecionaItem -1
+         Repaint -1
+         If vgTabela.RecordCount > 0 Then
+            vgRecPosAtual = 0
+            vgTabela.MoveFirst
+         End If
+         If vgIsPreEditing Then
+            vgColEditing = -1                              'vamos forçar
+            vgForcePosSel = True                           'redefinição
+         End If
+         If vgTabela.AsyncComplete Then
+            RaiseEvent RecordSetChanged(vgTabela)
+         End If
+      End If
+   End If
+   'Inicio Manual
+   FillScalarValues
+   'Fim Manual
+   Refresh
+End Sub

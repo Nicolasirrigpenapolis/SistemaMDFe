@@ -1,0 +1,199 @@
+'CUIDADO: ROTINA MANUAL
+'PROPOSITO: QUANDO O FORM TEM MAIS DE UM GRID AO EXCLUIR O REGISTRO PAI OS GRIDS NW PASSAVAM PELA FORMULA INVERSA SOMENTE O PRIMEIRO GRID
+Private Sub DeleteRows(Optional ByVal vgDeleteAllRecords As Boolean = False, Optional ByVal vgChangeStatus As Boolean = True)
+   Dim vgRowsSelectedOrig As String, i As Long, j As Long, vgDeleteBookmark() As Variant, vgDeleteList() As String, vgRow As Long, vgDeleted As Boolean, vgMessage As String, vgNumDeleted As Long, x As String, vgIniciouTrans As Boolean, vgTot As Long, vgColunas() As Variant, vgErr As Long, vgOrigCount As Long
+   On Error GoTo DeuErro
+   
+   If Len(vgRowsSelected$) = 0 And Not vgDeleteAllRecords Then Exit Sub
+   
+   FreezeListView True
+   
+   vgNumDeleted = 0
+   vgRowsSelectedOrig$ = vgRowsSelected$
+   
+   If vgAllowDelete And (vgInternalLst Or vgAllowDeleteDatabase) And (vgDeleteAllRecords Or Len(vgRowsSelected) > 0) Then                    'se tem permissão de apagar registros...
+      If Not vgDeleteAllRecords Then
+         i = Tally(vgRowsSelected, "|") - 1
+         If i = 1 Then
+            x = LoadGasString(150)
+         Else
+            x = Substitui$(LoadGasString(151), "{1}", CStr(i), SO_UM)
+         End If
+         If MsgBox(x, vbQuestion + vbYesNo) = vbNo Then
+            RestoreListView True
+            UserControl.SetFocus
+            Exit Sub
+         End If
+         vgRowsSelected = Mid(vgRowsSelected, 2)
+      End If
+      i = 0
+      If vgDeleteAllRecords Then
+         vgTot = vgNumItems
+      Else
+         ReDim vgDeleteList(0) As String
+         Do While Len(vgRowsSelected) > 0
+            i = i + 1
+            vgRow = Parse(vgRowsSelected, "|")
+            ReDim Preserve vgDeleteList(i) As String
+            vgDeleteList(i) = vgRow
+         Loop
+         OrdenaVetor vgDeleteList, 1, CLng(i)
+         vgTot = UBound(vgDeleteList)
+      End If
+      
+      'força retirar seleção e forçca skiprecord obrigando os grids "netos" terem seus recordsets fechados antes do inídio dessa transação
+      ResetBookMark
+      SelecionaItem -1
+      ResetBookMark
+      LocateRecordset -1, True
+      
+      'vamos atualizar o status para excluindo pois a afterbegin de um grid (f9) precisa fechar os recordsets filhos
+      If vgChangeStatus Then
+         RaiseEvent StatusChanged(ACAO_EXCLUINDO)
+      End If
+      
+      vgDb.BeginTrans
+      vgIniciouTrans = True
+      
+      vgOrigCount = vgNumItems                    'vamos guardar o número de itens originais
+      
+      'INICIO MANUAL
+      'ISSO JA FOI FEITO ANTERIORMENTE, MAS O RECORDSET NW TAVA ATUALIZADO
+      'ENTAO PRECISEI COLOCAR ESSA LINHA LOGO APÓS O vgdb.BeginTrans, POIS ELE ATUALIZA O RECORDSET
+      If vgDeleteAllRecords Then
+         vgTot = vgNumItems 'AHHHH GAS DE MERD.....
+      End If
+      'FIM MANUAL
+      
+      For i = vgTot To 1 Step -1
+         If vgDeleteAllRecords Then
+            vgRow = i - 1
+         Else
+            vgRow = Val(vgDeleteList(i))
+         End If
+         vgDeleted = False
+         
+         ResetBookMark
+         
+         SelecionaItem vgRow
+         
+         If vgChangeStatus Then
+            RaiseEvent StatusChanged(ACAO_EXCLUINDO)
+         End If
+         
+         ClearColumnDefinition
+         vgColunas = GetOriginalCols()            'pega colunas diretamente do rs, sem tentar pegar de cache... (pega do bookmark corrente)
+         
+         If Not vgUboundMode And Not vgManualDelete Then 'vamos fazer a deleção por aqui mesmo
+            vgDeleted = True
+            vgMessage = ""
+            RaiseEvent BeforeDeleteRecord(vgRow, vgColunas, vgDeleted, 0, vgMessage)
+            If vgDeleted Then                            'ocorreu algum erro...
+               vgTabela.Delete
+               vgDeleted = True
+               vgMessage = ""
+               RaiseEvent AfterDeleteRecord(vgRow, vgColunas, vgDeleted, 0, vgMessage)
+            End If
+         Else
+            RaiseEvent DeleteData(vgRow, vgColunas, vgDeleted, vgMessage)
+         End If
+         If vgDeleted Then
+            If Not vgDeleteAllRecords Then vgDeleteList(i) = ""
+            vgNumDeleted = vgNumDeleted + 1
+            SetItemCount vgOrigCount - vgNumDeleted
+         Else
+            If Len(vgMessage$) > 0 Then Error 3801
+            If Len(vgRowsSelected) = 0 Then vgRowsSelected = "|"
+            vgRowsSelected = vgRowsSelected + CStr(vgRow) + "|"
+         End If
+      Next
+      
+      'vamos atualizar novamente o status para excluindo, a DeleteData pode ter tirado o status, a a beforecommit de um grid (f9) precisará fechar os recordsets filhos
+      If vgChangeStatus Then
+         RaiseEvent StatusChanged(ACAO_EXCLUINDO)
+      End If
+      
+      vgDb.CommitTrans
+      If vgTabela.AsyncComplete Then FillScalarValues    'vamos atualizar os totais
+      vgIniciouTrans = False
+   End If
+   
+   'vamos zerar controle de bookmark
+   Call ResetBookMark
+      
+   If vgChangeStatus Then
+      RaiseEvent StatusChanged(ACAO_NAVEGANDO)
+   End If
+   
+   If vgNumDeleted > 0 Then
+      ReBind
+      SelecionaItem 0
+      PosicionaSelect
+      FillScalarValues                                   'atualiza os valores das barras de somatório, média, mínimo e máximo
+   End If
+   
+   If vgChangeStatus Then
+      Call RefreshStatus
+   End If
+   
+   RestoreListView True
+   
+   Exit Sub
+
+DeuErro:
+   vgDeleted = False
+   If Err Or Len(vgMessage$) > 0 Then
+      vgErr = Err
+      If InStr(vgMessage$, "|") > 0 Then
+         CErr.Mensagem = LoadGasString(3801)
+         CErr.Origem = Parse$(vgMessage$, "|")
+         CErr.NumErro = Val(vgMessage$)                  'deu erro
+         CErr.Description = Trim$(Mid$(vgMessage$, InStr(vgMessage$, "-") + 1))
+      Else
+         CErr.NumErro = 3801
+         If Len(vgMessage$) > 0 Then
+            CErr.Description = vgMessage$
+         ElseIf Err = 3600 Then
+            CErr.Description = LoadGasString(54)
+         Else
+            CErr.Description = CStr(Err) + " - " + Error$
+         End If
+      End If
+      CErr.Show
+   End If
+   If vgErr Then
+      Resume ResumeErro
+   Else
+      GoTo ResumeErro
+   End If
+   
+RollBackAll:
+   On Error Resume Next
+   If vgIniciouTrans Then
+      SetItemCount vgOrigCount                           'restaura número de itens original
+
+      'força retirar seleção e força skiprecord obrigando os grids "netos" terem seus recordsets fechados antes do fim dessa transação
+      ResetBookMark
+      SelecionaItem -1
+      ResetBookMark
+      LocateRecordset -1, True
+      
+      vgDb.RollBackTrans
+      vgTabela.CancelUpdate
+      vgIniciouTrans = False
+      ResetBookMark
+   End If
+   Return
+   
+ResumeErro:
+   GoSub RollBackAll
+   vgRowsSelected$ = vgRowsSelectedOrig$
+   If vgChangeStatus Then
+      RaiseEvent StatusChanged(ACAO_NAVEGANDO)
+   End If
+   ReBind
+   Refresh
+   Call RefreshStatus
+   Err.Clear
+   RestoreListView True
+End Sub

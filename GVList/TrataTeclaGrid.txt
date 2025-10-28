@@ -1,0 +1,276 @@
+'Rotina para tratamento das teclas de função do GRID
+'CUIDADO: ROTINA MANUAL
+'PROPOSITO: Como eu coloquei pro grid entrar em modo de digitação quando receber foco, entao eu tive que mudar uma linha para poder excluir o registro
+Private Function TrataTeclaGrid(ByRef KeyCode As Long, ByVal Shift As Long) As Boolean
+   Dim Cancel As Boolean, vgRow As Long, vgEnter As Boolean, vgAdd As Boolean, vgNav As GRID_NAVIGATION, Ok As Boolean, IsBoolean As Boolean, vgValidCol As Boolean, vgColEnabled As Boolean, vgColLocked As Boolean, vgNewCol As Integer, vgChanged As Boolean
+   Cancel = False
+   vgRow = SelectedItem
+   vgChanged = vgHasChanged
+   If vgAllowInsert And (Not vgInternalLst Or vgAllowInsertDatabase) And vgRow = vgNumItemsTot - 1 And vgChanged Then     'está incluindo
+      vgAdd = True
+   Else
+      vgAdd = False
+   End If
+   Ok = True
+   If vgColAtual <> -1 Then
+      If vgColumns(vgColAtual).ColumnType = TP_MEMO And vgColDefinitions(vgColAtual).Changed And txtEditMult.SelLength < Len(txtEditMult.Text) Then 'vamos deixar ENTER operar livremente dentro do memo só se já tiver mudado seu conteúdo
+         Ok = False
+      End If
+   End If
+   If KeyCode = vbKeyReturn And Ok Then
+      If vgChanged Or vgIsPreEditing Then
+         vgEnter = True
+      End If
+      If vgEnter Then
+         If (vgAdd And vgNavigationAddMode = GRID_NAVIGATION_AUTO) Or (Not vgAdd And vgNavigationEditNavigation = GRID_NAVIGATION_AUTO) Then
+            vgNav = vgNavigation
+         Else
+            If vgAdd Then
+               vgNav = vgNavigationAddMode
+            Else
+               vgNav = vgNavigationEditNavigation
+            End If
+         End If
+         Select Case vgNav
+            Case GRID_NAVIGATION_LEFT
+               KeyCode = vbKeyLeft
+            Case GRID_NAVIGATION_RIGHT
+               KeyCode = vbKeyRight
+            Case GRID_NAVIGATION_UP
+               KeyCode = vbKeyUp
+            Case GRID_NAVIGATION_DOWN
+               KeyCode = vbKeyDown
+         End Select
+      End If
+   End If
+   
+   'vamos ignorar essas teclas... (CTRL+ESPAÇO também... faz com que o selectecitem seja o -1 :&)
+   If ((Not vgFullRowSelect And vgColAtual = -1) Or SelectedItem = -1 Or (KeyCode = vbKeySpace And Shift = 2)) And KeyCode <> vbKeyDelete And KeyCode <> 16 And KeyCode <> 17 And KeyCode <> 18 Then
+      vgIgnoreKey = KeyCode
+      TrataTeclaGrid = True
+      Exit Function
+   End If
+   
+   Select Case KeyCode
+      Case vbKeyHome
+         If (vgChanged Or vgIsPreEditing) Then
+            If vgColAtual <> GetVisibleCol(COL_FIRST) And Shift = 2 Then   'CTRL+HOME (vamos para primeira coluna)
+               Cancel = False
+               If vgChanged Then
+                  Cancel = ValidateColumnGrid()
+               End If
+               If Not Cancel Then
+                  vgColAtual = GetVisibleCol(COL_FIRST, , vgChanged)
+                  AdjustColumn
+               End If
+            End If
+            Cancel = True                                                  'ignora o home no grid
+         ElseIf Shift = 2 Then
+            vgColAtual = GetVisibleCol(COL_FIRST)
+            AdjustColumn
+            Cancel = True
+         End If
+      Case vbKeyEnd
+         If (vgChanged Or vgIsPreEditing) Then
+            If vgColAtual <> GetVisibleCol(COL_LAST) And Shift = 2 Then    'CTRL+END (vamos para última coluna)
+               Cancel = False
+               If vgChanged Then
+                  Cancel = ValidateColumnGrid()
+               End If
+               If Not Cancel Then
+                  vgColAtual = GetVisibleCol(COL_LAST, , vgChanged)
+                  AdjustColumn
+               End If
+            End If
+            Cancel = True                                                  'ignora o home no grid
+         ElseIf Shift = 2 Then
+            vgColAtual = GetVisibleCol(COL_LAST)
+            AdjustColumn
+            Cancel = True
+         End If
+      Case vbKeyPageDown
+         If (vgChanged Or vgIsPreEditing) Then
+            Cancel = EndEditGrid(True, False)
+         End If
+         If SelectedItem = vgNumItemsTot - 1 Then
+            Cancel = True
+            vgIgnoreKey = KeyCode
+         End If
+      Case vbKeyPageUp
+         If (vgChanged Or vgIsPreEditing) Then
+            Cancel = EndEditGrid(True, False)
+         End If
+         If SelectedItem = 0 Then
+            Cancel = True
+            vgIgnoreKey = KeyCode
+         End If
+      Case vbKeyDown
+         If vgColumns(vgColAtual).ColumnType = TP_MEMO Then
+            If txtEditMult.SelLength = Len(txtEditMult.Text) Then
+               txtEditMult.SelLength = 0
+               txtEditMult.SelStart = Len(txtEditMult.Text)
+               Cancel = True
+            Else
+               Cancel = (GetEditCurrentLine < GetEditCountLine)
+            End If
+         ElseIf Val(vgColDefinitions(vgColAtual).ComboExtensor) > 0 And Not vgColumns(vgColAtual).HasChange And vgChanged And Shift = 0 Then
+            txtCampo.KeyDown (KeyCode), 0
+            Cancel = True
+         End If
+         If Not Cancel Then
+            Cancel = EndEditGrid(True, False)
+         End If
+         vgIgnoreKey = KeyCode
+         If Not Cancel Then
+            vgNavigation = GRID_NAVIGATION_DOWN
+            If SelectedItem < vgNumItemsTot - 1 Then
+               SelecionaItem SelectedItem + 1
+            End If
+            Cancel = True
+         End If
+      Case vbKeyUp
+         If vgColumns(vgColAtual).ColumnType = TP_MEMO Then
+            If txtEditMult.SelLength = Len(txtEditMult.Text) Then
+               txtEditMult.SelLength = 0
+               Cancel = True
+            Else
+               Cancel = (GetEditCurrentLine > 1)
+            End If
+         ElseIf Val(vgColDefinitions(vgColAtual).ComboExtensor) > 0 And Not vgColumns(vgColAtual).HasChange And vgChanged And Shift = 0 Then
+            txtCampo.KeyDown (KeyCode), 0
+            Cancel = True
+         End If
+         If Not Cancel Then
+            Cancel = EndEditGrid(True, False)
+         End If
+         vgIgnoreKey = KeyCode
+         If Not Cancel Then
+            vgNavigation = GRID_NAVIGATION_UP
+            If SelectedItem <> 0 Then
+               SelecionaItem SelectedItem - 1
+            ElseIf vgShowFilterBar Then
+               txtFilter(vgColAtual).SetFocus
+            End If
+            Cancel = True
+         End If
+      Case vbKeyRight
+         If vgColAtual <> -1 Then
+            IsBoolean = (vgColumns(vgColAtual).ColumnType = TP_LOGICO)
+         Else
+            IsBoolean = False
+         End If
+         If (Not (vgChanged Or vgIsPreEditing) Or vgEnter Or txtCampo.SelStart = Len(txtCampo.Text) Or IsBoolean) Or Shift = 2 Then 'CTRL+RIGHT vai direto para próxima coluna
+            If Not vgFullRowSelect Then
+               Cancel = False
+               vgNewCol = GetVisibleCol(COL_NEXT, vgColAtual, vgChanged)
+               If vgNewCol <> -1 Then
+                  If vgChanged Then
+                     Cancel = ValidateColumnGrid()
+                  End If
+                  If Not Cancel Then
+                     vgColAtual = vgNewCol        'seleciona a próxima coluna editável
+                     AdjustColumn
+                     vgNavigation = GRID_NAVIGATION_RIGHT
+                  End If
+               Else
+                  If vgChanged Then               'está em edição e última coluna
+                     Cancel = EndEditGrid(True, False) 'tenta salvar... sem cancelar edição
+                     If Not Cancel Then
+                        vgNavigation = GRID_NAVIGATION_RIGHT
+                     End If
+                  End If
+                  If Not Cancel Then
+                     If vgRow <> vgNumItemsTot - 1 Then
+                        SelecionaItem SelectedItem + 1
+                        vgColAtual = GetVisibleCol(COL_FIRST, , vgChanged)
+                        AdjustColumn
+                     End If
+                  End If
+               End If
+               If Shift = 0 Then                       'se não tiver com CTRL pressionado
+                  vgIgnoreKey = vbKeyRight             'ignora o right no edit box (pois se tiver com ele pressionado o KeyRight não chega no edit, então nao precisa setar para ignorar)
+               End If
+            End If
+         End If
+         Cancel = True
+      Case vbKeyLeft
+         If vgColAtual <> -1 Then
+            IsBoolean = (vgColumns(vgColAtual).ColumnType = TP_LOGICO)
+         Else
+            IsBoolean = False
+         End If
+         If (Not (vgChanged Or vgIsPreEditing) Or vgEnter Or txtCampo.SelStart = Len(txtCampo.Text) Or IsBoolean) Or Shift = 2 Then 'CTRL+LEFT vai direto para coluna anterior
+            If Not vgFullRowSelect Then
+               Cancel = False
+               vgNewCol = GetVisibleCol(COL_PREVIOUS, vgColAtual, vgChanged)
+               If vgNewCol <> -1 Then
+                  If vgChanged Then
+                     Cancel = ValidateColumnGrid()
+                  End If
+                  If Not Cancel Then
+                     vgColAtual = vgNewCol        'seleciona a próxima coluna editável
+                     AdjustColumn
+                     vgNavigation = GRID_NAVIGATION_LEFT
+                  End If
+               Else
+                  If vgChanged Then               'está em edição e última coluna
+                     Cancel = EndEditGrid(True, False) 'tenta salvar... sem cancelar edição
+                     If Not Cancel Then
+                        vgNavigation = GRID_NAVIGATION_LEFT
+                     End If
+                  End If
+                  If Not Cancel Then
+                     If vgRow <> 0 Then
+                        vgColAtual = GetVisibleCol(COL_LAST, , vgChanged)
+                        SelecionaItem SelectedItem - 1
+                        AdjustColumn
+                     End If
+                  End If
+               End If
+               If Shift = 0 Then                       'se não tiver com CTRL pressionado
+                  vgIgnoreKey = vbKeyLeft              'ignora o left no edit box (pois se tiver com ele pressionado o KeyLeft não chega no edit, então nao precisa setar para ignorar)
+               End If
+            End If
+         End If
+         Cancel = True
+      Case vbKeyDelete
+         'Antes
+         'If Not (vgChanged Or vgIsPreEditing) Then
+         'Inicio Manual
+         If Abs(mdiNFe.ActiveForm.vgSituacao) = ACAO_NAVEGANDO Then
+         'Fim Manual
+            Call DeleteRows
+            Call DeleteCols
+            picEdit.SetFocus
+            PosicionaSelect
+         End If
+      Case vbKeyF5
+         ReBind
+         vgIgnoreKey = vbKeyF5
+      Case vbKeyEscape
+         DoEvents                                      'esse DoEvents serve apenas para que que o KeyPreview do form container do UserControl deixe o KeyPress processar primeiro lá... isso para que, por exemplo, possamos fazer com o ESC dentro do grid cancela a edição e não feche o form
+         If vgChanged Or vgIsPreEditing Then
+            Call EndEditGrid(False, True)
+            DrawBars                                   'vamos atualizar todas as barras
+            Cancel = True
+         End If
+      Case vbKeyF2, vbKeyReturn
+         If Not vgFullRowSelect And Not (vgChanged Or vgIsPreEditing) And vgTabela.AsyncComplete And Not vgLocked Then
+            vgIsPreEditing = True
+            vgForcePosSel = True
+            PosicionaSelect
+         End If
+      Case vbKeyF3
+         If vgShowFilterBar Then
+            txtCampoFilter(vgColAtual).SetFocus
+         End If
+   End Select
+   If vgEnter Then
+      vgIgnoreKey = vbKeyReturn
+   End If
+
+FimDaSub:
+
+   TrataTeclaGrid = Cancel
+End Function
+

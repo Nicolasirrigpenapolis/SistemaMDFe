@@ -1,0 +1,8936 @@
+Version 5.00
+Object = "{BDC217C8-ED16-11CD-956C-0000C04E4C0A}#1.1#0"; "TABCTL32.OCX"
+Begin VB.Form frmMDFe
+   ForeColor                =   &H80000008
+   BorderStyle              =   2
+   Height                   =   9180
+   Left                     =   3210
+   LinkTopic                =   "MDFe"
+   LockControls             =   -1
+   KeyPreview               =   -1
+   MDIChild                 =   -1
+   ScaleHeight              =   8745
+   ScaleWidth               =   11790
+   Top                      =   1210
+   Width                    =   11880
+   Begin NFE.GPainel Painel
+      BackColor                =   &H8000000F
+      BevelOuter               =   0
+      BevelInner               =   0
+      BorderWidth              =   1
+      BevelWidth               =   1
+      BorderStyle              =   2
+      Stretch                  =   -1
+      Stripes                  =   0
+      SaveGridBars             =   0
+      Height                   =   8565
+      Left                     =   15
+      Width                    =   11610
+      Top                      =   15
+      TabStop                  =  0
+      _extentx                 =   20468
+      _extenty                 =   15100
+      Index                    =   0 
+      Begin NFE.GCpMM mmCampo
+         Appearance               =   0
+         BackColor                =   &H8000000F
+         BorderStyle              =   0
+         Stretch                  =   0
+         Height                   =   1245
+         Left                     =   120
+         Width                    =   1470
+         Top                      =   0
+         Index                    =   0 
+         TabStop                  =   0
+         ScrollBars               =   0
+         Locked                   =   -1
+      End
+      Begin VB.Label Label
+         Appearance               =   1
+         BackColor                =   &H8000000F
+         BackStyle                =   1
+         BorderStyle              =   0
+         AutoSize                 =   -1
+         Height                   =   435
+         Left                     =   1680
+         Width                    =   4230
+         Top                      =   240
+         Alignment                =   0
+         BeginProperty Font
+            Name                     =   "Microsoft Sans Serif"
+            CharSet                  =   0
+            Weight                   =   700
+            Size                     =   18
+            Underline                =   0
+            Italic                   =   0
+            StrikeThrough            =   0
+         EndProperty
+         ForeColor                =   &H80000008
+         Caption                  =   "Manifesto - Layout 3.00a"
+         Index                    =   0 
+      End
+      Begin VB.Line Linha
+         BorderColor              =   -2147483640
+         BorderStyle              =   1
+         BorderWidth              =   1
+         X1                       =   1680
+         Y1                       =   690
+         X2                       =   5895
+         Y2                       =   690
+         Index                    =   0 
+      End
+      Begin VB.Label Label
+         Appearance               =   1
+         BackColor                =   &H8000000F
+         BackStyle                =   1
+         BorderStyle              =   0
+         AutoSize                 =   0
+         Height                   =   240
+         Left                     =   420
+         Width                    =   1140
+         Top                      =   1800
+         Alignment                =   0
+         BeginProperty Font
+            Name                     =   "Microsoft Sans Serif"
+            CharSet                  =   0
+            Weight                   =   400
+            Size                     =   9.75
+            Underline                =   0
+            Italic                   =   0
+            StrikeThrough            =   0
+         EndProperty
+         ForeColor                =   &H80000008
+         Caption                  =   "Sequencia:"
+         Index                    =   1 
+      End
+      Begin VB.TextBox txtCp
+         Appearance               =   0
+         BackColor                =   &HE0E0E0
+         BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851}
+            Name                     =   "Microsoft Sans Serif"
+            CharSet                  =   0
+            Weight                   =   400
+            Size                     =   9.75
+            Underline                =   0
+            Italic                   =   0
+            StrikeThrough            =   0
+         EndProperty
+         ForeColor                =   &H80000008
+         BorderStyle              =   1
+         Alignment                =   0
+         Locked                   =   -1
+         TabIndex                 =   0
+         TabStop                  =   0
+         Height                   =   300
+         Left                     =   1560
+         Width                    =   660
+         Top                      =   1800
+         DataField                =   "Sequencia do manifesto"
+         TabStop                  =  0
+         Index                    =   0 
+         MultiLine                =   -1
+      End
+      Begin TabDlg.SSTab Tabs
+         TabsPerRow               =   7
+         TabHeight                =   519
+         BackColor                =   &H8000000F
+         Style                    =   1
+         TabOrientation           =   0
+         Tabs                     =   7
+         TabIndex                 =   4
+         TabStop                  =   -1
+         Height                   =   3855
+         Left                     =   300
+         Width                    =   11160
+         Top                      =   2940
+         BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851}
+            Name                     =   "Microsoft Sans Serif"
+            CharSet                  =   0
+            Weight                   =   400
+            Size                     =   9.75
+            Underline                =   0
+            Italic                   =   0
+            StrikeThrough            =   0
+         EndProperty
+         ForeColor                =   &H0
+         Caption                  =   "1 - Dados Principais"
+         Index                    =   0 
+         _version                 =   65536
+         _extentx                 =   19675
+         _extenty                 =   6796
+         _stockprops              =   15
+         TabCaption(0)            =   "1 - Dados Principais"
+         Tab(0).ControlCount=   20
+         Tab(0).ControlEnabled=   -1
+         Tab(0).Control(0)=   "Painel(1)"
+         Tab(0).Control(1)=   "Painel(2)"
+         Tab(0).Control(2)=   "Label(9)"
+         Tab(0).Control(3)=   "labFdo5"
+         Tab(0).Control(4)=   "bottxtCampo5(2)"
+         Tab(0).Control(5)=   "txtCp(5)"
+         Tab(0).Control(6)=   "Label(42)"
+         Tab(0).Control(7)=   "labFdo32"
+         Tab(0).Control(8)=   "bottxtCampo32(1)"
+         Tab(0).Control(9)=   "bottxtCampo32(2)"
+         Tab(0).Control(10)=   "txtCp(32)"
+         Tab(0).Control(11)=   "Label(43)"
+         Tab(0).Control(12)=   "labFdo33"
+         Tab(0).Control(13)=   "bottxtCampo33(1)"
+         Tab(0).Control(14)=   "bottxtCampo33(2)"
+         Tab(0).Control(15)=   "txtCp(33)"
+         Tab(0).Control(16)=   "Label(44)"
+         Tab(0).Control(17)=   "txtCp(34)"
+         Tab(0).Control(18)=   "Label(45)"
+         Tab(0).Control(19)=   "Label(46)"
+         TabCaption(1)            =   "2 - Veiculo de Tração"
+         Tab(1).ControlCount=   23
+         Tab(1).ControlEnabled=   0
+         Tab(1).Control(0)=   "Label(10)"
+         Tab(1).Control(1)=   "txtCp(6)"
+         Tab(1).Control(2)=   "Label(11)"
+         Tab(1).Control(3)=   "txtCp(7)"
+         Tab(1).Control(4)=   "Label(12)"
+         Tab(1).Control(5)=   "labFdo8"
+         Tab(1).Control(6)=   "bottxtCampo8(2)"
+         Tab(1).Control(7)=   "txtCp(8)"
+         Tab(1).Control(8)=   "Label(13)"
+         Tab(1).Control(9)=   "txtCp(9)"
+         Tab(1).Control(10)=   "Label(14)"
+         Tab(1).Control(11)=   "labFdo10"
+         Tab(1).Control(12)=   "bottxtCampo10(2)"
+         Tab(1).Control(13)=   "txtCp(10)"
+         Tab(1).Control(14)=   "Label(15)"
+         Tab(1).Control(15)=   "labFdo11"
+         Tab(1).Control(16)=   "bottxtCampo11(2)"
+         Tab(1).Control(17)=   "txtCp(11)"
+         Tab(1).Control(18)=   "Label(16)"
+         Tab(1).Control(19)=   "txtCp(12)"
+         Tab(1).Control(20)=   "Label(17)"
+         Tab(1).Control(21)=   "txtCp(13)"
+         Tab(1).Control(22)=   "Painel(3)"
+         TabCaption(2)            =   "3 - Proprietário Veiculo"
+         Tab(2).ControlCount=   3
+         Tab(2).ControlEnabled=   0
+         Tab(2).Control(0)=   "Painel(4)"
+         Tab(2).Control(1)=   "ChkCp(0)"
+         Tab(2).Control(2)=   "Painel(5)"
+         TabCaption(3)            =   "4 - NF-e"
+         Tab(3).ControlCount=   2
+         Tab(3).ControlEnabled=   0
+         Tab(3).Control(0)=   "Painel(7)"
+         Tab(3).Control(1)=   "Painel(8)"
+         TabCaption(4)            =   "5 - CT-e"
+         Tab(4).ControlCount=   2
+         Tab(4).ControlEnabled=   0
+         Tab(4).Control(0)=   "Painel(9)"
+         Tab(4).Control(1)=   "Painel(10)"
+         TabCaption(5)            =   "6 - MDF-e"
+         Tab(5).ControlCount=   7
+         Tab(5).ControlEnabled=   0
+         Tab(5).Control(0)=   "Label(31)"
+         Tab(5).Control(1)=   "txtCp(21)"
+         Tab(5).Control(2)=   "Label(32)"
+         Tab(5).Control(3)=   "txtCp(22)"
+         Tab(5).Control(4)=   "Label(33)"
+         Tab(5).Control(5)=   "txtCp(23)"
+         Tab(5).Control(6)=   "txtCp(24)"
+         TabCaption(6)            =   "7 - Seguro"
+         Tab(6).ControlCount=   21
+         Tab(6).ControlEnabled=   0
+         Tab(6).Control(0)=   "Label(34)"
+         Tab(6).Control(1)=   "labFdo25"
+         Tab(6).Control(2)=   "bottxtCampo25(2)"
+         Tab(6).Control(3)=   "txtCp(25)"
+         Tab(6).Control(4)=   "Label(35)"
+         Tab(6).Control(5)=   "opcTabs0Cp(0)"
+         Tab(6).Control(6)=   "labopcTabs0"
+         Tab(6).Control(7)=   "opcTabs0Cp(1)"
+         Tab(6).Control(8)=   "Label(36)"
+         Tab(6).Control(9)=   "txtCp(26)"
+         Tab(6).Control(10)=   "Linha(1)"
+         Tab(6).Control(11)=   "Label(37)"
+         Tab(6).Control(12)=   "txtCp(27)"
+         Tab(6).Control(13)=   "Label(38)"
+         Tab(6).Control(14)=   "txtCp(28)"
+         Tab(6).Control(15)=   "Label(39)"
+         Tab(6).Control(16)=   "txtCp(29)"
+         Tab(6).Control(17)=   "Label(40)"
+         Tab(6).Control(18)=   "txtCp(30)"
+         Tab(6).Control(19)=   "Label(41)"
+         Tab(6).Control(20)=   "txtCp(31)"
+         Begin NFE.GPainel Painel
+            BackColor                =   &HE0E0E0
+            BevelOuter               =   1
+            BevelInner               =   0
+            BorderWidth              =   1
+            BevelWidth               =   1
+            BorderStyle              =   0
+            Stretch                  =   -1
+            Stripes                  =   0
+            SaveGridBars             =   0
+            Height                   =   2610
+            Left                     =   180
+            Width                    =   8145
+            Top                      =   525
+            TabStop                  =  0
+            _extentx                 =   14359
+            _extenty                 =   4601
+            Index                    =   1 
+            Begin NFE.GListV Grid
+               BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851}
+                  Name                     =   "MS Sans Serif"
+                  CharSet                  =   0
+                  Weight                   =   400
+                  Size                     =   9.75
+                  Underline                =   0
+                  Italic                   =   0
+                  StrikeThrough            =   0
+               EndProperty
+               CellTextColor            =   &H80000008
+               EditTextColor            =   &H80000008
+               FilterBackColor          =   8454143
+               LeftBackColor            =   -2147483633
+               MaxBackColor             =   -2147483633
+               AvgBackColor             =   -2147483633
+               MinBackColor             =   -2147483633
+               SumBackColor             =   -2147483633
+               StatusBackColor          =   -2147483633
+               ColSelectBackColor       =   -2147483633
+               CellBackColor            =   -2147483643
+               EditBackColor            =   8454143
+               SelectBackColor          =   -2147483635
+               StripesBackColor         =   13750737
+               BackColor                =   -2147483643
+               CaptionBackColor         =   -2147483633
+               ColHeaderBackColor       =   -2147483633
+               GridLinesColor           =   14737632
+               FilterTextColor          =   -2147483640
+               AvgTextColor             =   16512
+               MinTextColor             =   255
+               MaxTextColor             =   49152
+               StatusTextColor          =   -2147483630
+               SumTextColor             =   16711680
+               ColTextBackColor         =   12582912
+               CellTextColor            =   -2147483640
+               SelectTextColor          =   -2147483634
+               EditTextColor            =   -2147483640
+               StripesTextColor         =   -2147483630
+               CaptionTextColor         =   -2147483630
+               ColHeaderTextColor       =   -2147483630
+               TabIndex                 =   5
+               TabStop                  =   -1
+               Stripes                  =   0
+               SaveGridBars             =   0
+               Height                   =   1710
+               Left                     =   240
+               Width                    =   7725
+               Top                      =   720
+               Caption                  =   ""
+               ShowGridCaption          =   0
+               Index                    =   0 
+            End
+            Begin VB.Label Label
+               Appearance               =   1
+               BackColor                =   &HE0E0E0
+               BackStyle                =   1
+               BorderStyle              =   0
+               AutoSize                 =   -1
+               Height                   =   240
+               Left                     =   315
+               Width                    =   900
+               Top                      =   120
+               Alignment                =   0
+               BeginProperty Font
+                  Name                     =   "Microsoft Sans Serif"
+                  CharSet                  =   0
+                  Weight                   =   700
+                  Size                     =   9.75
+                  Underline                =   0
+                  Italic                   =   0
+                  StrikeThrough            =   0
+               EndProperty
+               ForeColor                =   &H80000008
+               Caption                  =   "Local de"
+               Index                    =   2 
+            End
+            Begin VB.Label Label
+               Appearance               =   1
+               BackColor                =   &HE0E0E0
+               BackStyle                =   1
+               BorderStyle              =   0
+               AutoSize                 =   0
+               Height                   =   240
+               Left                     =   3000
+               Width                    =   975
+               Top                      =   60
+               Alignment                =   0
+               BeginProperty Font
+                  Name                     =   "Microsoft Sans Serif"
+                  CharSet                  =   0
+                  Weight                   =   400
+                  Size                     =   9.75
+                  Underline                =   0
+                  Italic                   =   0
+                  StrikeThrough            =   0
+               EndProperty
+               ForeColor                =   &H80000008
+               Caption                  =   "Latitude"
+               Index                    =   3 
+            End
+            Begin VB.Label labFdo1
+               Appearance               =  0
+               BorderStyle              =  1
+               BackColor                =  &H80000005
+               Left                     =   2940
+               Top                      =   315
+               Width                    =   1890
+               Height                   =   300
+            End
+            Begin VB.CommandButton bottxtCampo1
+               Style                    =   1
+               TabStop                  =   0
+               Index                    =   1
+               Left                     =   4560
+               Top                      =   330
+               Width                    =   255
+               Height                   =   270
+            End
+            Begin VB.CommandButton bottxtCampo1
+               Style                    =   1
+               TabStop                  =   0
+               Index                    =   2
+               Left                     =   4305
+               Top                      =   330
+               Width                    =   255
+               Height                   =   270
+            End
+            Begin VB.TextBox txtCp
+               Appearance               =   0
+               BackColor                =   &H80000005
+               BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851}
+                  Name                     =   "Microsoft Sans Serif"
+                  CharSet                  =   0
+                  Weight                   =   400
+                  Size                     =   9.75
+                  Underline                =   0
+                  Italic                   =   0
+                  StrikeThrough            =   0
+               EndProperty
+               ForeColor                =   &H80000008
+               BorderStyle              =   0
+               Alignment                =   1
+               TabIndex                 =   52
+               TabStop                  =   -1
+               Height                   =   270
+               Left                     =   2955
+               Width                    =   1335
+               Top                      =   330
+               DataField                =   "Latitude de Carregamento"
+               Index                    =   1 
+            End
+            Begin VB.Label Label
+               Appearance               =   1
+               BackColor                =   &HE0E0E0
+               BackStyle                =   1
+               BorderStyle              =   0
+               AutoSize                 =   0
+               Height                   =   240
+               Left                     =   4980
+               Width                    =   1005
+               Top                      =   60
+               Alignment                =   0
+               BeginProperty Font
+                  Name                     =   "Microsoft Sans Serif"
+                  CharSet                  =   0
+                  Weight                   =   400
+                  Size                     =   9.75
+                  Underline                =   0
+                  Italic                   =   0
+                  StrikeThrough            =   0
+               EndProperty
+               ForeColor                =   &H80000008
+               Caption                  =   "Longitude"
+               Index                    =   4 
+            End
+            Begin VB.Label labFdo2
+               Appearance               =  0
+               BorderStyle              =  1
+               BackColor                =  &H80000005
+               Left                     =   4980
+               Top                      =   315
+               Width                    =   1890
+               Height                   =   300
+            End
+            Begin VB.CommandButton bottxtCampo2
+               Style                    =   1
+               TabStop                  =   0
+               Index                    =   1
+               Left                     =   6600
+               Top                      =   330
+               Width                    =   255
+               Height                   =   270
+            End
+            Begin VB.CommandButton bottxtCampo2
+               Style                    =   1
+               TabStop                  =   0
+               Index                    =   2
+               Left                     =   6345
+               Top                      =   330
+               Width                    =   255
+               Height                   =   270
+            End
+            Begin VB.TextBox txtCp
+               Appearance               =   0
+               BackColor                =   &H80000005
+               BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851}
+                  Name                     =   "Microsoft Sans Serif"
+                  CharSet                  =   0
+                  Weight                   =   400
+                  Size                     =   9.75
+                  Underline                =   0
+                  Italic                   =   0
+                  StrikeThrough            =   0
+               EndProperty
+               ForeColor                =   &H80000008
+               BorderStyle              =   0
+               Alignment                =   1
+               TabIndex                 =   53
+               TabStop                  =   -1
+               Height                   =   270
+               Left                     =   4995
+               Width                    =   1335
+               Top                      =   330
+               DataField                =   "Longitude de Carregamento"
+               Index                    =   2 
+            End
+            Begin VB.Label Label
+               Appearance               =   1
+               BackColor                =   &HE0E0E0
+               BackStyle                =   1
+               BorderStyle              =   0
+               AutoSize                 =   0
+               Height                   =   240
+               Left                     =   6975
+               Width                    =   540
+               Top                      =   60
+               Alignment                =   0
+               BeginProperty Font
+                  Name                     =   "Microsoft Sans Serif"
+                  CharSet                  =   0
+                  Weight                   =   400
+                  Size                     =   9.75
+                  Underline                =   0
+                  Italic                   =   0
+                  StrikeThrough            =   0
+               EndProperty
+               ForeColor                =   &H80000008
+               Caption                  =   "CEP"
+               Index                    =   5 
+            End
+            Begin VB.TextBox txtCp
+               Appearance               =   0
+               BackColor                =   &H80000005
+               BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851}
+                  Name                     =   "Microsoft Sans Serif"
+                  CharSet                  =   0
+                  Weight                   =   400
+                  Size                     =   9.75
+                  Underline                =   0
+                  Italic                   =   0
+                  StrikeThrough            =   0
+               EndProperty
+               ForeColor                =   &H80000008
+               BorderStyle              =   1
+               Alignment                =   0
+               TabIndex                 =   56
+               TabStop                  =   -1
+               Height                   =   300
+               Left                     =   6975
+               Width                    =   960
+               Top                      =   315
+               DataField                =   "CEP Carregamento"
+               Index                    =   3 
+            End
+            Begin VB.Label Label
+               Appearance               =   1
+               BackColor                =   &HE0E0E0
+               BackStyle                =   1
+               BorderStyle              =   0
+               AutoSize                 =   -1
+               Height                   =   240
+               Left                     =   315
+               Width                    =   1470
+               Top                      =   375
+               Alignment                =   0
+               BeginProperty Font
+                  Name                     =   "Microsoft Sans Serif"
+                  CharSet                  =   0
+                  Weight                   =   700
+                  Size                     =   9.75
+                  Underline                =   0
+                  Italic                   =   0
+                  StrikeThrough            =   0
+               EndProperty
+               ForeColor                =   &H80000008
+               Caption                  =   "Carregamento"
+               Index                    =   6 
+            End
+            Begin VB.Label Label
+               Appearance               =   1
+               BackColor                =   &HE0E0E0
+               BackStyle                =   1
+               BorderStyle              =   0
+               AutoSize                 =   0
+               Height                   =   240
+               Left                     =   2115
+               Width                    =   600
+               Top                      =   60
+               Alignment                =   0
+               BeginProperty Font
+                  Name                     =   "Microsoft Sans Serif"
+                  CharSet                  =   0
+                  Weight                   =   400
+                  Size                     =   9.75
+                  Underline                =   0
+                  Italic                   =   0
+                  StrikeThrough            =   0
+               EndProperty
+               ForeColor                =   &H80000008
+               Caption                  =   "UF"
+               Index                    =   7 
+            End
+            Begin VB.Label labFdo4
+               Appearance               =  0
+               BorderStyle              =  1
+               BackColor                =  &HE0E0E0
+               Left                     =   2115
+               Top                      =   315
+               Width                    =   720
+               Height                   =   300
+            End
+            Begin VB.CommandButton bottxtCampo4
+               Style                    =   1
+               TabStop                  =   0
+               Index                    =   2
+               Left                     =   2565
+               Top                      =   330
+               Width                    =   255
+               Height                   =   270
+            End
+            Begin VB.TextBox txtCp
+               Appearance               =   0
+               BackColor                =   &HE0E0E0
+               BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851}
+                  Name                     =   "Microsoft Sans Serif"
+                  CharSet                  =   0
+                  Weight                   =   400
+                  Size                     =   9.75
+                  Underline                =   0
+                  Italic                   =   0
+                  StrikeThrough            =   0
+               EndProperty
+               ForeColor                =   &H80000008
+               BorderStyle              =   0
+               Alignment                =   0
+               TabIndex                 =   58
+               TabStop                  =   -1
+               Height                   =   270
+               Left                     =   2130
+               Width                    =   420
+               Top                      =   330
+               DataField                =   "Uf"
+               Index                    =   4 
+            End
+         End
+         Begin NFE.GPainel Painel
+            BackColor                =   &HE0E0E0
+            BevelOuter               =   1
+            BevelInner               =   0
+            BorderWidth              =   1
+            BevelWidth               =   1
+            BorderStyle              =   0
+            Stretch                  =   -1
+            Stripes                  =   0
+            SaveGridBars             =   0
+            Height                   =   2655
+            Left                     =   8520
+            Width                    =   2505
+            Top                      =   525
+            TabStop                  =  0
+            _extentx                 =   4416
+            _extenty                 =   4680
+            Index                    =   2 
+            Begin VB.Label Label
+               Appearance               =   1
+               BackColor                =   &H8000000F
+               BackStyle                =   1
+               BorderStyle              =   0
+               AutoSize                 =   -1
+               Height                   =   240
+               Left                     =   180
+               Width                    =   1620
+               Top                      =   120
+               Alignment                =   0
+               BeginProperty Font
+                  Name                     =   "Microsoft Sans Serif"
+                  CharSet                  =   0
+                  Weight                   =   700
+                  Size                     =   9.75
+                  Underline                =   0
+                  Italic                   =   0
+                  StrikeThrough            =   0
+               EndProperty
+               ForeColor                =   &H80000008
+               Caption                  =   "UF de Percurso"
+               Index                    =   8 
+            End
+            Begin NFE.GListV Grid
+               BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851}
+                  Name                     =   "MS Sans Serif"
+                  CharSet                  =   0
+                  Weight                   =   400
+                  Size                     =   9.75
+                  Underline                =   0
+                  Italic                   =   0
+                  StrikeThrough            =   0
+               EndProperty
+               CellTextColor            =   &H80000008
+               EditTextColor            =   &H80000008
+               FilterBackColor          =   8454143
+               LeftBackColor            =   -2147483633
+               MaxBackColor             =   -2147483633
+               AvgBackColor             =   -2147483633
+               MinBackColor             =   -2147483633
+               SumBackColor             =   -2147483633
+               StatusBackColor          =   -2147483633
+               ColSelectBackColor       =   -2147483633
+               CellBackColor            =   -2147483643
+               EditBackColor            =   8454143
+               SelectBackColor          =   -2147483635
+               StripesBackColor         =   13750737
+               BackColor                =   -2147483643
+               CaptionBackColor         =   -2147483633
+               ColHeaderBackColor       =   -2147483633
+               GridLinesColor           =   14737632
+               FilterTextColor          =   -2147483640
+               AvgTextColor             =   16512
+               MinTextColor             =   255
+               MaxTextColor             =   49152
+               StatusTextColor          =   -2147483630
+               SumTextColor             =   16711680
+               ColTextBackColor         =   12582912
+               CellTextColor            =   -2147483640
+               SelectTextColor          =   -2147483634
+               EditTextColor            =   -2147483640
+               StripesTextColor         =   -2147483630
+               CaptionTextColor         =   -2147483630
+               ColHeaderTextColor       =   -2147483630
+               TabIndex                 =   6
+               TabStop                  =   -1
+               Stripes                  =   0
+               SaveGridBars             =   0
+               Height                   =   1995
+               Left                     =   180
+               Width                    =   2115
+               Top                      =   480
+               Caption                  =   ""
+               ShowGridCaption          =   0
+               Index                    =   1 
+            End
+         End
+         Begin VB.Label Label
+            Appearance               =   1
+            BackColor                =   &H8000000F
+            BackStyle                =   1
+            BorderStyle              =   0
+            AutoSize                 =   0
+            Height                   =   240
+            Left                     =   420
+            Width                    =   1995
+            Top                      =   3420
+            Alignment                =   0
+            BeginProperty Font
+               Name                     =   "Microsoft Sans Serif"
+               CharSet                  =   0
+               Weight                   =   700
+               Size                     =   9.75
+               Underline                =   0
+               Italic                   =   0
+               StrikeThrough            =   0
+            EndProperty
+            ForeColor                =   &H80000008
+            Caption                  =   "Descarregamento"
+            Index                    =   9 
+         End
+         Begin VB.Label labFdo5
+            Appearance               =  1
+            BorderStyle              =  1
+            BackColor                =  &H80000005
+            Left                     =   2400
+            Top                      =   3360
+            Width                    =   720
+            Height                   =   300
+         End
+         Begin VB.CommandButton bottxtCampo5
+            Style                    =   1
+            TabStop                  =   0
+            Index                    =   2
+            Left                     =   2835
+            Top                      =   3390
+            Width                    =   255
+            Height                   =   240
+         End
+         Begin VB.TextBox txtCp
+            Appearance               =   1
+            BackColor                =   &H80000005
+            BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851}
+               Name                     =   "Microsoft Sans Serif"
+               CharSet                  =   0
+               Weight                   =   400
+               Size                     =   9.75
+               Underline                =   0
+               Italic                   =   0
+               StrikeThrough            =   0
+            EndProperty
+            ForeColor                =   &H80000008
+            BorderStyle              =   0
+            Alignment                =   0
+            TabIndex                 =   7
+            TabStop                  =   -1
+            Height                   =   240
+            Left                     =   2430
+            Width                    =   390
+            Top                      =   3390
+            DataField                =   "Uf de descarregamento"
+            Index                    =   5 
+         End
+         Begin VB.Label Label
+            Appearance               =   1
+            BackColor                =   &H8000000F
+            BackStyle                =   1
+            BorderStyle              =   0
+            AutoSize                 =   -1
+            Height                   =   240
+            Left                     =   -74160
+            Width                    =   765
+            Top                      =   840
+            Alignment                =   0
+            BeginProperty Font
+               Name                     =   "Microsoft Sans Serif"
+               CharSet                  =   0
+               Weight                   =   400
+               Size                     =   9.75
+               Underline                =   0
+               Italic                   =   0
+               StrikeThrough            =   0
+            EndProperty
+            ForeColor                =   &H80000008
+            Caption                  =   "RNTRC:"
+            Index                    =   10 
+         End
+         Begin VB.TextBox txtCp
+            Appearance               =   0
+            BackColor                =   &H80000005
+            BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851}
+               Name                     =   "Microsoft Sans Serif"
+               CharSet                  =   0
+               Weight                   =   400
+               Size                     =   9.75
+               Underline                =   0
+               Italic                   =   0
+               StrikeThrough            =   0
+            EndProperty
+            ForeColor                =   &H80000008
+            MaxLength                =   25
+            BorderStyle              =   1
+            Alignment                =   0
+            TabIndex                 =   8
+            TabStop                  =   -1
+            Height                   =   300
+            Left                     =   -73200
+            Width                    =   1815
+            Top                      =   840
+            DataField                =   "Rntrc"
+            Index                    =   6 
+         End
+         Begin VB.Label Label
+            Appearance               =   1
+            BackColor                =   &H8000000F
+            BackStyle                =   1
+            BorderStyle              =   0
+            AutoSize                 =   0
+            Height                   =   240
+            Left                     =   -71160
+            Width                    =   735
+            Top                      =   840
+            Alignment                =   0
+            BeginProperty Font
+               Name                     =   "Microsoft Sans Serif"
+               CharSet                  =   0
+               Weight                   =   400
+               Size                     =   9.75
+               Underline                =   0
+               Italic                   =   0
+               StrikeThrough            =   0
+            EndProperty
+            ForeColor                =   &H80000008
+            Caption                  =   "*Placa:"
+            Index                    =   11 
+         End
+         Begin VB.TextBox txtCp
+            Appearance               =   0
+            BackColor                =   &H80000005
+            BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851}
+               Name                     =   "Microsoft Sans Serif"
+               CharSet                  =   0
+               Weight                   =   400
+               Size                     =   9.75
+               Underline                =   0
+               Italic                   =   0
+               StrikeThrough            =   0
+            EndProperty
+            ForeColor                =   &H80000008
+            MaxLength                =   9
+            BorderStyle              =   1
+            Alignment                =   0
+            TabIndex                 =   9
+            TabStop                  =   -1
+            Height                   =   300
+            Left                     =   -70380
+            Width                    =   1155
+            Top                      =   840
+            DataField                =   "Placa"
+            Index                    =   7 
+         End
+         Begin VB.Label Label
+            Appearance               =   1
+            BackColor                =   &H8000000F
+            BackStyle                =   1
+            BorderStyle              =   0
+            AutoSize                 =   0
+            Height                   =   240
+            Left                     =   -69060
+            Width                    =   435
+            Top                      =   840
+            Alignment                =   0
+            BeginProperty Font
+               Name                     =   "Microsoft Sans Serif"
+               CharSet                  =   0
+               Weight                   =   400
+               Size                     =   9.75
+               Underline                =   0
+               Italic                   =   0
+               StrikeThrough            =   0
+            EndProperty
+            ForeColor                =   &H80000008
+            Caption                  =   "*UF:"
+            Index                    =   12 
+         End
+         Begin VB.Label labFdo8
+            Appearance               =  0
+            BorderStyle              =  1
+            BackColor                =  &H80000005
+            Left                     =   -68520
+            Top                      =   840
+            Width                    =   660
+            Height                   =   300
+         End
+         Begin VB.CommandButton bottxtCampo8
+            Style                    =   1
+            TabStop                  =   0
+            Index                    =   2
+            Left                     =   -68130
+            Top                      =   855
+            Width                    =   255
+            Height                   =   270
+         End
+         Begin VB.TextBox txtCp
+            Appearance               =   0
+            BackColor                =   &H80000005
+            BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851}
+               Name                     =   "Microsoft Sans Serif"
+               CharSet                  =   0
+               Weight                   =   400
+               Size                     =   9.75
+               Underline                =   0
+               Italic                   =   0
+               StrikeThrough            =   0
+            EndProperty
+            ForeColor                =   &H80000008
+            BorderStyle              =   0
+            Alignment                =   0
+            TabIndex                 =   10
+            TabStop                  =   -1
+            Height                   =   270
+            Left                     =   -68505
+            Width                    =   375
+            Top                      =   855
+            DataField                =   "Uf do veiculo"
+            Index                    =   8 
+         End
+         Begin VB.Label Label
+            Appearance               =   1
+            BackColor                =   &H8000000F
+            BackStyle                =   1
+            BorderStyle              =   0
+            AutoSize                 =   0
+            Height                   =   240
+            Left                     =   -67680
+            Width                    =   1035
+            Top                      =   840
+            Alignment                =   0
+            BeginProperty Font
+               Name                     =   "Microsoft Sans Serif"
+               CharSet                  =   0
+               Weight                   =   400
+               Size                     =   9.75
+               Underline                =   0
+               Italic                   =   0
+               StrikeThrough            =   0
+            EndProperty
+            ForeColor                =   &H80000008
+            Caption                  =   "Renavam:"
+            Index                    =   13 
+         End
+         Begin VB.TextBox txtCp
+            Appearance               =   0
+            BackColor                =   &H80000005
+            BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851}
+               Name                     =   "Microsoft Sans Serif"
+               CharSet                  =   0
+               Weight                   =   400
+               Size                     =   9.75
+               Underline                =   0
+               Italic                   =   0
+               StrikeThrough            =   0
+            EndProperty
+            ForeColor                =   &H80000008
+            MaxLength                =   20
+            BorderStyle              =   1
+            Alignment                =   0
+            TabIndex                 =   11
+            TabStop                  =   -1
+            Height                   =   300
+            Left                     =   -66600
+            Width                    =   2475
+            Top                      =   840
+            DataField                =   "Renavam"
+            Index                    =   9 
+         End
+         Begin VB.Label Label
+            Appearance               =   1
+            BackColor                =   &H8000000F
+            BackStyle                =   1
+            BorderStyle              =   0
+            AutoSize                 =   -1
+            Height                   =   240
+            Left                     =   -74505
+            Width                    =   1110
+            Top                      =   1380
+            Alignment                =   0
+            BeginProperty Font
+               Name                     =   "Microsoft Sans Serif"
+               CharSet                  =   0
+               Weight                   =   400
+               Size                     =   9.75
+               Underline                =   0
+               Italic                   =   0
+               StrikeThrough            =   0
+            EndProperty
+            ForeColor                =   &H80000008
+            Caption                  =   "* Carroceria:"
+            Index                    =   14 
+         End
+         Begin VB.Label labFdo10
+            Appearance               =  0
+            BorderStyle              =  1
+            BackColor                =  &H80000005
+            Left                     =   -73200
+            Top                      =   1380
+            Width                    =   1800
+            Height                   =   300
+         End
+         Begin VB.CommandButton bottxtCampo10
+            Style                    =   1
+            TabStop                  =   0
+            Index                    =   2
+            Left                     =   -71670
+            Top                      =   1395
+            Width                    =   255
+            Height                   =   270
+         End
+         Begin VB.TextBox txtCp
+            Appearance               =   0
+            BackColor                =   &H80000005
+            BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851}
+               Name                     =   "Microsoft Sans Serif"
+               CharSet                  =   0
+               Weight                   =   400
+               Size                     =   9.75
+               Underline                =   0
+               Italic                   =   0
+               StrikeThrough            =   0
+            EndProperty
+            ForeColor                =   &H80000008
+            BorderStyle              =   0
+            Alignment                =   0
+            TabIndex                 =   12
+            TabStop                  =   -1
+            Height                   =   270
+            Left                     =   -73185
+            Width                    =   1515
+            Top                      =   1395
+            DataField                =   "Tipo de carroceria"
+            Index                    =   10 
+         End
+         Begin VB.Label Label
+            Appearance               =   1
+            BackColor                =   &H8000000F
+            BackStyle                =   1
+            BorderStyle              =   0
+            AutoSize                 =   -1
+            Height                   =   240
+            Left                     =   -74310
+            Width                    =   915
+            Top                      =   1920
+            Alignment                =   0
+            BeginProperty Font
+               Name                     =   "Microsoft Sans Serif"
+               CharSet                  =   0
+               Weight                   =   400
+               Size                     =   9.75
+               Underline                =   0
+               Italic                   =   0
+               StrikeThrough            =   0
+            EndProperty
+            ForeColor                =   &H80000008
+            Caption                  =   "* Rodado:"
+            Index                    =   15 
+         End
+         Begin VB.Label labFdo11
+            Appearance               =  0
+            BorderStyle              =  1
+            BackColor                =  &H80000005
+            Left                     =   -73200
+            Top                      =   1920
+            Width                    =   1785
+            Height                   =   300
+         End
+         Begin VB.CommandButton bottxtCampo11
+            Style                    =   1
+            TabStop                  =   0
+            Index                    =   2
+            Left                     =   -71685
+            Top                      =   1935
+            Width                    =   255
+            Height                   =   270
+         End
+         Begin VB.TextBox txtCp
+            Appearance               =   0
+            BackColor                =   &H80000005
+            BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851}
+               Name                     =   "Microsoft Sans Serif"
+               CharSet                  =   0
+               Weight                   =   400
+               Size                     =   9.75
+               Underline                =   0
+               Italic                   =   0
+               StrikeThrough            =   0
+            EndProperty
+            ForeColor                =   &H80000008
+            BorderStyle              =   0
+            Alignment                =   0
+            TabIndex                 =   13
+            TabStop                  =   -1
+            Height                   =   270
+            Left                     =   -73185
+            Width                    =   1500
+            Top                      =   1935
+            DataField                =   "Tipo de rodado"
+            Index                    =   11 
+         End
+         Begin VB.Label Label
+            Appearance               =   1
+            BackColor                =   &H8000000F
+            BackStyle                =   1
+            BorderStyle              =   0
+            AutoSize                 =   -1
+            Height                   =   240
+            Left                     =   -73995
+            Width                    =   600
+            Top                      =   2460
+            Alignment                =   0
+            BeginProperty Font
+               Name                     =   "Microsoft Sans Serif"
+               CharSet                  =   0
+               Weight                   =   400
+               Size                     =   9.75
+               Underline                =   0
+               Italic                   =   0
+               StrikeThrough            =   0
+            EndProperty
+            ForeColor                =   &H80000008
+            Caption                  =   "* Tara:"
+            Index                    =   16 
+         End
+         Begin VB.TextBox txtCp
+            Appearance               =   0
+            BackColor                =   &H80000005
+            BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851}
+               Name                     =   "Microsoft Sans Serif"
+               CharSet                  =   0
+               Weight                   =   400
+               Size                     =   9.75
+               Underline                =   0
+               Italic                   =   0
+               StrikeThrough            =   0
+            EndProperty
+            ForeColor                =   &H80000008
+            MaxLength                =   20
+            BorderStyle              =   1
+            Alignment                =   0
+            TabIndex                 =   14
+            TabStop                  =   -1
+            Height                   =   300
+            Left                     =   -73200
+            Width                    =   1785
+            Top                      =   2460
+            DataField                =   "Tara"
+            Index                    =   12 
+         End
+         Begin VB.Label Label
+            Appearance               =   1
+            BackColor                =   &H8000000F
+            BackStyle                =   1
+            BorderStyle              =   0
+            AutoSize                 =   -1
+            Height                   =   240
+            Left                     =   -74850
+            Width                    =   1455
+            Top                      =   3000
+            Alignment                =   0
+            BeginProperty Font
+               Name                     =   "Microsoft Sans Serif"
+               CharSet                  =   0
+               Weight                   =   400
+               Size                     =   9.75
+               Underline                =   0
+               Italic                   =   0
+               StrikeThrough            =   0
+            EndProperty
+            ForeColor                =   &H80000008
+            Caption                  =   "Capacidade Kg:"
+            Index                    =   17 
+         End
+         Begin VB.TextBox txtCp
+            Appearance               =   0
+            BackColor                =   &H80000005
+            BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851}
+               Name                     =   "Microsoft Sans Serif"
+               CharSet                  =   0
+               Weight                   =   400
+               Size                     =   9.75
+               Underline                =   0
+               Italic                   =   0
+               StrikeThrough            =   0
+            EndProperty
+            ForeColor                =   &H80000008
+            MaxLength                =   15
+            BorderStyle              =   1
+            Alignment                =   0
+            TabIndex                 =   15
+            TabStop                  =   -1
+            Height                   =   300
+            Left                     =   -73200
+            Width                    =   1785
+            Top                      =   3000
+            DataField                =   "Capacidade kg"
+            Index                    =   13 
+         End
+         Begin NFE.GPainel Painel
+            BackColor                =   &HE0E0E0
+            BevelOuter               =   1
+            BevelInner               =   0
+            BorderWidth              =   1
+            BevelWidth               =   1
+            BorderStyle              =   0
+            Stretch                  =   -1
+            Stripes                  =   0
+            SaveGridBars             =   0
+            Height                   =   1950
+            Left                     =   -71190
+            Width                    =   7095
+            Top                      =   1380
+            TabStop                  =  0
+            _extentx                 =   12508
+            _extenty                 =   3437
+            Index                    =   3 
+            Begin VB.Label Label
+               Appearance               =   1
+               BackColor                =   &H8000000F
+               BackStyle                =   1
+               BorderStyle              =   0
+               AutoSize                 =   -1
+               Height                   =   240
+               Left                     =   60
+               Width                    =   1245
+               Top                      =   60
+               Alignment                =   0
+               BeginProperty Font
+                  Name                     =   "Microsoft Sans Serif"
+                  CharSet                  =   0
+                  Weight                   =   700
+                  Size                     =   9.75
+                  Underline                =   0
+                  Italic                   =   0
+                  StrikeThrough            =   0
+               EndProperty
+               ForeColor                =   &H80000008
+               Caption                  =   "Condutores:"
+               Index                    =   18 
+            End
+            Begin NFE.GListV Grid
+               BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851}
+                  Name                     =   "MS Sans Serif"
+                  CharSet                  =   0
+                  Weight                   =   400
+                  Size                     =   9.75
+                  Underline                =   0
+                  Italic                   =   0
+                  StrikeThrough            =   0
+               EndProperty
+               CellTextColor            =   &H80000008
+               EditTextColor            =   &H80000008
+               FilterBackColor          =   8454143
+               LeftBackColor            =   -2147483633
+               MaxBackColor             =   -2147483633
+               AvgBackColor             =   -2147483633
+               MinBackColor             =   -2147483633
+               SumBackColor             =   -2147483633
+               StatusBackColor          =   -2147483633
+               ColSelectBackColor       =   -2147483633
+               CellBackColor            =   -2147483643
+               EditBackColor            =   8454143
+               SelectBackColor          =   -2147483635
+               StripesBackColor         =   13750737
+               BackColor                =   -2147483643
+               CaptionBackColor         =   -2147483633
+               ColHeaderBackColor       =   -2147483633
+               GridLinesColor           =   14737632
+               FilterTextColor          =   -2147483640
+               AvgTextColor             =   16512
+               MinTextColor             =   255
+               MaxTextColor             =   49152
+               StatusTextColor          =   -2147483630
+               SumTextColor             =   16711680
+               ColTextBackColor         =   12582912
+               CellTextColor            =   -2147483640
+               SelectTextColor          =   -2147483634
+               EditTextColor            =   -2147483640
+               StripesTextColor         =   -2147483630
+               CaptionTextColor         =   -2147483630
+               ColHeaderTextColor       =   -2147483630
+               TabIndex                 =   20
+               TabStop                  =   -1
+               Stripes                  =   0
+               SaveGridBars             =   0
+               Height                   =   1425
+               Left                     =   60
+               Width                    =   6960
+               Top                      =   390
+               Caption                  =   ""
+               ShowGridCaption          =   0
+               Index                    =   2 
+            End
+         End
+         Begin NFE.GPainel Painel
+            BackColor                =   &H80000005
+            BevelOuter               =   1
+            BevelInner               =   0
+            BorderWidth              =   1
+            BevelWidth               =   1
+            BorderStyle              =   0
+            Stretch                  =   -1
+            Stripes                  =   0
+            SaveGridBars             =   0
+            Height                   =   840
+            Left                     =   -74820
+            Width                    =   10875
+            Top                      =   480
+            TabStop                  =  0
+            _extentx                 =   19172
+            _extenty                 =   1480
+            Index                    =   4 
+            Begin VB.Label Label
+               Appearance               =   1
+               BackColor                =   &H80000005
+               BackStyle                =   1
+               BorderStyle              =   0
+               AutoSize                 =   -1
+               Height                   =   240
+               Left                     =   60
+               Width                    =   10290
+               Top                      =   60
+               Alignment                =   0
+               BeginProperty Font
+                  Name                     =   "Microsoft Sans Serif"
+                  CharSet                  =   0
+                  Weight                   =   700
+                  Size                     =   9.75
+                  Underline                =   0
+                  Italic                   =   0
+                  StrikeThrough            =   0
+               EndProperty
+               ForeColor                =   &H80000008
+               Caption                  =   "Obs: (Só Preencha Esses Campos Quando o Veiculo não Pertencer a Empresa Emitente do MDF-e)"
+               Index                    =   19 
+            End
+            Begin VB.Label Label
+               Appearance               =   1
+               BackColor                =   &H80000005
+               BackStyle                =   1
+               BorderStyle              =   0
+               AutoSize                 =   -1
+               Height                   =   240
+               Left                     =   60
+               Width                    =   6420
+               Top                      =   420
+               Alignment                =   0
+               BeginProperty Font
+                  Name                     =   "Microsoft Sans Serif"
+                  CharSet                  =   0
+                  Weight                   =   700
+                  Size                     =   9.75
+                  Underline                =   0
+                  Italic                   =   0
+                  StrikeThrough            =   0
+               EndProperty
+               ForeColor                =   &H80000008
+               Caption                  =   "Se For o Caso Marque a Caixa Abaixo e Preencha os Campos"
+               Index                    =   20 
+            End
+         End
+         Begin VB.CheckBox ChkCp
+            Appearance               =   1
+            BackColor                =   &H8000000F
+            BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851}
+               Name                     =   "Microsoft Sans Serif"
+               CharSet                  =   0
+               Weight                   =   700
+               Size                     =   9.75
+               Underline                =   0
+               Italic                   =   0
+               StrikeThrough            =   0
+            EndProperty
+            ForeColor                =   &H80
+            Alignment                =   0
+            TabIndex                 =   21
+            TabStop                  =   -1
+            Height                   =   255
+            Left                     =   -74760
+            Width                    =   4950
+            Top                      =   1500
+            BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851}
+               Name                     =   "Microsoft Sans Serif"
+               CharSet                  =   0
+               Weight                   =   700
+               Size                     =   9.75
+               Underline                =   0
+               Italic                   =   0
+               StrikeThrough            =   0
+            EndProperty
+            ForeColor                =   &H80
+            Alignment                =   0
+            Caption                  =   "O Proprietario Não é o Emitente do MDF-e"
+            Index                    =   0 
+            DataField                =   "Proprietario"
+         End
+         Begin NFE.GPainel Painel
+            BackColor                =   &HE0E0E0
+            BevelOuter               =   1
+            BevelInner               =   0
+            BorderWidth              =   1
+            BevelWidth               =   1
+            BorderStyle              =   0
+            Stretch                  =   -1
+            Stripes                  =   0
+            SaveGridBars             =   0
+            Height                   =   1635
+            Left                     =   -74820
+            Width                    =   10875
+            Top                      =   1920
+            TabStop                  =  0
+            _extentx                 =   19172
+            _extenty                 =   2882
+            Index                    =   5 
+            Begin VB.Label Label
+               Appearance               =   1
+               BackColor                =   &HE0E0E0
+               BackStyle                =   1
+               BorderStyle              =   0
+               AutoSize                 =   0
+               Height                   =   240
+               Left                     =   300
+               Width                    =   945
+               Top                      =   180
+               Alignment                =   0
+               BeginProperty Font
+                  Name                     =   "Microsoft Sans Serif"
+                  CharSet                  =   0
+                  Weight                   =   400
+                  Size                     =   9.75
+                  Underline                =   0
+                  Italic                   =   0
+                  StrikeThrough            =   0
+               EndProperty
+               ForeColor                =   &H80000008
+               Caption                  =   "* RNTRC:"
+               Index                    =   21 
+            End
+            Begin VB.TextBox txtCp
+               Appearance               =   0
+               BackColor                =   &H80000005
+               BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851}
+                  Name                     =   "Microsoft Sans Serif"
+                  CharSet                  =   0
+                  Weight                   =   400
+                  Size                     =   9.75
+                  Underline                =   0
+                  Italic                   =   0
+                  StrikeThrough            =   0
+               EndProperty
+               ForeColor                =   &H80000008
+               MaxLength                =   25
+               BorderStyle              =   1
+               Alignment                =   0
+               TabIndex                 =   22
+               TabStop                  =   -1
+               Height                   =   300
+               Left                     =   1335
+               Width                    =   1890
+               Top                      =   180
+               DataField                =   "Rntrc proprietario"
+               Index                    =   14 
+            End
+            Begin VB.Label Label
+               Appearance               =   1
+               BackColor                =   &HE0E0E0
+               BackStyle                =   1
+               BorderStyle              =   0
+               AutoSize                 =   0
+               Height                   =   240
+               Left                     =   4200
+               Width                    =   2010
+               Top                      =   180
+               Alignment                =   0
+               BeginProperty Font
+                  Name                     =   "Microsoft Sans Serif"
+                  CharSet                  =   0
+                  Weight                   =   400
+                  Size                     =   9.75
+                  Underline                =   0
+                  Italic                   =   0
+                  StrikeThrough            =   0
+               EndProperty
+               ForeColor                =   &H80000008
+               Caption                  =   "* Tipo de Proprietario:"
+               Index                    =   22 
+            End
+            Begin VB.Label labFdo15
+               Appearance               =  0
+               BorderStyle              =  1
+               BackColor                =  &H80000005
+               Left                     =   6270
+               Top                      =   180
+               Width                    =   2925
+               Height                   =   300
+            End
+            Begin VB.CommandButton bottxtCampo15
+               Style                    =   1
+               TabStop                  =   0
+               Index                    =   2
+               Left                     =   8925
+               Top                      =   195
+               Width                    =   255
+               Height                   =   270
+            End
+            Begin VB.TextBox txtCp
+               Appearance               =   0
+               BackColor                =   &H80000005
+               BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851}
+                  Name                     =   "Microsoft Sans Serif"
+                  CharSet                  =   0
+                  Weight                   =   400
+                  Size                     =   9.75
+                  Underline                =   0
+                  Italic                   =   0
+                  StrikeThrough            =   0
+               EndProperty
+               ForeColor                =   &H80000008
+               BorderStyle              =   0
+               Alignment                =   0
+               TabIndex                 =   23
+               TabStop                  =   -1
+               Height                   =   270
+               Left                     =   6285
+               Width                    =   2625
+               Top                      =   195
+               DataField                =   "Tipo de proprietario"
+               Index                    =   15 
+            End
+            Begin VB.Label Label
+               Appearance               =   1
+               BackColor                =   &HE0E0E0
+               BackStyle                =   1
+               BorderStyle              =   0
+               AutoSize                 =   0
+               Height                   =   240
+               Left                     =   9360
+               Width                    =   570
+               Top                      =   180
+               Alignment                =   0
+               BeginProperty Font
+                  Name                     =   "Microsoft Sans Serif"
+                  CharSet                  =   0
+                  Weight                   =   400
+                  Size                     =   9.75
+                  Underline                =   0
+                  Italic                   =   0
+                  StrikeThrough            =   0
+               EndProperty
+               ForeColor                =   &H80000008
+               Caption                  =   "* UF:"
+               Index                    =   23 
+            End
+            Begin VB.Label labFdo16
+               Appearance               =  1
+               BorderStyle              =  1
+               BackColor                =  &H80000005
+               Left                     =   9960
+               Top                      =   180
+               Width                    =   765
+               Height                   =   300
+            End
+            Begin VB.CommandButton bottxtCampo16
+               Style                    =   1
+               TabStop                  =   0
+               Index                    =   2
+               Left                     =   10440
+               Top                      =   210
+               Width                    =   255
+               Height                   =   240
+            End
+            Begin VB.TextBox txtCp
+               Appearance               =   1
+               BackColor                =   &H80000005
+               BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851}
+                  Name                     =   "Microsoft Sans Serif"
+                  CharSet                  =   0
+                  Weight                   =   400
+                  Size                     =   9.75
+                  Underline                =   0
+                  Italic                   =   0
+                  StrikeThrough            =   0
+               EndProperty
+               ForeColor                =   &H80000008
+               BorderStyle              =   0
+               Alignment                =   0
+               TabIndex                 =   24
+               TabStop                  =   -1
+               Height                   =   240
+               Left                     =   9990
+               Width                    =   435
+               Top                      =   210
+               DataField                =   "Uf proprietario"
+               Index                    =   16 
+            End
+            Begin NFE.GPainel Painel
+               BackColor                =   &H80000005
+               BevelOuter               =   1
+               BevelInner               =   0
+               BorderWidth              =   1
+               BevelWidth               =   1
+               BorderStyle              =   0
+               Stretch                  =   -1
+               Stripes                  =   0
+               SaveGridBars             =   0
+               Height                   =   915
+               Left                     =   90
+               Width                    =   10650
+               Top                      =   600
+               TabStop                  =  0
+               _extentx                 =   18775
+               _extenty                 =   1613
+               Index                    =   6 
+               Begin                   VB.Label labopcPainel6
+                  BorderStyle              =   1
+                  DataField                =   "Tipo documento"
+                  Height                   =   120
+                  Left                     =   1965
+                  Top                      =   180
+                  Visible                  =   0
+                  Width                    =   240
+                  End
+               Begin VB.OptionButton opcPainel6Cp
+                  Appearance               =   1
+                  BackColor                =   &H80000014
+                  BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851}
+                     Name                     =   "Microsoft Sans Serif"
+                     CharSet                  =   0
+                     Weight                   =   400
+                     Size                     =   9.75
+                     Underline                =   0
+                     Italic                   =   0
+                     StrikeThrough            =   0
+                  EndProperty
+                  ForeColor                =   &H80000008
+                  Alignment                =   2
+                  TabIndex                 =   25
+                  TabStop                  =   -1
+                  Height                   =   255
+                  Left                     =   1500
+                  Width                    =   705
+                  Top                      =   120
+                  BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851}
+                     Name                     =   "Microsoft Sans Serif"
+                     CharSet                  =   0
+                     Weight                   =   400
+                     Size                     =   9.75
+                     Underline                =   0
+                     Italic                   =   0
+                     StrikeThrough            =   0
+                  EndProperty
+                  ForeColor                =   &H80000008
+                  Alignment                =   0
+                  Caption                  =   "CPF"
+                  Index                    =   0 
+               End
+               Begin VB.OptionButton opcPainel6Cp
+                  Appearance               =   1
+                  BackColor                =   &H80000014
+                  BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851}
+                     Name                     =   "Microsoft Sans Serif"
+                     CharSet                  =   0
+                     Weight                   =   400
+                     Size                     =   9.75
+                     Underline                =   0
+                     Italic                   =   0
+                     StrikeThrough            =   0
+                  EndProperty
+                  ForeColor                =   &H80000008
+                  Alignment                =   2
+                  TabIndex                 =   26
+                  TabStop                  =   -1
+                  Height                   =   240
+                  Left                     =   2280
+                  Width                    =   885
+                  Top                      =   120
+                  BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851}
+                     Name                     =   "Microsoft Sans Serif"
+                     CharSet                  =   0
+                     Weight                   =   400
+                     Size                     =   9.75
+                     Underline                =   0
+                     Italic                   =   0
+                     StrikeThrough            =   0
+                  EndProperty
+                  ForeColor                =   &H80000008
+                  Alignment                =   0
+                  Caption                  =   "CNPJ"
+                  Index                    =   1 
+               End
+               Begin VB.Label Label
+                  Appearance               =   1
+                  BackColor                =   &H80000005
+                  BackStyle                =   1
+                  BorderStyle              =   0
+                  AutoSize                 =   -1
+                  Height                   =   240
+                  Left                     =   180
+                  Width                    =   1200
+                  Top                      =   120
+                  Alignment                =   0
+                  BeginProperty Font
+                     Name                     =   "Microsoft Sans Serif"
+                     CharSet                  =   0
+                     Weight                   =   400
+                     Size                     =   9.75
+                     Underline                =   0
+                     Italic                   =   0
+                     StrikeThrough            =   0
+                  EndProperty
+                  ForeColor                =   &H80000008
+                  Caption                  =   "* Documento:"
+                  Index                    =   24 
+               End
+               Begin VB.TextBox txtCp
+                  Appearance               =   0
+                  BackColor                =   &H80000005
+                  BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851}
+                     Name                     =   "Microsoft Sans Serif"
+                     CharSet                  =   0
+                     Weight                   =   400
+                     Size                     =   9.75
+                     Underline                =   0
+                     Italic                   =   0
+                     StrikeThrough            =   0
+                  EndProperty
+                  ForeColor                =   &H80000008
+                  BorderStyle              =   1
+                  Alignment                =   0
+                  TabIndex                 =   27
+                  TabStop                  =   -1
+                  Height                   =   300
+                  Left                     =   300
+                  Width                    =   1770
+                  Top                      =   480
+                  DataField                =   "Cpf Proprietario"
+                  Index                    =   17 
+               End
+               Begin VB.TextBox txtCp
+                  Appearance               =   0
+                  BackColor                =   &H80000005
+                  BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851}
+                     Name                     =   "Microsoft Sans Serif"
+                     CharSet                  =   0
+                     Weight                   =   400
+                     Size                     =   9.75
+                     Underline                =   0
+                     Italic                   =   0
+                     StrikeThrough            =   0
+                  EndProperty
+                  ForeColor                =   &H80000008
+                  BorderStyle              =   1
+                  Alignment                =   0
+                  TabIndex                 =   28
+                  TabStop                  =   -1
+                  Height                   =   300
+                  Left                     =   300
+                  Width                    =   1770
+                  Top                      =   480
+                  DataField                =   "Cnpj Proprietario"
+                  Index                    =   18 
+               End
+               Begin VB.Label Label
+                  Appearance               =   1
+                  BackColor                =   &H80000005
+                  BackStyle                =   1
+                  BorderStyle              =   0
+                  AutoSize                 =   0
+                  Height                   =   240
+                  Left                     =   5280
+                  Width                    =   870
+                  Top                      =   120
+                  Alignment                =   0
+                  BeginProperty Font
+                     Name                     =   "Microsoft Sans Serif"
+                     CharSet                  =   0
+                     Weight                   =   400
+                     Size                     =   9.75
+                     Underline                =   0
+                     Italic                   =   0
+                     StrikeThrough            =   0
+                  EndProperty
+                  ForeColor                =   &H80000008
+                  Caption                  =   "* Nome:"
+                  Index                    =   25 
+               End
+               Begin VB.TextBox txtCp
+                  Appearance               =   0
+                  BackColor                =   &H80000005
+                  BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851}
+                     Name                     =   "Microsoft Sans Serif"
+                     CharSet                  =   0
+                     Weight                   =   400
+                     Size                     =   9.75
+                     Underline                =   0
+                     Italic                   =   0
+                     StrikeThrough            =   0
+                  EndProperty
+                  ForeColor                =   &H80000008
+                  MaxLength                =   60
+                  BorderStyle              =   1
+                  Alignment                =   0
+                  TabIndex                 =   29
+                  TabStop                  =   -1
+                  Height                   =   300
+                  Left                     =   6180
+                  Width                    =   4410
+                  Top                      =   120
+                  DataField                =   "Nome Proprietario"
+                  Index                    =   19 
+               End
+               Begin VB.Label Label
+                  Appearance               =   1
+                  BackColor                =   &H80000005
+                  BackStyle                =   1
+                  BorderStyle              =   0
+                  AutoSize                 =   0
+                  Height                   =   240
+                  Left                     =   5760
+                  Width                    =   270
+                  Top                      =   540
+                  Alignment                =   0
+                  BeginProperty Font
+                     Name                     =   "Microsoft Sans Serif"
+                     CharSet                  =   0
+                     Weight                   =   400
+                     Size                     =   9.75
+                     Underline                =   0
+                     Italic                   =   0
+                     StrikeThrough            =   0
+                  EndProperty
+                  ForeColor                =   &H80000008
+                  Caption                  =   "IE:"
+                  Index                    =   26 
+               End
+               Begin VB.TextBox txtCp
+                  Appearance               =   0
+                  BackColor                =   &H80000005
+                  BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851}
+                     Name                     =   "Microsoft Sans Serif"
+                     CharSet                  =   0
+                     Weight                   =   400
+                     Size                     =   9.75
+                     Underline                =   0
+                     Italic                   =   0
+                     StrikeThrough            =   0
+                  EndProperty
+                  ForeColor                =   &H80000008
+                  MaxLength                =   20
+                  BorderStyle              =   1
+                  Alignment                =   0
+                  TabIndex                 =   30
+                  TabStop                  =   -1
+                  Height                   =   300
+                  Left                     =   6180
+                  Width                    =   2190
+                  Top                      =   540
+                  DataField                =   "Ie Proprietario"
+                  Index                    =   20 
+               End
+            End
+         End
+         Begin NFE.GPainel Painel
+            BackColor                =   &HE0E0E0
+            BevelOuter               =   1
+            BevelInner               =   0
+            BorderWidth              =   1
+            BevelWidth               =   1
+            BorderStyle              =   0
+            Stretch                  =   -1
+            Stripes                  =   0
+            SaveGridBars             =   0
+            Height                   =   2910
+            Left                     =   -74805
+            Width                    =   5235
+            Top                      =   615
+            TabStop                  =  0
+            _extentx                 =   9229
+            _extenty                 =   5130
+            Index                    =   7 
+            Begin NFE.GListV Grid
+               BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851}
+                  Name                     =   "MS Sans Serif"
+                  CharSet                  =   0
+                  Weight                   =   400
+                  Size                     =   9.75
+                  Underline                =   0
+                  Italic                   =   0
+                  StrikeThrough            =   0
+               EndProperty
+               CellTextColor            =   &H80000008
+               EditTextColor            =   &H80000008
+               FilterBackColor          =   8454143
+               LeftBackColor            =   -2147483633
+               MaxBackColor             =   -2147483633
+               AvgBackColor             =   -2147483633
+               MinBackColor             =   -2147483633
+               SumBackColor             =   -2147483633
+               StatusBackColor          =   -2147483633
+               ColSelectBackColor       =   -2147483633
+               CellBackColor            =   -2147483643
+               EditBackColor            =   8454143
+               SelectBackColor          =   -2147483635
+               StripesBackColor         =   13750737
+               BackColor                =   -2147483643
+               CaptionBackColor         =   -2147483633
+               ColHeaderBackColor       =   -2147483633
+               GridLinesColor           =   14737632
+               FilterTextColor          =   -2147483640
+               AvgTextColor             =   16512
+               MinTextColor             =   255
+               MaxTextColor             =   49152
+               StatusTextColor          =   -2147483630
+               SumTextColor             =   16711680
+               ColTextBackColor         =   12582912
+               CellTextColor            =   -2147483640
+               SelectTextColor          =   -2147483634
+               EditTextColor            =   -2147483640
+               StripesTextColor         =   -2147483630
+               CaptionTextColor         =   -2147483630
+               ColHeaderTextColor       =   -2147483630
+               TabIndex                 =   31
+               TabStop                  =   -1
+               Stripes                  =   0
+               SaveGridBars             =   0
+               Height                   =   2295
+               Left                     =   120
+               Width                    =   4995
+               Top                      =   435
+               Caption                  =   ""
+               ShowGridCaption          =   0
+               Index                    =   3 
+            End
+            Begin VB.Label Label
+               Appearance               =   1
+               BackColor                =   &H8000000F
+               BackStyle                =   1
+               BorderStyle              =   0
+               AutoSize                 =   -1
+               Height                   =   240
+               Left                     =   120
+               Width                    =   3420
+               Top                      =   60
+               Alignment                =   0
+               BeginProperty Font
+                  Name                     =   "Microsoft Sans Serif"
+                  CharSet                  =   0
+                  Weight                   =   700
+                  Size                     =   9.75
+                  Underline                =   0
+                  Italic                   =   0
+                  StrikeThrough            =   0
+               EndProperty
+               ForeColor                =   &H80000008
+               Caption                  =   "Municipios de Descarregamento:"
+               Index                    =   27 
+            End
+         End
+         Begin NFE.GPainel Painel
+            BackColor                =   &HE0E0E0
+            BevelOuter               =   1
+            BevelInner               =   0
+            BorderWidth              =   1
+            BevelWidth               =   1
+            BorderStyle              =   0
+            Stretch                  =   -1
+            Stripes                  =   0
+            SaveGridBars             =   0
+            Height                   =   2925
+            Left                     =   -69480
+            Width                    =   5475
+            Top                      =   600
+            TabStop                  =  0
+            _extentx                 =   9652
+            _extenty                 =   5156
+            Index                    =   8 
+            Begin VB.Label Label
+               Appearance               =   1
+               BackColor                =   &H8000000F
+               BackStyle                =   1
+               BorderStyle              =   0
+               AutoSize                 =   -1
+               Height                   =   240
+               Left                     =   120
+               Width                    =   1455
+               Top                      =   60
+               Alignment                =   0
+               BeginProperty Font
+                  Name                     =   "Microsoft Sans Serif"
+                  CharSet                  =   0
+                  Weight                   =   700
+                  Size                     =   9.75
+                  Underline                =   0
+                  Italic                   =   0
+                  StrikeThrough            =   0
+               EndProperty
+               ForeColor                =   &H80000008
+               Caption                  =   "NFe da Carga"
+               Index                    =   28 
+            End
+            Begin NFE.GListV Grid
+               BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851}
+                  Name                     =   "MS Sans Serif"
+                  CharSet                  =   0
+                  Weight                   =   400
+                  Size                     =   9.75
+                  Underline                =   0
+                  Italic                   =   0
+                  StrikeThrough            =   0
+               EndProperty
+               CellTextColor            =   &H80000008
+               EditTextColor            =   &H80000008
+               FilterBackColor          =   8454143
+               LeftBackColor            =   -2147483633
+               MaxBackColor             =   -2147483633
+               AvgBackColor             =   -2147483633
+               MinBackColor             =   -2147483633
+               SumBackColor             =   -2147483633
+               StatusBackColor          =   -2147483633
+               ColSelectBackColor       =   -2147483633
+               CellBackColor            =   -2147483643
+               EditBackColor            =   8454143
+               SelectBackColor          =   -2147483635
+               StripesBackColor         =   13750737
+               BackColor                =   -2147483643
+               CaptionBackColor         =   -2147483633
+               ColHeaderBackColor       =   -2147483633
+               GridLinesColor           =   14737632
+               FilterTextColor          =   -2147483640
+               AvgTextColor             =   16512
+               MinTextColor             =   255
+               MaxTextColor             =   49152
+               StatusTextColor          =   -2147483630
+               SumTextColor             =   16711680
+               ColTextBackColor         =   12582912
+               CellTextColor            =   -2147483640
+               SelectTextColor          =   -2147483634
+               EditTextColor            =   -2147483640
+               StripesTextColor         =   -2147483630
+               CaptionTextColor         =   -2147483630
+               ColHeaderTextColor       =   -2147483630
+               TabIndex                 =   32
+               TabStop                  =   -1
+               Stripes                  =   0
+               SaveGridBars             =   0
+               Height                   =   2295
+               Left                     =   120
+               Width                    =   5250
+               Top                      =   435
+               Caption                  =   ""
+               ShowGridCaption          =   0
+               Index                    =   4 
+            End
+         End
+         Begin NFE.GPainel Painel
+            BackColor                =   &HE0E0E0
+            BevelOuter               =   1
+            BevelInner               =   0
+            BorderWidth              =   1
+            BevelWidth               =   1
+            BorderStyle              =   0
+            Stretch                  =   -1
+            Stripes                  =   0
+            SaveGridBars             =   0
+            Height                   =   2820
+            Left                     =   -74820
+            Width                    =   5355
+            Top                      =   600
+            TabStop                  =  0
+            _extentx                 =   9440
+            _extenty                 =   4971
+            Index                    =   9 
+            Begin NFE.GListV Grid
+               BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851}
+                  Name                     =   "MS Sans Serif"
+                  CharSet                  =   0
+                  Weight                   =   400
+                  Size                     =   9.75
+                  Underline                =   0
+                  Italic                   =   0
+                  StrikeThrough            =   0
+               EndProperty
+               CellTextColor            =   &H80000008
+               EditTextColor            =   &H80000008
+               FilterBackColor          =   8454143
+               LeftBackColor            =   -2147483633
+               MaxBackColor             =   -2147483633
+               AvgBackColor             =   -2147483633
+               MinBackColor             =   -2147483633
+               SumBackColor             =   -2147483633
+               StatusBackColor          =   -2147483633
+               ColSelectBackColor       =   -2147483633
+               CellBackColor            =   -2147483643
+               EditBackColor            =   8454143
+               SelectBackColor          =   -2147483635
+               StripesBackColor         =   13750737
+               BackColor                =   -2147483643
+               CaptionBackColor         =   -2147483633
+               ColHeaderBackColor       =   -2147483633
+               GridLinesColor           =   14737632
+               FilterTextColor          =   -2147483640
+               AvgTextColor             =   16512
+               MinTextColor             =   255
+               MaxTextColor             =   49152
+               StatusTextColor          =   -2147483630
+               SumTextColor             =   16711680
+               ColTextBackColor         =   12582912
+               CellTextColor            =   -2147483640
+               SelectTextColor          =   -2147483634
+               EditTextColor            =   -2147483640
+               StripesTextColor         =   -2147483630
+               CaptionTextColor         =   -2147483630
+               ColHeaderTextColor       =   -2147483630
+               TabIndex                 =   34
+               TabStop                  =   -1
+               Stripes                  =   0
+               SaveGridBars             =   0
+               Height                   =   2280
+               Left                     =   120
+               Width                    =   5115
+               Top                      =   420
+               Caption                  =   ""
+               ShowGridCaption          =   0
+               Index                    =   5 
+            End
+            Begin VB.Label Label
+               Appearance               =   1
+               BackColor                =   &H8000000F
+               BackStyle                =   1
+               BorderStyle              =   0
+               AutoSize                 =   -1
+               Height                   =   240
+               Left                     =   120
+               Width                    =   3360
+               Top                      =   60
+               Alignment                =   0
+               BeginProperty Font
+                  Name                     =   "Microsoft Sans Serif"
+                  CharSet                  =   0
+                  Weight                   =   700
+                  Size                     =   9.75
+                  Underline                =   0
+                  Italic                   =   0
+                  StrikeThrough            =   0
+               EndProperty
+               ForeColor                =   &H80000008
+               Caption                  =   "Municipios de Descarregamento"
+               Index                    =   29 
+            End
+         End
+         Begin NFE.GPainel Painel
+            BackColor                =   &HE0E0E0
+            BevelOuter               =   1
+            BevelInner               =   0
+            BorderWidth              =   1
+            BevelWidth               =   1
+            BorderStyle              =   0
+            Stretch                  =   -1
+            Stripes                  =   0
+            SaveGridBars             =   0
+            Height                   =   2820
+            Left                     =   -69360
+            Width                    =   5415
+            Top                      =   600
+            TabStop                  =  0
+            _extentx                 =   9546
+            _extenty                 =   4971
+            Index                    =   10 
+            Begin VB.Label Label
+               Appearance               =   1
+               BackColor                =   &H8000000F
+               BackStyle                =   1
+               BorderStyle              =   0
+               AutoSize                 =   -1
+               Height                   =   240
+               Left                     =   120
+               Width                    =   1455
+               Top                      =   60
+               Alignment                =   0
+               BeginProperty Font
+                  Name                     =   "Microsoft Sans Serif"
+                  CharSet                  =   0
+                  Weight                   =   700
+                  Size                     =   9.75
+                  Underline                =   0
+                  Italic                   =   0
+                  StrikeThrough            =   0
+               EndProperty
+               ForeColor                =   &H80000008
+               Caption                  =   "CTe da Carga"
+               Index                    =   30 
+            End
+            Begin NFE.GListV Grid
+               BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851}
+                  Name                     =   "MS Sans Serif"
+                  CharSet                  =   0
+                  Weight                   =   400
+                  Size                     =   9.75
+                  Underline                =   0
+                  Italic                   =   0
+                  StrikeThrough            =   0
+               EndProperty
+               CellTextColor            =   &H80000008
+               EditTextColor            =   &H80000008
+               FilterBackColor          =   8454143
+               LeftBackColor            =   -2147483633
+               MaxBackColor             =   -2147483633
+               AvgBackColor             =   -2147483633
+               MinBackColor             =   -2147483633
+               SumBackColor             =   -2147483633
+               StatusBackColor          =   -2147483633
+               ColSelectBackColor       =   -2147483633
+               CellBackColor            =   -2147483643
+               EditBackColor            =   8454143
+               SelectBackColor          =   -2147483635
+               StripesBackColor         =   13750737
+               BackColor                =   -2147483643
+               CaptionBackColor         =   -2147483633
+               ColHeaderBackColor       =   -2147483633
+               GridLinesColor           =   14737632
+               FilterTextColor          =   -2147483640
+               AvgTextColor             =   16512
+               MinTextColor             =   255
+               MaxTextColor             =   49152
+               StatusTextColor          =   -2147483630
+               SumTextColor             =   16711680
+               ColTextBackColor         =   12582912
+               CellTextColor            =   -2147483640
+               SelectTextColor          =   -2147483634
+               EditTextColor            =   -2147483640
+               StripesTextColor         =   -2147483630
+               CaptionTextColor         =   -2147483630
+               ColHeaderTextColor       =   -2147483630
+               TabIndex                 =   35
+               TabStop                  =   -1
+               Stripes                  =   0
+               SaveGridBars             =   0
+               Height                   =   2280
+               Left                     =   120
+               Width                    =   5175
+               Top                      =   420
+               Caption                  =   ""
+               ShowGridCaption          =   0
+               Index                    =   6 
+            End
+         End
+         Begin VB.Label Label
+            Appearance               =   1
+            BackColor                =   &H8000000F
+            BackStyle                =   1
+            BorderStyle              =   0
+            AutoSize                 =   0
+            Height                   =   240
+            Left                     =   -74700
+            Width                    =   1755
+            Top                      =   600
+            Alignment                =   0
+            BeginProperty Font
+               Name                     =   "Microsoft Sans Serif"
+               CharSet                  =   0
+               Weight                   =   400
+               Size                     =   9.75
+               Underline                =   0
+               Italic                   =   0
+               StrikeThrough            =   0
+            EndProperty
+            ForeColor                =   &H80000008
+            Caption                  =   "Chave de Acesso:"
+            Index                    =   31 
+         End
+         Begin VB.TextBox txtCp
+            Appearance               =   0
+            BackColor                =   &HE0E0E0
+            BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851}
+               Name                     =   "Microsoft Sans Serif"
+               CharSet                  =   0
+               Weight                   =   400
+               Size                     =   9.75
+               Underline                =   0
+               Italic                   =   0
+               StrikeThrough            =   0
+            EndProperty
+            ForeColor                =   &H80000008
+            MaxLength                =   50
+            BorderStyle              =   1
+            Alignment                =   0
+            Locked                   =   -1
+            TabIndex                 =   36
+            TabStop                  =   -1
+            Height                   =   300
+            Left                     =   -72900
+            Width                    =   5280
+            Top                      =   600
+            DataField                =   "Chave de acesso"
+            TabStop                  =  0
+            Index                    =   21 
+         End
+         Begin VB.Label Label
+            Appearance               =   1
+            BackColor                =   &H8000000F
+            BackStyle                =   1
+            BorderStyle              =   0
+            AutoSize                 =   0
+            Height                   =   240
+            Left                     =   -67440
+            Width                    =   1200
+            Top                      =   600
+            Alignment                =   0
+            BeginProperty Font
+               Name                     =   "Microsoft Sans Serif"
+               CharSet                  =   0
+               Weight                   =   400
+               Size                     =   9.75
+               Underline                =   0
+               Italic                   =   0
+               StrikeThrough            =   0
+            EndProperty
+            ForeColor                =   &H80000008
+            Caption                  =   "Data e Hora:"
+            Index                    =   32 
+         End
+         Begin VB.TextBox txtCp
+            Appearance               =   0
+            BackColor                =   &HE0E0E0
+            BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851}
+               Name                     =   "Microsoft Sans Serif"
+               CharSet                  =   0
+               Weight                   =   400
+               Size                     =   9.75
+               Underline                =   0
+               Italic                   =   0
+               StrikeThrough            =   0
+            EndProperty
+            ForeColor                =   &H80000008
+            MaxLength                =   30
+            BorderStyle              =   1
+            Alignment                =   0
+            Locked                   =   -1
+            TabIndex                 =   37
+            TabStop                  =   -1
+            Height                   =   300
+            Left                     =   -66120
+            Width                    =   2100
+            Top                      =   600
+            DataField                =   "Data e hora do mdfe"
+            TabStop                  =  0
+            Index                    =   22 
+         End
+         Begin VB.Label Label
+            Appearance               =   1
+            BackColor                =   &H8000000F
+            BackStyle                =   1
+            BorderStyle              =   0
+            AutoSize                 =   0
+            Height                   =   240
+            Left                     =   -73980
+            Width                    =   1020
+            Top                      =   1140
+            Alignment                =   0
+            BeginProperty Font
+               Name                     =   "Microsoft Sans Serif"
+               CharSet                  =   0
+               Weight                   =   400
+               Size                     =   9.75
+               Underline                =   0
+               Italic                   =   0
+               StrikeThrough            =   0
+            EndProperty
+            ForeColor                =   &H80000008
+            Caption                  =   "Protocolo:"
+            Index                    =   33 
+         End
+         Begin VB.TextBox txtCp
+            Appearance               =   0
+            BackColor                =   &HE0E0E0
+            BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851}
+               Name                     =   "Microsoft Sans Serif"
+               CharSet                  =   0
+               Weight                   =   400
+               Size                     =   9.75
+               Underline                =   0
+               Italic                   =   0
+               StrikeThrough            =   0
+            EndProperty
+            ForeColor                =   &H80000008
+            MaxLength                =   50
+            BorderStyle              =   1
+            Alignment                =   0
+            Locked                   =   -1
+            TabIndex                 =   38
+            TabStop                  =   -1
+            Height                   =   300
+            Left                     =   -72900
+            Width                    =   2580
+            Top                      =   1140
+            DataField                =   "Protocolo de autorização"
+            TabStop                  =  0
+            Index                    =   23 
+         End
+         Begin VB.TextBox txtCp
+            Appearance               =   1
+            BackColor                =   &H80000005
+            BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851}
+               Name                     =   "Microsoft Sans Serif"
+               CharSet                  =   0
+               Weight                   =   400
+               Size                     =   9.75
+               Underline                =   0
+               Italic                   =   0
+               StrikeThrough            =   0
+            EndProperty
+            ForeColor                =   &H80000008
+            BorderStyle              =   1
+            Alignment                =   0
+            Locked                   =   -1
+            TabIndex                 =   39
+            TabStop                  =   -1
+            Height                   =   1920
+            Left                     =   -74700
+            Width                    =   10680
+            Top                      =   1620
+            DataField                =   "Observação"
+            TabStop                  =  0
+            Index                    =   24 
+            MultiLine                =   -1
+            ScrollBars               =   2
+         End
+         Begin VB.Label Label
+            Appearance               =   1
+            BackColor                =   &H8000000F
+            BackStyle                =   1
+            BorderStyle              =   0
+            AutoSize                 =   -1
+            Height                   =   240
+            Left                     =   -74580
+            Width                    =   2790
+            Top                      =   1320
+            Alignment                =   0
+            BeginProperty Font
+               Name                     =   "Microsoft Sans Serif"
+               CharSet                  =   0
+               Weight                   =   700
+               Size                     =   9.75
+               Underline                =   0
+               Italic                   =   0
+               StrikeThrough            =   0
+            EndProperty
+            ForeColor                =   &H80000008
+            Caption                  =   "Responsavel Pelo Seguro:"
+            Index                    =   34 
+         End
+         Begin VB.Label labFdo25
+            Appearance               =  0
+            BorderStyle              =  1
+            BackColor                =  &H80000005
+            Left                     =   -71640
+            Top                      =   1320
+            Width                    =   4785
+            Height                   =   300
+         End
+         Begin VB.CommandButton bottxtCampo25
+            Style                    =   1
+            TabStop                  =   0
+            Index                    =   2
+            Left                     =   -67125
+            Top                      =   1335
+            Width                    =   255
+            Height                   =   270
+         End
+         Begin VB.TextBox txtCp
+            Appearance               =   0
+            BackColor                =   &H80000005
+            BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851}
+               Name                     =   "Microsoft Sans Serif"
+               CharSet                  =   0
+               Weight                   =   400
+               Size                     =   9.75
+               Underline                =   0
+               Italic                   =   0
+               StrikeThrough            =   0
+            EndProperty
+            ForeColor                =   &H80000008
+            BorderStyle              =   0
+            Alignment                =   0
+            TabIndex                 =   42
+            TabStop                  =   -1
+            Height                   =   270
+            Left                     =   -71625
+            Width                    =   4500
+            Top                      =   1335
+            DataField                =   "Responsavel do seguro"
+            Index                    =   25 
+         End
+         Begin VB.Label Label
+            Appearance               =   1
+            BackColor                =   &H8000000F
+            BackStyle                =   1
+            BorderStyle              =   0
+            AutoSize                 =   -1
+            Height                   =   300
+            Left                     =   -74580
+            Width                    =   4305
+            Top                      =   420
+            Alignment                =   0
+            BeginProperty Font
+               Name                     =   "Microsoft Sans Serif"
+               CharSet                  =   0
+               Weight                   =   700
+               Size                     =   12
+               Underline                =   0
+               Italic                   =   0
+               StrikeThrough            =   0
+            EndProperty
+            ForeColor                =   &H80000008
+            Caption                  =   "Dados do Responsavel pelo Seguro"
+            Index                    =   35 
+         End
+         Begin             VB.Label labopcTabs0
+            BorderStyle              =   1
+            DataField                =   "Tipo do responsavel"
+            Height                   =   120
+            Left                     =   -73605
+            Top                      =   180
+            Visible                  =   0
+            Width                    =   240
+            End
+         Begin VB.OptionButton opcTabs0Cp
+            Appearance               =   1
+            BackColor                =   &H8000000F
+            BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851}
+               Name                     =   "Microsoft Sans Serif"
+               CharSet                  =   0
+               Weight                   =   700
+               Size                     =   9.75
+               Underline                =   0
+               Italic                   =   0
+               StrikeThrough            =   0
+            EndProperty
+            ForeColor                =   &H80
+            Alignment                =   2
+            TabIndex                 =   40
+            TabStop                  =   0
+            Height                   =   255
+            Left                     =   -74520
+            Width                    =   1155
+            Top                      =   975
+            BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851}
+               Name                     =   "Microsoft Sans Serif"
+               CharSet                  =   0
+               Weight                   =   700
+               Size                     =   9.75
+               Underline                =   0
+               Italic                   =   0
+               StrikeThrough            =   0
+            EndProperty
+            ForeColor                =   &H80
+            Alignment                =   0
+            Caption                  =   "FISICA"
+            Index                    =   0 
+         End
+         Begin VB.OptionButton opcTabs0Cp
+            Appearance               =   1
+            BackColor                =   &H8000000F
+            BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851}
+               Name                     =   "Microsoft Sans Serif"
+               CharSet                  =   0
+               Weight                   =   700
+               Size                     =   9.75
+               Underline                =   0
+               Italic                   =   0
+               StrikeThrough            =   0
+            EndProperty
+            ForeColor                =   &H80
+            Alignment                =   2
+            TabIndex                 =   41
+            TabStop                  =   0
+            Height                   =   255
+            Left                     =   -73320
+            Width                    =   1635
+            Top                      =   975
+            BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851}
+               Name                     =   "Microsoft Sans Serif"
+               CharSet                  =   0
+               Weight                   =   700
+               Size                     =   9.75
+               Underline                =   0
+               Italic                   =   0
+               StrikeThrough            =   0
+            EndProperty
+            ForeColor                =   &H80
+            Alignment                =   0
+            Caption                  =   "JURIDICA"
+            Index                    =   1 
+         End
+         Begin VB.Label Label
+            Appearance               =   1
+            BackColor                =   &H8000000F
+            BackStyle                =   1
+            BorderStyle              =   0
+            AutoSize                 =   -1
+            Height                   =   240
+            Left                     =   -66675
+            Width                    =   705
+            Top                      =   1320
+            Alignment                =   1
+            BeginProperty Font
+               Name                     =   "Microsoft Sans Serif"
+               CharSet                  =   0
+               Weight                   =   700
+               Size                     =   9.75
+               Underline                =   0
+               Italic                   =   0
+               StrikeThrough            =   0
+            EndProperty
+            ForeColor                =   &H80000008
+            Caption                  =   "CNPJ.:"
+            Index                    =   36 
+         End
+         Begin VB.TextBox txtCp
+            Appearance               =   0
+            BackColor                =   &H80000005
+            BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851}
+               Name                     =   "Microsoft Sans Serif"
+               CharSet                  =   0
+               Weight                   =   400
+               Size                     =   9.75
+               Underline                =   0
+               Italic                   =   0
+               StrikeThrough            =   0
+            EndProperty
+            ForeColor                =   &H0
+            MaxLength                =   20
+            BorderStyle              =   1
+            Alignment                =   0
+            TabIndex                 =   43
+            TabStop                  =   -1
+            Height                   =   300
+            Left                     =   -65820
+            Width                    =   1845
+            Top                      =   1320
+            DataField                =   "Documento do responsavel"
+            Index                    =   26 
+         End
+         Begin VB.Line Linha
+            BorderColor              =   -2147483640
+            BorderStyle              =   1
+            BorderWidth              =   1
+            X1                       =   -74865
+            Y1                       =   1710
+            X2                       =   -63975
+            Y2                       =   1710
+            Index                    =   1 
+         End
+         Begin VB.Label Label
+            Appearance               =   1
+            BackColor                =   &H8000000F
+            BackStyle                =   1
+            BorderStyle              =   0
+            AutoSize                 =   0
+            Height                   =   240
+            Left                     =   -74820
+            Width                    =   2325
+            Top                      =   1860
+            Alignment                =   0
+            BeginProperty Font
+               Name                     =   "Microsoft Sans Serif"
+               CharSet                  =   0
+               Weight                   =   700
+               Size                     =   9.75
+               Underline                =   0
+               Italic                   =   0
+               StrikeThrough            =   0
+            EndProperty
+            ForeColor                =   &H80000008
+            Caption                  =   "Nome da Seguradora:"
+            Index                    =   37 
+         End
+         Begin VB.TextBox txtCp
+            Appearance               =   0
+            BackColor                =   &H80000005
+            BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851}
+               Name                     =   "Microsoft Sans Serif"
+               CharSet                  =   0
+               Weight                   =   400
+               Size                     =   9.75
+               Underline                =   0
+               Italic                   =   0
+               StrikeThrough            =   0
+            EndProperty
+            ForeColor                =   &H80000008
+            MaxLength                =   50
+            BorderStyle              =   1
+            Alignment                =   0
+            TabIndex                 =   44
+            TabStop                  =   -1
+            Height                   =   300
+            Left                     =   -74820
+            Width                    =   4365
+            Top                      =   2100
+            DataField                =   "Nome da seguradora"
+            Index                    =   27 
+         End
+         Begin VB.Label Label
+            Appearance               =   1
+            BackColor                =   &H8000000F
+            BackStyle                =   1
+            BorderStyle              =   0
+            AutoSize                 =   -1
+            Height                   =   240
+            Left                     =   -70380
+            Width                    =   645
+            Top                      =   1860
+            Alignment                =   0
+            BeginProperty Font
+               Name                     =   "Microsoft Sans Serif"
+               CharSet                  =   0
+               Weight                   =   700
+               Size                     =   9.75
+               Underline                =   0
+               Italic                   =   0
+               StrikeThrough            =   0
+            EndProperty
+            ForeColor                =   &H80000008
+            Caption                  =   "CNPJ:"
+            Index                    =   38 
+         End
+         Begin VB.TextBox txtCp
+            Appearance               =   0
+            BackColor                =   &H80000005
+            BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851}
+               Name                     =   "Microsoft Sans Serif"
+               CharSet                  =   0
+               Weight                   =   400
+               Size                     =   9.75
+               Underline                =   0
+               Italic                   =   0
+               StrikeThrough            =   0
+            EndProperty
+            ForeColor                =   &H80000008
+            BorderStyle              =   1
+            Alignment                =   0
+            TabIndex                 =   45
+            TabStop                  =   -1
+            Height                   =   300
+            Left                     =   -70380
+            Width                    =   1770
+            Top                      =   2100
+            DataField                =   "Cnpj da seguradora"
+            Index                    =   28 
+         End
+         Begin VB.Label Label
+            Appearance               =   1
+            BackColor                =   &H8000000F
+            BackStyle                =   1
+            BorderStyle              =   0
+            AutoSize                 =   -1
+            Height                   =   240
+            Left                     =   -68520
+            Width                    =   855
+            Top                      =   1860
+            Alignment                =   1
+            BeginProperty Font
+               Name                     =   "Microsoft Sans Serif"
+               CharSet                  =   0
+               Weight                   =   700
+               Size                     =   9.75
+               Underline                =   0
+               Italic                   =   0
+               StrikeThrough            =   0
+            EndProperty
+            ForeColor                =   &H80000008
+            Caption                  =   "Apolice:"
+            Index                    =   39 
+         End
+         Begin VB.TextBox txtCp
+            Appearance               =   0
+            BackColor                =   &H80000005
+            BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851}
+               Name                     =   "Microsoft Sans Serif"
+               CharSet                  =   0
+               Weight                   =   400
+               Size                     =   9.75
+               Underline                =   0
+               Italic                   =   0
+               StrikeThrough            =   0
+            EndProperty
+            ForeColor                =   &H80000008
+            MaxLength                =   20
+            BorderStyle              =   1
+            Alignment                =   0
+            TabIndex                 =   46
+            TabStop                  =   -1
+            Height                   =   300
+            Left                     =   -68520
+            Width                    =   2025
+            Top                      =   2100
+            DataField                =   "N da apolice"
+            Index                    =   29 
+         End
+         Begin VB.Label Label
+            Appearance               =   1
+            BackColor                =   &H8000000F
+            BackStyle                =   1
+            BorderStyle              =   0
+            AutoSize                 =   -1
+            Height                   =   240
+            Left                     =   -74820
+            Width                    =   1320
+            Top                      =   2400
+            Alignment                =   1
+            BeginProperty Font
+               Name                     =   "Microsoft Sans Serif"
+               CharSet                  =   0
+               Weight                   =   700
+               Size                     =   9.75
+               Underline                =   0
+               Italic                   =   0
+               StrikeThrough            =   0
+            EndProperty
+            ForeColor                =   &H80000008
+            Caption                  =   "Averbações:"
+            Index                    =   40 
+         End
+         Begin VB.TextBox txtCp
+            Appearance               =   0
+            BackColor                =   &H80000005
+            BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851}
+               Name                     =   "Microsoft Sans Serif"
+               CharSet                  =   0
+               Weight                   =   400
+               Size                     =   9.75
+               Underline                =   0
+               Italic                   =   0
+               StrikeThrough            =   0
+            EndProperty
+            ForeColor                =   &H80000008
+            MaxLength                =   60
+            BorderStyle              =   1
+            Alignment                =   0
+            TabIndex                 =   47
+            TabStop                  =   -1
+            Height                   =   300
+            Left                     =   -74820
+            Width                    =   10725
+            Top                      =   2640
+            DataField                =   "N averbação"
+            Index                    =   30 
+         End
+         Begin VB.Label Label
+            Appearance               =   1
+            BackColor                =   &H8000000F
+            BackStyle                =   1
+            BorderStyle              =   0
+            AutoSize                 =   -1
+            Height                   =   240
+            Left                     =   -74805
+            Width                    =   2310
+            Top                      =   2955
+            Alignment                =   1
+            BeginProperty Font
+               Name                     =   "Microsoft Sans Serif"
+               CharSet                  =   0
+               Weight                   =   700
+               Size                     =   9.75
+               Underline                =   0
+               Italic                   =   0
+               StrikeThrough            =   0
+            EndProperty
+            ForeColor                =   &H80000008
+            Caption                  =   "Produto Predominante"
+            Index                    =   41 
+         End
+         Begin VB.TextBox txtCp
+            Appearance               =   0
+            BackColor                =   &H80000005
+            BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851}
+               Name                     =   "Microsoft Sans Serif"
+               CharSet                  =   0
+               Weight                   =   400
+               Size                     =   9.75
+               Underline                =   0
+               Italic                   =   0
+               StrikeThrough            =   0
+            EndProperty
+            ForeColor                =   &H80000008
+            MaxLength                =   120
+            BorderStyle              =   1
+            Alignment                =   0
+            TabIndex                 =   48
+            TabStop                  =   -1
+            Height                   =   300
+            Left                     =   -74805
+            Width                    =   10710
+            Top                      =   3240
+            DataField                =   "Produto Predominante"
+            Index                    =   31 
+         End
+         Begin VB.Label Label
+            Appearance               =   1
+            BackColor                =   &H8000000F
+            BackStyle                =   1
+            BorderStyle              =   0
+            AutoSize                 =   -1
+            Height                   =   240
+            Left                     =   3180
+            Width                    =   705
+            Top                      =   3120
+            Alignment                =   0
+            BeginProperty Font
+               Name                     =   "Microsoft Sans Serif"
+               CharSet                  =   0
+               Weight                   =   400
+               Size                     =   9.75
+               Underline                =   0
+               Italic                   =   0
+               StrikeThrough            =   0
+            EndProperty
+            ForeColor                =   &H80000008
+            Caption                  =   "Latitude"
+            Index                    =   42 
+         End
+         Begin VB.Label labFdo32
+            Appearance               =  0
+            BorderStyle              =  1
+            BackColor                =  &H80000005
+            Left                     =   3180
+            Top                      =   3360
+            Width                    =   1890
+            Height                   =   300
+         End
+         Begin VB.CommandButton bottxtCampo32
+            Style                    =   1
+            TabStop                  =   0
+            Index                    =   1
+            Left                     =   4800
+            Top                      =   3375
+            Width                    =   255
+            Height                   =   270
+         End
+         Begin VB.CommandButton bottxtCampo32
+            Style                    =   1
+            TabStop                  =   0
+            Index                    =   2
+            Left                     =   4545
+            Top                      =   3375
+            Width                    =   255
+            Height                   =   270
+         End
+         Begin VB.TextBox txtCp
+            Appearance               =   0
+            BackColor                =   &H80000005
+            BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851}
+               Name                     =   "Microsoft Sans Serif"
+               CharSet                  =   0
+               Weight                   =   400
+               Size                     =   9.75
+               Underline                =   0
+               Italic                   =   0
+               StrikeThrough            =   0
+            EndProperty
+            ForeColor                =   &H80000008
+            BorderStyle              =   0
+            Alignment                =   1
+            TabIndex                 =   54
+            TabStop                  =   -1
+            Height                   =   270
+            Left                     =   3195
+            Width                    =   1335
+            Top                      =   3375
+            DataField                =   "Latitude de Descrregamento"
+            Index                    =   32 
+         End
+         Begin VB.Label Label
+            Appearance               =   1
+            BackColor                =   &H8000000F
+            BackStyle                =   1
+            BorderStyle              =   0
+            AutoSize                 =   -1
+            Height                   =   240
+            Left                     =   5160
+            Width                    =   885
+            Top                      =   3120
+            Alignment                =   0
+            BeginProperty Font
+               Name                     =   "Microsoft Sans Serif"
+               CharSet                  =   0
+               Weight                   =   400
+               Size                     =   9.75
+               Underline                =   0
+               Italic                   =   0
+               StrikeThrough            =   0
+            EndProperty
+            ForeColor                =   &H80000008
+            Caption                  =   "Longitude"
+            Index                    =   43 
+         End
+         Begin VB.Label labFdo33
+            Appearance               =  0
+            BorderStyle              =  1
+            BackColor                =  &H80000005
+            Left                     =   5160
+            Top                      =   3360
+            Width                    =   1890
+            Height                   =   300
+         End
+         Begin VB.CommandButton bottxtCampo33
+            Style                    =   1
+            TabStop                  =   0
+            Index                    =   1
+            Left                     =   6780
+            Top                      =   3375
+            Width                    =   255
+            Height                   =   270
+         End
+         Begin VB.CommandButton bottxtCampo33
+            Style                    =   1
+            TabStop                  =   0
+            Index                    =   2
+            Left                     =   6525
+            Top                      =   3375
+            Width                    =   255
+            Height                   =   270
+         End
+         Begin VB.TextBox txtCp
+            Appearance               =   0
+            BackColor                =   &H80000005
+            BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851}
+               Name                     =   "Microsoft Sans Serif"
+               CharSet                  =   0
+               Weight                   =   400
+               Size                     =   9.75
+               Underline                =   0
+               Italic                   =   0
+               StrikeThrough            =   0
+            EndProperty
+            ForeColor                =   &H80000008
+            BorderStyle              =   0
+            Alignment                =   1
+            TabIndex                 =   55
+            TabStop                  =   -1
+            Height                   =   270
+            Left                     =   5175
+            Width                    =   1335
+            Top                      =   3375
+            DataField                =   "Longitude de Descarregamento"
+            Index                    =   33 
+         End
+         Begin VB.Label Label
+            Appearance               =   1
+            BackColor                =   &H8000000F
+            BackStyle                =   1
+            BorderStyle              =   0
+            AutoSize                 =   0
+            Height                   =   240
+            Left                     =   7140
+            Width                    =   555
+            Top                      =   3120
+            Alignment                =   0
+            BeginProperty Font
+               Name                     =   "Microsoft Sans Serif"
+               CharSet                  =   0
+               Weight                   =   400
+               Size                     =   9.75
+               Underline                =   0
+               Italic                   =   0
+               StrikeThrough            =   0
+            EndProperty
+            ForeColor                =   &H80000008
+            Caption                  =   "CEP"
+            Index                    =   44 
+         End
+         Begin VB.TextBox txtCp
+            Appearance               =   0
+            BackColor                =   &H80000005
+            BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851}
+               Name                     =   "Microsoft Sans Serif"
+               CharSet                  =   0
+               Weight                   =   400
+               Size                     =   9.75
+               Underline                =   0
+               Italic                   =   0
+               StrikeThrough            =   0
+            EndProperty
+            ForeColor                =   &H80000008
+            BorderStyle              =   1
+            Alignment                =   0
+            TabIndex                 =   57
+            TabStop                  =   -1
+            Height                   =   300
+            Left                     =   7140
+            Width                    =   1020
+            Top                      =   3360
+            DataField                =   "CEP Descarregamento"
+            Index                    =   34 
+         End
+         Begin VB.Label Label
+            Appearance               =   1
+            BackColor                =   &H8000000F
+            BackStyle                =   1
+            BorderStyle              =   0
+            AutoSize                 =   -1
+            Height                   =   240
+            Left                     =   2415
+            Width                    =   270
+            Top                      =   3135
+            Alignment                =   0
+            BeginProperty Font
+               Name                     =   "Microsoft Sans Serif"
+               CharSet                  =   0
+               Weight                   =   400
+               Size                     =   9.75
+               Underline                =   0
+               Italic                   =   0
+               StrikeThrough            =   0
+            EndProperty
+            ForeColor                =   &H80000008
+            Caption                  =   "UF"
+            Index                    =   45 
+         End
+         Begin VB.Label Label
+            Appearance               =   1
+            BackColor                =   &H8000000F
+            BackStyle                =   1
+            BorderStyle              =   0
+            AutoSize                 =   0
+            Height                   =   240
+            Left                     =   435
+            Width                    =   1500
+            Top                      =   3195
+            Alignment                =   0
+            BeginProperty Font
+               Name                     =   "Microsoft Sans Serif"
+               CharSet                  =   0
+               Weight                   =   700
+               Size                     =   9.75
+               Underline                =   0
+               Italic                   =   0
+               StrikeThrough            =   0
+            EndProperty
+            ForeColor                =   &H80000008
+            Caption                  =   "Local de"
+            Index                    =   46 
+         End
+      End
+      Begin VB.Label Label
+         Appearance               =   1
+         BackColor                =   &H8000000F
+         BackStyle                =   1
+         BorderStyle              =   0
+         AutoSize                 =   -1
+         Height                   =   240
+         Left                     =   11280
+         Width                    =   45
+         Top                      =   8700
+         Alignment                =   0
+         BeginProperty Font
+            Name                     =   "Microsoft Sans Serif"
+            CharSet                  =   0
+            Weight                   =   400
+            Size                     =   9.75
+            Underline                =   0
+            Italic                   =   0
+            StrikeThrough            =   0
+         EndProperty
+         ForeColor                =   &H80000008
+         Caption                  =   "."
+         Index                    =   47 
+      End
+      Begin VB.Label Label
+         Appearance               =   1
+         BackColor                =   &H8000000F
+         BackStyle                =   1
+         BorderStyle              =   0
+         AutoSize                 =   0
+         Height                   =   240
+         Left                     =   2400
+         Width                    =   900
+         Top                      =   1800
+         Alignment                =   0
+         BeginProperty Font
+            Name                     =   "Microsoft Sans Serif"
+            CharSet                  =   0
+            Weight                   =   400
+            Size                     =   9.75
+            Underline                =   0
+            Italic                   =   0
+            StrikeThrough            =   0
+         EndProperty
+         ForeColor                =   &H80000008
+         Caption                  =   "Emissão:"
+         Index                    =   48 
+      End
+      Begin VB.Label labFdo35
+         Appearance               =  0
+         BorderStyle              =  1
+         BackColor                =  &HE0E0E0
+         Left                     =   3420
+         Top                      =   1800
+         Width                    =   1440
+         Height                   =   300
+      End
+      Begin VB.CommandButton bottxtCampo35
+         Style                    =   1
+         TabStop                  =   0
+         Index                    =   0
+         Left                     =   4590
+         Top                      =   1815
+         Width                    =   255
+         Height                   =   270
+      End
+      Begin VB.TextBox txtCp
+         Appearance               =   0
+         BackColor                =   &HE0E0E0
+         BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851}
+            Name                     =   "Microsoft Sans Serif"
+            CharSet                  =   0
+            Weight                   =   400
+            Size                     =   9.75
+            Underline                =   0
+            Italic                   =   0
+            StrikeThrough            =   0
+         EndProperty
+         ForeColor                =   &H80000008
+         BorderStyle              =   0
+         Alignment                =   0
+         TabIndex                 =   1
+         TabStop                  =   -1
+         Height                   =   270
+         Left                     =   3435
+         Width                    =   1140
+         Top                      =   1815
+         DataField                =   "Data de emissão"
+         Index                    =   35 
+      End
+      Begin VB.Label Label
+         Appearance               =   1
+         BackColor                =   &H8000000F
+         BackStyle                =   1
+         BorderStyle              =   0
+         AutoSize                 =   0
+         Height                   =   240
+         Left                     =   5040
+         Width                    =   1620
+         Top                      =   1800
+         Alignment                =   0
+         BeginProperty Font
+            Name                     =   "Microsoft Sans Serif"
+            CharSet                  =   0
+            Weight                   =   400
+            Size                     =   9.75
+            Underline                =   0
+            Italic                   =   0
+            StrikeThrough            =   0
+         EndProperty
+         ForeColor                =   &H80000008
+         Caption                  =   "Tipo de Emitente:"
+         Index                    =   49 
+      End
+      Begin VB.Label labFdo36
+         Appearance               =  0
+         BorderStyle              =  1
+         BackColor                =  &HE0E0E0
+         Left                     =   6765
+         Top                      =   1800
+         Width                    =   4650
+         Height                   =   300
+      End
+      Begin VB.CommandButton bottxtCampo36
+         Style                    =   1
+         TabStop                  =   0
+         Index                    =   2
+         Left                     =   11145
+         Top                      =   1815
+         Width                    =   255
+         Height                   =   270
+      End
+      Begin VB.TextBox txtCp
+         Appearance               =   0
+         BackColor                =   &HE0E0E0
+         BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851}
+            Name                     =   "Microsoft Sans Serif"
+            CharSet                  =   0
+            Weight                   =   400
+            Size                     =   9.75
+            Underline                =   0
+            Italic                   =   0
+            StrikeThrough            =   0
+         EndProperty
+         ForeColor                =   &H80000008
+         BorderStyle              =   0
+         Alignment                =   0
+         TabIndex                 =   2
+         TabStop                  =   -1
+         Height                   =   270
+         Left                     =   6780
+         Width                    =   4350
+         Top                      =   1815
+         DataField                =   "Tipo de emitente"
+         Index                    =   36 
+      End
+      Begin NFE.GBotao Botao
+         ButtonStyle              =   0
+         JoinSeparators           =   0
+         LeftSeparator            =   0
+         TopSeparator             =   0
+         TabIndex                 =   16
+         TabStop                  =   0
+         ButtonType               =   0
+         Height                   =   435
+         Left                     =   7995
+         Width                    =   1590
+         Top                      =   120
+         CaptionAlign             =   4
+         CaptionOffset            =   50
+         BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851}
+            Name                     =   "Microsoft Sans Serif"
+            CharSet                  =   0
+            Weight                   =   700
+            Size                     =   9.75
+            Underline                =   0
+            Italic                   =   0
+            StrikeThrough            =   0
+         EndProperty
+         ForeColor                =   &H80000012
+         Caption                  =   "DAMDFE"
+         Index                    =   0 
+      End
+      Begin NFE.GBotao Botao
+         ButtonStyle              =   0
+         JoinSeparators           =   0
+         LeftSeparator            =   0
+         TopSeparator             =   0
+         TabIndex                 =   17
+         TabStop                  =   0
+         ButtonType               =   0
+         Height                   =   435
+         Left                     =   7995
+         Width                    =   1590
+         Top                      =   555
+         CaptionAlign             =   4
+         CaptionOffset            =   50
+         BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851}
+            Name                     =   "Microsoft Sans Serif"
+            CharSet                  =   0
+            Weight                   =   700
+            Size                     =   9.75
+            Underline                =   0
+            Italic                   =   0
+            StrikeThrough            =   0
+         EndProperty
+         ForeColor                =   &H80000012
+         Caption                  =   "Cancelar"
+         Index                    =   1 
+      End
+      Begin VB.Label Label
+         Appearance               =   0
+         BackColor                =   &H0
+         BackStyle                =   1
+         BorderStyle              =   1
+         AutoSize                 =   0
+         Height                   =   300
+         Left                     =   9675
+         Width                    =   1695
+         Top                      =   120
+         Alignment                =   2
+         BeginProperty Font
+            Name                     =   "Microsoft Sans Serif"
+            CharSet                  =   0
+            Weight                   =   700
+            Size                     =   12
+            Underline                =   0
+            Italic                   =   0
+            StrikeThrough            =   0
+         EndProperty
+         ForeColor                =   &HFFFFFF
+         Caption                  =   "DAMDFE"
+         Index                    =   50 
+      End
+      Begin VB.TextBox txtCp
+         Appearance               =   0
+         BackColor                =   &H80000005
+         BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851}
+            Name                     =   "Microsoft Sans Serif"
+            CharSet                  =   0
+            Weight                   =   400
+            Size                     =   21.75
+            Underline                =   0
+            Italic                   =   0
+            StrikeThrough            =   0
+         EndProperty
+         ForeColor                =   &H80000008
+         MaxLength                =   254
+         BorderStyle              =   1
+         Alignment                =   2
+         Locked                   =   -1
+         TabIndex                 =   18
+         TabStop                  =   0
+         Height                   =   615
+         Left                     =   9675
+         Width                    =   1695
+         Top                      =   375
+         TabStop                  =  0
+         Index                    =   37 
+         MultiLine                =   -1
+      End
+      Begin VB.Label Label
+         Appearance               =   1
+         BackColor                =   &H8000000F
+         BackStyle                =   1
+         BorderStyle              =   0
+         AutoSize                 =   -1
+         Height                   =   240
+         Left                     =   300
+         Width                    =   1905
+         Top                      =   6360
+         Alignment                =   0
+         BeginProperty Font
+            Name                     =   "Microsoft Sans Serif"
+            CharSet                  =   0
+            Weight                   =   700
+            Size                     =   9.75
+            Underline                =   0
+            Italic                   =   0
+            StrikeThrough            =   0
+         EndProperty
+         ForeColor                =   &H80000008
+         Caption                  =   "Dados Adicionais:"
+         Index                    =   51 
+      End
+      Begin VB.Label Label
+         Appearance               =   1
+         BackColor                =   &H8000000F
+         BackStyle                =   1
+         BorderStyle              =   0
+         AutoSize                 =   0
+         Height                   =   240
+         Left                     =   420
+         Width                    =   855
+         Top                      =   2400
+         Alignment                =   0
+         BeginProperty Font
+            Name                     =   "Microsoft Sans Serif"
+            CharSet                  =   0
+            Weight                   =   400
+            Size                     =   9.75
+            Underline                =   0
+            Italic                   =   0
+            StrikeThrough            =   0
+         EndProperty
+         ForeColor                =   &H80000008
+         Caption                  =   "Emitente:"
+         Index                    =   52 
+      End
+      Begin VB.Label labFdo38
+         Appearance               =  0
+         BorderStyle              =  1
+         BackColor                =  &HE0E0E0
+         Left                     =   1365
+         Top                      =   2400
+         Width                    =   10050
+         Height                   =   300
+      End
+      Begin VB.CommandButton bottxtCampo38
+         Style                    =   1
+         TabStop                  =   0
+         Index                    =   2
+         Left                     =   11145
+         Top                      =   2415
+         Width                    =   255
+         Height                   =   270
+      End
+      Begin VB.TextBox txtCp
+         Appearance               =   0
+         BackColor                =   &HE0E0E0
+         BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851}
+            Name                     =   "Microsoft Sans Serif"
+            CharSet                  =   0
+            Weight                   =   400
+            Size                     =   9.75
+            Underline                =   0
+            Italic                   =   0
+            StrikeThrough            =   0
+         EndProperty
+         ForeColor                =   &H80000008
+         BorderStyle              =   0
+         Alignment                =   0
+         TabIndex                 =   3
+         TabStop                  =   -1
+         Height                   =   270
+         Left                     =   1380
+         Width                    =   9750
+         Top                      =   2415
+         DataField                =   "Codigo do emitente"
+         Index                    =   38 
+      End
+      Begin VB.TextBox txtCp
+         Appearance               =   1
+         BackColor                =   &H80000005
+         BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851}
+            Name                     =   "Microsoft Sans Serif"
+            CharSet                  =   0
+            Weight                   =   400
+            Size                     =   9.75
+            Underline                =   0
+            Italic                   =   0
+            StrikeThrough            =   0
+         EndProperty
+         ForeColor                =   &H80000008
+         BorderStyle              =   1
+         Alignment                =   0
+         TabIndex                 =   19
+         TabStop                  =   -1
+         Height                   =   1155
+         Left                     =   285
+         Width                    =   6885
+         Top                      =   6840
+         DataField                =   "Historico"
+         Index                    =   39 
+         MultiLine                =   -1
+         ScrollBars               =   2
+      End
+      Begin NFE.GBotao Botao
+         ButtonStyle              =   0
+         JoinSeparators           =   0
+         LeftSeparator            =   0
+         TopSeparator             =   0
+         TabIndex                 =   33
+         TabStop                  =   -1
+         ButtonType               =   0
+         Height                   =   435
+         Left                     =   6360
+         Width                    =   1590
+         Top                      =   135
+         CaptionAlign             =   4
+         CaptionOffset            =   50
+         BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851}
+            Name                     =   "MS Sans Serif"
+            CharSet                  =   0
+            Weight                   =   700
+            Size                     =   9.75
+            Underline                =   0
+            Italic                   =   0
+            StrikeThrough            =   0
+         EndProperty
+         ForeColor                =   &H80000012
+         Caption                  =   "Encerrar"
+         Index                    =   2 
+      End
+      Begin VB.Label Label
+         Appearance               =   1
+         BackColor                =   &H8000000F
+         BackStyle                =   1
+         BorderStyle              =   0
+         AutoSize                 =   -1
+         Height                   =   240
+         Left                     =   255
+         Width                    =   600
+         Top                      =   8175
+         Alignment                =   0
+         BeginProperty Font
+            Name                     =   "Microsoft Sans Serif"
+            CharSet                  =   0
+            Weight                   =   400
+            Size                     =   9.75
+            Underline                =   0
+            Italic                   =   0
+            StrikeThrough            =   0
+         EndProperty
+         ForeColor                =   &H80000008
+         Caption                  =   "Status:"
+         Index                    =   53 
+      End
+      Begin VB.Shape Formato
+         FillColor                =   255
+         BackColor                =   &H0
+         FillStyle                =   1
+         Shape                    =   1
+         BackStyle                =   1
+         BorderColor              =   -2147483640
+         BorderStyle              =   1
+         BorderWidth              =   1
+         Height                   =   150
+         Left                     =   945
+         Width                    =   150
+         Top                      =   8220
+         Index                    =   0 
+      End
+      Begin VB.Label Label
+         Appearance               =   1
+         BackColor                =   &H8000000F
+         BackStyle                =   1
+         BorderStyle              =   0
+         AutoSize                 =   -1
+         Height                   =   240
+         Left                     =   1170
+         Width                    =   960
+         Top                      =   8175
+         Alignment                =   0
+         BeginProperty Font
+            Name                     =   "Microsoft Sans Serif"
+            CharSet                  =   0
+            Weight                   =   400
+            Size                     =   9.75
+            Underline                =   0
+            Italic                   =   0
+            StrikeThrough            =   0
+         EndProperty
+         ForeColor                =   &H80000008
+         Caption                  =   "Autorizado"
+         Index                    =   54 
+      End
+      Begin VB.Shape Formato
+         FillColor                =   255
+         BackColor                =   &HFF
+         FillStyle                =   1
+         Shape                    =   1
+         BackStyle                =   1
+         BorderColor              =   -2147483640
+         BorderStyle              =   1
+         BorderWidth              =   1
+         Height                   =   165
+         Left                     =   2280
+         Width                    =   165
+         Top                      =   8220
+         Index                    =   1 
+      End
+      Begin VB.Label Label
+         Appearance               =   1
+         BackColor                =   &H8000000F
+         BackStyle                =   1
+         BorderStyle              =   0
+         AutoSize                 =   -1
+         Height                   =   240
+         Left                     =   2505
+         Width                    =   990
+         Top                      =   8175
+         Alignment                =   0
+         BeginProperty Font
+            Name                     =   "Microsoft Sans Serif"
+            CharSet                  =   0
+            Weight                   =   400
+            Size                     =   9.75
+            Underline                =   0
+            Italic                   =   0
+            StrikeThrough            =   0
+         EndProperty
+         ForeColor                =   &H80000008
+         Caption                  =   "Cancelado"
+         Index                    =   55 
+      End
+      Begin VB.Shape Formato
+         FillColor                =   255
+         BackColor                =   &H80FFFF
+         FillStyle                =   1
+         Shape                    =   1
+         BackStyle                =   1
+         BorderColor              =   -2147483640
+         BorderStyle              =   1
+         BorderWidth              =   1
+         Height                   =   165
+         Left                     =   3645
+         Width                    =   165
+         Top                      =   8220
+         Index                    =   2 
+      End
+      Begin VB.Label Label
+         Appearance               =   1
+         BackColor                =   &H8000000F
+         BackStyle                =   1
+         BorderStyle              =   0
+         AutoSize                 =   -1
+         Height                   =   240
+         Left                     =   3885
+         Width                    =   1185
+         Top                      =   8175
+         Alignment                =   0
+         BeginProperty Font
+            Name                     =   "Microsoft Sans Serif"
+            CharSet                  =   0
+            Weight                   =   400
+            Size                     =   9.75
+            Underline                =   0
+            Italic                   =   0
+            StrikeThrough            =   0
+         EndProperty
+         ForeColor                =   &H80000008
+         Caption                  =   "Não Enviado"
+         Index                    =   56 
+      End
+      Begin VB.Shape Formato
+         FillColor                =   -2147483640
+         BackColor                =   &HFF00
+         FillStyle                =   1
+         Shape                    =   1
+         BackStyle                =   1
+         BorderColor              =   -2147483640
+         BorderStyle              =   1
+         BorderWidth              =   1
+         Height                   =   150
+         Left                     =   5205
+         Width                    =   150
+         Top                      =   8220
+         Index                    =   3 
+      End
+      Begin VB.Label Label
+         Appearance               =   1
+         BackColor                =   &H8000000F
+         BackStyle                =   1
+         BorderStyle              =   0
+         AutoSize                 =   -1
+         Height                   =   240
+         Left                     =   5430
+         Width                    =   1170
+         Top                      =   8175
+         Alignment                =   0
+         BeginProperty Font
+            Name                     =   "Microsoft Sans Serif"
+            CharSet                  =   0
+            Weight                   =   400
+            Size                     =   9.75
+            Underline                =   0
+            Italic                   =   0
+            StrikeThrough            =   0
+         EndProperty
+         ForeColor                =   &H80000008
+         Caption                  =   "Transmitindo"
+         Index                    =   57 
+      End
+      Begin VB.Label Label
+         Appearance               =   1
+         BackColor                =   &H8000000F
+         BackStyle                =   1
+         BorderStyle              =   0
+         AutoSize                 =   -1
+         Height                   =   300
+         Left                     =   7740
+         Width                    =   75
+         Top                      =   7500
+         Alignment                =   0
+         BeginProperty Font
+            Name                     =   "Microsoft Sans Serif"
+            CharSet                  =   0
+            Weight                   =   700
+            Size                     =   12
+            Underline                =   0
+            Italic                   =   0
+            StrikeThrough            =   0
+         EndProperty
+         ForeColor                =   &H80000008
+         Caption                  =   ""
+         Index                    =   58 
+      End
+      Begin VB.Label Label
+         Appearance               =   1
+         BackColor                =   &H8000000F
+         BackStyle                =   1
+         BorderStyle              =   0
+         AutoSize                 =   -1
+         Height                   =   375
+         Left                     =   1740
+         Width                    =   105
+         Top                      =   780
+         Alignment                =   0
+         BeginProperty Font
+            Name                     =   "Microsoft Sans Serif"
+            CharSet                  =   0
+            Weight                   =   700
+            Size                     =   15.75
+            Underline                =   0
+            Italic                   =   0
+            StrikeThrough            =   0
+         EndProperty
+         ForeColor                =   &H80000008
+         Caption                  =   ""
+         Index                    =   59 
+      End
+      Begin VB.Frame Frame
+         Height                   =   1410
+         Left                     =   7260
+         Width                    =   4020
+         Top                      =   6600
+         BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851}
+            Name                     =   "MS Sans Serif"
+            CharSet                  =   0
+            Weight                   =   400
+            Size                     =   8.25
+            Underline                =   0
+            Italic                   =   0
+            StrikeThrough            =   0
+         EndProperty
+         ForeColor                =   &H80000012
+         Caption                  =   ""
+         Index                    =   0 
+         Begin             VB.Label labopcFrame0
+            BorderStyle              =   1
+            DataField                =   "Tipo de contratante"
+            Height                   =   120
+            Left                     =   1590
+            Top                      =   180
+            Visible                  =   0
+            Width                    =   240
+            End
+         Begin VB.OptionButton opcFrame0Cp
+            Appearance               =   1
+            BackColor                =   &H8000000F
+            BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851}
+               Name                     =   "Microsoft Sans Serif"
+               CharSet                  =   0
+               Weight                   =   700
+               Size                     =   9.75
+               Underline                =   0
+               Italic                   =   0
+               StrikeThrough            =   0
+            EndProperty
+            ForeColor                =   &H80
+            Alignment                =   2
+            TabIndex                 =   49
+            TabStop                  =   0
+            Height                   =   255
+            Left                     =   795
+            Width                    =   1035
+            Top                      =   240
+            BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851}
+               Name                     =   "Microsoft Sans Serif"
+               CharSet                  =   0
+               Weight                   =   700
+               Size                     =   9.75
+               Underline                =   0
+               Italic                   =   0
+               StrikeThrough            =   0
+            EndProperty
+            ForeColor                =   &H80
+            Alignment                =   0
+            Caption                  =   "FISICA"
+            Index                    =   0 
+         End
+         Begin VB.OptionButton opcFrame0Cp
+            Appearance               =   1
+            BackColor                =   &H8000000F
+            BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851}
+               Name                     =   "Microsoft Sans Serif"
+               CharSet                  =   0
+               Weight                   =   700
+               Size                     =   9.75
+               Underline                =   0
+               Italic                   =   0
+               StrikeThrough            =   0
+            EndProperty
+            ForeColor                =   &H80
+            Alignment                =   2
+            TabIndex                 =   50
+            TabStop                  =   0
+            Height                   =   255
+            Left                     =   1995
+            Width                    =   1455
+            Top                      =   240
+            BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851}
+               Name                     =   "Microsoft Sans Serif"
+               CharSet                  =   0
+               Weight                   =   700
+               Size                     =   9.75
+               Underline                =   0
+               Italic                   =   0
+               StrikeThrough            =   0
+            EndProperty
+            ForeColor                =   &H80
+            Alignment                =   0
+            Caption                  =   "JURIDICA"
+            Index                    =   1 
+         End
+         Begin VB.Label Label
+            Appearance               =   1
+            BackColor                =   &H8000000F
+            BackStyle                =   1
+            BorderStyle              =   0
+            AutoSize                 =   -1
+            Height                   =   240
+            Left                     =   165
+            Width                    =   540
+            Top                      =   230
+            Alignment                =   0
+            BeginProperty Font
+               Name                     =   "Microsoft Sans Serif"
+               CharSet                  =   0
+               Weight                   =   700
+               Size                     =   9.75
+               Underline                =   0
+               Italic                   =   0
+               StrikeThrough            =   0
+            EndProperty
+            ForeColor                =   &H80000008
+            Caption                  =   "Tipo:"
+            Index                    =   60 
+         End
+         Begin VB.Label Label
+            Appearance               =   1
+            BackColor                =   &H8000000F
+            BackStyle                =   1
+            BorderStyle              =   0
+            AutoSize                 =   -1
+            Height                   =   240
+            Left                     =   180
+            Width                    =   705
+            Top                      =   840
+            Alignment                =   1
+            BeginProperty Font
+               Name                     =   "Microsoft Sans Serif"
+               CharSet                  =   0
+               Weight                   =   700
+               Size                     =   9.75
+               Underline                =   0
+               Italic                   =   0
+               StrikeThrough            =   0
+            EndProperty
+            ForeColor                =   &H80000008
+            Caption                  =   "CNPJ.:"
+            Index                    =   61 
+         End
+         Begin VB.TextBox txtCp
+            Appearance               =   0
+            BackColor                =   &H80000005
+            BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851}
+               Name                     =   "Microsoft Sans Serif"
+               CharSet                  =   0
+               Weight                   =   400
+               Size                     =   9.75
+               Underline                =   0
+               Italic                   =   0
+               StrikeThrough            =   0
+            EndProperty
+            ForeColor                =   &H80000008
+            MaxLength                =   20
+            BorderStyle              =   1
+            Alignment                =   0
+            TabIndex                 =   51
+            TabStop                  =   0
+            Height                   =   300
+            Left                     =   1140
+            Width                    =   2220
+            Top                      =   840
+            DataField                =   "Documento do contratante"
+            Index                    =   40 
+         End
+      End
+      Begin VB.Label Label
+         Appearance               =   1
+         BackColor                =   &H8000000F
+         BackStyle                =   1
+         BorderStyle              =   0
+         AutoSize                 =   -1
+         Height                   =   240
+         Left                     =   7260
+         Width                    =   3930
+         Top                      =   6360
+         Alignment                =   0
+         BeginProperty Font
+            Name                     =   "Microsoft Sans Serif"
+            CharSet                  =   0
+            Weight                   =   700
+            Size                     =   9.75
+            Underline                =   0
+            Italic                   =   0
+            StrikeThrough            =   0
+         EndProperty
+         ForeColor                =   &H80000008
+         Caption                  =   "Documento do Contratante do Serviço"
+         Index                    =   62 
+      End
+   End
+         Begin NFE.GListV grdBrowse 
+                  Height          =   795
+                  Left            =   60
+                  TabIndex        =   0
+                  Top             =   330
+                  Width           =   1575
+                  _ExtentX        =   2778
+                  _ExtentY        =   1402
+                  FullRowSelect   =   0           'False
+                  RowHeight       =   225
+                  AllowEdit       =   -1          'True
+                  AllowInsert     =   -1          'True
+                  AllowDelete     =   -1          'True
+                  ManualUpdate    =   -1          'True
+                  ManualDelete    =   -1          'True
+                  NavigationAddMode=   1
+                  ShowGridCaption =   0           'False
+                  ShowFilterBar   =   -1          'True
+                  Caption         =   ""
+                  CacheSize       =   100
+                  BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
+                           Name            =   "MS Sans Serif"
+                           Size            =   8.25
+                           Charset         =   0
+                           Weight          =   400
+                           Underline       =   0  'False
+                           Italic          =   0  'False
+                           StrikeThrough   =   0  'False
+                  EndProperty
+         End
+End
+Attribute VB_name = "frmMDFe"
+Attribute VB_Creatable = False
+Attribute VB_Exposed = False
+'* Sistema...: Emissor de MDF-e (Layout 3.00)
+'* Empresa...: Ygor Eduardo Dellalio
+'* Módulo....: MDFe
+'* Função....: MDF-e
+'* CopyRight.: (C)2024 Ygor Eduardo Dellalio
+'* Criação...: GAS-2007 - Gerador Automático de Sistemas
+'* Data......: 05/09/2024 18:10:12
+'* * * * * * *
+
+Option Explicit
+DefInt A-Z
+
+Public vgSituacao As Integer                      'situação de edição que do módulo
+Public vgCaracteristica As Integer                'caracteristica do módulo
+Public vgTipo As Integer                          'tipo do módulo
+Public vgFiltroInicial As String                  'filtro inicial do módulo   
+Public vgOrdemInicial As String                   'ordem inicial do módulo
+Public vgUltimaOrdem As String                    'última ordenação feita no módulo    
+Public vgUltimoFiltro As String                   'último filtro definido no módulo   
+Public vgUltimoFiltroComTit As String             'titulo do último filtro definido no módulo
+Public vgUltimaOrdemComTit As String              'titulo da última ordenação feita no módulo 
+Public vgUltimoTabIndex As Integer                'último campo com foco do módulo
+Public vgPriVez As Integer                        'flag de carregamento do módulo  
+Public WithEvents vgTb As GRecordSet              'tabela de dados do módulo
+Public vgSQL As String                            'expressão SQL que define o módulo
+Public vgTemInclusao As Integer                   'flag se tem ou não inclusão no módulo 
+Public vgTemExclusao As Integer                   'flag se tem ou não exclusão no módulo 
+Public vgTemProcura As Integer                    'flag se tem ou não procura no módulo 
+Public vgTemFiltro As Integer                     'flag se tem ou não filtro no módulo
+Public vgTemAlteracao As Integer                  'flag se tem ou não alteração no módulo 
+Public vgTemAlteracaoGrids As Integer              'flag se tem ou não alteração nos grids
+Public vgTemBrowse As Integer                     'flag se tem ou não janela em grade no módulo
+Public vgSemVincDados As Integer                  'Flag para definir formulários sem vinculo com dados
+Public vgTemCondicoesEsp As Integer               'flag se tem expresão de validação para inclusão/alteração ou exclusão
+Public vgEmBrowse As Integer                      'flag se o módulo esta em grade 
+Public vgFiltroEmUso As Integer                   'Indice do Filtro atual em uso 
+Public vgIndDefault As String                     'indice default do módulo 
+Public vgFormID As Long                           'identificador único para o módulo 
+Public vgIdentTab As String                       'nome da tabela principal do módulo 
+Public vgFrmImpCons As New frmImpCons             'impressao de consutlas
+Public vgTooltips As New cTooltips                'classe de ajuda para os controes do módulo
+Public vgFiltroOriginal As String
+Dim txtCampo(40) As New FormataCampos             'classe dos campos tipo texto do módulo  
+Dim chkCampo(0) As New FormataCampos              'classe dos campos tipo lógico do módulo
+Dim opcFrame0(1) As New FormataCampos
+Dim opcPainel6(1) As New FormataCampos
+Dim opcTabs0(1) As New FormataCampos
+Dim Sequencia_do_manifesto As Long, Numero_do_manifesto As Long, Data_de_emissao As Variant
+Dim Uf As String, Tipo_de_emitente As String, Uf_de_descarregamento As String
+Dim Observacao As String, Rntrc As String, Tipo_de_carroceria As String
+Dim Uf_do_veiculo As String, Tipo_de_rodado As String, Placa As String
+Dim Tara As String, Renavam As String, Capacidade_kg As String
+Dim Documento_do_responsavel As String, Nome_da_seguradora As String, Cnpj_da_seguradora As String
+Dim N_da_apolice As String, N_averbacao As String, Tipo_de_contratante As Integer
+Dim Documento_do_contratante As String, Produto_Predominante As String, Latitude_de_Carregamento As Double
+Dim Longitude_de_Carregamento As Double, Latitude_de_Descrregamento As Double, Longitude_de_Descarregamento As Double
+Dim CEP_Carregamento As String, CEP_Descarregamento As String, Codigo_do_emitente As Integer
+Dim Transmitido As Boolean, Nota_cancelada As Boolean, Autorizada As Boolean
+Dim Historico As String, Proprietario As Boolean, Cpf_Proprietario As String
+Dim Cnpj_Proprietario As String, Rntrc_proprietario As String, Nome_Proprietario As String
+Dim Ie_Proprietario As String, Uf_proprietario As String, Tipo_de_proprietario As String
+Dim Tipo_documento As Integer, Numero_do_recibo As String, Chave_de_acesso As String
+Dim XmlAssinado As String, Protocolo_de_autorizacao As String, Data_e_hora_do_mdfe As String
+Dim XmlAutorizado As String, Encerrado As Boolean, Responsavel_do_seguro As String
+Dim Tipo_do_responsavel As Integer
+Public lblNota2 As Object, txtIE As Object, Lbldoc As Object
+Public Txtdoc As Object, Txtnomeseguradora As Object, Txtcnpjseg As Object
+Public Txtapolice As Object, Txtaverbacao As Object, lblAjuste As Object
+Public cmdDanfe As Object, cmdCancelar As Object, lblNota As Object
+Public lblNNota As Object, lblEncerrado As Object, lblEmitente As Object
+Public Lblcnpjcon As Object, Txtcnpjcon As Object
+Dim Manifesto As New GRecordSet, Local_de_carregamento As New GRecordSet, Uf_de_percurso As New GRecordSet
+Dim Codutores As New GRecordSet, Descarregamento_nfe As New GRecordSet, Descarregamento_cte As New GRecordSet
+Dim Nfe_da_carga As New GRecordSet, Cte_da_carga As New GRecordSet
+
+Private Function PegaSequencial() As Long
+Dim Tb As New GRecordSet
+ 
+ If VgSituacao = ACAO_INCLUINDO Then
+    Set Tb = VgDb.OpenRecordSet("SELECT MAX([Sequencia do Manifesto]) Seq From [Manifesto]")
+    PegaSequencial = Tb!Seq + 1
+ End If
+ 
+End Function 
+
+
+Private Sub Tabs_Click(Index As Integer, PreviousTab As Integer)
+   MudaTamCampos Me
+End Sub
+
+Private Sub SuperMDFe()
+  'Avulsa
+  Dim objMDFEUtil As Object, TbPercurso As New GRecordSet, TbCarrega As New GRecordSet, TbEmitente As New GRecordSet
+  Dim TbCondutores As New GrecordSet, TbDescarga As New GRecordSet, TbNFeCarga As New GRecordSet, Arq As Long
+  Dim TotalNFeCarga As New GRecordSet, ValorTotalCarga As New GRecordSet, QtdCarga As New GRecordSet
+  Dim NomeEmitente As String, TbDescargaCTe As New GRecordSet, TbCTeCarga As New GRecordSet, TotalCTeCarga As New GRecordSet
+  'Identificação do Documento
+  Dim Ide As String, ide_cUF As Integer, ide_tpAmb As Integer, ide_tpEmit As Integer, ide_mod As Integer, ide_serie As Integer 
+  Dim ide_nMDF As Long, ide_cMDF As Long, ide_cDV As Long, ide_Modal As String, ide_dhEmi As String, ide_tpEmis As Integer
+  Dim ide_procEmi As Integer, ide_verProc As String, ide_UFIni As String, ide_UFFim As String, infMunCarrega As String, infPercurso As String
+  'Campos Novos Layout 3.00
+  Dim Ide_tpTransp As String, Ide_dhIniViagem As String
+  'Municipios de Carregamento
+  Dim cMunCarrega As String, xMunCarrega As String
+  'Chave de Acesso
+  Dim CriaChave As String, Chave_cUF As String, Chave_Ano As String, Chave_Mes As String, Chave_Cnpj As String, Chave_Modelo As String, Chave_Serie As String
+  Dim Chave_Numero As String, Chave_tpEmis As String, Chave_CodigoSeguranca As String, Chave_msgResultado As String, Chave_cDFe As String, Chave_cDV As String, Chave_MDFe As String 
+  ' UFS do Percurso
+  Dim UFPer As String
+  ' Dados do Emitente
+  Dim Emit As String, Emit_Cnpj As String, Emit_IE As String, Emit_xNome As String, Emit_xFant As String, Emit_xLgr As String, Emit_UF As String, Emit_Email As String
+  Dim Emit_nro As String, Emit_Cpl As String, Emit_xBairro As String, Emit_cMun As String, Emit_xMun As String, Emit_CEP As String, Emit_Fone As String
+  ' Modal
+  Dim Rodo As String, VersaoModal As String, RNTRC_Modal As String, CIOT As String, VeicTracao As String, veicReboque As String, ValePed As String
+  ' Veiculo com a Tração
+  Dim veicPrincipal_v10a As String, Veic_cInt As String, Veic_Placa As String, Veic_Tara As String, Veic_CapKG As String, Veic_CapM3 As String
+  Dim Veic_Condutor As String, Veic_Prop As String, Veic_tpRod As String, Veic_tpCar As String, Veic_UF As String
+  'Campos Novos Versao 3.00
+  Dim Veic_Renavam As String
+  'Condutor
+  Dim Condutor As String, xNome As String, Con_Cpf As String
+  'Proprietario do Veiculo
+  Dim Prop As String, Prop_CPF As String, Prop_CNPJ As String, Prop_RNTRC As String, Prop_xNome As String
+  Dim Prop_IE As String, Prop_UF As String, Prop_Tipo As Integer 
+  ' Documentos Vinculados
+  Dim infDoc As String, Doc_cMunDescarga As String, Doc_xMunDescarga As String, Doc_infCTe As String
+  Dim Doc_infCT As String, Doc_infNFe As String, Doc_infNF As String
+  'NFe da Carga
+  Dim infNFeNovo As String
+  'CTe da Carga
+  Dim infCTeNovo As String, infUnidTransp As String
+  'ANTT informações do contratante
+   Dim infANTT As String, InfContratante As String, infPag As String
+   Dim xNome_Pag As String, CPF_Pag As String, CNPJ_Pag As String, Comp_Pag As String
+   Dim vContrato_Pag As Double
+   Dim CPF_Contratante As String, CNPJ_Contratante As String
+  'Seguro da Carga versao 3.00
+  Dim Seguro_da_Carga As String, respSeg As String, CNPJ_respSeg As String, CPF_respSeg As String
+  Dim InfSeg_xSeg As String, infSeg_CNPJ As String, InfSeg_nApol As String, InfSeg_nAver As String  
+  'Totalizadores
+  Dim tot As String, qCTe As Integer, qCT As Integer, qNFe As Integer, qNF As Integer, vCarga As Double, cUnid As String, qCarga As Double
+  'Dados Adicionais
+  Dim infAdic As String, infAdFisco As String, infCpl As String
+  'Consolidação da Merda do Manifesto
+  Dim Consolidacao As String
+  'Responsavel Tecnico
+  Dim infRespTec As String, RespTec_CNPJ As String, RespTec_Contato As String
+  Dim RespTec_email As String, RespTec_Fone As String, RespTec_idCSRT As String
+  Dim RespTec_hashCSRT As String, RespTec_ChaveMDFe As String 
+  'QRCode
+  Dim infMDFeSupl As String, RCode_URL As String, RCode_ChaveMDFe As String, RCode_Certificado As String, RCode_qrCode As String
+  Dim RCode_Resultado As Long, RCode_msgResultado As String   
+  'Produto Predominante
+  Dim prodPred As String, TpCarga As String, xProd As String
+  'Inf Lotação
+  Dim infLotacao As String, LP_CEP As String, LC_Latitude As Double, LC_Longitude As Double
+  Dim LD_CEP As String, LD_latitude As Double, LD_longitude As Double
+   
+  On Error GoTo DeuErro
+  
+  Set TbPercurso = VgDb.OpenRecordSet("SELECT * From [Uf de Percurso] Where [Sequencia do Manifesto] = " & Sequencia_do_Manifesto & " Order By Sequencia")
+  Set TbCarrega =  VgDb.OpenRecordSet("SELECT * From [Local de Carregamento] Where [Sequencia do Manifesto] = " & Sequencia_do_Manifesto & " Order By Sequencia")
+  Set TbEmitente = VgDb.OpenRecordSet("SELECT * From [Emitentes mdfe] Where [Sequencia do emitente] = " & Codigo_do_emitente)
+      NomeEmitente = UCASE(Mid(TbEmitente![Razão Social],1,5))
+  Set TbCondutores = VgDb.OpenRecordSet("SELECT * From Codutores Where [Sequencia do Manifesto] = " & Sequencia_do_Manifesto)
+  
+  Set TbDescarga = vgDb.OpenRecordSet("Select [Sequencia do manifesto], [Codigo do ibge], [Descrição do municipio] " & _
+                                      "FROM [Descarregamento nfe] " & _
+                                      "Where [Sequencia do manifesto] = " & Sequencia_do_manifesto & " GROUP BY [Sequencia do manifesto], [Codigo do ibge], [Descrição do municipio]")
+                                      
+  Set TbDescargaCTe = vgDb.OpenRecordSet("Select [Sequencia do manifesto], [Codigo do ibge], [Descrição do municipio] " & _
+                                         "FROM [Descarregamento cte] " & _
+                                         "Where [Sequencia do manifesto] = " & Sequencia_do_manifesto & " GROUP BY [Sequencia do manifesto], [Codigo do ibge], [Descrição do municipio]")                                    
+                                       
+  '=======================Identificação do Documento===========================
+  ide_cUF = "35" 'Codigo da UF tabelo do IBGE
+  ide_tpAmb = IIf(Parametros_da_NFe!ambiente = 0, 1, 2) ' ambiente de envio da NFe 1-produção / 2 - homologação
+  
+  If Manifesto![Tipo de Emitente] = "Prestador de Serviço de Transporte" Then
+     ide_tpEmit = 1 ' Prestador de Serviço de Transporte
+  Else
+     ide_tpEmit =  2 ' Transporte de Carga Propria
+  End If
+   
+  ide_mod = 58 ' Modelo do Documento Fiscal
+  ide_serie = 1 
+  ide_nMDF = Manifesto![Numero Do Manifesto]
+  ide_Modal = 1
+  Ide_tpTransp = ""
+  If Not Parametros_da_nfe![Horario de verao] Then ' Horario de Brasilia normal
+     ide_dhEmi = Format(Now,"yyyy-MM-ddThh:mm:ss-02:00") 'data de emissão em Formato UTC
+     Ide_dhIniViagem = "" 'Permite Omitir
+  Else
+     ide_dhEmi = Format(Now,"yyyy-MM-ddThh:mm:ss-03:00") 'data de emissão em Formato UTC no Horario de Verão - Brasilia
+     Ide_dhIniViagem = "" 'Permite Omitir
+  End If   
+  ide_tpEmis = 1
+  ide_procEmi = 0
+  ide_verProc = "DELLALIO MDF-E"
+  ide_UFIni = Manifesto!Uf 
+  ide_UFFim = Manifesto![Uf de descarregamento]
+  
+  Set objMDFEUtil = CreateObject("MDFe_Util.Util")
+ 
+  Do While Not TbCarrega.EOF
+  infMunCarrega =  infMunCarrega + objMDFeUtil.infMunCarrega(TbCarrega![Codigo do IBGE], RemoveCaracteres(SuperTiraAcentos(Trim(TbCarrega![Descrição Do Municipio])), True))
+  TbCarrega.MoveNext
+  Loop
+  TbCarrega.MoveFirst
+
+  Chave_cUF = Trim(Str(ide_cUF))
+  Chave_Ano = Mid(ide_dhEmi, 3,2)'Mid(ide_dhEmi,9,2)
+  Chave_Mes = Mid(ide_dhEmi,6,2)'Mid(ide_dhEmi,4,2)
+  Chave_Cnpj = RemoveCaracteres(TbEmitente!Cnpj)
+  Chave_Modelo = "58"
+  Chave_Serie = "1"
+  Chave_Numero = Manifesto![Numero Do Manifesto]
+  Chave_tpEmis = "1"
+  Chave_CodigoSeguranca = "Segredo"
+  
+  CriaChave = objMDFeUtil.CriaChaveDFe(Chave_cUF, Chave_Ano, Chave_Mes, Chave_Cnpj, Chave_Modelo, Chave_Serie,  Chave_Numero, Chave_tpEmis, Chave_CodigoSeguranca, Chave_msgResultado, Chave_cDFe, Chave_cDV, Chave_MDFe)
+    
+   If CriaChave <> "5601" Then
+      MsgBox "Ocorreu um Erro ao Gerar a Chave de Acesso " + Chave_msgResultado, vbCritical, vaTitulo
+      With vgTb
+         .Edit
+         If Vazio(!Observação) Then
+            !Observação = "Erro ao Gerar a Chave de Acesso"
+         Else
+            !Observação = !Observação & vbCrLf & "Erro ao Gerar a Chave de Acesso"
+         End If
+         .Update
+         .BookMark = .LastModified
+      End With
+      GoTo SaiDaSub
+   End If
+    
+   ide_cMDF = Val(Chave_cDFe)                    
+   ide_cDV =  Val(Chave_cDV) 
+                      
+   'Ufs de Percurso 
+  If TbPercurso.RecordCount > 0 Then 
+   Do While Not TbPercurso.EOF
+   infPercurso = infPercurso + objMDFeUtil.infPercurso(TbPercurso!Uf)
+   TbPercurso.MoveNext
+   Loop
+   TbPercurso.MoveFirst
+  End If  
+   'Identificação
+   'Versão Antiga
+   'Ide = objMDFeUtil.ide(ide_cUF, ide_tpAmb, ide_tpEmit, ide_mod, ide_serie, ide_nMDF, ide_cMDF, ide_cDV, ide_Modal, ide_dhEmi, ide_tpEmis, ide_procEmi, ide_verProc, ide_UFIni, ide_UFFim, infMunCarrega, infPercurso)
+   'Identificação Versao Atual
+    Ide = objMDFeUtil.ide_v3(ide_cUF, ide_tpAmb, ide_tpEmit, Ide_tpTransp, ide_mod, ide_serie, ide_nMDF, ide_cMDF, ide_cDV, ide_Modal, ide_dhEmi, ide_tpEmis, ide_procEmi, ide_verProc, ide_UFIni, ide_UFFim, infMunCarrega, infPercurso, Ide_dhIniViagem) 
+   'Dados do Emitente
+    If Parametros_da_nfe!Ambiente = 0 Then
+      Emit_Cnpj = RemoveCaracteres(TbEmitente!Cnpj)
+      Emit_IE = RemoveCaracteres(TbEmitente!Ie) 
+      Emit_xNome = RemoveCaracteres(TbEmitente![Razão Social]) 
+      Emit_xFant = RemoveCaracteres(TbEmitente![Nome Fantasia]) 
+    Else
+      Emit_Cnpj = RemoveCaracteres(TbEmitente!Cnpj)
+      Emit_IE = RemoveCaracteres(TbEmitente!Ie)  
+      Emit_xNome = "MDF-E EMITIDO EM AMBIENTE DE HOMOLOGACAO - SEM VALOR FISCAL"
+      Emit_xFant = "MDF-E EMITIDO EM AMBIENTE DE HOMOLOGACAO - SEM VALOR FISCAL" 
+    End If
+      Emit_xLgr = RemoveCaracteres(SuperTiraAcentos(Trim(TbEmitente!Logradouro)), True)    
+      Emit_nro = TbEmitente!Nro
+      Emit_Cpl = RemoveCaracteres(SuperTiraAcentos(Trim(TbEmitente!Complemento)), True)  
+      Emit_xBairro = RemoveCaracteres(SuperTiraAcentos(Trim(TbEmitente!Bairro)), True)  
+      Emit_cMun = TbEmitente![Codigo Do ibge]
+      Emit_xMun = RemoveCaracteres(SuperTiraAcentos(Trim(TbEmitente!Municipio)), True) 
+      Emit_CEP = RemoveCaracteres(TbEmitente!Cep)
+      Emit_UF = TbEmitente!Uf
+      Emit_Fone = RemoveCaracteres(Substitui(TbEmitente!Fone , " ", "", SO_UM))    
+      Emit_Email = ""
+      
+      'Emitente
+      Emit = objMDFeUtil.Emit(Emit_Cnpj, Emit_IE, Emit_xNome, Emit_xFant, Emit_xLgr, Emit_nro, Emit_Cpl, Emit_xBairro, Emit_cMun, Emit_xMun, Emit_CEP, Emit_UF, Emit_Fone, Emit_Email)
+      
+      'Modal Rodoviario
+      VersaoModal = "3.00"
+      RNTRC_Modal = Manifesto!Rntrc
+      CIOT = ""
+      
+      
+      If Manifesto![Tipo de contratante] = 0 Then ' Fisica
+         InfContratante = objMDFeUtil.infCont(RemoveCaracteres(Manifesto![Documento Do contratante]), "")
+      Else ' Juridica
+          InfContratante = objMDFeUtil.infCont("", RemoveCaracteres(Manifesto![Documento Do contratante]))
+      End If   
+      
+      'infANTT será criado depois do cálculo do vCarga (necessário para infPag)
+      'infANTT = objMDFeUtil.infANTT_NT2021001(RNTRC_Modal, "", "", InfContratante, infPag) 
+      
+      'Veiculo com Tração
+      Veic_cInt = ""
+      Veic_Placa = RemoveCaracteres(Manifesto!Placa)
+      Veic_Tara = RemoveCaracteres(Manifesto!Tara) 
+      Veic_CapKG = RemoveCaracteres(Manifesto![Capacidade kg])
+      Veic_CapM3 = ""
+      'Dados do Condutor
+      Do While Not TbCondutores.EOF
+      Condutor = Condutor + objMDFeUtil.Condutor(RemoveCaracteres(TbCondutores![Nome Condutor]), RemoveCaracteres(TbCondutores![Cpf Condutor]) )
+      TbCondutores.MoveNext
+      Loop
+      TbCondutores.MoveFirst
+      Veic_Condutor = Condutor
+      'Grupo Proprietario do veiculo so preencher qdo o veicylo não for do emitente
+      If Proprietario Then
+        If Manifesto![Tipo documento] = 0 Then
+           Prop_CPF = RemoveCaracteres(Manifesto![Cpf Proprietario]) 
+        Else
+           Prop_CPF = ""
+        End If 
+        If Manifesto![Tipo documento] = 1 Then
+           Prop_CNPJ = RemoveCaracteres(Manifesto![Cnpj Proprietario]) 
+        Else
+           Prop_CNPJ = ""
+        End If 
+           Prop_RNTRC = Manifesto![Rntrc proprietario]
+           Prop_xNome = RemoveCaracteres(Manifesto![Nome Proprietario]) 
+             If Not Vazio(Manifesto![Ie Proprietario]) Then
+                Prop_IE = RemoveCaracteres(Manifesto![Ie Proprietario])
+             Else
+                Prop_IE = ""
+             End If     
+           Prop_UF = Manifesto![Uf proprietario]
+           
+           If Manifesto![Tipo de proprietario] = "TAC Agregado" Then
+              Prop_Tipo = 0
+           ElseIf Manifesto![Tipo de proprietario] = "TAC Independente" Then
+              Prop_Tipo = 1
+           Else
+              Prop_Tipo = 2     
+           End If
+           
+      Prop = objMDFeUtil.prop_v10a(Prop_CPF, Prop_CNPJ, Prop_RNTRC, Prop_xNome, Prop_IE, Prop_UF, Prop_Tipo)                
+      Else
+      Prop = ""   
+      End If
+      
+      If Manifesto![Tipo de rodado] = "Truck" Then
+         Veic_tpRod = "01"
+      ElseIf Manifesto![Tipo de rodado] = "Toco" Then    
+         Veic_tpRod = "02"
+      ElseIf Manifesto![Tipo de rodado] = "Cavalo Mecanico" Then
+         Veic_tpRod = "03"    
+      ElseIf Manifesto![Tipo de rodado] = "Van" Then
+         Veic_tpRod = "04"
+      ElseIf Manifesto![Tipo de rodado] = "Utilitario" Then
+         Veic_tpRod = "05"        
+      Else
+         Veic_tpRod = "6"       
+      End If
+      
+      If Manifesto![Tipo de carroceria] = "Não Aplicavel" Then 
+         Veic_tpCar = "00" 
+      ElseIf  Manifesto![Tipo de carroceria] = "Aberta" Then 
+         Veic_tpCar = "01"
+      ElseIf  Manifesto![Tipo de carroceria] = "Fechada" Then 
+         Veic_tpCar = "02"     
+      ElseIf  Manifesto![Tipo de carroceria] = "Granelera" Then
+         Veic_tpCar = "03"
+      ElseIf  Manifesto![Tipo de carroceria] = "Porta Container" Then
+         Veic_tpCar = "04"
+      ElseIf  Manifesto![Tipo de carroceria] = "Sider" Then
+         Veic_tpCar = "05"            
+      End If
+      Veic_UF = Manifesto![Uf Do veiculo]
+      Veic_Renavam = ""
+      'Dados Veiculos
+      'Versao Anterior
+      'veicPrincipal_v10a = objMDFeUtil.veicPrincipal_v10a(Veic_cInt, Veic_Placa, Veic_Tara, Veic_CapKG, Veic_CapM3, Prop, Veic_Condutor, Veic_tpRod, Veic_tpCar, Veic_UF)
+      veicPrincipal_v10a = objMDFeUtil.veicPrincipal_v3(Veic_cInt, Veic_Placa, Veic_Renavam, Veic_Tara, Veic_CapKG, Veic_CapM3, Prop, Veic_Condutor, Veic_tpRod, Veic_tpCar, Veic_UF)
+   'Modal
+   'Rodo = objMDFeUtil.rodo(VersaoModal, RNTRC_Modal, CIOT, veicPrincipal_v10a,"","")
+   'O grupo infPag e o infANTT final serão montados após o cálculo do valor da carga (vCarga)
+      'Documentos Vinculados NFe
+       If TbDescarga.RecordCount > 0 Then
+        Do While Not TbDescarga.EOF
+          Set TbNFeCarga = vgDb.OpenRecordSet("SELECT [Chave da NFe] Chave From [NFe da Carga] Where [Sequencia do manifesto] = " & Sequencia_do_manifesto & " and [Descrição do Municipio] = '" & TbDescarga![Descrição Do municipio] & "'")
+           Do While Not TbNFeCarga.EOF
+              infNFeNovo = infNFeNovo + objMDFEUtil.infNFe_v3(TbNFeCarga!Chave, "", "", "", "")
+           TbNFeCarga.MoveNext
+           Loop
+           TbNFeCarga.MoveFirst  
+           infDoc = infDoc + objMDFEUtil.infMunDescarga(TbDescarga![Codigo Do ibge], RemoveCaracteres(SuperTiraAcentos(Trim(TbDescarga![Descrição Do Municipio])), True) , "", infNFeNovo, "")
+           infNFeNovo = "" 'Limpa as Chaves para começar outro municipio
+        TbDescarga.MoveNext
+        Loop
+        TbDescarga.MoveFirst
+       End If 
+       'Documentos Vinculados CTe
+       If TbDescargaCTe.RecordCount > 0 Then
+        Do While Not TbDescargaCTe.EOF
+          Set TbCTeCarga = vgDb.OpenRecordSet("SELECT [Chave do CTe] Chave From [CTe da Carga] Where [Sequencia do manifesto] = " & Sequencia_do_manifesto & " and [Descrição do Municipio] = '" & TbDescargaCTe![Descrição Do municipio] & "'")
+           Do While Not TbCTeCarga.EOF
+              'Cria o grupo infUnidTransp conforme documentação (obrigatório para resolver erro 726)
+              infUnidTransp = objMDFEUtil.infUnidTransp("1", "UNIDADE", "", "", "")
+              'Passa o infUnidTransp como 4º parâmetro do infCTe_v3
+              infCTeNovo = infCTeNovo + objMDFEUtil.infCTe_v3(TbCTeCarga!Chave, "", "", infUnidTransp, "")
+           TbCteCarga.MoveNext
+           Loop
+           TbCTeCarga.MoveFirst  
+           infDoc = infDoc + objMDFEUtil.infMunDescarga(TbDescargaCTe![Codigo Do ibge], RemoveCaracteres(SuperTiraAcentos(Trim(TbDescargaCTe![Descrição Do Municipio])), True) , infCTeNovo, "", "")
+           infCTeNovo = "" 'Limpa as Chaves para começar outro municipio
+        TbDescargaCTe.MoveNext
+        Loop
+        TbDescargaCTe.MoveFirst
+       End If 
+     'Totalizadores
+     Set TotalCTeCarga = VgDb.OpenRecordSet("SELECT * From [CTe da Carga] Where [Sequencia do Manifesto] = " & Sequencia_do_manifesto)
+     qCTe = TotalCTeCarga.RecordCount
+     qCT = 0
+     qNF = 0
+     cUnid = "01"
+     Set TotalNFeCarga = VgDb.OpenRecordSet("SELECT * From [NFe da Carga] Where [Sequencia do Manifesto] = " & Sequencia_do_manifesto)
+     qNFe = TotalNFeCarga.RecordCount
+     If TbDescarga.RecordCount > 0 Then
+        Set ValorTotalCarga = VgDb.OpenRecordSet("SELECT Sum([Valor Total]) Total From [NFe da Carga] Where [Sequencia do Manifesto] = " & Sequencia_do_manifesto)
+     Else
+        Set ValorTotalCarga = VgDb.OpenRecordSet("SELECT Sum([Valor Total]) Total From [CTe da Carga] Where [Sequencia do Manifesto] = " & Sequencia_do_manifesto)
+     End If
+     vCarga = ValorTotalCarga!Total
+     
+     'Validação: Se o valor da carga estiver zerado ou nulo (comum em CT-e), solicita ao usuário
+     If IsNull(vCarga) Or vCarga = 0 Then
+        Dim valorInformado As String
+        valorInformado = InputBox("O valor da carga não foi informado ou está zerado." & vbCrLf & vbCrLf & _
+                                  "Por favor, informe o VALOR TOTAL DA CARGA em R$:" & vbCrLf & _
+                                  "(Use vírgula para separar os centavos. Ex: 28549,41)", _
+                                  "Valor da Carga Obrigatório", "0,00")
+        
+        'Verifica se o usuário cancelou ou deixou vazio
+        If valorInformado = "" Or valorInformado = "0,00" Then
+           MsgBox "O valor da carga é obrigatório para autorizar o MDF-e!" & vbCrLf & vbCrLf & _
+                  "Operação cancelada.", vbExclamation + vbOKOnly, "Atenção"
+           Screen.MousePointer = vbDefault
+           Exit Sub
+        End If
+        
+        'Converte o valor informado (substitui vírgula por ponto)
+        valorInformado = Replace(valorInformado, ".", "")  'Remove pontos de milhar
+        valorInformado = Replace(valorInformado, ",", ".") 'Substitui vírgula por ponto
+        
+        'Valida se é um número válido
+        If Not IsNumeric(valorInformado) Then
+           MsgBox "Valor informado inválido!" & vbCrLf & vbCrLf & _
+                  "Use apenas números e vírgula. Ex: 28549,41" & vbCrLf & vbCrLf & _
+                  "Operação cancelada.", vbExclamation + vbOKOnly, "Atenção"
+           Screen.MousePointer = vbDefault
+           Exit Sub
+        End If
+        
+        vCarga = CDbl(valorInformado)
+        
+        'Atualiza no banco de dados para não pedir novamente
+        If qCTe > 0 Then 'Se tem CT-e, atualiza na tabela de CT-e
+           VgDb.Execute "UPDATE [CTe da Carga] SET [Valor Total] = " & vCarga & " WHERE [Sequencia do Manifesto] = " & Sequencia_do_manifesto & " AND ([Valor Total] IS NULL OR [Valor Total] = 0)"
+        End If
+     End If
+
+     'Monta o grupo de pagamento (infPag) e atualiza o infANTT/Rodo para cargas de lotação (erro 302)
+     If qCTe > 0 Then
+        xNome_Pag = RemoveCaracteres(SuperTiraAcentos(Trim(TbEmitente![Razão Social])))
+        CPF_Pag = ""
+        CNPJ_Pag = RemoveCaracteres(TbEmitente!CNPJ)
+        vContrato_Pag = vCarga
+        Comp_Pag = "<Comp><tpComp>99</tpComp><vComp>" & Replace(Format$(vContrato_Pag, "0.00"), ",", ".") & "</vComp><xComp>FRETE</xComp></Comp>"
+        infPag = objMDFEUtil.infPag_NT2021001(xNome_Pag, CPF_Pag, CNPJ_Pag, "", Comp_Pag, vContrato_Pag, "0", "", "001", "0001", "", "", "")
+     Else
+        infPag = ""
+     End If
+
+     infANTT = objMDFEUtil.infANTT_NT2021001(RNTRC_Modal, "", "", InfContratante, infPag)
+     Rodo = objMDFEUtil.rodo_v3(VersaoModal, infANTT, veicPrincipal_v10a, "", "", "")
+     
+     If TbDescarga.RecordCount > 0 Then
+        Set QtdCarga = VgDb.OpenRecordSet("SELECT Sum([Peso Bruto]) Peso From [NFe da Carga] Where [Sequencia do Manifesto] = " & Sequencia_do_manifesto) 
+     Else
+        Set QtdCarga = VgDb.OpenRecordSet("SELECT Sum([Peso Bruto]) Peso From [CTe da Carga] Where [Sequencia do Manifesto] = " & Sequencia_do_manifesto)
+     End If   
+     qCarga = QtdCarga!Peso
+     'Totalizando
+     'Anterior
+     'Tot = objMDFEUtil.tot(qCTe, qCT, qNFe, qNF, vCarga, cUnid, qCarga)
+     Tot = objMDFEUtil.tot_v3(qCTe, qNFe, 0, vCarga, cUnid, qCarga) ' Layout 3.00
+     'Dados Adicionais
+     If Not Vazio(Manifesto!Historico) Then
+        InfAdic = objMDFEUtil.infAdic("", Substitui(Substitui(SuperTiraAcentos(Trim(Manifesto!Historico)), vbCrLf, ".;", 1), "&", "E", 1))
+     End If
+     
+     'Dados do Seguro versao 3.00
+       If Responsavel_do_seguro = "Emitente do MDFe" Then 
+          respSeg = "1"
+       Else
+          respSeg = "2"
+       End If
+       
+       If Tipo_do_responsavel = 0 Then 'Fisica
+          CNPJ_respSeg = ""
+          CPF_respSeg = RemoveCaracteres(Documento_do_responsavel)  
+       Else ' Juridica
+          CNPJ_respSeg = RemoveCaracteres(Documento_do_responsavel)  
+          CPF_respSeg = ""
+       End If
+       InfSeg_xSeg = RemoveCaracteres(Nome_da_seguradora) 
+       infSeg_CNPJ = RemoveCaracteres(Cnpj_da_seguradora) 
+       InfSeg_nApol = RemoveCaracteres(N_da_apolice)   
+       InfSeg_nAver = objMDFEUtil.nAver(RemoveCaracteres(N_averbacao)) 
+       
+       Seguro_da_Carga = objMDFEUtil.Seg(respSeg, CNPJ_respSeg, CPF_respSeg, InfSeg_xSeg, infSeg_CNPJ, InfSeg_nApol, InfSeg_nAver)   
+     
+       'Responsavel Tecnico
+       RespTec_CNPJ = "66521436000134"
+       RespTec_Contato = "Jose Carlos"
+       RespTec_email = "antares@antaresinformatica.srv.br"
+       RespTec_Fone = "1836523842"
+       RespTec_idCSRT = ""
+       RespTec_hashCSRT = ""
+       RespTec_ChaveMDFe = Chave_MDFe
+    
+       infRespTec = objMDFEUtil.infRespTec2(RespTec_CNPJ, RespTec_Contato, RespTec_email, RespTec_Fone, RespTec_idCSRT, RespTec_hashCSRT, RespTec_ChaveMDFe)
+     
+       'QRCode
+       RCode_URL = "https://dfe-portal.svrs.rs.gov.br/mdfe/qrCode"
+       RCode_ChaveMDFe = Chave_MDFe
+       RCode_Certificado = TbEmitente![Certificado digital]
+       RCode_qrCode = ""
+       RCode_Resultado = 0
+       RCode_msgResultado = ""
+       
+       infMDFeSupl = objMDFEUtil.infMDFeSupl(RCode_URL, RCode_ChaveMDFe, ide_tpAmb, RCode_Certificado, RCode_qrCode, RCode_Resultado, RCode_msgResultado)
+       'infLotacao
+       LC_Latitude = Manifesto![Latitude de Carregamento]
+       LC_Longitude = Manifesto![Longitude de Carregamento]
+       LD_Latitude = Manifesto![Latitude de Descrregamento]
+       LD_Longitude = Manifesto![Longitude de Descarregamento]
+       
+       infLotacao = objMDFEUtil.infLotacao(RemoveCaracteres(Manifesto![CEP Carregamento]), LC_latitude, LC_Longitude, RemoveCaracteres(Manifesto![CEP Descarregamento]), LD_Latitude, LD_Longitude)
+       'NCM padrão 99999999 para carga geral (resolve erro 301)
+       prodPred = objMDFEUtil.prodPred("05", RemoveCaracteres(Manifesto![Produto Predominante]),"","99999999", infLotacao)
+       
+     
+     'Consolidação ate quemfim merda dukralho
+      'Consolidacao = objMDFEUtil.MDFe_NT2018002("3.00", Chave_MDFe, Ide, emit, Rodo, infDoc, Seguro_da_Carga, Tot, "", "", InfAdic, infRespTec)
+      Consolidacao = objMDFEUtil.MDFe_NT2020001("3.00", Chave_MDFe, Ide, emit, Rodo, infDoc, Seguro_da_Carga, Tot, "", "", InfAdic, infRespTec, infMDFeSupl, prodPred)
+      
+       'Salvando o xml...
+      Arq = FreeFile
+        If Parametros_da_nfe!ambiente = 0 Then 'Produção
+           If Dir(Parametros_da_nfe![Diretorio 2 nfe produção] & NomeEmitente & Format(Manifesto![Numero Do manifesto], "000000") & "_GERADO.xml", vbArchive) <> "" Then Kill Parametros_da_nfe![Diretorio 2 nfe produção] & NomeEmitente & Format(Manifesto![Numero Do manifesto], "000000") & "_GERADO.xml"
+        Open Parametros_da_nfe![Diretorio 2 nfe produção] & NomeEmitente & Format(Manifesto![Numero Do manifesto], "000000") & "_GERADO.xml" For Append As #Arq
+           Print #Arq, Consolidacao
+        Close #Arq
+      Else 'Homologação
+        If Dir(Parametros_da_nfe![Diretorio 2 nfe homologação] & NomeEmitente & Format(Manifesto![Numero Do manifesto], "000000") & "_GERADO.xml", vbArchive) <> "" Then Kill Parametros_da_nfe![Diretorio 2 nfe homologação] & NomeEmitente & Format(Manifesto![Numero Do manifesto], "000000") & "_GERADO.xml"
+        Open Parametros_da_nfe![Diretorio 2 nfe homologação] & NomeEmitente & Format(Manifesto![Numero Do manifesto], "000000") & "_GERADO.xml" For Append As #Arq
+           Print #Arq, Consolidacao
+        Close #Arq
+    End If
+   
+    'Histórico
+    With vgTb
+       .Edit
+       If Vazio(!Observação) Then
+          !Observação = "Gerando XML..."
+       Else
+          !Observação = !Observação & vbCrLf & "=================================================="
+          !Observação = !Observação & vbCrLf & vbCrLf & "Gerando XML..."
+       End If
+      .Update
+      .BookMark = .LastModified
+    End With
+    
+    TransmitirMDFe  Consolidacao, Chave_MDFe
+                
+ DeuErro:
+  If Err <> 0 Then
+     MsgBox Err.Description, vbCritical + vbOKOnly, vaTitulo
+  End If 
+   
+  SaiDaSub:
+  Reposition
+  Screen.MousePointer = vbDefault ' normal
+  Set objMDFeUtil = Nothing
+   
+  If Parametros_da_NFe!ambiente = 0 Then
+     lblProgresso.Caption = ""
+   Else
+     lblProgresso.Caption = "AMBIENTE EM MODO TESTE"
+   End If
+   
+End Sub
+
+ 
+'Procedimento para enviar ou abrir a nota
+Private Sub SuperAcao()
+   If cmdDanfe.Caption = "DAMDFE" Then
+      DAMDFE 'Abre Nota
+   Else
+      GeraNota 'Vamos Enviar a Nota
+   End If
+End Sub
+
+Private Sub GeraNota()
+   Dim XmlAssinado As String
+   Dim UltimaEletronica As New GRecordset
+
+   On Error Resume Next
+   
+   If Not Transmitido Then If MsgBox("Deseja Enviar esse Manifesto?", vbQuestion + vbYesNo, vaTitulo) = vbNo Then Exit Sub
+   
+   Set UltimaEletronica = vgdb.OpenRecordset("SELECT MAX([Numero do Manifesto]) Mdfe FROM [Manifesto] Where [Codigo do Emitente] = " & Manifesto![Codigo Do emitente])
+           
+      If Numero_do_manifesto = 0 Then         
+         vgDb.Execute "Update Manifesto Set [Numero do Manifesto] = " & UltimaEletronica!Mdfe + 1 & " WHERE [Sequencia do Manifesto] = " & Sequencia_do_manifesto
+         Reposition
+      End If
+
+      If Not Transmitido Then
+         PreValidaMDFe 'Validação
+      Else
+         XmlAssinado = Manifesto!XmlAssinado
+         'RetornoMDFe XmlAssinado, Numero_do_recibo 'Caso ele ja enviou entao vamos buscar novamente
+         Exit Sub
+      End If
+End Sub 
+
+
+Private Sub MostraFormulas()
+ Dim TbEmitente As New GRecordSet 
+   
+  lblNNota.Value = Format (Numero_do_manifesto ,"000000")
+  lblNota.Caption = "MDF-e"
+ 
+  If Nota_Cancelada Then
+      lblNota2.ForeColor = &H8FF
+   Else
+      lblNota2.ForeColor = &H0
+   End If   
+   If Autorizada Then 
+      cmdDanfe.Caption = "DAMDFE"  
+   Else
+      cmdDanfe.Caption = "Autorizar"
+   End If
+   If Encerrado Then
+      lblEncerrado.Caption = "MANIFESTO ENCERRADO"
+   Else
+      lblEncerrado.Caption = ""    
+   End If
+    If Codigo_do_emitente > 0 Then
+       Set TbEmitente = VgDb.OpenRecordSet("SELECT * From [Emitentes mdfe] Where [Sequencia do emitente] = " & Codigo_do_emitente)
+       lblEmitente.Caption = TbEmitente![Nome Fantasia]   
+    End If     
+   If Err Then Err.Clear 
+   
+    If vgSituacao <> ACAO_NAVEGANDO Then
+      lblNota.BackColor = &H80FFFF: lblNota.ForeColor = &H80000012 'Amarelo
+   Else
+      If Numero_do_manifesto > 0 Then
+         If Nota_Cancelada  Then
+            lblNota.BackColor = &H8FF: lblNota.ForeColor = &HFFFFFF 'Vermelho
+         ElseIf Autorizada Then
+            lblNota.BackColor = &H0: lblNota.ForeColor = &HFFFFFF 'Preto
+         ElseIf Transmitido Then
+            lblNota.BackColor = &HC0FFC0: lblNota.ForeColor = &H80000012 'Preto
+         Else
+            lblNota.BackColor = &H80FFFF: lblNota.ForeColor = &H80000012 'Amarelo
+         End If
+      Else
+         lblNota.BackColor = &H80FFFF: lblNota.ForeColor = &H80000012 'Amarelo
+      End If
+   End If
+  
+End Sub
+
+
+Private Sub PreValidaMDFe()
+   Dim Tb As New GRecordSet, Carregamento As New GRecordSet
+   Dim Vector() As String, Percurso As New GRecordSet, Condutor As New GRecordSet
+   Dim i As Long, vaPrivez As Boolean, Campo As Variant, Mensagem As String
+   Dim NFeCarga As New GRecordSet, CTeCarga As New GRecordSet
+
+   On Error GoTo DeuErro
+    
+   Set Tb = vgDb.OpenRecordSet("SELECT [Uf de Descarregamento], Placa, Tara, [Tipo de Rodado], [Tipo de Carroceria], [Uf do Veiculo] " & _
+                               "FROM [Manifesto] " & _
+                               "WHERE [Sequencia do Manifesto] = " & Sequencia_do_manifesto)
+                               
+   Set Carregamento = vgDb.OpenRecordSet ("SELECT [Sequencia do Manifesto], Uf, [Descrição do Municipio] " & _
+                                          "FROM [Local de Carregamento] " & _
+                                          "WHERE [Sequencia do Manifesto] = " & Sequencia_do_manifesto)
+                                          
+   Set Percurso = vgDb.OpenRecordSet ("SELECT [Sequencia do Manifesto], Uf " & _
+                                      "FROM [Uf de Percurso] " & _
+                                      "WHERE [Sequencia do Manifesto] = " & Sequencia_do_manifesto)  
+                                      
+   Set Condutor = vgDb.OpenRecordSet ("SELECT * FROM [Codutores] " & _ 
+                                      "WHERE [Sequencia do Manifesto] = " & Sequencia_do_manifesto)  
+                                      
+   Set NFeCarga = vgDb.OpenRecordSet ("SELECT * FROM [NFe da Carga] " & _ 
+                                      "WHERE [Sequencia do Manifesto] = " & Sequencia_do_manifesto) 
+                                      
+   Set CTeCarga = vgDb.OpenRecordSet ("SELECT * FROM [CTe da Carga] " & _ 
+                                      "WHERE [Sequencia do Manifesto] = " & Sequencia_do_manifesto)                                                                                                                                               
+                               
+   If Tb.RecordCount = 0 Then Exit Sub
+   
+   If Carregamento.RecordCount = 0 Then
+   MsgBox("Informe o(s) Local de Carregamento")
+   Exit Sub
+   End If
+   
+   If NFeCarga.RecordCount = 0 And CTeCarga.RecordCount = 0 Then
+   MsgBox("Informe o(s)Documento da Carga (NFe ou CTe)")
+   Exit Sub
+   End If
+   
+  ' If Percurso.RecordCount = 0 Then
+  ' MsgBox("Informe a(s) UF do Percurso")
+  ' Exit Sub
+  ' End If
+   
+   If Condutor.RecordCount = 0 Then
+   MsgBox("Informe o(s) Condutor do Veiculo")
+   Exit Sub
+   End If
+   
+   'Vamos Validar
+   i = 0 'Tamanho do Vetor
+   ReDim Preserve Vector(0) As String
+   If Vazio(Tb![Uf de Descarregamento]) Then i = i + 1: ReDim Preserve Vector(i): Vector(i - 1) = "Local de Descarregamento"
+   If Vazio(Tb!Placa) Then i = i + 1: ReDim Preserve Vector(i): Vector(i - 1) = "Placa do Veiculo"
+   If Vazio(Tb!Tara) Then i = i + 1: ReDim Preserve Vector(i): Vector(i - 1) = "Tara do Veiculo"
+   If Vazio(Tb![Tipo de Rodado]) Then i = i + 1: ReDim Preserve Vector(i): Vector(i - 1) = "Tipo de Rodado"
+   If Vazio(Tb![Tipo de Carroceria]) Then i = i + 1: ReDim Preserve Vector(i): Vector(i - 1) = "Tipo de Carroceria"
+   If Vazio(Tb![Uf Do Veiculo]) Then i = i + 1: ReDim Preserve Vector(i): Vector(i - 1) = "UF do Veiculo"
+   
+   If UBound(Vector) > 0 Then
+      Mensagem = "Alguns Campos Precisam ser Preenchidos:" & vbCrLf
+      For Each Campo In Vector
+         Mensagem = Mensagem & vbCrLf & Campo
+      Next
+      If Mensagem <> "" Then
+         MsgBox Mensagem, vbCritical + vbOKOnly, vaTitulo
+         Exit Sub
+      End If
+   End If
+   
+   SuperMDFe
+   
+DeuErro:
+   If Err <> 0 Then
+      MsgBox Err.Description, vbCritical + vbOKOnly, vaTitulo
+   End If
+
+End Sub
+
+
+Private Sub MudaMascara()
+   On Error Resume Next
+   
+      Select Case Uf_proprietario
+         Case "MG" '999.999.999/9999
+            txtIE.Mask = "999.999.999/9999"
+         Case "ES", "GO", "MA", "PA" '999.999.99-9
+            txtIE.Mask = "999.999.99-9"
+         Case "RJ" '99.999.99-9
+            txtIE.Mask = "99.999.99-9" 
+         Case "SC" '999.999.999
+            txtIE.Mask = "999.999.999"
+         Case "DF" '99.999999.999-99
+            txtIE.Mask = "99.999999.999-99"
+         Case "PR" '99.999.999-99
+            txtIE.Mask = "99.999.999-99"
+         Case "PE" '9.999.999-99
+            txtIE.Mask = "9.999.999-99"
+         Case "RN", "AM", "PB" '99.999.999-9
+            txtIE.Mask = "99.999.999-9"
+         Case "RS" '999/999999-9
+            txtIE.Mask = "999/999999-9"
+         Case "RO" '9999999999999-9
+            txtIE.Mask = "9999999999999-9"
+         Case "SP" '999.999.999.999
+            'If Not e_Produtor_Paulista Then
+               txtIE.Mask = "999.999.999.999"
+            'Else '(Produtor) 99999999.9/999
+            '   txtRGIE.Mask = "99999999.9/999"
+            'End If
+         Case "BA" '#99.999.999
+            txtIE.Mask = "#99.999.999"
+         Case "CE", "AL", "AP", "PI", "SE", "RR" '99999999-9
+            txtIE.Mask = "99999999-9"
+         Case "AC" '99.999.999/999-99
+            txtIE.Mask = "99.999.999/999-99"
+         Case "MT" '9999999999-9
+            txtIE.Mask = "9999999999-9"
+         Case "MS" '99.999.999-9
+            txtIE.Mask = "99.999.999-9"   
+         Case "TO" '99.99.999999-9
+            txtIE.Mask = "99.99.999999-9"
+      End Select      
+      
+   If vgSituacao <> ACAO_INCLUINDO And vgSituacao <> ACAO_EDITANDO Then Executar PEGA_DO_ARQUIVO   'Se nw estiver editando ou incluindo vamos pegar recuperar as informações do banco
+                                                                                                   'Senão tiver essa linha quando o usuario navegar pelos registro ele nw aplica a mascara
+                                                                                                   'como deveria      
+End Sub
+
+
+Private Function FiltroNFeCarga() As String
+ Dim Tb As New GrecordSet, PrimeiraVez As Boolean
+  PrimeiraVez = False
+  
+  Set Tb = VgDb.OpenRecordSet("SELECT * From [Descarregamento nfe] Where [Sequencia do Manifesto] = " & Sequencia_do_manifesto)
+   If Tb.RecordCount > 0 Then
+      FiltroNFeCarga = "[Sequencia do Municipio] > 0 And Inativo = 0 And UF = '" & Manifesto![Uf de descarregamento] & "'"
+      Do While Not Tb.EOF
+      If Not PrimeiraVez Then
+      FiltroNFeCarga = FiltroNFeCarga & " And [Descrição do Municipio] = '" & Tb![Descrição Do Municipio] & "'"
+      PrimeiraVez = True
+      Else
+      FiltroNFeCarga = FiltroNFeCarga & " Or [Descrição do Municipio] = '" & Tb![Descrição Do Municipio] & "'"
+      End If
+      Tb.MoveNext
+      Loop
+      Tb.MoveFirst       
+  End If
+End Function
+
+
+Private Sub DeletaDadosNFeCarga()
+Dim Tb As New GRecordSet, Tb1 As New GRecordSet
+
+ Set Tb = VgDb.OpenRecordSet("SELECT * From [Descarregamento nfe] Where [Sequencia do Manifesto] = " & Sequencia_do_manifesto)
+ Set Tb1 = VgDb.OpenRecordSet("SELECT * From [NFe da Carga] Where [Sequencia do Manifesto] = " & Sequencia_do_manifesto)
+ 
+  If Tb.RecordCount > 0 Then
+     vgDb.Execute "DELETE FROM [Descarregamento nfe] Where [Sequencia do Manifesto] = " & Sequencia_do_manifesto
+  End If
+  
+  If Tb1.RecordCount > 0 Then 
+  vgDb.Execute "DELETE FROM [NFe da Carga] WHERE [Sequencia do Manifesto] = " & Sequencia_do_manifesto
+  End If
+                   
+End Sub
+
+
+Private Function ValidaChave(Sequencia_descarrega As Long, Sequencia_do_manifesto As Long, Chave_da_nfe As String, _
+   Descricao_do_municipio As String, Valor_total As Double, Peso_bruto As Double) As Boolean
+
+ If Len(Chave_da_nfe) < 44 Or Len(Chave_da_nfe) > 44 Then 
+    ValidaChave = False
+ End If
+    If Vazio(Chave_da_nfe) Then
+       ValidaChave = False
+    End If
+ If Len(Chave_da_nfe) = 44 Then
+    ValidaChave = True
+ End If 
+ 
+End Function
+
+Private Function MostraNroNFe(Sequencia_descarrega As Long, Sequencia_do_manifesto As Long, Chave_da_nfe As String, _
+   Descricao_do_municipio As String, Valor_total As Double, Peso_bruto As Double) As String
+ Dim nNFe As Long
+ nNFe = Mid(Chave_da_NFe,29,6)
+ MostraNroNFe = Format(nNFe, "0000000")
+End Function
+
+
+'Transmite MDFE 3.00
+'Private Sub TransmitirMDFe(MDFe As String, ChaveMDFe As String)
+'   Dim msgDados As String, msgRetWS As String, msgResultado As String, siglaWS As String, certificado As String
+'   Dim licenca As String, nroRecibo As String, cStat As Long, versao As String, dhRecibo As String, MDFeAssinado As String
+'   Dim tMed As String, i As Integer, objMDFeUtil As Object, Arq As Long, proxy As String, usuario As String, senha As String
+'   Dim Emitente As New GRecordSet, NomeEmitente As String
+   
+'   On Error GoTo DeuErro
+   
+'   Set Emitente = VgDb.OpenRecordSet("SELECT * From [Emitentes mdfe] Where [Sequencia do emitente] = " & Codigo_do_emitente)
+'   NomeEmitente = UCASE(Mid(Emitente![Razão Social],1,5))
+'   Screen.MousePointer = vbHourglass    ' ampulheta
+'   lblProgresso.Caption = "Transmitindo MDF-e..."
+'   Set objMDFeUtil = CreateObject("MDFe_Util.Util")
+
+'   certificado = Emitente![Certificado digital]
+'   siglaWS = "RS"
+'   versao = "3.00"
+'   licenca = Emitente![Chave flexdocs]
+      
+'   For i = 1 To 5 'Vamos Tentar 5 vezes
+'      MDFeAssinado = objMDFeUtil.EnviaMDFe(siglaWS, certificado, versao, MDFe, msgDados, msgRetWS, cStat, msgResultado, nroRecibo, dhRecibo, tMed, proxy, usuario, senha, licenca)
+      'Histórico
+'      With vgTb
+'         .Edit
+'         If Vazio(!Observação) Then
+'            !Observação = "Transmitindo MDF-e... Tentativa " & i
+'         Else
+'            !Observação = !Observação & vbCrLf & "Transmitindo MDF-e... Tentativa " & i
+'         End If
+'         .Update
+'         .BookMark = .LastModified
+'      End With
+'      If cStat <> 105 Then 'Se o cStat for = 105 entao ainda esta processando
+'         GoTo Continua
+'      End If
+'   Next
+'   MsgBox "MDF-e Não Enviado! Tente Mais Tarde.", vbExclamation + vbOKOnly, vaTitulo
+   
+   'Histórico
+'   With vgTb
+'      .Edit
+'      If Vazio(!Observação) Then
+'         !Observação = "Erro ao Transmitir MDF-e"
+'      Else
+'         !Observação = !Observação & vbCrLf & "Erro ao Transmitir MDF-e"
+'      End If
+'      .Update
+'      .BookMark = .LastModified
+'   End With
+'   GoTo SaidaSub
+                                    
+   'Vamos verificar o Resultado
+'Continua:
+'   Select Case cStat
+'      Case 5000 To 7007                ' problemas no envio da DLL para o WS
+'         MsgBox "Descrição do erro: " & Chr(13) & Chr(13) + msgResultado, vbCritical + vbOKOnly, "Atenção: O envio da NFe falhou..."
+         
+         'Histórico
+'         With vgTb
+'            .Edit
+'            If Vazio(!Observação) Then
+'               !Observação = "Erro ao Transmitir MDF-e: " & msgResultado
+'            Else
+'               !Observação = !Observação & vbCrLf & "Erro ao Transmitir MDF-e: " & msgResultado
+'            End If
+'            .Update
+'            .BookMark = .LastModified
+'         End With
+'         GoTo SaidaSub
+'      Case 103 'Sucesso....
+'         With Manifesto
+'            .Edit
+'            !Transmitido = True
+'            ![Numero Do recibo] = nroRecibo
+'            ![Chave de Acesso] = ChaveMDFe
+'            !XmlAssinado = MDFeAssinado 
+'            .Update
+'            .BookMark = .LastModified
+'         End With
+      
+'         MsgBox "Transmitido com Sucesso!!!", vbInformation + vbOKOnly, "Atenção: MDF-e enviado!"
+         
+         'Salvando o xml...
+'         Arq = FreeFile
+'         If Parametros_da_NFe!ambiente = 0 Then 'Produção
+'            If Dir(Parametros_da_nfe![Diretorio 2 nfe produção] & NomeEmitente & Format(Manifesto![Numero Do manifesto], "000000") & "_GERADO.xml", vbArchive) <> "" Then Kill Parametros_da_nfe![Diretorio 2 nfe produção] & NomeEmitente & Format(Manifesto![Numero Do manifesto], "000000") & "_GERADO.xml"
+'            If Dir(Parametros_da_nfe![Diretorio 2 nfe produção] & NomeEmitente & Format(Manifesto![Numero Do manifesto], "000000") & "_ASSINADO.xml", vbArchive) <> "" Then Kill Parametros_da_nfe![Diretorio 2 nfe produção] & NomeEmitente & Format(Manifesto![Numero Do manifesto], "000000") & "_ASSINADO.xml"
+'            Open Parametros_da_nfe![Diretorio 2 nfe produção] & NomeEmitente & Format(Manifesto![Numero Do manifesto], "000000") & "_ASSINADO.xml" For Append As #Arq
+'               Print #Arq, MDFeAssinado
+'            Close #Arq
+'         Else 'Homologação
+'            If Dir(Parametros_da_nfe![Diretorio 2 nfe homologação] & NomeEmitente & Format(Manifesto![Numero Do manifesto], "000000") & "_GERADO.xml", vbArchive) <> "" Then Kill Parametros_da_nfe![Diretorio 2 nfe homologação] & NomeEmitente & Format(Manifesto![Numero Do manifesto], "000000") & "_GERADO.xml"
+'            If Dir(Parametros_da_nfe![Diretorio 2 nfe homologação] & NomeEmitente & Format(Manifesto![Numero Do manifesto], "000000") & "_ASSINADO.xml", vbArchive) <> "" Then Kill Parametros_da_nfe![Diretorio 2 nfe homologação] & NomeEmitente & Format(Manifesto![Numero Do manifesto], "000000") & "_ASSINADO.xml"
+'            Open Parametros_da_nfe![Diretorio 2 nfe homologação] & NomeEmitente & Format(Manifesto![Numero Do manifesto], "000000") & "_ASSINADO.xml" For Append As #Arq
+'               Print #Arq, MDFeAssinado
+'            Close #Arq
+'         End If
+         
+         'Histórico
+'         With vgTb
+'            .Edit
+'            If Vazio(!Observação) Then
+'               !Observação = "Transmitido com Sucesso"
+'            Else
+'               !Observação = !Observação & vbCrLf & "Transmitido com Sucesso"
+'            End If
+'            .Update
+'            .BookMark = .LastModified
+'         End With         
+'      Case 108, 109 'Que feio Servidor
+'         MsgBox msgResultado & Chr(13) & Chr(13) + "O Web Service com problemas de recepção", vbCritical + vbOKOnly, "Atenção: WS com problemas na recepção!"
+         
+         'Histórico
+'         With vgTb
+'            .Edit
+'            If Vazio(!Observação) Then
+'               !Observação = "Erro ao Transmitir MDF-e: " & msgResultado
+'            Else
+'               !Observação = !Observação & vbCrLf & "Erro ao Transmitir MDf-e: " & msgResultado
+'            End If
+'            .Update
+'            .BookMark = .LastModified
+'         End With
+'         GoTo SaidaSub
+'      Case Else  ' problemas na recepção do WS
+'         MsgBox "Descrição do erro: " & Chr(13) & Chr(13) & cStat & " - " & msgResultado, vbCritical + vbOKOnly, "Atenção: O WS rejeitou o MDF-e..."
+         
+         'Histórico
+'         With vgTb
+'            .Edit
+'            If Vazio(!Observação) Then
+'               !Observação = "Erro ao Transmitir MDF-e: " & msgResultado
+'            Else
+'               !Observação = !Observação & vbCrLf & "Erro ao Transmitir MDF-e: " & msgResultado
+'            End If
+'            .Update
+'            .BookMark = .LastModified
+'         End With
+'         GoTo SaidaSub
+'   End Select
+   
+'   RetornoMDFe MDFeAssinado, nroRecibo 'Retornando
+   
+'DeuErro:
+'   If Err <> 0 Then
+'      MsgBox Err.Description, vbCritical + vbOKOnly, vaTitulo
+'   End If
+   
+'SaidaSub:
+'   Screen.MousePointer = vbDefault ' normal
+'   Set objMDFeUtil = Nothing
+'   If Parametros_da_nfe!ambiente = 0 Then 'produção
+'      lblProgresso.Caption = ""
+'   Else 'Homologação
+'      lblProgresso.Caption = "AMBIENTE EM MODO TESTE"
+'   End If
+      
+'End Sub
+
+Private Sub TransmitirMDFe(MDFe As String, ChaveMDFe As String)
+   Dim msgDados As String, msgRetWS As String, msgResultado As String, siglaWS As String, Certificado As String
+   Dim Licenca As String, nroRecibo As String, cStat As Long, Versao As String, dhRecibo As String, MDFeAssinado As String
+   Dim tMed As String, i As Integer, objMDFeUtil As Object, Arq As Long, proxy As String, usuario As String, Senha As String
+   Dim Emitente As New GRecordSet, NomeEmitente As String
+   Dim Protocolo As String, nroProtocolo As String, dhProtocolo As String, mdfeProc As String
+   
+   On Error GoTo DeuErro
+   
+   Set Emitente = vgDb.OpenRecordSet("SELECT * From [Emitentes mdfe] Where [Sequencia do emitente] = " & Codigo_do_emitente)
+   NomeEmitente = UCase(Mid(Emitente![Razão Social], 1, 5))
+   Screen.MousePointer = vbHourglass    ' ampulheta
+   lblProgresso.Caption = "Transmitindo MDF-e..."
+   Set objMDFeUtil = CreateObject("MDFe_Util.Util")
+
+   Certificado = Emitente![Certificado Digital]
+   siglaWS = "RS"
+   Versao = "3.00"
+   Licenca = Emitente![Chave Flexdocs]
+      
+   For i = 1 To 5 'Vamos Tentar 5 vezes
+      'MDFeAssinado = objMDFeUtil.EnviaMDFe(siglaWS, Certificado, Versao, MDFe, msgDados, msgRetWS, cStat, msgResultado, nroRecibo, dhRecibo, tMed, proxy, usuario, Senha, Licenca)
+      mdfeProc = objMDFeUtil.EnviaMDFeSincrono(siglaWS, _
+                                     MDFe, _
+                                     Certificado, _
+                                     Versao, _
+                                     msgDados, _
+                                     msgRetWS, _
+                                     cStat, _
+                                     msgResultado, _
+                                     Protocolo, _
+                                     nroProtocolo, _
+                                     dhProtocolo, _
+                                     MDFeAssinado, _
+                                     proxy, _
+                                     usuario, _
+                                     Senha, _
+                                     Licenca)
+      
+      'Histórico
+      With vgTb
+         .Edit
+         If Vazio(!Observação) Then
+            !Observação = "Transmitindo MDF-e... Tentativa " & i
+         Else
+            !Observação = !Observação & vbCrLf & "Transmitindo MDF-e... Tentativa " & i
+         End If
+         .Update
+         .BookMark = .LastModified
+      End With
+      If cStat <> 105 Then 'Se o cStat for = 105 entao ainda esta processando
+         GoTo Continua
+      End If
+   Next
+   MsgBox "MDF-e Não Enviado! Tente Mais Tarde.", vbExclamation + vbOKOnly, vaTitulo
+   
+   'Histórico
+   With vgTb
+      .Edit
+      If Vazio(!Observação) Then
+         !Observação = "Erro ao Transmitir MDF-e"
+      Else
+         !Observação = !Observação & vbCrLf & "Erro ao Transmitir MDF-e"
+      End If
+      .Update
+      .BookMark = .LastModified
+   End With
+   GoTo SaiDaSub
+                                    
+   'Vamos verificar o Resultado
+Continua:
+   Select Case cStat
+      Case 5000 To 7007                ' problemas no envio da DLL para o WS
+         MsgBox "Descrição do erro: " & Chr(13) & Chr(13) + msgResultado, vbCritical + vbOKOnly, "Atenção: O envio da NFe falhou..."
+         
+         'Histórico
+         With vgTb
+            .Edit
+            If Vazio(!Observação) Then
+               !Observação = "Erro ao Transmitir MDF-e: " & msgResultado
+            Else
+               !Observação = !Observação & vbCrLf & "Erro ao Transmitir MDF-e: " & msgResultado
+            End If
+            .Update
+            .BookMark = .LastModified
+         End With
+         GoTo SaiDaSub
+      Case 100 'Sucesso....
+         With Manifesto
+            .Edit
+            !Transmitido = True
+            '![Numero do recibo] = nroRecibo (NÃO TEM MAIS ESSA VARIÁVEL NO ENVIO SÍNCRONO)
+            ![Chave de Acesso] = ChaveMDFe
+            !XmlAssinado = MDFeAssinado
+            !Autorizada = True
+            ![Protocolo de Autorização] = nroProtocolo
+            ![Data e hora Do mdfe] = dhProtocolo
+            !XmlAutorizado = mdfeProc
+                If Vazio(!Observação) Then
+                  !Observação = "MDF-e Autorizado com Sucesso!!!"
+                Else
+                 !Observação = !Observação & vbCrLf & "MDF-e Autorizado com Sucesso!!!"
+                End If
+
+            .Update
+            .BookMark = .LastModified
+         End With
+      
+   '   With Manifesto
+  '          .Edit
+  '          !Autorizada = True
+  '          ![Protocolo de Autorização] = nroProtocolo
+  '          ![Data e hora do mdfe] = dhProtocolo
+  '          !XmlAutorizado = mdfeProc
+  '          If Vazio(!Observação) Then
+  '             !Observação = "MDF-e Autorizado com Sucesso!!!"
+  '          Else
+  '             !Observação = !Observação & vbCrLf & "MDF-e Autorizado com Sucesso!!!"
+  '          End If
+  '          .Update
+  '          .BookMark = .LastModified
+  '       End With
+      
+      
+      
+      
+         MsgBox "Transmitido com Sucesso!!!", vbInformation + vbOKOnly, "Atenção: MDF-e enviado!"
+         
+         'Salvando o xml...
+         Arq = FreeFile
+         If Parametros_da_nfe!Ambiente = 0 Then 'Produção
+            If Dir(Parametros_da_nfe![Diretorio 2 nfe produção] & NomeEmitente & Format(Manifesto![Numero Do Manifesto], "000000") & "_GERADO.xml", vbArchive) <> "" Then Kill Parametros_da_nfe![Diretorio 2 nfe produção] & NomeEmitente & Format(Manifesto![Numero Do Manifesto], "000000") & "_GERADO.xml"
+            If Dir(Parametros_da_nfe![Diretorio 2 nfe produção] & NomeEmitente & Format(Manifesto![Numero Do Manifesto], "000000") & "_ASSINADO.xml", vbArchive) <> "" Then Kill Parametros_da_nfe![Diretorio 2 nfe produção] & NomeEmitente & Format(Manifesto![Numero Do Manifesto], "000000") & "_ASSINADO.xml"
+            Open Parametros_da_nfe![Diretorio 2 nfe produção] & NomeEmitente & Format(Manifesto![Numero Do Manifesto], "000000") & "_ASSINADO.xml" For Append As #Arq
+               Print #Arq, MDFeAssinado
+            Close #Arq
+         Else 'Homologação
+            If Dir(Parametros_da_nfe![Diretorio 2 nfe homologação] & NomeEmitente & Format(Manifesto![Numero Do Manifesto], "000000") & "_GERADO.xml", vbArchive) <> "" Then Kill Parametros_da_nfe![Diretorio 2 nfe homologação] & NomeEmitente & Format(Manifesto![Numero Do Manifesto], "000000") & "_GERADO.xml"
+            If Dir(Parametros_da_nfe![Diretorio 2 nfe homologação] & NomeEmitente & Format(Manifesto![Numero Do Manifesto], "000000") & "_ASSINADO.xml", vbArchive) <> "" Then Kill Parametros_da_nfe![Diretorio 2 nfe homologação] & NomeEmitente & Format(Manifesto![Numero Do Manifesto], "000000") & "_ASSINADO.xml"
+            Open Parametros_da_nfe![Diretorio 2 nfe homologação] & NomeEmitente & Format(Manifesto![Numero Do Manifesto], "000000") & "_ASSINADO.xml" For Append As #Arq
+               Print #Arq, MDFeAssinado
+            Close #Arq
+         End If
+         
+         Arq = FreeFile
+         If Parametros_da_nfe!Ambiente = 0 Then 'Produção
+            If Dir(Parametros_da_nfe![Diretorio 2 nfe produção] & NomeEmitente & Format(Manifesto![Numero Do Manifesto], "000000") & "_ASSINADO.xml", vbArchive) <> "" Then Kill Parametros_da_nfe![Diretorio 2 nfe produção] & NomeEmitente & Format(Manifesto![Numero Do Manifesto], "000000") & "_ASSINADO.xml"
+            Open Parametros_da_nfe![Diretorio 1 NFe Produção] & NomeEmitente & Format(Manifesto![Numero Do Manifesto], "000000") & "_AUTORIZADO.xml" For Append As #Arq
+               Print #Arq, mdfeProc
+            Close #Arq
+         Else 'Homologação
+            If Dir(Parametros_da_nfe![Diretorio 2 nfe homologação] & NomeEmitente & Format(Manifesto![Numero Do Manifesto], "000000") & "_ASSINADO.xml", vbArchive) <> "" Then Kill Parametros_da_nfe![Diretorio 2 nfe homologação] & NomeEmitente & Format(Manifesto![Numero Do Manifesto], "000000") & "_ASSINADO.xml"
+            Open Parametros_da_nfe![Diretorio 1 NFe Homologação] & NomeEmitente & Format(Manifesto![Numero Do Manifesto], "000000") & "_AUTORIZADO.xml" For Append As #Arq
+               Print #Arq, mdfeProc
+            Close #Arq
+         End If
+  
+         MsgBox "MDF-e Autorizado!!!", vbInformation + vbOKOnly, vaTitulo
+
+         
+         
+         
+         
+         'Histórico
+  '       With vgTb
+  '          .Edit
+  '          If Vazio(!Observação) Then
+  '             !Observação = "Transmitido com Sucesso"
+  '          Else
+  '             !Observação = !Observação & vbCrLf & "Transmitido com Sucesso"
+  '          End If
+  '          .Update
+  '          .BookMark = .LastModified
+  '       End With
+      Case 108, 109 'Que feio Servidor
+         MsgBox msgResultado & Chr(13) & Chr(13) + "O Web Service com problemas de recepção", vbCritical + vbOKOnly, "Atenção: WS com problemas na recepção!"
+         
+         'Histórico
+         With vgTb
+            .Edit
+            If Vazio(!Observação) Then
+               !Observação = "Erro ao Transmitir MDF-e: " & msgResultado
+            Else
+               !Observação = !Observação & vbCrLf & "Erro ao Transmitir MDf-e: " & msgResultado
+            End If
+            .Update
+            .BookMark = .LastModified
+         End With
+         GoTo SaiDaSub
+      Case Else  ' problemas na recepção do WS
+         MsgBox "Descrição do erro: " & Chr(13) & Chr(13) & cStat & " - " & msgResultado, vbCritical + vbOKOnly, "Atenção: O WS rejeitou o MDF-e..."
+         
+         'Histórico
+         With vgTb
+            .Edit
+            If Vazio(!Observação) Then
+               !Observação = "Erro ao Transmitir MDF-e: " & msgResultado
+            Else
+               !Observação = !Observação & vbCrLf & "Erro ao Transmitir MDF-e: " & msgResultado
+            End If
+            .Update
+            .BookMark = .LastModified
+         End With
+         GoTo SaiDaSub
+   End Select
+  ' MsgBox msgResultado + Chr(13) + Chr(13) + msgDados + Chr(13) + Chr(13) + msgRetWS, vbInformation, "Resultado do Envio do MDFe"
+  ' RetornoMDFe MDFeAssinado ', ,'nroRecibo 'Retornando
+         
+  '       Case 100  ' autorizada Sucessssooooo
+  '       With Manifesto
+  '          .Edit
+  '          !Autorizada = True
+  '          ![Protocolo de Autorização] = nroProtocolo
+  '          ![Data e hora do mdfe] = dhProtocolo
+  '          !XmlAutorizado = mdfeProc
+  '          If Vazio(!Observação) Then
+  '             !Observação = "MDF-e Autorizado com Sucesso!!!"
+  '          Else
+  '             !Observação = !Observação & vbCrLf & "MDF-e Autorizado com Sucesso!!!"
+  '          End If
+  '          .Update
+  '          .BookMark = .LastModified
+  '       End With
+  '
+         'Salvando o xml...
+  '       Arq = FreeFile
+  '       If Parametros_da_nfe!Ambiente = 0 Then 'Produção
+  '          If Dir(Parametros_da_nfe![Diretorio 2 nfe produção] & NomeEmitente & Format(Manifesto![Numero Do Manifesto], "000000") & "_ASSINADO.xml", vbArchive) <> "" Then Kill Parametros_da_nfe![Diretorio 2 nfe produção] & NomeEmitente & Format(Manifesto![Numero Do Manifesto], "000000") & "_ASSINADO.xml"
+  '          Open Parametros_da_nfe![Diretorio 1 NFe Produção] & NomeEmitente & Format(Manifesto![Numero Do Manifesto], "000000") & "_AUTORIZADO.xml" For Append As #Arq
+  '             Print #Arq, BuscaMDFe
+  '          Close #Arq
+  '       Else 'Homologação
+  '          If Dir(Parametros_da_nfe![Diretorio 2 nfe homologação] & NomeEmitente & Format(Manifesto![Numero Do Manifesto], "000000") & "_ASSINADO.xml", vbArchive) <> "" Then Kill Parametros_da_nfe![Diretorio 2 nfe homologação] & NomeEmitente & Format(Manifesto![Numero Do Manifesto], "000000") & "_ASSINADO.xml"
+  '          Open Parametros_da_nfe![Diretorio 1 NFe Homologação] & NomeEmitente & Format(Manifesto![Numero Do Manifesto], "000000") & "_AUTORIZADO.xml" For Append As #Arq
+  '             Print #Arq, BuscaMDFe
+  '          Close #Arq
+  '       End If
+  '
+  '       MsgBox "MDF-e Autorizado!!!", vbInformation + vbOKOnly, vaTitulo
+  '
+ '
+ '
+DeuErro:
+   If Err <> 0 Then
+      MsgBox Err.Description, vbCritical + vbOKOnly, vaTitulo
+   End If
+   
+SaiDaSub:
+   Screen.MousePointer = vbDefault ' normal
+   Set objMDFeUtil = Nothing
+   If Parametros_da_nfe!Ambiente = 0 Then 'produção
+      lblProgresso.Caption = ""
+   Else 'Homologação
+      lblProgresso.Caption = "AMBIENTE EM MODO TESTE"
+   End If
+      
+End Sub
+
+
+'Busca Retorno NFe 3.10
+'Private Sub RetornoMDFe(MDFeAssinado As String, Recibo As String)
+'   Dim msgDados As String, msgRetWS As String, msgResultado As String, siglaWS As String, certificado As String
+'   Dim tpAmbiente As Long, versao As String, nroProtocolo As String, BuscaMDFe As String, Protocolo As String
+'   Dim dhProtocolo As String, objMDFeUtil As Object, i As Integer, Arq As Long
+'   Dim cStat As Long, proxy As String, usuario As String, senha As String
+'   Dim Emitente As New GRecordSet, NomeEmitente As String
+   
+'   On Error GoTo DeuErro
+   
+'   Set Emitente = VgDb.OpenRecordSet("SELECT * From [Emitentes mdfe] Where [Sequencia do emitente] = " & Codigo_do_emitente)
+'   NomeEmitente = UCASE(Mid(Emitente![Razão Social],1,5))
+'   Screen.MousePointer = vbHourglass ' Ampulheta
+'   Set objMDFeUtil = CreateObject("MDFe_Util.Util")
+'   lblProgresso.Caption = "Buscando MDF-e..."
+   
+'   certificado = Emitente![Certificado digital]
+'   siglaWS = "RS"
+'   versao = "3.00"
+
+ '  If Parametros_da_nfe!ambiente = 0 Then 'Produção
+'      tpAmbiente = 1
+'   Else 'Homologação
+'      tpAmbiente = 2
+'   End If
+   
+'   For i = 1 To 5 'Go To Search
+'      BuscaMDFe = objMDFeUtil.BuscaMDFe(siglaWS, tpAmbiente, certificado, versao, Recibo, MDFeAssinado, msgDados, msgRetWS, cStat, msgResultado, Protocolo, nroProtocolo, dhProtocolo, proxy, usuario, Senha)
+'      'Histórico
+'      With vgTb
+'         .Edit
+'         If Vazio(!Observação) Then
+'            !Observação = "Buscando Retorno do MDF-e... Tentativa " & i
+'         Else
+'            !Observação = !Observação & vbCrLf & "Buscando Retorno do MDF-e... Tentativa " & i
+'         End If
+'         .Update         
+'      End With
+'      If cStat <> 105 Then
+'         GoTo Continua
+'      End If
+'   Next
+'   MsgBox "MDF-e NÃO Retornado! Tente Mais Tarde.", vbExclamation + vbOKOnly, vaTitulo
+   
+   'Histórico
+'   With vgTb
+'      .Edit
+'      If Vazio(!Observação) Then
+'         !Observação = "Erro ao Buscar Retorno do MDF-e"
+'      Else
+'         !Observação = !Observação & vbCrLf & "Erro ao Buscar Retorno do MDF-e"
+'      End If
+'      .Update
+'      .BookMark = .LastModified      
+'   End With
+'   GoTo SaidaSub
+
+   '           WS chamada com sucesso
+   '
+   '           105 – lote em processamento -> tentar novamente
+   '           106 – lote não localizado   -> tentar enviar o lote novamente ou verificar se o nroRecibo está correto
+   '           100 – NF-e autorizada       -> OK
+   '           2xx – motivo de rejeição do WS -> erro na elaboração da NF-e, verificar o código de erro e corrigir a NF-e
+'Continua:
+'   Select Case cStat
+'      Case 5001 To 6423                ' erro da DLL
+'         MsgBox "Descrição do erro: " & Chr(13) & Chr(13) + msgResultado, vbCritical + vbOKOnly, "Atenção: O Retorno do MDF-e falhou..."
+'         
+         'Histórico
+'         With vgTb
+'            .Edit
+'            If Vazio(!Observação) Then
+'               !Observação = "Erro ao Buscar Retorno do MDF-e: " & msgResultado
+'            Else
+'               !Observação = !Observação & vbCrLf & "Erro ao Buscar Retorno do MDF-e: " & msgResultado
+'            End If
+'            !Transmitido = False
+'            .Update
+'            .BookMark = .LastModified
+'         End With
+'         GoTo SaidaSub
+'      Case 100  ' autorizada Sucessssooooo
+'         With Manifesto
+'            .Edit
+'            !Autorizada = True
+'            ![Protocolo de autorização] = nroProtocolo
+'            ![Data e hora Do mdfe] = dhProtocolo
+'            !Xmlautorizado = BuscaMDFe
+'            If Vazio(!Observação) Then
+'               !Observação = "MDF-e Autorizado com Sucesso!!!"
+'            Else
+'               !Observação = !Observação & vbCrLf & "MDF-e Autorizado com Sucesso!!!"
+'            End If
+'            .Update
+'            .BookMark = .LastModified
+'         End With
+         
+         'Salvando o xml...
+'         Arq = FreeFile
+'         If Parametros_da_nfe!ambiente = 0 Then 'Produção
+'            If Dir(Parametros_da_nfe![Diretorio 2 nfe produção] & NomeEmitente & Format(Manifesto![Numero Do manifesto], "000000") & "_ASSINADO.xml", vbArchive) <> "" Then Kill Parametros_da_nfe![Diretorio 2 nfe produção] & NomeEmitente & Format(Manifesto![Numero Do manifesto], "000000") & "_ASSINADO.xml"
+'            Open Parametros_da_nfe![Diretorio 1 nfe produção] & NomeEmitente & Format(Manifesto![Numero Do manifesto], "000000") & "_AUTORIZADO.xml" For Append As #Arq
+'               Print #Arq, BuscaMDFe
+'            Close #Arq
+'         Else 'Homologação
+ '           If Dir(Parametros_da_nfe![Diretorio 2 nfe homologação] & NomeEmitente & Format(Manifesto![Numero Do manifesto], "000000") & "_ASSINADO.xml", vbArchive) <> "" Then Kill Parametros_da_nfe![Diretorio 2 nfe homologação] & NomeEmitente & Format(Manifesto![Numero Do manifesto], "000000") & "_ASSINADO.xml"
+ '           Open Parametros_da_nfe![Diretorio 1 nfe homologação] & NomeEmitente & Format(Manifesto![Numero Do manifesto], "000000") & "_AUTORIZADO.xml" For Append As #Arq
+ '              Print #Arq, BuscaMDFe
+ '           Close #Arq
+ '        End If                 
+         
+ '        MsgBox "MDF-e Autorizado!!!", vbInformation + vbOKOnly, vaTitulo
+                                                 
+'      Case 106    ' Lote não localizado, verifique se o número do recibo está correto
+'         MsgBox msgResultado, vbCritical + vbOKOnly, "Atenção: Lote não localizado"
+'         
+         'Histórico
+'         With vgTb
+'            .Edit
+'            If Vazio(!Observação) Then
+'               !Observação = "Erro ao Buscar Retorno do MDF-e: " & msgResultado
+'            Else
+'               !Observação = !Observação & vbCrLf & "Erro ao Buscar Retorno do MDF-e: " & msgResultado
+'            End If
+'            !Transmitido = False
+ '           .Update
+ '           .BookMark = .LastModified
+ '        End With
+ '        GoTo SaidaSub
+ '     Case 108, 109 'Que feio Servidor
+ '        MsgBox msgResultado & Chr(13) & Chr(13) + "O Web Service está com problemas de recepção.", vbCritical + vbOKOnly, "Atenção: WS com problemas na recepção!"
+         
+         'Histórico
+ '        With vgTb
+ '           .Edit
+ '           If Vazio(!Observação) Then
+ '              !Observação = "Erro ao Buscar Retorno do MDF-e: " & msgResultado
+ '           Else
+ '              !Observação = !Observação & vbCrLf & "Erro ao Buscar Retorno do MDF-e: " & msgResultado
+ '           End If
+ '           !Transmitido = False
+ '           .Update
+ '           .BookMark = .LastModified
+ '        End With
+ '        GoTo SaidaSub
+ '     Case Else
+ '        MsgBox "Descrição do erro: " & Chr(13) & Chr(13) & cStat & " - " & msgResultado, vbCritical + vbOKOnly, "Atenção: O WS rejeitou o MDF-e..."
+         
+         'Histórico
+ '        With vgTb
+ '           .Edit
+ '           If Vazio(!Observação) Then
+ '              !Observação = "Erro ao Buscar Retorno do MDF-e: " & msgResultado
+ '           Else
+ '              !Observação = !Observação & vbCrLf & "Erro ao Buscar Retorno do MDF-e: " & msgResultado
+ '           End If
+ '           !Transmitido = False
+ '           .Update
+ '           .BookMark = .LastModified
+ '        End With
+ '        GoTo SaidaSub
+ '  End Select
+    'Unidanfe
+ '   DAMDFE
+   
+'DeuErro:
+'   If Err <> 0 Then
+'      MsgBox Err.Description, vbCritical + vbOKOnly, vaTitulo
+'   End If
+  
+'SaidaSub:
+'   Set objMDFeUtil = Nothing
+'   Screen.MousePointer = vbDefault ' normal
+'   If Parametros_da_NFe!ambiente = 0 Then
+'      lblProgresso.Caption = ""
+'   Else
+'      lblProgresso.Caption = "AMBIENTE EM MODO TESTE"
+'   End If   
+'End Sub
+
+Public Sub DAMDFE()
+   Dim CC As Byte, ret&
+   Dim Emitente As New GRecordSet, NomeEmitente As String
+   Set Emitente = VgDb.OpenRecordSet("SELECT * From [Emitentes mdfe] Where [Sequencia do emitente] = " & Codigo_do_emitente)
+   NomeEmitente = UCASE(Mid(Emitente![Razão Social],1,5))
+   
+   On Error Resume Next
+    
+   If Manifesto![Numero Do manifesto] > 0 Then
+      If Nota_cancelada Then
+         CC = 1
+      Else
+         CC = 0
+      End If
+    
+      If Parametros_da_nfe!ambiente = 0 Then 'Produção
+         Shell ("C:\unimake\uninfe\UniDANFe.exe arquivo=" & Parametros_da_nfe![Diretorio 1 nfe produção] & NomeEmitente & Format(Manifesto![Numero Do manifesto], "000000") & "_AUTORIZADO.xml ee=0 cc=" & CC)'Parametro para ignorar o envio de email ee=0
+      Else 'Homologação
+         Shell ("C:\unimake\uninfe\UniDANFe.exe arquivo=" & Parametros_da_nfe![Diretorio 1 nfe homologação] & NomeEmitente & Format(Manifesto![Numero Do manifesto], "000000") & "_AUTORIZADO.xml ee=0 cc=" & CC)'Parametro para ignorar o envio de email ee=0
+      Reposition
+      End If 
+ End If
+ 
+End Sub
+
+Private Sub DeletaGrids()
+ 
+ If VgSituacao = ACAO_EXCLUINDO Then
+ 
+   If Local_de_carregamento.RecordCount > 0 Then
+    vgDb.Execute "DELETE FROM [Local de Carregamento] WHERE [Sequencia do manifesto] = " & Sequencia_do_manifesto
+   End If 
+   
+   If Uf_de_percurso.RecordCount > 0 Then  
+    vgDb.Execute "DELETE FROM [UF de Percurso] WHERE [Sequencia do manifesto] = " & Sequencia_do_manifesto
+   End If 
+   
+   If Codutores.RecordCount > 0 Then
+      vgDb.Execute "DELETE FROM Codutores WHERE [Sequencia do manifesto] = " & Sequencia_do_manifesto
+   End If
+   
+   If Descarregamento_nfe.RecordCount > 0 Then
+      vgDb.Execute "DELETE FROM [Descarregamento NFe] WHERE [Sequencia do manifesto] = " & Sequencia_do_manifesto
+   End If
+   
+   If Nfe_da_carga.RecordCount > 0 Then
+      vgDb.Execute "DELETE FROM [NFe da Carga] WHERE [Sequencia do manifesto] = " & Sequencia_do_manifesto
+   End If
+                   
+ End If
+ 
+End Sub
+
+
+Private Sub RepositionMDFe()
+   On Error Resume Next
+    
+   If vgSituacao = ACAO_INCLUINDO Then
+      Set Local_de_carregamento = Nothing
+      Set Uf_de_percurso = Nothing
+      Set Codutores = Nothing
+      Set Descarregamento_nfe = Nothing
+      Set Nfe_da_carga = Nothing
+   End If
+   MudaMascaraSeg 
+   MudaMascaraContr 
+End Sub
+
+
+Private Sub AbreCancelamento()
+   On Error Resume Next
+   
+   Load frmCanMDFe
+   frmCanMDFe.txtNota.Value = Sequencia_do_manifesto
+   frmCanMDFe.Show     
+
+End Sub
+
+
+Private Sub AbreEncerramento()
+   On Error Resume Next
+   
+   Load frmEncMDFe
+   frmEncMDFe.txtNota.Value = Sequencia_do_manifesto
+   frmEncMDFe.Show     
+
+End Sub
+
+
+Private Function FiltroCTeCarga() As String
+ Dim Tb As New GRecordSet, PrimeiraVez As Boolean
+  PrimeiraVez = False
+  
+  Set Tb = VgDb.OpenRecordSet("SELECT * From [Descarregamento CTe] Where [Sequencia do Manifesto] = " & Sequencia_do_manifesto)
+   If Tb.RecordCount > 0 Then
+      FiltroCTeCarga = "[Sequencia do Municipio] > 0 And Inativo = 0 And UF = '" & Manifesto![Uf de descarregamento] & "'"
+      Do While Not Tb.EOF
+      If Not PrimeiraVez Then
+      FiltroCTeCarga = FiltroCTeCarga & " And [Descrição do Municipio] = '" & Tb![Descrição Do Municipio] & "'"
+      PrimeiraVez = True
+      Else
+      FiltroCTeCarga = FiltroCTeCarga & " Or [Descrição do Municipio] = '" & Tb![Descrição Do Municipio] & "'"
+      End If
+      Tb.MoveNext
+      Loop
+      Tb.MoveFirst       
+  End If
+End Function
+
+Private Function ValidaChaveCTe(Sequencia_descarrega_cte As Long, Sequencia_do_manifesto As Long, Chave_do_cte As String, _
+   Descricao_do_municipio As String, Valor_total As Double, Peso_bruto As Double) As Boolean
+
+ If Len(Chave_do_cte) < 44 Or Len(Chave_do_cte) > 44 Then 
+    ValidaChaveCte = False
+ End If
+    If Vazio(Chave_do_cte) Then
+       ValidaChaveCte = False
+    End If
+ If Len(Chave_do_cte) = 44 Then
+    ValidaChaveCTe = True
+ End If 
+ 
+End Function
+
+
+Private Function MostraNroCTe(Sequencia_descarrega_cte As Long, Sequencia_do_manifesto As Long, Chave_do_cte As String, _
+   Descricao_do_municipio As String, Valor_total As Double, Peso_bruto As Double) As String
+ Dim nCTe As Long
+ nCTe = Mid(Chave_do_cte,29,6)
+ MostraNroCTe = Format(nCTe, "0000000")
+End Function
+
+
+Private Sub MudaMascaraSeg()
+   On Error Resume Next
+   
+   If Tipo_do_responsavel = 0 Then  'CPF e RG
+      txtDoc.Mask = "999.999.999-99"      'mascara
+      lblDoc.Caption = "CPF.:"            'titulos   
+   Else                    'CNPJ e IE
+      txtDoc.Mask = "99.999.999/9999-99"  'mascara
+      lblDoc.Caption = "CNPJ:"            'titulos
+   End If  
+    
+  If vgSituacao <> ACAO_INCLUINDO And vgSituacao <> ACAO_EDITANDO Then Executar PEGA_DO_ARQUIVO   'Se nw estiver editando ou incluindo vamos pegar recuperar as informações do banco
+                                                                                                   'Senão tiver essa linha quando o usuario navegar pelos registro ele nw aplica a mascar                                                                                                   'como deveria      
+End Sub
+
+
+Private Sub MudaMascaraContr()
+   On Error Resume Next
+   
+   If Tipo_de_contratante = 0 Then  'CPF e RG
+      txtCnpjCon.Mask = "999.999.999-99"      'mascara
+      lblCnpjCon.Caption = "CPF.:"            'titulos   
+   Else                    'CNPJ e IE
+      txtCnpjCon.Mask = "99.999.999/9999-99"  'mascara
+      lblCnpjCon.Caption = "CNPJ:"            'titulos
+   End If  
+    
+  If vgSituacao <> ACAO_INCLUINDO And vgSituacao <> ACAO_EDITANDO Then Executar PEGA_DO_ARQUIVO   'Se nw estiver editando ou incluindo vamos pegar recuperar as informações do banco
+                                                                                                   'Senão tiver essa linha quando o usuario navegar pelos registro ele nw aplica a mascar                                                                                                   'como deveria      
+End Sub
+
+
+Private Sub LimpaDoc()
+TxtDoc.Text = ""
+TxtNomeseguradora.Text = ""
+TxtcnpjSeg.Text = ""
+TxtApolice.Text = ""
+Txtaverbacao.Text = ""
+End Sub
+
+
+Private Sub LimpaDoc2()
+ Txtcnpjcon.Text = ""
+End Sub
+
+Private Function RenavamAux() As String
+  If Placa = "GFW8D27" Then
+     RenavamAux = "01085770890"
+  ElseIf Placa = "DGC1A22" Then
+     RenavamAux = "00829651527"
+  ElseIf Placa = "FMG6042" Then
+     RenavamAux = "00596938187" 
+  ElseIf Placa = "ECM6I60 " Then
+     RenavamAux = "00568941993"  
+  End If 
+End Function
+
+Public Property Get txtCampoTab(Index As Integer) As FormataCampos   
+   Set txtCampoTab = txtCampo(Index)
+End Sub
+
+'inicializa variaveis (apelidos) coms os campos correspondentes
+Private Sub InicializaApelidos(vgComOQue As Integer)
+   On Error Resume Next                           'prepara para possíveis erros
+   If (vgTb.RecordCount > 0 And vgTb.Eof = False And vgTb.Bof = False) Or vgComOQue = COM_TEXTBOX Then
+      If vgComOQue = COM_TEXTBOX Then
+         Sequencia_do_manifesto = txtCampo(0).Value
+         Numero_do_manifesto = Iif(vgSituacao = ACAO_INCLUINDO,0, vgTb![Numero do manifesto])
+         Data_de_emissao = txtCampo(35).Value
+         Uf = txtCampo(4).Value
+         Tipo_de_emitente = txtCampo(36).Value
+         Uf_de_descarregamento = txtCampo(5).Value
+         Observacao = txtCampo(24).Value
+         Rntrc = txtCampo(6).Value
+         Tipo_de_carroceria = txtCampo(10).Value
+         Uf_do_veiculo = txtCampo(8).Value
+         Tipo_de_rodado = txtCampo(11).Value
+         Placa = txtCampo(7).Value
+         Tara = txtCampo(12).Value
+         Renavam = txtCampo(9).Value
+         Capacidade_kg = txtCampo(13).Value
+         Documento_do_responsavel = txtCampo(26).Value
+         Nome_da_seguradora = txtCampo(27).Value
+         Cnpj_da_seguradora = txtCampo(28).Value
+         N_da_apolice = txtCampo(29).Value
+         N_averbacao = txtCampo(30).Value
+         Tipo_de_contratante = Val(labopcFrame0.Caption)
+         Documento_do_contratante = txtCampo(40).Value
+         Produto_Predominante = txtCampo(31).Value
+         Latitude_de_Carregamento = txtCampo(1).Value
+         Longitude_de_Carregamento = txtCampo(2).Value
+         Latitude_de_Descrregamento = txtCampo(32).Value
+         Longitude_de_Descarregamento = txtCampo(33).Value
+         CEP_Carregamento = txtCampo(3).Value
+         CEP_Descarregamento = txtCampo(34).Value
+         Codigo_do_emitente = txtCampo(38).Value
+         Transmitido = Iif(vgSituacao = ACAO_INCLUINDO,False, vgTb!Transmitido)
+         Nota_cancelada = Iif(vgSituacao = ACAO_INCLUINDO,False, vgTb![Nota cancelada])
+         Autorizada = Iif(vgSituacao = ACAO_INCLUINDO,False, vgTb!Autorizada)
+         Historico = txtCampo(39).Value
+         Proprietario = chkCampo(0).Value
+         Cpf_Proprietario = txtCampo(17).Value
+         Cnpj_Proprietario = txtCampo(18).Value
+         Rntrc_proprietario = txtCampo(14).Value
+         Nome_Proprietario = txtCampo(19).Value
+         Ie_Proprietario = txtCampo(20).Value
+         Uf_proprietario = txtCampo(16).Value
+         Tipo_de_proprietario = txtCampo(15).Value
+         Tipo_documento = Val(labopcPainel6.Caption)
+         Numero_do_recibo = Iif(vgSituacao = ACAO_INCLUINDO,"", vgTb![Numero do recibo])
+         Chave_de_acesso = txtCampo(21).Value
+         XmlAssinado = Iif(vgSituacao = ACAO_INCLUINDO,"", vgTb!XmlAssinado)
+         Protocolo_de_autorizacao = txtCampo(23).Value
+         Data_e_hora_do_mdfe = txtCampo(22).Value
+         XmlAutorizado = Iif(vgSituacao = ACAO_INCLUINDO,"", vgTb!XmlAutorizado)
+         Encerrado = Iif(vgSituacao = ACAO_INCLUINDO,False, vgTb!Encerrado)
+         Responsavel_do_seguro = txtCampo(25).Value
+         Tipo_do_responsavel = Val(labopcTabs0.Caption)
+      Else
+         Sequencia_do_manifesto = IIf(IsNull(vgTb![Sequencia do manifesto]), 0, vgTb![Sequencia do manifesto])
+         Numero_do_manifesto = IIf(IsNull(vgTb![Numero do manifesto]), 0, vgTb![Numero do manifesto])
+         Data_de_emissao = vgTb![Data de emissão]
+         Uf = IIf(IsNull(vgTb!Uf), "", vgTb!Uf)
+         Tipo_de_emitente = IIf(IsNull(vgTb![Tipo de emitente]), "", vgTb![Tipo de emitente])
+         Uf_de_descarregamento = IIf(IsNull(vgTb![Uf de descarregamento]), "", vgTb![Uf de descarregamento])
+         Observacao = IIf(IsNull(vgTb!Observação), "", vgTb!Observação)
+         Rntrc = IIf(IsNull(vgTb!Rntrc), "", vgTb!Rntrc)
+         Tipo_de_carroceria = IIf(IsNull(vgTb![Tipo de carroceria]), "", vgTb![Tipo de carroceria])
+         Uf_do_veiculo = IIf(IsNull(vgTb![Uf do veiculo]), "", vgTb![Uf do veiculo])
+         Tipo_de_rodado = IIf(IsNull(vgTb![Tipo de rodado]), "", vgTb![Tipo de rodado])
+         Placa = IIf(IsNull(vgTb!Placa), "", vgTb!Placa)
+         Tara = IIf(IsNull(vgTb!Tara), "", vgTb!Tara)
+         Renavam = IIf(IsNull(vgTb!Renavam), "", vgTb!Renavam)
+         Capacidade_kg = IIf(IsNull(vgTb![Capacidade kg]), "", vgTb![Capacidade kg])
+         Documento_do_responsavel = IIf(IsNull(vgTb![Documento do responsavel]), "", vgTb![Documento do responsavel])
+         Nome_da_seguradora = IIf(IsNull(vgTb![Nome da seguradora]), "", vgTb![Nome da seguradora])
+         Cnpj_da_seguradora = IIf(IsNull(vgTb![Cnpj da seguradora]), "", vgTb![Cnpj da seguradora])
+         N_da_apolice = IIf(IsNull(vgTb![N da apolice]), "", vgTb![N da apolice])
+         N_averbacao = IIf(IsNull(vgTb![N averbação]), "", vgTb![N averbação])
+         Tipo_de_contratante = IIf(IsNull(vgTb![Tipo de contratante]), 0, vgTb![Tipo de contratante])
+         Documento_do_contratante = IIf(IsNull(vgTb![Documento do contratante]), "", vgTb![Documento do contratante])
+         Produto_Predominante = IIf(IsNull(vgTb![Produto Predominante]), "", vgTb![Produto Predominante])
+         Latitude_de_Carregamento = IIf(IsNull(vgTb![Latitude de Carregamento]), 0, vgTb![Latitude de Carregamento])
+         Longitude_de_Carregamento = IIf(IsNull(vgTb![Longitude de Carregamento]), 0, vgTb![Longitude de Carregamento])
+         Latitude_de_Descrregamento = IIf(IsNull(vgTb![Latitude de Descrregamento]), 0, vgTb![Latitude de Descrregamento])
+         Longitude_de_Descarregamento = IIf(IsNull(vgTb![Longitude de Descarregamento]), 0, vgTb![Longitude de Descarregamento])
+         CEP_Carregamento = IIf(IsNull(vgTb![CEP Carregamento]), "", vgTb![CEP Carregamento])
+         CEP_Descarregamento = IIf(IsNull(vgTb![CEP Descarregamento]), "", vgTb![CEP Descarregamento])
+         Codigo_do_emitente = IIf(IsNull(vgTb![Codigo do emitente]), 0, vgTb![Codigo do emitente])
+         Transmitido = IIf(IsNull(vgTb!Transmitido), 0, vgTb!Transmitido)
+         Nota_cancelada = IIf(IsNull(vgTb![Nota cancelada]), 0, vgTb![Nota cancelada])
+         Autorizada = IIf(IsNull(vgTb!Autorizada), 0, vgTb!Autorizada)
+         Historico = IIf(IsNull(vgTb!Historico), "", vgTb!Historico)
+         Proprietario = IIf(IsNull(vgTb!Proprietario), 0, vgTb!Proprietario)
+         Cpf_Proprietario = IIf(IsNull(vgTb![Cpf Proprietario]), "", vgTb![Cpf Proprietario])
+         Cnpj_Proprietario = IIf(IsNull(vgTb![Cnpj Proprietario]), "", vgTb![Cnpj Proprietario])
+         Rntrc_proprietario = IIf(IsNull(vgTb![Rntrc proprietario]), "", vgTb![Rntrc proprietario])
+         Nome_Proprietario = IIf(IsNull(vgTb![Nome Proprietario]), "", vgTb![Nome Proprietario])
+         Ie_Proprietario = IIf(IsNull(vgTb![Ie Proprietario]), "", vgTb![Ie Proprietario])
+         Uf_proprietario = IIf(IsNull(vgTb![Uf proprietario]), "", vgTb![Uf proprietario])
+         Tipo_de_proprietario = IIf(IsNull(vgTb![Tipo de proprietario]), "", vgTb![Tipo de proprietario])
+         Tipo_documento = IIf(IsNull(vgTb![Tipo documento]), 0, vgTb![Tipo documento])
+         Numero_do_recibo = IIf(IsNull(vgTb![Numero do recibo]), "", vgTb![Numero do recibo])
+         Chave_de_acesso = IIf(IsNull(vgTb![Chave de acesso]), "", vgTb![Chave de acesso])
+         XmlAssinado = IIf(IsNull(vgTb!XmlAssinado), "", vgTb!XmlAssinado)
+         Protocolo_de_autorizacao = IIf(IsNull(vgTb![Protocolo de autorização]), "", vgTb![Protocolo de autorização])
+         Data_e_hora_do_mdfe = IIf(IsNull(vgTb![Data e hora do mdfe]), "", vgTb![Data e hora do mdfe])
+         XmlAutorizado = IIf(IsNull(vgTb!XmlAutorizado), "", vgTb!XmlAutorizado)
+         Encerrado = IIf(IsNull(vgTb!Encerrado), 0, vgTb!Encerrado)
+         Responsavel_do_seguro = IIf(IsNull(vgTb![Responsavel do seguro]), "", vgTb![Responsavel do seguro])
+         Tipo_do_responsavel = IIf(IsNull(vgTb![Tipo do responsavel]), 0, vgTb![Tipo do responsavel])
+      End If
+   End If
+   If Err Then Err.Clear                          'se deu algum erro, vamos resetá-lo
+End Sub
+
+'verifica permissões para as condições especiais
+'e muda situação de alguns botões
+Private Sub AnalisaCondicoes()
+   Dim i As Integer
+   On Error Resume Next
+   If Not mdiNFE.ActiveForm Is Nothing Then
+      If mdiNFE.ActiveForm.Name <> Me.Name And Me.Visible Then Exit Sub
+   End If
+   With mdiNFE
+      i = Permitido(vgIdentTab, ACAO_INCLUINDO)
+      If Err Then Err.Clear: i = False
+      vgTemInclusao = i
+      grdBrowse.AllowInsert = i
+      .botInclui.Enabled = i
+      .Menu_Inclui.Enabled = i
+      i = ((Autorizada = 0) AND Nota_cancelada = 0) and Permitido(vgIdentTab, ACAO_EXCLUINDO)
+      If Err Then Err.Clear: i = False
+      vgTemExclusao = i
+      grdBrowse.AllowDelete = i
+      .botExclui.Enabled = i
+      .Menu_Exclui.Enabled = i
+      i = ((Autorizada = 0) AND Nota_cancelada = 0) and Permitido(vgIdentTab, ACAO_EDITANDO)
+      If Err Then Err.Clear: i = False
+      vgTemAlteracao = i
+      grdBrowse.AllowEdit = i
+      LigaDesligaControles Me, Not i
+   End With
+End Sub
+
+'executa processos/validacoes nos campos do arquivo
+Public Function Executar(vgOq As String, Optional ByRef vgColumn As Integer) As String
+   Dim i As Integer, vgRsError As GRecordSet, vgMsg As String, vgOk As Integer, vgPV As Boolean, vgNVez As Integer, vgInd As Integer
+   On Error GoTo DeuErro                          'fica na espera de um erro...
+   vgMsg$ = ""                                    'retorna uma msg dizendo o motivo
+   vgOk = True                                    'se a validação esta OK
+   vgPV = vgPriVez
+   vgColumn = -1
+   vgNVez = 0                                     'porque não fez o processo/validacoes
+   If vgOq = VALIDACOES Then
+      InicializaApelidos COM_TEXTBOX
+      vgOk = ((Not Vazio(Data_de_emissao)) And (IsDate(Data_de_emissao) Or Vazio(Data_de_emissao)))
+      vgMsg$ = "Data de emissão não pode ser vazio!"
+      If Not vgOk Then vgColumn = 36
+      If vgOk Then
+         vgOk = (Not Vazio(Tipo_de_emitente))
+         vgMsg$ = "Tipo de emitente não pode ser vazio!"
+         If Not vgOk Then vgColumn = 37
+      End If
+      If vgOk Then
+         vgOk = (Codigo_do_emitente > 0)
+         vgMsg$ = "Por Favor Selecione o Emitente!"
+         If Not vgOk Then vgColumn = 39
+      End If
+      If vgOk Then
+         If Proprietario = True Then
+            vgOk = (Not Vazio(Rntrc_proprietario))
+            vgMsg$ = "Rntrc proprietario não pode ser vazio!"
+            If Not vgOk Then vgColumn = 15
+         End If
+      End If
+      If vgOk Then
+         If Proprietario = True Then
+            vgOk = (Not Vazio(Tipo_de_proprietario))
+            vgMsg$ = "Tipo de proprietario não pode ser vazio!"
+            If Not vgOk Then vgColumn = 16
+         End If
+      End If
+      If vgOk Then
+         If Proprietario = True Then
+            vgOk = (VUF(Uf_proprietario))
+            vgMsg$ = "Uf proprietario inválido!"
+            If Not vgOk Then vgColumn = 17
+         End If
+      End If
+      If vgOk Then
+         If (Proprietario = True) AND Tipo_documento = 0 Then
+            If Tipo_documento = 0 Then
+               vgOk = ((VDV2(Cpf_Proprietario)) AND Not Vazio(Cpf_Proprietario))
+               vgMsg$ = "CPF Invalido!"
+               If Not vgOk Then vgColumn = 18
+            End If
+         End If
+      End If
+      If vgOk Then
+         If (Proprietario = True) AND Tipo_documento = 1 Then
+            If Tipo_documento = 1 Then
+               vgOk = ((VCGC(Cnpj_Proprietario)) AND Not Vazio(Cnpj_Proprietario))
+               vgMsg$ = "CNPJ do Proprietario Inválido!"
+               If Not vgOk Then vgColumn = 19
+            End If
+         End If
+      End If
+      If vgOk Then
+         If Proprietario = True Then
+            vgOk = (Not Vazio(Nome_Proprietario))
+            vgMsg$ = "Nome Proprietario não pode ser vazio!"
+            If Not vgOk Then vgColumn = 20
+         End If
+      End If
+      If vgOk Then
+         If Proprietario = True Then
+            If (Tipo_documento = 1) AND Not Vazio(Ie_Proprietario) Then
+               vgOk = (ValidaIE(Uf_Proprietario, Ie_Proprietario, False))
+               vgMsg$ = "" & MsgValIE & ""
+               If Not vgOk Then vgColumn = 21
+            End If
+         End If
+      End If
+      If vgOk Then
+         vgOk = (Not Vazio(Responsavel_do_seguro))
+         vgMsg$ = "Responsavel do seguro não pode ser vazio!"
+         If Not vgOk Then vgColumn = 26
+      End If
+      If vgOk Then
+         If Tipo_de_emitente = "Prestador de Serviço de Transporte" Then
+            If Tipo_do_responsavel = 0 Then
+               vgOk = ((VDV2(Documento_do_responsavel)) And Not Vazio(Documento_do_responsavel))
+               vgMsg$ = "CFP INVALIDO!"
+               If Not vgOk Then vgColumn = 27
+            End If
+         End If
+      End If
+      If vgOk Then
+         If Tipo_de_emitente = "Prestador de Serviço de Transporte" Then
+            If Tipo_do_responsavel = 1 Then
+               vgOk = ((VCGC(Documento_do_responsavel)) And Not Vazio(Documento_do_responsavel))
+               vgMsg$ = "CNPJ do Responsavel do Seguro Invalido !"
+               If Not vgOk Then vgColumn = 27
+            End If
+         End If
+      End If
+      If vgOk Then
+         If Tipo_de_emitente = "Prestador de Serviço de Transporte" Then
+            vgOk = (Not Vazio(Nome_da_seguradora))
+            vgMsg$ = "Nome da seguradora não pode ser vazio!"
+            If Not vgOk Then vgColumn = 28
+         End If
+      End If
+      If vgOk Then
+         If Tipo_de_emitente = "Prestador de Serviço de Transporte" Then
+            vgOk = (VCGC(Cnpj_da_seguradora))
+            vgMsg$ = "Cnpj da seguradora inválido!"
+            If Not vgOk Then vgColumn = 29
+         End If
+      End If
+      If vgOk Then
+         If Tipo_de_contratante = 0 Then
+            vgOk = ((VDV2(Documento_do_contratante)) And Not Vazio(Documento_do_contratante))
+            vgMsg$ = "CPF do Contratante do Serviço Invalido!"
+            If Not vgOk Then vgColumn = 41
+         End If
+      End If
+      If vgOk Then
+         If Tipo_de_contratante = 1  Then
+            vgOk = ((VCGC(Documento_do_contratante)) And Not Vazio(Documento_do_contratante))
+            vgMsg$ = "CNPJ do Contratante do Serviço Invalido!"
+            If Not vgOk Then vgColumn = 41
+         End If
+      End If
+      If vgOk Then
+         vgOk = (Latitude_de_Carregamento >= 0)
+         vgMsg$ = "Latitude de Carregamento inválido!"
+         If Not vgOk Then vgColumn = 2
+      End If
+      If vgOk Then
+         vgOk = (Longitude_de_Carregamento >= 0)
+         vgMsg$ = "Longitude de Carregamento inválido!"
+         If Not vgOk Then vgColumn = 3
+      End If
+      If vgOk Then
+         vgOk = (Latitude_de_Descrregamento >= 0)
+         vgMsg$ = "Latitude de Descrregamento inválido!"
+         If Not vgOk Then vgColumn = 33
+      End If
+      If vgOk Then
+         vgOk = (Longitude_de_Descarregamento >= 0)
+         vgMsg$ = "Longitude de Descarregamento inválido!"
+         If Not vgOk Then vgColumn = 34
+      End If
+      If vgOk Then
+         vgOk = (Not Vazio(CEP_Carregamento))
+         vgMsg$ = "CEP Carregamento não pode ser vazio!"
+         If Not vgOk Then vgColumn = 4
+      End If
+      If vgOk Then
+         vgOk = (Not Vazio(CEP_Descarregamento))
+         vgMsg$ = "CEP Descarregamento não pode ser vazio!"
+         If Not vgOk Then vgColumn = 35
+      End If
+      If vgOk Then
+         vgOk = (VUF(Uf))
+         vgMsg$ = "Uf inválido!"
+         If Not vgOk Then vgColumn = 5
+      End If
+      If vgOk Then
+         vgMsg$ = ""
+      ElseIf vgColumn <> -1  And Not vgEmBrowse  Then
+         txtCampo(vgColumn - 1).SetFocus
+      End If
+      DoEvents
+   ElseIf vgOq = INICIALIZACOES Then
+      If vgPriVez = False Then
+         vgPriVez = True
+         For i = 0 To UBound(txtCampo)
+            If Len(txtCampo(i).DataField) > 0 Then
+               txtCampo(i).Text = ""
+            End If
+         Next
+         InicializaApelidos COM_TEXTBOX
+         On Error Resume Next
+                  txtCampo(0).Value = PegaSequencial()
+         txtCampo(4).Value = "SP"
+         txtCampo(6).Value = "48736984"
+         chkCampo(0).Value = False
+         opcPainel6(0).Value = True
+         txtCampo(25).Value = "Emitente do MDFe"
+         opcTabs0(1).Value = True
+         opcTabs0(1).CtPri.TabStop = False
+         txtCampo(26).Value = "22.695.935/0001-72"
+         txtCampo(27).Value = "Allianz Seguros"
+         txtCampo(28).Value = "61.573.796/0001-66
+         txtCampo(29).Value = "517720233U540002608"
+         opcFrame0(1).Value = True
+         opcFrame0(1).CtPri.TabStop = False
+         txtCampo(40).Value = "02.781.892/0001-30"
+         On Error Goto DeuErro
+         InicializaApelidos COM_TEXTBOX
+         PoeRelEFiltroCbo 1
+         PoeRelEFiltroCbo 2
+         PoeRelEFiltroCbo 32
+         PoeRelEFiltroCbo 33
+         PoeRelEFiltroCbo 38
+      End If
+   ElseIf vgOq = PEGA_DO_ARQUIVO Then
+      If vgTb.RecordCount > 0 And vgTb.EOF = False And vgTb.BOF = False Then
+         vgPriVez = True
+         vgTb.Resync 1             'adAffectCurrent
+         InicializaApelidos COM_REGISTRO
+         PoeRelEFiltroCbo 1
+         PoeRelEFiltroCbo 2
+         PoeRelEFiltroCbo 32
+         PoeRelEFiltroCbo 33
+         PoeRelEFiltroCbo 38
+         For i = 0 To UBound(txtCampo)
+            If Len(txtCampo(i).DataField) > 0 Then
+               txtCampo(i).SetOriginalValue = True
+               txtCampo(i).Value = vgTb.Fields(txtCampo(i).DataField).Value
+            End If
+         Next
+         chkCampo(0).Value = Proprietario
+         opcPainel6(Tipo_documento).Value = True
+         opcTabs0(Tipo_do_responsavel).Value = True
+         opcTabs0(Tipo_do_responsavel).CtPri.TabStop = False
+         opcFrame0(Tipo_de_contratante).Value = True
+         opcFrame0(Tipo_de_contratante).CtPri.TabStop = False
+         If vgSituacao = ACAO_NAVEGANDO Then
+            If Me.Name = mdiNFE.ActiveForm.Name Then
+               If Not ActiveControl Is Nothing Then
+                  If TypeOf ActiveControl Is GListV Then
+                     If Not ActiveControl.PreEditing Then DoEvents
+                  Else
+                     DoEvents
+                  End If
+               End If
+            End If
+         End If
+      Else
+         Executar INICIALIZACOES
+      End If
+      vgPriVez = False
+   ElseIf vgOq = TESTA_VAL_RS Then
+      vgTb.Resync 1         'adAffectCurrent
+      For i = 0 To UBound(txtCampo)
+         If Len(txtCampo(i).DataField) > 0 Then
+            If vgTb.Fields(txtCampo(i).DataField).Value <> txtCampo(i).OriginalValue Then
+               If Len(vgMsg$) = 0 Then
+                  vgMsg$ = Caption + "|" + CStr(3600 + Abs(vgEmBrowse)) + "|" + LoadGasString(122)
+               End If
+               If vgEmBrowse Then
+                  Exit For
+               Else
+                  vgPriVez = True
+                  txtCampo(i).SetOriginalValue = True
+                  txtCampo(i).Value = vgTb.Fields(txtCampo(i).DataField).Value
+                  vgPriVez = False
+               End If
+            End If
+         End If
+      Next
+   ElseIf vgOq = POE_NO_ARQUIVO Then
+      For i = 0 To UBound(txtCampo)
+         If Len(txtCampo(i).DataField) > 0 Then
+            If Not vgTb.Table.Columns(txtCampo(i).DataField).SeqInterno Then
+               If (txtCampo(i).Value & "" <> vgTb.Fields(txtCampo(i).DataField).Value & "") Or _
+                        (IsNull(txtCampo(i).Value) Xor IsNull(vgTb.Fields(txtCampo(i).DataField).Value)) Then    'se for diferente do conteúdo atual do RS
+                  vgTb.Fields(txtCampo(i).DataField).Value = txtCampo(i).Value
+               End If
+            End If
+         End If
+      Next
+      Numero_do_manifesto = IIf(IsNull(vgTb![Numero do manifesto]), 0, vgTb![Numero do manifesto])
+      InicializaApelidos COM_TEXTBOX
+      vgTb![Tipo de contratante] = Tipo_de_contratante
+      Transmitido = IIf(IsNull(vgTb!Transmitido), 0, vgTb!Transmitido)
+      Nota_cancelada = IIf(IsNull(vgTb![Nota cancelada]), 0, vgTb![Nota cancelada])
+      Autorizada = IIf(IsNull(vgTb!Autorizada), 0, vgTb!Autorizada)
+      vgTb!Proprietario = Proprietario
+      vgTb![Tipo documento] = Tipo_documento
+      Numero_do_recibo = IIf(IsNull(vgTb![Numero do recibo]), "", vgTb![Numero do recibo])
+      XmlAssinado = IIf(IsNull(vgTb!XmlAssinado), "", vgTb!XmlAssinado)
+      XmlAutorizado = IIf(IsNull(vgTb!XmlAutorizado), "", vgTb!XmlAutorizado)
+      Encerrado = IIf(IsNull(vgTb!Encerrado), 0, vgTb!Encerrado)
+      vgTb![Tipo do responsavel] = Tipo_do_responsavel
+   ElseIf vgOq = INI_APELIDOS Then
+      InicializaApelidos COM_REGISTRO
+      ExecutaVisivel
+      ExecutaPreValidacao
+   ElseIf vgOq = APOS_EDICAO Then
+      On Error GoTo DeuErro
+      InicializaApelidos COM_REGISTRO
+      If Abs(vgSituacao) = ACAO_EXCLUINDO Then
+         DeletaGrids
+      End If
+   End If
+   Executar = vgMsg$                              'prepara saida da função
+   vgPriVez = vgPV
+   Exit Function                                  'e cai fora...
+
+DeuErro:
+   Select Case Err                                'vamos verificar se deu algum erro
+
+      Case -2147467259
+         Resume Next
+
+      Case -2147217885                            'registro foi apagado
+         vgPriVez = False
+         MoveRegistro Me, REG_FORCAVOLTA          'volta um registro
+         PrepBotoes Me, vgSituacao                'acerta icones dos botoes
+
+   End Select
+   Executar = Err.Source + "|" + Trim$(str$(Err)) + "|" + Error$ 'não teve jeito o erro não pode ser evitado...
+   If Err = 3265 Then Executar = Executar & vbCrLf & vbCrLf & txtCampo(i).DataField
+   If Not vgRsError Is Nothing Then
+      vgRsError.CancelUpdate
+      Set vgRsError = Nothing
+   End If
+   vgPriVez = vgPV
+End Function
+
+Private Sub grdBrowse_DeleteData(ByVal vgItem As Long, vgColumns() As Variant, vgDataDeleted As Boolean, vgErrorMessage As String)
+   vgDataDeleted = mdiNFE.ExcluiRegistro()
+End Sub
+   
+Private Sub grdBrowse_InitEdit(CancelEdit As Boolean)
+   Reposition
+End Sub
+
+Private Sub grdBrowse_ItemSelect(ByVal vgItem As Long, vgColumns() As Variant)
+   If vgPriVez Or Not grdBrowse.Visible Then Exit Sub
+   AjustaRolagem Me
+   If vgSituacao = ACAO_NAVEGANDO Then Executar PEGA_DO_ARQUIVO
+End Sub
+
+'evento disparado ao mudar de registro no grid.
+Private Sub grdBrowse_SkipRecord(Columns() As Variant, ByVal BookMark As Variant)
+   If vgSituacao = ACAO_NAVEGANDO Then Reposition
+End Sub
+
+Private Sub grdBrowse_GetColumnFilter(ByVal vgColumn As Integer, vgColumns() As Variant, vgFilter As String)
+   If UBound(txtCampo) >= vgColumn - 1 Then
+      vgFilter = txtCampo(vgColumn - 1).Filter
+   End If
+End Sub
+
+   
+'executa a pré-validação da coluna do grid do modo grade do formulário
+Private Sub grdBrowse_GetColumnLocked(ByVal vgRow As Long, ByVal vgCol As Long, vgColumns() As Variant, ByRef FormField As FormataCampos, ByRef vgLocked As Boolean)
+   ExecutaPreValidacao                            'checa as pré-validações
+   vgLocked = Not FormField.Enabled               'aplica as definições de pré-validação que são aplicadas ao campo da tela
+End Sub
+
+
+Private Sub grdBrowse_SaveData(ByVal vgItem As Long, vgColumns() As Variant, vgDataSaved As Boolean, vgColumn As Integer, vgErrorMessage As String)
+   mdiNFE.SalvaDados vgColumn
+   vgDataSaved = (vgSituacao = ACAO_NAVEGANDO)
+End Sub
+   
+Private Sub grdBrowse_StatusChanged(ByVal vgNewStatus As Integer)
+   If (vgNewStatus = ACAO_EXCLUINDO And Val(grdBrowse.Recordset.BookMark) >= 0) Then
+      Reposition
+   End If
+   PrepBotoes Me, vgNewStatus                          'acerta icones dos botoes
+   mdiNFE.RemontaForm                                  'remonta dos os form da tela
+End Sub
+
+'apresenta popup menu para trabalhar com o grid
+Private Sub grdBrowse_MouseUp(Button As Integer, Shift As Integer, x As Single, y As Single, ByVal vgCurCol As Integer)
+   MostraPopGrid Me, Button
+End Sub
+
+'evento - quando qq tecla for digitada no formulário
+Private Sub Form_KeyPress(KeyAscii As Integer)
+   Dim Ok As Boolean
+   If Not Me.ActiveControl Is Nothing Then
+      Ok = (Not TypeOf Me.ActiveControl Is GListV)         'se não está em um GRID
+   Else
+      Ok = True
+   End If
+   If Not Ok Then
+      Ok = (Me.ActiveControl.Status = ACAO_NAVEGANDO And Not Me.ActiveControl.PreEditing) 'e se grid não está em pré-edição, edição nem inclusão
+   End If
+   If KeyAscii = vbKeyEscape And Ok Then                                                  'se teclou ESC
+      Unload Me                                   'tira este form da memória
+   End If
+End Sub
+
+'evento - quando o formuário for pintado
+Private Sub Form_Paint()
+   grdBrowse.Visible = vgEmBrowse                 'AH VB!!...
+End Sub
+
+Public Sub CancelGrids()
+   Dim i As Integer
+   For i = 0 To Grid.Count - 1
+      If Grid(i).Status <> ACAO_NAVEGANDO Then
+         Grid(i).CancelEdit
+      End If
+   Next
+End Sub
+
+Public Sub SaveGrids()
+   Dim i As Integer
+   For i = 0 To Grid.Count - 1
+      If Grid(i).Status <> ACAO_NAVEGANDO Then
+         Grid(i).SaveEdit
+      End If
+   Next
+End Sub
+
+'prepara botões e o formulário para o novo registro
+Public Sub Reposition(Optional ForceRebind As Boolean, Optional LockGrids As Boolean = True)
+   Dim i As Integer, x As String, MudouFiltro As Boolean, vgCols() As Variant
+   On Error GoTo DeuErro
+   If vgPriVez Then Exit Sub
+   Set Manifesto = vgTb
+   If vgSituacao <> ACAO_INCLUINDO And vgSituacao <> ACAO_EDITANDO Then Executar PEGA_DO_ARQUIVO
+   If vgSituacao = ACAO_NAVEGANDO Then
+      AnalisaCondicoes 
+   End If
+   On Error Resume Next
+   For i = 0 To 6
+      Select Case i
+         Case 0
+            If vgSituacao = ACAO_INCLUINDO Or vgTb.EOF Or vgTb.BOF Or (vgSituacao <> ACAO_EXCLUINDO And vgEmBrowse)          Then
+               Grid(0).CloseRecordset
+            Else
+               x$ = ExecutaGrid(0, vgCols(), ABRE_TABELA_GRID)
+               MudouFiltro = (x$ <> Grid(0).SQLSource)
+               If Err = 0 And (ForceRebind Or MudouFiltro) And Grid(0).Status = ACAO_NAVEGANDO Then
+                  If Len(Grid(0).Recordset.RsSource) > 0 Then
+                     Grid(0).CloseRecordSet
+                  End If
+                  Grid(0).OpenRecordSet x$, CURSOR_TABLE
+               End If
+            End If
+               x$ = ExecutaGrid(0, vgCols(), CONDICOES_ESPECIAIS)
+         Case 1
+            If vgSituacao = ACAO_INCLUINDO Or vgTb.EOF Or vgTb.BOF Or (vgSituacao <> ACAO_EXCLUINDO And vgEmBrowse)          Then
+               Grid(1).CloseRecordset
+            Else
+               x$ = ExecutaGrid(1, vgCols(), ABRE_TABELA_GRID)
+               MudouFiltro = (x$ <> Grid(1).SQLSource)
+               If Err = 0 And (ForceRebind Or MudouFiltro) And Grid(1).Status = ACAO_NAVEGANDO Then
+                  If Len(Grid(0).Recordset.RsSource) > 0 Then
+                     Grid(1).CloseRecordSet
+                  End If
+                  Grid(1).OpenRecordSet x$, CURSOR_TABLE
+               End If
+            End If
+               x$ = ExecutaGrid(1, vgCols(), CONDICOES_ESPECIAIS)
+         Case 2
+            If vgSituacao = ACAO_INCLUINDO Or vgTb.EOF Or vgTb.BOF Or (vgSituacao <> ACAO_EXCLUINDO And vgEmBrowse)          Then
+               Grid(2).CloseRecordset
+            Else
+               x$ = ExecutaGrid(2, vgCols(), ABRE_TABELA_GRID)
+               MudouFiltro = (x$ <> Grid(2).SQLSource)
+               If Err = 0 And (ForceRebind Or MudouFiltro) And Grid(2).Status = ACAO_NAVEGANDO Then
+                  If Len(Grid(0).Recordset.RsSource) > 0 Then
+                     Grid(2).CloseRecordSet
+                  End If
+                  Grid(2).OpenRecordSet x$, CURSOR_TABLE
+               End If
+            End If
+               x$ = ExecutaGrid(2, vgCols(), CONDICOES_ESPECIAIS)
+         Case 3
+            If vgSituacao = ACAO_INCLUINDO Or vgTb.EOF Or vgTb.BOF Or (vgSituacao <> ACAO_EXCLUINDO And vgEmBrowse)          Then
+               Grid(3).CloseRecordset
+            Else
+               x$ = ExecutaGrid(3, vgCols(), ABRE_TABELA_GRID)
+               MudouFiltro = (x$ <> Grid(3).SQLSource)
+               If Err = 0 And (ForceRebind Or MudouFiltro) And Grid(3).Status = ACAO_NAVEGANDO Then
+                  If Len(Grid(0).Recordset.RsSource) > 0 Then
+                     Grid(3).CloseRecordSet
+                  End If
+                  Grid(3).OpenRecordSet x$, CURSOR_TABLE
+               End If
+            End If
+               x$ = ExecutaGrid(3, vgCols(), CONDICOES_ESPECIAIS)
+         Case 4
+            If vgSituacao = ACAO_INCLUINDO Or vgTb.EOF Or vgTb.BOF Or (vgSituacao <> ACAO_EXCLUINDO And vgEmBrowse)          Then
+               Grid(4).CloseRecordset
+            Else
+               x$ = ExecutaGrid(4, vgCols(), ABRE_TABELA_GRID)
+               MudouFiltro = (x$ <> Grid(4).SQLSource)
+               If Err = 0 And (ForceRebind Or MudouFiltro) And Grid(4).Status = ACAO_NAVEGANDO Then
+                  If Len(Grid(0).Recordset.RsSource) > 0 Then
+                     Grid(4).CloseRecordSet
+                  End If
+                  Grid(4).OpenRecordSet x$, CURSOR_TABLE
+               End If
+            End If
+               x$ = ExecutaGrid(4, vgCols(), CONDICOES_ESPECIAIS)
+         Case 5
+            If vgSituacao = ACAO_INCLUINDO Or vgTb.EOF Or vgTb.BOF Or (vgSituacao <> ACAO_EXCLUINDO And vgEmBrowse)          Then
+               Grid(5).CloseRecordset
+            Else
+               x$ = ExecutaGrid(5, vgCols(), ABRE_TABELA_GRID)
+               MudouFiltro = (x$ <> Grid(5).SQLSource)
+               If Err = 0 And (ForceRebind Or MudouFiltro) And Grid(5).Status = ACAO_NAVEGANDO Then
+                  If Len(Grid(0).Recordset.RsSource) > 0 Then
+                     Grid(5).CloseRecordSet
+                  End If
+                  Grid(5).OpenRecordSet x$, CURSOR_TABLE
+               End If
+            End If
+               x$ = ExecutaGrid(5, vgCols(), CONDICOES_ESPECIAIS)
+         Case 6
+            If vgSituacao = ACAO_INCLUINDO Or vgTb.EOF Or vgTb.BOF Or (vgSituacao <> ACAO_EXCLUINDO And vgEmBrowse)          Then
+               Grid(6).CloseRecordset
+            Else
+               x$ = ExecutaGrid(6, vgCols(), ABRE_TABELA_GRID)
+               MudouFiltro = (x$ <> Grid(6).SQLSource)
+               If Err = 0 And (ForceRebind Or MudouFiltro) And Grid(6).Status = ACAO_NAVEGANDO Then
+                  If Len(Grid(0).Recordset.RsSource) > 0 Then
+                     Grid(6).CloseRecordSet
+                  End If
+                  Grid(6).OpenRecordSet x$, CURSOR_TABLE
+               End If
+            End If
+               x$ = ExecutaGrid(6, vgCols(), CONDICOES_ESPECIAIS)
+      End Select
+   Next
+   RepositionMDFe  
+   ExecutaVisivel
+   ExecutaPreValidacao
+   MostraFormulas
+   vgTemAlteracaoGrids = Not LockGrids
+   If vgEmBrowse And vgSituacao = ACAO_NAVEGANDO And vgFrmImpCons Is Nothing Then grdBrowse.Refresh
+DeuErro:
+   
+End Sub
+
+'executa a pré-validação dos campos
+Private Sub ExecutaPreValidacao()
+   Dim Ok As Boolean, vgPV As Integer
+   On Error Resume Next                           'prepara para possiveis erros
+   vgPV = vgPriVez
+   vgPriVez = True
+   Ok = (Proprietario = True)
+   Label(21).Enabled = Ok
+   Ok = (Proprietario = True)
+   txtCampo(14).Enabled = (Ok And txtCampo(14).Editable)
+   Ok = (Proprietario = True)
+   Label(22).Enabled = Ok
+   Ok = (Proprietario = True)
+   txtCampo(15).Enabled = (Ok And txtCampo(15).Editable)
+   Ok = (Proprietario = True)
+   Label(23).Enabled = Ok
+   Ok = (Proprietario = True)
+   txtCampo(16).Enabled = (Ok And txtCampo(16).Editable)
+   Ok = (Proprietario = True)
+   opcPainel6(0).Enabled = (Ok And opcPainel6(0).Editable)
+   Ok = (Proprietario = True)
+   opcPainel6(1).Enabled = (Ok And opcPainel6(1).Editable)
+   Ok = (Proprietario = True)
+   Label(24).Enabled = Ok
+   Ok = ((Proprietario = True) AND Tipo_documento = 0)
+   txtCampo(17).Enabled = (Ok And txtCampo(17).Editable)
+   Ok = ((Proprietario = True) AND Tipo_documento = 1)
+   txtCampo(18).Enabled = (Ok And txtCampo(18).Editable)
+   Ok = (Proprietario = True)
+   Label(25).Enabled = Ok
+   Ok = (Proprietario = True)
+   txtCampo(19).Enabled = (Ok And txtCampo(19).Editable)
+   Ok = (Proprietario = True)
+   txtCampo(20).Enabled = (Ok And txtCampo(20).Editable)
+   Ok = ((Tipo_de_emitente = "Transporte de Carga Propria") AND Not Vazio(Uf_de_descarregamento))
+   Painel(7).Enabled = Ok
+   Ok = ((Tipo_de_emitente = "Transporte de Carga Propria") AND Not Vazio(Uf_de_descarregamento))
+   Painel(8).Enabled = Ok
+   Ok = ((Tipo_de_emitente = "Prestador de Serviço de Transporte") AND Not Vazio(Uf_de_descarregamento))
+   Painel(9).Enabled = Ok
+   Ok = ((Tipo_de_emitente = "Prestador de Serviço de Transporte") AND Not Vazio(Uf_de_descarregamento))
+   Painel(10).Enabled = Ok
+   Ok = (Tipo_de_emitente = "Prestador de Serviço de Transporte")
+   txtCampo(26).Enabled = (Ok And txtCampo(26).Editable)
+   Ok = (Tipo_de_emitente = "Prestador de Serviço de Transporte")
+   txtCampo(27).Enabled = (Ok And txtCampo(27).Editable)
+   Ok = (Tipo_de_emitente = "Prestador de Serviço de Transporte")
+   txtCampo(28).Enabled = (Ok And txtCampo(28).Editable)
+   Ok = (vgSituacao = ACAO_NAVEGANDO AND (IIf(cmdDanfe.Caption = "DAMDFE", 1 = 1, Nota_Cancelada = 0)))
+   Botao(0).Enabled = Ok
+   Ok = (vgSituacao = ACAO_NAVEGANDO AND Numero_do_manifesto > 0 AND Not Nota_Cancelada And Not Encerrado)
+   Botao(1).Enabled = Ok
+   Ok = (vgSituacao = ACAO_NAVEGANDO AND Numero_do_manifesto > 0 AND Not Nota_Cancelada And Not Encerrado)
+   Botao(2).Enabled = Ok
+   If Err Then Err.Clear                          'se houve erro, limpa...
+   vgPriVez = vgPV
+End Sub
+
+'coloca os campos visíveis segundo a condição
+Private Sub ExecutaVisivel()
+   On Error Resume Next                           'prepara para possiveis erros
+   txtCampo(17).Visible = (Tipo_documento = 0)
+   txtCampo(18).Visible = (Tipo_documento = 1)
+   Label(26).Visible = (Tipo_documento = 1)
+   txtCampo(20).Visible = (Tipo_documento = 1)
+   If Err Then Err.Clear                          'se houve erro, limpa...
+End Sub
+
+'evento - quando o conteúdo do campo for alterado
+Private Sub txtCp_Change(Index As Integer)
+   If vgPriVez Or txtCampo(Index).PriVez Then Exit Sub
+   If Len(txtCampo(Index).DataField) > 0 Then LigaFocos Me
+   InicializaApelidos COM_TEXTBOX                         'inicializa apelidos com o que esta sendo digitado
+   txtCampo(Index).Change
+   If Index = 1 Or Index = 2 Or Index = 4 Or Index = 5 Or Index = 8 Or Index = 10 Or Index = 11 Or Index = 15 Or Index = 16 Or Index = 25 Or Index = 32 Or Index = 33 Or Index = 36 Or Index = 38 Then
+      ExecutaVisivel
+      ExecutaPreValidacao
+      MostraFormulas
+   End If
+   Select Case Index
+      Case 5
+         DeletaDadosNFeCarga  
+      Case 16
+         MudaMascara  
+      Case 25
+         LimpaDoc  
+   End Select
+End Sub
+
+'evento - quando o campo receber o foco
+Private Sub txtCp_GotFocus(Index As Integer)
+   If vgSituacao <> ACAO_NAVEGANDO Or (Len(txtCampo(Index).PesqSQLExpression) > 0) Then
+      On Error Resume Next
+      Select Case Index
+         Case 1
+            PoeRelEFiltroCbo 1
+         Case 2
+            PoeRelEFiltroCbo 2
+         Case 4
+            If Len(txtCp(4).Text) = 0 Then
+               txtCampo(4).Value = "SP"
+               txtCp_Change Index
+               InicializaApelidos COM_TEXTBOX
+               ExecutaVisivel
+               ExecutaPreValidacao
+               MostraFormulas
+            End If
+         Case 6
+            If Len(txtCp(6).Text) = 0 Then
+               txtCampo(6).Value = "48736984"
+               txtCp_Change Index
+               InicializaApelidos COM_TEXTBOX
+               ExecutaVisivel
+               ExecutaPreValidacao
+               MostraFormulas
+            End If
+         Case 9
+            If Len(txtCp(9).Text) = 0 Then
+               txtCampo(9).Value = RenavamAux()
+               txtCp_Change Index
+               InicializaApelidos COM_TEXTBOX
+               ExecutaVisivel
+               ExecutaPreValidacao
+               MostraFormulas
+            End If
+         Case 25
+            If Len(txtCp(25).Text) = 0 Then
+               txtCampo(25).Value = "Emitente do MDFe"
+               txtCp_Change Index
+               InicializaApelidos COM_TEXTBOX
+               ExecutaVisivel
+               ExecutaPreValidacao
+               MostraFormulas
+            End If
+         Case 26
+            If Len(txtCp(26).Text) = 0 Then
+               txtCampo(26).Value = "22.695.935/0001-72"
+               txtCp_Change Index
+               InicializaApelidos COM_TEXTBOX
+               ExecutaVisivel
+               ExecutaPreValidacao
+               MostraFormulas
+            End If
+         Case 27
+            If Len(txtCp(27).Text) = 0 Then
+               txtCampo(27).Value = "Allianz Seguros"
+               txtCp_Change Index
+               InicializaApelidos COM_TEXTBOX
+               ExecutaVisivel
+               ExecutaPreValidacao
+               MostraFormulas
+            End If
+         Case 28
+            If Len(txtCp(28).Text) = 0 Then
+               txtCampo(28).Value = "61.573.796/0001-66
+               txtCp_Change Index
+               InicializaApelidos COM_TEXTBOX
+               ExecutaVisivel
+               ExecutaPreValidacao
+               MostraFormulas
+            End If
+         Case 29
+            If Len(txtCp(29).Text) = 0 Then
+               txtCampo(29).Value = "517720233U540002608"
+               txtCp_Change Index
+               InicializaApelidos COM_TEXTBOX
+               ExecutaVisivel
+               ExecutaPreValidacao
+               MostraFormulas
+            End If
+         Case 32
+            PoeRelEFiltroCbo 32
+         Case 33
+            PoeRelEFiltroCbo 33
+         Case 35
+            If Len(txtCp(35).Text) = 0 Then
+               txtCampo(35).Value = Date
+               txtCp_Change Index
+               InicializaApelidos COM_TEXTBOX
+               ExecutaVisivel
+               ExecutaPreValidacao
+               MostraFormulas
+            End If
+         Case 38
+            PoeRelEFiltroCbo 38
+         Case 40
+            If Len(txtCp(40).Text) = 0 Then
+               txtCampo(40).Value = "02.781.892/0001-30"
+               txtCp_Change Index
+               InicializaApelidos COM_TEXTBOX
+               ExecutaVisivel
+               ExecutaPreValidacao
+               MostraFormulas
+            End If
+      End Select
+   End If
+   txtCampo(Index).GotFocus
+End Sub
+
+'evento - quando qq tecla for digitada no campo
+Private Sub txtCp_KeyDown(Index As Integer, KeyCode As Integer, Shift As Integer)
+   If KeyCode = vbKeyReturn And vgSituacao <> ACAO_NAVEGANDO Then  'se tela esta em edição e digitou ENTER
+      ExecutaVisivel                                               'torna camos visiveis
+      ExecutaPreValidacao                                          'habilita/desabilita campos
+   End If
+   txtCampo(Index).KeyDown KeyCode, Shift
+End Sub
+
+'evento - quando qq tecla for digitada no campo
+Private Sub txtCp_KeyPress(Index As Integer, KeyAscii As Integer)
+   txtCampo(Index).KeyPress KeyAscii
+End Sub
+
+'evento - quando o campo perder o foco
+Private Sub txtCp_LostFocus(Index As Integer)
+   txtCampo(Index).LostFocus
+   If vgSituacao <> ACAO_NAVEGANDO Then           'se tela esta em edição
+      InicializaApelidos COM_TEXTBOX              'pega apelidos dos campos
+      MostraFormulas                              'mostra formulas na janela
+      ExecutaVisivel                              'torna camos visiveis
+      ExecutaPreValidacao                         'habilita/desabilita campos
+   End If
+End Sub
+
+
+'evento - quando o check for marcado/desmarcado
+Private Sub chkCp_Click(Index As Integer)
+   If vgPriVez Then Exit Sub
+   If chkCampo(Index).Locked Then
+      chkCampo(0).Value = Proprietario
+   Else
+   If Len(chkCampo(Index).DataField) > 0 Then LigaFocos Me
+      InicializaApelidos COM_TEXTBOX
+      MostraFormulas                              'mostra formulas na janela
+      ExecutaVisivel                              'torna camos visiveis
+      ExecutaPreValidacao                         'habilita/desabilita campos
+      chkCampo(Index).Change
+   End If
+End Sub
+
+'evento - quando o check receber o foco
+Private Sub chkCp_GotFocus(Index As Integer)
+   chkCampo(Index).GotFocus
+End Sub
+
+'evento - quando qq tecla for digitada no check
+Private Sub chkCp_KeyDown(Index As Integer, KeyCode As Integer, Shift As Integer)
+   chkCampo(Index).KeyDown KeyCode, Shift
+End Sub
+
+'evento - quando qq tecla for digitada no check
+Private Sub chkCp_KeyPress(Index As Integer, KeyAscii As Integer)
+   chkCampo(Index).KeyPress KeyAscii
+End Sub
+
+'evento - quando o check perder o foco
+Private Sub chkCp_LostFocus(Index As Integer)
+   chkCampo(Index).LostFocus
+End Sub
+
+'evento - quando uma opção for selecionada
+Private Sub opcPainel6Cp_Click(Index As Integer)
+   If vgPriVez Then Exit Sub
+   If opcPainel6(Index).Locked Then
+      opcPainel6(Val(labopcPainel6.Caption)).Value = True
+   Else
+      If Val(labopcPainel6.Caption) <> opcPainel6(Index).BookMark Then
+         labopcPainel6.Caption = Str$(opcPainel6(Index).BookMark)
+         LigaFocos Me
+         InicializaApelidos COM_TEXTBOX
+         ExecutaVisivel
+         ExecutaPreValidacao
+         MostraFormulas
+         opcPainel6(Index).Change
+      End If
+   End If
+   opcFrame0(0).CtPri.TabStop = False
+   opcFrame0(1).CtPri.TabStop = False
+   opcTabs0(0).CtPri.TabStop = False
+   opcTabs0(1).CtPri.TabStop = False
+End Sub
+
+'evento - quando qq tecla for digitada no campo
+Private Sub opcPainel6Cp_KeyPress(Index As Integer, KeyAscii As Integer)
+   opcPainel6(Index).KeyPress KeyAscii
+End Sub
+
+'evento - quando qq tecla for digitada no campo
+Private Sub opcPainel6Cp_KeyDown(Index As Integer, KeyCode As Integer, Shift As Integer)
+   opcPainel6(Index).KeyDown KeyCode, Shift
+End Sub
+
+'evento - quando o campo receber o foco
+Private Sub opcPainel6Cp_GotFocus(Index As Integer)
+   opcPainel6(Index).GotFocus
+   If vgSituacao <> ACAO_NAVEGANDO Or (Len(txtCampo(Index).PesqSQLExpression) > 0) Then
+      On Error Resume Next
+      Select Case Index
+         Case 1
+            PoeRelEFiltroCbo 1
+         Case 2
+            PoeRelEFiltroCbo 2
+         Case 32
+            PoeRelEFiltroCbo 32
+         Case 33
+            PoeRelEFiltroCbo 33
+         Case 38
+            PoeRelEFiltroCbo 38
+      End Select
+   End If
+End Sub
+
+'evento - quando o campo perder o foco
+Private Sub opcPainel6Cp_LostFocus(Index As Integer)
+   opcPainel6(Index).LostFocus
+End Sub
+
+'evento - quando uma opção for selecionada
+Private Sub opcTabs0Cp_Click(Index As Integer)
+   If vgPriVez Then Exit Sub
+   If opcTabs0(Index).Locked Then
+      opcTabs0(Val(labopcTabs0.Caption)).Value = True
+   Else
+      If Val(labopcTabs0.Caption) <> opcTabs0(Index).BookMark Then
+         labopcTabs0.Caption = Str$(opcTabs0(Index).BookMark)
+         LigaFocos Me
+         InicializaApelidos COM_TEXTBOX
+         ExecutaVisivel
+         ExecutaPreValidacao
+         MostraFormulas
+         opcTabs0(Index).Change
+         Select Case Index
+            Case 0
+               Tipo_do_responsavel = 0: MudaMascaraSeg: LimpaDoc
+            Case 1
+               Tipo_do_responsavel = 1: MudaMascaraSeg: LimpaDoc
+      End Select
+      End If
+   End If
+   opcFrame0(0).CtPri.TabStop = False
+   opcFrame0(1).CtPri.TabStop = False
+   opcTabs0(0).CtPri.TabStop = False
+   opcTabs0(1).CtPri.TabStop = False
+End Sub
+
+'evento - quando qq tecla for digitada no campo
+Private Sub opcTabs0Cp_KeyPress(Index As Integer, KeyAscii As Integer)
+   opcTabs0(Index).KeyPress KeyAscii
+End Sub
+
+'evento - quando qq tecla for digitada no campo
+Private Sub opcTabs0Cp_KeyDown(Index As Integer, KeyCode As Integer, Shift As Integer)
+   opcTabs0(Index).KeyDown KeyCode, Shift
+End Sub
+
+'evento - quando o campo receber o foco
+Private Sub opcTabs0Cp_GotFocus(Index As Integer)
+   opcTabs0(Index).GotFocus
+   If vgSituacao <> ACAO_NAVEGANDO Or (Len(txtCampo(Index).PesqSQLExpression) > 0) Then
+      On Error Resume Next
+      Select Case Index
+         Case 1
+            PoeRelEFiltroCbo 1
+         Case 2
+            PoeRelEFiltroCbo 2
+         Case 32
+            PoeRelEFiltroCbo 32
+         Case 33
+            PoeRelEFiltroCbo 33
+         Case 38
+            PoeRelEFiltroCbo 38
+      End Select
+   End If
+End Sub
+
+'evento - quando o campo perder o foco
+Private Sub opcTabs0Cp_LostFocus(Index As Integer)
+   opcTabs0(Index).LostFocus
+End Sub
+
+'evento - quando uma opção for selecionada
+Private Sub opcFrame0Cp_Click(Index As Integer)
+   If vgPriVez Then Exit Sub
+   If opcFrame0(Index).Locked Then
+      opcFrame0(Val(labopcFrame0.Caption)).Value = True
+   Else
+      If Val(labopcFrame0.Caption) <> opcFrame0(Index).BookMark Then
+         labopcFrame0.Caption = Str$(opcFrame0(Index).BookMark)
+         LigaFocos Me
+         InicializaApelidos COM_TEXTBOX
+         ExecutaVisivel
+         ExecutaPreValidacao
+         MostraFormulas
+         opcFrame0(Index).Change
+         Select Case Index
+            Case 0
+               Tipo_de_contratante = 0: MudaMascaraContr: LimpaDoc2
+            Case 1
+               Tipo_de_contratante = 1: MudaMascaraContr: LimpaDoc2
+      End Select
+      End If
+   End If
+   opcFrame0(0).CtPri.TabStop = False
+   opcFrame0(1).CtPri.TabStop = False
+   opcTabs0(0).CtPri.TabStop = False
+   opcTabs0(1).CtPri.TabStop = False
+End Sub
+
+'evento - quando qq tecla for digitada no campo
+Private Sub opcFrame0Cp_KeyPress(Index As Integer, KeyAscii As Integer)
+   opcFrame0(Index).KeyPress KeyAscii
+End Sub
+
+'evento - quando qq tecla for digitada no campo
+Private Sub opcFrame0Cp_KeyDown(Index As Integer, KeyCode As Integer, Shift As Integer)
+   opcFrame0(Index).KeyDown KeyCode, Shift
+End Sub
+
+'evento - quando o campo receber o foco
+Private Sub opcFrame0Cp_GotFocus(Index As Integer)
+   opcFrame0(Index).GotFocus
+   If vgSituacao <> ACAO_NAVEGANDO Or (Len(txtCampo(Index).PesqSQLExpression) > 0) Then
+      On Error Resume Next
+      Select Case Index
+         Case 1
+            PoeRelEFiltroCbo 1
+         Case 2
+            PoeRelEFiltroCbo 2
+         Case 32
+            PoeRelEFiltroCbo 32
+         Case 33
+            PoeRelEFiltroCbo 33
+         Case 38
+            PoeRelEFiltroCbo 38
+      End Select
+   End If
+End Sub
+
+'evento - quando o campo perder o foco
+Private Sub opcFrame0Cp_LostFocus(Index As Integer)
+   opcFrame0(Index).LostFocus
+End Sub
+
+'evento - quando o formulário receber o foco
+Private Sub Form_Activate()
+   If vgPriVez = False Then
+      Screen.MousePointer = vbHourglass           'mouse = ampulheta
+   Else
+      vgPriVez = False
+   End If
+   PosicionaRegistro frmMDFe, "Sequencia do Manifesto", seqRegistro: lblProgresso.Caption = IIf(Parametros_da_NFe!Ambiente = 1, "AMBIENTE EM MODO TESTE", "")
+   AtivaForm Me
+   
+   'se tiver imprimindo registros em grade, fecha form de selecao/preview
+   If FormEstaAberto("frmEnviaEmail") Then
+      If Not frmEnviaEmail.Visible Then
+         UnLoad vgFrmImpCons
+         Set vgFrmImpCons = Nothing
+         UnLoad frmEnviaEmail
+      End If
+   End If
+   Screen.MousePointer = vbDefault
+End Sub
+
+'evento - inicialização do formulário
+Private Sub Form_Load()
+   On Error GoTo DeuErro
+   Screen.MousePointer = vbHourglass
+   Caption = LoadGasString(14910)
+   vgFormID = 639
+   vgIdentTab = "Manifesto"
+   vgFiltroEmUso = -1
+   vgIndDefault = "Sequencia do manifesto"
+   vgPriVez = True
+   vgTipo = TP_TABELA
+   vgTemInclusao = True
+   vgTemExclusao = True
+   vgTemAlteracao = True
+   vgTemProcura = True
+   vgTemFiltro = True
+   vgTemBrowse = True
+   grdBrowse.Tag = 1
+   vgTemCondicoesEsp = True
+   vgCaracteristica = F_DADOS
+   vgUltimoTabIndex = 58
+   vgSituacao = ACAO_NAVEGANDO
+   Set mmCampo(0).Picture = LoadPicture(LoadGasPicture(6415))
+   Set Botao(0).Picture = LoadPicture(LoadGasPicture(6416))
+   Set Botao(1).Picture = LoadPicture(LoadGasPicture(6417))
+   Set Botao(2).Picture = LoadPicture(LoadGasPicture(6418))
+   Set lblNota2 = Label(0)
+   Set txtIE = txtCampo(20)
+   Set Lbldoc = Label(36)
+   Set Txtdoc = txtCampo(26)
+   Set Txtnomeseguradora = txtCampo(27)
+   Set Txtcnpjseg = txtCampo(28)
+   Set Txtapolice = txtCampo(29)
+   Set Txtaverbacao = txtCampo(30)
+   Set lblAjuste = Label(47)
+   Set cmdDanfe = Botao(0)
+   Set cmdCancelar = Botao(1)
+   Set lblNota = Label(50)
+   Set lblNNota = txtCampo(37)
+   Set lblEncerrado = Label(58)
+   Set lblEmitente = Label(59)
+   Set Lblcnpjcon = Label(61)
+   Set Txtcnpjcon = txtCampo(40)
+   Set vgTb = New GRecordSet
+   If Len(vgFiltroInicial$) > 0 Then
+      vgFiltroInicial$ = vgFiltroInicial$ + " And "
+   End If
+   vgFiltroInicial$ = vgFiltroInicial$ + "[Sequencia do manifesto] > " & 0
+   vgFiltroOriginal$ = vgFiltroInicial$
+   DefineControles
+   vgTooltips.Create
+   Label(0).Caption = LoadGasString(14915)
+   Label(1).Caption = LoadGasString(14916)
+   vgTooltips.AddTool txtCampo(0).CtPri, 0, LoadGasString(14917)
+   Tabs(0).TabCaption(0) = LoadGasString(14918)
+   Tabs(0).TabCaption(1) = LoadGasString(14919)
+   Tabs(0).TabCaption(2) = LoadGasString(14920)
+   Tabs(0).TabCaption(3) = LoadGasString(14921)
+   Tabs(0).TabCaption(4) = LoadGasString(14922)
+   Tabs(0).TabCaption(5) = LoadGasString(14923)
+   Tabs(0).TabCaption(6) = LoadGasString(14924)
+   Label(2).Caption = LoadGasString(14925)
+   Label(3).Caption = LoadGasString(14926)
+   vgTooltips.AddTool txtCampo(1).CtPri, 0, LoadGasString(14927)
+   Label(4).Caption = LoadGasString(14928)
+   vgTooltips.AddTool txtCampo(2).CtPri, 0, LoadGasString(14929)
+   Label(5).Caption = LoadGasString(14930)
+   vgTooltips.AddTool txtCampo(3).CtPri, 0, LoadGasString(14931)
+   Label(6).Caption = LoadGasString(14932)
+   Label(7).Caption = LoadGasString(14933)
+   vgTooltips.AddTool txtCampo(4).CtPri, 0, LoadGasString(14934)
+   Label(8).Caption = LoadGasString(14935)
+   Label(9).Caption = LoadGasString(14936)
+   vgTooltips.AddTool txtCampo(5).CtPri, 0, LoadGasString(14937)
+   Label(10).Caption = LoadGasString(14938)
+   vgTooltips.AddTool txtCampo(6).CtPri, 0, LoadGasString(14939)
+   Label(11).Caption = LoadGasString(14940)
+   vgTooltips.AddTool txtCampo(7).CtPri, 0, LoadGasString(14941)
+   Label(12).Caption = LoadGasString(14942)
+   vgTooltips.AddTool txtCampo(8).CtPri, 0, LoadGasString(14943)
+   Label(13).Caption = LoadGasString(14944)
+   vgTooltips.AddTool txtCampo(9).CtPri, 0, LoadGasString(14945)
+   Label(14).Caption = LoadGasString(14946)
+   vgTooltips.AddTool txtCampo(10).CtPri, 0, LoadGasString(14947)
+   Label(15).Caption = LoadGasString(14948)
+   vgTooltips.AddTool txtCampo(11).CtPri, 0, LoadGasString(14949)
+   Label(16).Caption = LoadGasString(14950)
+   vgTooltips.AddTool txtCampo(12).CtPri, 0, LoadGasString(14951)
+   Label(17).Caption = LoadGasString(14952)
+   vgTooltips.AddTool txtCampo(13).CtPri, 0, LoadGasString(14953)
+   Label(18).Caption = LoadGasString(14954)
+   Label(19).Caption = LoadGasString(14955)
+   Label(20).Caption = LoadGasString(14956)
+   vgTooltips.AddTool chkCampo(0).CtPri, 0, LoadGasString(14957)
+   chkCampo(0).Caption = LoadGasString(14958)
+   Label(21).Caption = LoadGasString(14959)
+   vgTooltips.AddTool txtCampo(14).CtPri, 0, LoadGasString(14960)
+   Label(22).Caption = LoadGasString(14961)
+   vgTooltips.AddTool txtCampo(15).CtPri, 0, LoadGasString(14962)
+   Label(23).Caption = LoadGasString(14963)
+   vgTooltips.AddTool txtCampo(16).CtPri, 0, LoadGasString(14964)
+   vgTooltips.AddTool opcPainel6(0).CtPri, 0, LoadGasString(14965)
+   opcPainel6(0).Caption = LoadGasString(14966)
+   vgTooltips.AddTool opcPainel6(1).CtPri, 0, LoadGasString(14967)
+   opcPainel6(1).Caption = LoadGasString(14968)
+   Label(24).Caption = LoadGasString(14969)
+   vgTooltips.AddTool txtCampo(17).CtPri, 0, LoadGasString(14970)
+   vgTooltips.AddTool txtCampo(18).CtPri, 0, LoadGasString(14971)
+   Label(25).Caption = LoadGasString(14972)
+   vgTooltips.AddTool txtCampo(19).CtPri, 0, LoadGasString(14973)
+   Label(26).Caption = LoadGasString(14974)
+   vgTooltips.AddTool txtCampo(20).CtPri, 0, LoadGasString(14975)
+   Label(27).Caption = LoadGasString(14976)
+   Label(28).Caption = LoadGasString(14977)
+   Label(29).Caption = LoadGasString(14978)
+   Label(30).Caption = LoadGasString(14979)
+   Label(31).Caption = LoadGasString(14980)
+   vgTooltips.AddTool txtCampo(21).CtPri, 0, LoadGasString(14981)
+   Label(32).Caption = LoadGasString(14982)
+   vgTooltips.AddTool txtCampo(22).CtPri, 0, LoadGasString(14983)
+   Label(33).Caption = LoadGasString(14984)
+   vgTooltips.AddTool txtCampo(23).CtPri, 0, LoadGasString(14985)
+   vgTooltips.AddTool txtCampo(24).CtPri, 0, LoadGasString(14986)
+   Label(34).Caption = LoadGasString(14987)
+   vgTooltips.AddTool txtCampo(25).CtPri, 0, LoadGasString(14988)
+   Label(35).Caption = LoadGasString(14989)
+   vgTooltips.AddTool opcTabs0(0).CtPri, 0, LoadGasString(14990)
+   opcTabs0(0).Caption = LoadGasString(14991)
+   vgTooltips.AddTool opcTabs0(1).CtPri, 0, LoadGasString(14992)
+   opcTabs0(1).Caption = LoadGasString(14993)
+   Label(36).Caption = LoadGasString(14994)
+   vgTooltips.AddTool txtCampo(26).CtPri, 0, LoadGasString(14995)
+   Label(37).Caption = LoadGasString(14996)
+   vgTooltips.AddTool txtCampo(27).CtPri, 0, LoadGasString(14997)
+   Label(38).Caption = LoadGasString(14998)
+   vgTooltips.AddTool txtCampo(28).CtPri, 0, LoadGasString(14999)
+   Label(39).Caption = LoadGasString(15000)
+   vgTooltips.AddTool txtCampo(29).CtPri, 0, LoadGasString(15001)
+   Label(40).Caption = LoadGasString(15002)
+   vgTooltips.AddTool txtCampo(30).CtPri, 0, LoadGasString(15003)
+   Label(41).Caption = LoadGasString(15004)
+   vgTooltips.AddTool txtCampo(31).CtPri, 0, LoadGasString(15005)
+   Label(42).Caption = LoadGasString(15006)
+   vgTooltips.AddTool txtCampo(32).CtPri, 0, LoadGasString(15007)
+   Label(43).Caption = LoadGasString(15008)
+   vgTooltips.AddTool txtCampo(33).CtPri, 0, LoadGasString(15009)
+   Label(44).Caption = LoadGasString(15010)
+   vgTooltips.AddTool txtCampo(34).CtPri, 0, LoadGasString(15011)
+   Label(45).Caption = LoadGasString(15012)
+   Label(46).Caption = LoadGasString(15013)
+   Label(47).Caption = LoadGasString(15014)
+   Label(48).Caption = LoadGasString(15015)
+   vgTooltips.AddTool txtCampo(35).CtPri, 0, LoadGasString(15016)
+   Label(49).Caption = LoadGasString(15017)
+   vgTooltips.AddTool txtCampo(36).CtPri, 0, LoadGasString(15018)
+   Botao(0).Caption = LoadGasString(15019)
+   Botao(1).Caption = LoadGasString(15020)
+   Label(51).Caption = LoadGasString(15021)
+   Label(52).Caption = LoadGasString(15022)
+   vgTooltips.AddTool txtCampo(38).CtPri, 0, LoadGasString(15023)
+   vgTooltips.AddTool txtCampo(39).CtPri, 0, LoadGasString(15024)
+   Botao(2).Caption = LoadGasString(15025)
+   Label(53).Caption = LoadGasString(15026)
+   Label(54).Caption = LoadGasString(15027)
+   Label(55).Caption = LoadGasString(15028)
+   Label(56).Caption = LoadGasString(15029)
+   Label(57).Caption = LoadGasString(15030)
+   vgTooltips.AddTool opcFrame0(0).CtPri, 0, LoadGasString(15031)
+   opcFrame0(0).Caption = LoadGasString(15032)
+   vgTooltips.AddTool opcFrame0(1).CtPri, 0, LoadGasString(15033)
+   opcFrame0(1).Caption = LoadGasString(15034)
+   Label(60).Caption = LoadGasString(15035)
+   Label(61).Caption = LoadGasString(15036)
+   vgTooltips.AddTool txtCampo(40).CtPri, 0, LoadGasString(15037)
+   Label(62).Caption = LoadGasString(15038)
+   With Grid(0)
+      .RowHeight = 285
+      .AddControlIgnoreFocus mdiNFE.botCancela.hWnd           'não deixa o grid tentar gravar automaticamente
+      .AddControlIgnoreFocus mdiNFE.botSalva.hWnd             'se estiver perdendo o foco para esses botões
+      .FullRowSelect = False
+      .BorderStyle = 1
+      .NavigationAddMode = 1
+      .CacheSize = 100
+      .SpecialPopupDisabled POP_GRID_COLS Or POP_GRID_BARS Or POP_GRID_STRIPES
+      .AllowInsert = Permitido("Local de carregamento", ACAO_INCLUINDO)
+      .AllowEdit= Permitido("Local de carregamento", ACAO_EDITANDO)
+      .AllowDelete = Permitido("Local de carregamento", ACAO_EXCLUINDO)
+      .AddColumn Nothing, , "Seq", "Sequencia", TP_NUMERICO, "99999", , False, , , , , , , , , , "0", , , , "0", 1, "0", 1200
+      .AddColumn Nothing, , "UF", "Uf", TP_CARACTER, "!!", 3, False, , , , , , "AC|AL|AP|AM|BA|CE|DF|ES|TO|GO|MA|MT|MS|MG|PA|PB|PR|PE|PI|RN|RS|RJ|RO|RR|SC|SP|SE", , , , "1", , , , "0", 1, "0", 1185
+      .AddColumn Nothing, , "Municipio", "Descrição do municipio", TP_CARACTER, "@x", , False, , "DADOSNFE", "Municipios", "Descrição do municipio", "Descrição do municipio", "Descrição do municipio", "Descrição do municipio", "", , "1", , , , "0", 1, "0", 4485
+      .AddColumn Nothing, , "Codigo do IBGE:", "Codigo do ibge", TP_NUMERICO, "9999999", , False, , "DADOSNFE", "Municipios", "Codigo do ibge", "Codigo do ibge", "Codigo do ibge", "Codigo do ibge", "", , "1", , , , "0", 1, "0", 2430
+   End With
+   With Grid(1)
+      .RowHeight = 285
+      .AddControlIgnoreFocus mdiNFE.botCancela.hWnd           'não deixa o grid tentar gravar automaticamente
+      .AddControlIgnoreFocus mdiNFE.botSalva.hWnd             'se estiver perdendo o foco para esses botões
+      .FullRowSelect = False
+      .BorderStyle = 1
+      .NavigationAddMode = 1
+      .CacheSize = 100
+      .SpecialPopupDisabled POP_GRID_COLS Or POP_GRID_BARS Or POP_GRID_STRIPES
+      .AllowInsert = Permitido("Uf de percurso", ACAO_INCLUINDO)
+      .AllowEdit= Permitido("Uf de percurso", ACAO_EDITANDO)
+      .AllowDelete = Permitido("Uf de percurso", ACAO_EXCLUINDO)
+      .AddColumn Nothing, , "Seq", "Sequencia", TP_NUMERICO, "99999", , False, , , , , , , , , , "0", , , , "0", 1, "0", 930
+      .AddColumn Nothing, , "UF", "Uf", TP_CARACTER, "!!", 3, False, , , , , , "AC|AL|AP|AM|BA|CE|DF|ES|TO|GO|MA|MT|MS|MG|PA|PB|PR|PE|PI|RN|RS|RJ|RO|RR|SC|SP|SE", , , , "1", , , , "0", 1, "0", 885
+   End With
+   With Grid(2)
+      .RowHeight = 285
+      .AddControlIgnoreFocus mdiNFE.botCancela.hWnd           'não deixa o grid tentar gravar automaticamente
+      .AddControlIgnoreFocus mdiNFE.botSalva.hWnd             'se estiver perdendo o foco para esses botões
+      .FullRowSelect = False
+      .BorderStyle = 1
+      .NavigationAddMode = 1
+      .CacheSize = 100
+      .SpecialPopupDisabled POP_GRID_COLS Or POP_GRID_BARS Or POP_GRID_STRIPES
+      .AllowInsert = Permitido("Codutores", ACAO_INCLUINDO)
+      .AllowEdit= Permitido("Codutores", ACAO_EDITANDO)
+      .AllowDelete = Permitido("Codutores", ACAO_EXCLUINDO)
+      .AddColumn Nothing, , "Nome:", "Nome condutor", TP_CARACTER, "@!", , False, , "DADOSNFE", "Motoristas", "Nome do Motorista", "Nome do Motorista", "Nome do Motorista", "Nome do Motorista", "", , "1", , , , "0", 1, "0", 4050
+      .AddColumn Nothing, , "CPF", "Cpf condutor", TP_CARACTER, "999.999.999-99", , False, , "DADOSNFE", "Motoristas", "CPF", "CPF", "CPF", "CPF", "", , "1", , , , "0", 1, "0", 2505
+   End With
+   With Grid(3)
+      .RowHeight = 285
+      .AddControlIgnoreFocus mdiNFE.botCancela.hWnd           'não deixa o grid tentar gravar automaticamente
+      .AddControlIgnoreFocus mdiNFE.botSalva.hWnd             'se estiver perdendo o foco para esses botões
+      .FullRowSelect = False
+      .BorderStyle = 1
+      .NavigationAddMode = 1
+      .CacheSize = 100
+      .SpecialPopupDisabled POP_GRID_COLS Or POP_GRID_BARS Or POP_GRID_STRIPES
+      .AllowInsert = Permitido("Descarregamento nfe", ACAO_INCLUINDO)
+      .AllowEdit= Permitido("Descarregamento nfe", ACAO_EDITANDO)
+      .AllowDelete = Permitido("Descarregamento nfe", ACAO_EXCLUINDO)
+      .AddColumn Nothing, , "Seq", "Sequencia descarrega", TP_NUMERICO, "999999", , False, , , , , , , , , , "0", , , , "0", 1, "0", 1140
+      .AddColumn Nothing, , "Município", "Descrição do municipio", TP_CARACTER, "@x", , False, , "DADOSNFE", "Municipios", "Descrição do municipio", "Descrição do municipio", "Descrição do municipio", "Descrição do municipio", "", , "1", , , , "0", 1, "0", 3375
+      .AddColumn Nothing, , "Cod do IBGE", "Codigo do ibge", TP_NUMERICO, "9999999", , False, , "DADOSNFE", "Municipios", "Codigo do ibge", "Codigo do ibge", "Codigo do ibge", "Codigo do ibge", "", , "1", , , , "0", 1, "0", 2340
+   End With
+   With Grid(4)
+      .RowHeight = 285
+      .AddControlIgnoreFocus mdiNFE.botCancela.hWnd           'não deixa o grid tentar gravar automaticamente
+      .AddControlIgnoreFocus mdiNFE.botSalva.hWnd             'se estiver perdendo o foco para esses botões
+      .FullRowSelect = False
+      .BorderStyle = 1
+      .NavigationAddMode = 1
+      .CacheSize = 100
+      .SpecialPopupDisabled POP_GRID_COLS Or POP_GRID_BARS Or POP_GRID_STRIPES
+      .AllowInsert = Permitido("Nfe da carga", ACAO_INCLUINDO)
+      .AllowEdit= Permitido("Nfe da carga", ACAO_EDITANDO)
+      .AllowDelete = Permitido("Nfe da carga", ACAO_EXCLUINDO)
+      .AddColumn Nothing, , "Seq", "Sequencia descarrega", TP_NUMERICO, "999999", , False, , , , , , , , , , "0", , , , "0", 1, "0", 1215
+      .AddColumn Nothing, , "Municipio", "Descrição do municipio", TP_CARACTER, "@x", , False, , "DADOSNFE", "Municipios", "Descrição do municipio", "Descrição do municipio", "Descrição do municipio", "Descrição do municipio", "", , "1", , , , "0", 1, "0", 2880
+      .AddColumn Nothing, , "Chave de Acesso da NFe", "Chave da nfe", TP_CARACTER, "@x", 44, False, , , , , , , , , , "0", , , , "0", 1, "0", 4695
+      .AddColumn Nothing, , "NFe", , TP_CARACTER, , , True, , , , , , , , , , "0", , , , "0", 1, "0", 1365
+      .AddColumn Nothing, , "Valor Total", "Valor total", TP_NUMERICO, "999.999.999,99", , False, , , , , , , , , , "0", , , , "0", 1, "0", 2430
+      .AddColumn Nothing, , "Peso", "Peso bruto", TP_NUMERICO, "999.999,9999", , False, , , , , , , , , , "0", , , , "0", 1, "0", 2640
+   End With
+   With Grid(5)
+      .RowHeight = 285
+      .AddControlIgnoreFocus mdiNFE.botCancela.hWnd           'não deixa o grid tentar gravar automaticamente
+      .AddControlIgnoreFocus mdiNFE.botSalva.hWnd             'se estiver perdendo o foco para esses botões
+      .FullRowSelect = False
+      .BorderStyle = 1
+      .NavigationAddMode = 1
+      .CacheSize = 100
+      .SpecialPopupDisabled POP_GRID_COLS Or POP_GRID_BARS Or POP_GRID_STRIPES
+      .AllowInsert = Permitido("Descarregamento cte", ACAO_INCLUINDO)
+      .AllowEdit= Permitido("Descarregamento cte", ACAO_EDITANDO)
+      .AllowDelete = Permitido("Descarregamento cte", ACAO_EXCLUINDO)
+      .AddColumn Nothing, , "Seq", "Sequencia descarregamento cte", TP_NUMERICO, "999999", , False, , , , , , , , , , "0", , , , "0", 1, "0", 1185
+      .AddColumn Nothing, , "Município", "Descrição do municipio", TP_CARACTER, "@x", , False, , "DADOSNFE", "Municipios", "Descrição do municipio", "Descrição do municipio", "Descrição do municipio", "Descrição do municipio", "", , "1", , , , "0", 1, "0", 3060
+      .AddColumn Nothing, , "Codigo do IBGE", "Codigo do ibge", TP_NUMERICO, "9999999", , False, , "DADOSNFE", "Municipios", "Codigo do ibge", "Codigo do ibge", "Codigo do ibge", "Codigo do ibge", "", , "1", , , , "0", 1, "0", 2355
+   End With
+   With Grid(6)
+      .RowHeight = 285
+      .AddControlIgnoreFocus mdiNFE.botCancela.hWnd           'não deixa o grid tentar gravar automaticamente
+      .AddControlIgnoreFocus mdiNFE.botSalva.hWnd             'se estiver perdendo o foco para esses botões
+      .FullRowSelect = False
+      .BorderStyle = 1
+      .NavigationAddMode = 1
+      .CacheSize = 100
+      .SpecialPopupDisabled POP_GRID_COLS Or POP_GRID_BARS Or POP_GRID_STRIPES
+      .AllowInsert = Permitido("Cte da carga", ACAO_INCLUINDO)
+      .AllowEdit= Permitido("Cte da carga", ACAO_EDITANDO)
+      .AllowDelete = Permitido("Cte da carga", ACAO_EXCLUINDO)
+      .AddColumn Nothing, , "Seq", "Sequencia descarrega cte", TP_NUMERICO, "999999", , False, , , , , , , , , , "0", , , , "0", 1, "0", 1050
+      .AddColumn Nothing, , "Município", "Descrição do municipio", TP_CARACTER, "@x", , False, , "DADOSNFE", "Municipios", "Descrição do municipio", "Descrição do municipio", "Descrição do municipio", "Descrição do municipio", "", , "1", , , , "0", 1, "0", 3495
+      .AddColumn Nothing, , "Chave de Acesso", "Chave do cte", TP_CARACTER, "@x", 44, False, , , , , , , , , , "0", , , , "0", 1, "0", 5070
+      .AddColumn Nothing, , "CT-e", , TP_CARACTER, , , True, , , , , , , , , , "0", , , , "0", 1, "0", 1305
+      .AddColumn Nothing, , "Valor da Carga", "Valor total", TP_NUMERICO, "999.999.999,99", , False, , , , , , , , , , "0", , , , "0", 1, "0", 2475
+      .AddColumn Nothing, , "Peso bruto", "Peso bruto", TP_NUMERICO, "999.999,9999", , False, , , , , , , , , , "0", , , , "0", 1, "0", 2430
+   End With
+   AjustaTamanho Me
+   IniciaFormDados Me
+   If vgTb.RecordCount > 0 Then vgTb.MoveLast
+   Set Manifesto = vgTb
+   vgPriVez = False
+   Reposition
+   Screen.MousePointer = vbDefault
+   Exit Sub
+
+DeuErro:
+   CErr.NumErro = Err
+   CErr.FunctionName = "IniciaForm"
+   CErr.Origem = CStr(vgFormID) + " - " + Me.Caption
+   CErr.Show
+End Sub
+
+Public Sub DefineControles()
+ On Error GoTo DeuErro
+ grdBrowse.AddControlIgnoreFocus mdiNFE.botCancela.hwnd           'não deixa o grid tentar gravar automaticamente
+ grdBrowse.AddControlIgnoreFocus mdiNFE.botSalva.hwnd             'se estiver perdendo o foco para esses botões
+   grdBrowse.AllowDelete = True
+   grdBrowse.AllowEdit = True
+   grdBrowse.SpecialPopupDisabled POP_GRID_BARS Or POP_GRID_STRIPES
+
+   Set txtCampo(0).CtPri = txtCp(0)
+   txtCampo(0).DataType = 1
+   txtCampo(0).Mask = "999999"
+   txtCampo(0).Editable = False
+   txtCampo(0).BoundColumn = ""
+   txtCampo(0).ListFields = ""
+   txtCampo(0).OrderFields = ""
+   txtCampo(0).Relation = ""
+   txtCampo(0).Source = ""
+   grdBrowse.AddColumn vgDb.Tables(vgIdentTab).Columns(txtCampo(0).DataField), txtCampo(0)
+
+   Set txtCampo(35).CtPri = txtCp(35)
+   Set txtCampo(35).CtFdo = labFdo35
+   Set txtCampo(35).CtBot(BOT_ACAO) = bottxtCampo35(BOT_ACAO)
+   Set bottxtCampo35(BOT_ACAO).Picture = LoadPicture(LoadGasPicture(4))
+   txtCampo(35).DataType = 2
+   txtCampo(35).Mask = "99/99/9999"
+   txtCampo(35).BoundColumn = ""
+   txtCampo(35).ListFields = ""
+   txtCampo(35).OrderFields = ""
+   txtCampo(35).Relation = ""
+   txtCampo(35).Source = ""
+   grdBrowse.AddColumn vgDb.Tables(vgIdentTab).Columns(txtCampo(35).DataField), txtCampo(35)
+
+   Set txtCampo(36).CtPri = txtCp(36)
+   Set txtCampo(36).CtFdo = labFdo36
+   Set txtCampo(36).CtBot(BOT_COMBO) = bottxtCampo36(BOT_COMBO)
+   Set bottxtCampo36(BOT_COMBO).Picture = LoadPicture(LoadGasPicture(3))
+   txtCampo(36).DataType = 0
+   txtCampo(36).ListFields = "Prestador de Serviço de Transporte|Transporte de Carga Propria"
+   grdBrowse.AddColumn vgDb.Tables(vgIdentTab).Columns(txtCampo(36).DataField), txtCampo(36)
+
+   Set txtCampo(38).CtPri = txtCp(38)
+   Set txtCampo(38).CtFdo = labFdo38
+   Set txtCampo(38).CtBot(BOT_COMBO) = bottxtCampo38(BOT_COMBO)
+   Set bottxtCampo38(BOT_COMBO).Picture = LoadPicture(LoadGasPicture(3))
+   txtCampo(38).DataType = 1
+   txtCampo(38).Mask = "99"
+   txtCampo(38).BoundColumn = "Sequencia do emitente"
+   txtCampo(38).ListFields = "Razão social"
+   txtCampo(38).OrderFields = "Sequencia do emitente"
+   txtCampo(38).Relation = ""
+   txtCampo(38).Source = "Emitentes mdfe"
+   txtCampo(38).vgfrmGMCale.grdListaG.AutoRebind = True
+   grdBrowse.AddColumn vgDb.Tables(vgIdentTab).Columns(txtCampo(38).DataField), txtCampo(38)
+
+   Set txtCampo(5).CtPri = txtCp(5)
+   Set txtCampo(5).CtFdo = labFdo5
+   Set txtCampo(5).CtBot(BOT_COMBO) = bottxtCampo5(BOT_COMBO)
+   Set bottxtCampo5(BOT_COMBO).Picture = LoadPicture(LoadGasPicture(3))
+   txtCampo(5).DataType = 0
+   txtCampo(5).ListFields = "AC|AL|AP|AM|BA|CE|DF|ES|TO|GO|MA|MT|MS|MG|PA|PB|PR|PE|PI|RN|RS|RJ|RO|RR|SC|SP|SE"
+   grdBrowse.AddColumn vgDb.Tables(vgIdentTab).Columns(txtCampo(5).DataField), txtCampo(5)
+
+   Set txtCampo(6).CtPri = txtCp(6)
+   txtCampo(6).DataType = 0
+   txtCampo(6).Mask = "@x"
+   txtCampo(6).BoundColumn = ""
+   txtCampo(6).ListFields = ""
+   txtCampo(6).OrderFields = ""
+   txtCampo(6).Relation = ""
+   txtCampo(6).Source = ""
+   grdBrowse.AddColumn vgDb.Tables(vgIdentTab).Columns(txtCampo(6).DataField), txtCampo(6)
+
+   Set txtCampo(7).CtPri = txtCp(7)
+   txtCampo(7).DataType = 0
+   txtCampo(7).Mask = "@!"
+   txtCampo(7).BoundColumn = ""
+   txtCampo(7).ListFields = ""
+   txtCampo(7).OrderFields = ""
+   txtCampo(7).Relation = ""
+   txtCampo(7).Source = ""
+   grdBrowse.AddColumn vgDb.Tables(vgIdentTab).Columns(txtCampo(7).DataField), txtCampo(7)
+
+   Set txtCampo(8).CtPri = txtCp(8)
+   Set txtCampo(8).CtFdo = labFdo8
+   Set txtCampo(8).CtBot(BOT_COMBO) = bottxtCampo8(BOT_COMBO)
+   Set bottxtCampo8(BOT_COMBO).Picture = LoadPicture(LoadGasPicture(3))
+   txtCampo(8).DataType = 0
+   txtCampo(8).ListFields = "AC|AL|AP|AM|BA|CE|DF|ES|TO|GO|MA|MT|MS|MG|PA|PB|PR|PE|PI|RN|RS|RJ|RO|RR|SC|SP|SE"
+   grdBrowse.AddColumn vgDb.Tables(vgIdentTab).Columns(txtCampo(8).DataField), txtCampo(8)
+
+   Set txtCampo(9).CtPri = txtCp(9)
+   txtCampo(9).DataType = 0
+   txtCampo(9).Mask = "@x"
+   txtCampo(9).BoundColumn = ""
+   txtCampo(9).ListFields = ""
+   txtCampo(9).OrderFields = ""
+   txtCampo(9).Relation = ""
+   txtCampo(9).Source = ""
+   grdBrowse.AddColumn vgDb.Tables(vgIdentTab).Columns(txtCampo(9).DataField), txtCampo(9)
+
+   Set txtCampo(10).CtPri = txtCp(10)
+   Set txtCampo(10).CtFdo = labFdo10
+   Set txtCampo(10).CtBot(BOT_COMBO) = bottxtCampo10(BOT_COMBO)
+   Set bottxtCampo10(BOT_COMBO).Picture = LoadPicture(LoadGasPicture(3))
+   txtCampo(10).DataType = 0
+   txtCampo(10).ListFields = "Não Aplicavel|Aberta|Fechada|Granelera|Porta Container|Sider"
+   grdBrowse.AddColumn vgDb.Tables(vgIdentTab).Columns(txtCampo(10).DataField), txtCampo(10)
+
+   Set txtCampo(11).CtPri = txtCp(11)
+   Set txtCampo(11).CtFdo = labFdo11
+   Set txtCampo(11).CtBot(BOT_COMBO) = bottxtCampo11(BOT_COMBO)
+   Set bottxtCampo11(BOT_COMBO).Picture = LoadPicture(LoadGasPicture(3))
+   txtCampo(11).DataType = 0
+   txtCampo(11).ListFields = "Truck|Toco|Cavalo Mecanico|Van|Utilitario|Outros"
+   grdBrowse.AddColumn vgDb.Tables(vgIdentTab).Columns(txtCampo(11).DataField), txtCampo(11)
+
+   Set txtCampo(12).CtPri = txtCp(12)
+   txtCampo(12).DataType = 0
+   txtCampo(12).Mask = "@x"
+   txtCampo(12).BoundColumn = ""
+   txtCampo(12).ListFields = ""
+   txtCampo(12).OrderFields = ""
+   txtCampo(12).Relation = ""
+   txtCampo(12).Source = ""
+   grdBrowse.AddColumn vgDb.Tables(vgIdentTab).Columns(txtCampo(12).DataField), txtCampo(12)
+
+   Set txtCampo(13).CtPri = txtCp(13)
+   txtCampo(13).DataType = 0
+   txtCampo(13).Mask = "@x"
+   txtCampo(13).BoundColumn = ""
+   txtCampo(13).ListFields = ""
+   txtCampo(13).OrderFields = ""
+   txtCampo(13).Relation = ""
+   txtCampo(13).Source = ""
+   grdBrowse.AddColumn vgDb.Tables(vgIdentTab).Columns(txtCampo(13).DataField), txtCampo(13)
+
+   Set txtCampo(37).CtPri = txtCp(37)
+   txtCampo(37).DataType = 1
+   txtCampo(37).Mask = ""
+   txtCampo(37).Editable = False
+   txtCampo(37).BoundColumn = ""
+   txtCampo(37).ListFields = ""
+   txtCampo(37).OrderFields = ""
+   txtCampo(37).Relation = ""
+   txtCampo(37).Source = ""
+
+   Set txtCampo(39).CtPri = txtCp(39)
+   txtCampo(39).DataType = 4
+   txtCampo(39).Mask = ""
+   txtCampo(39).BoundColumn = ""
+   txtCampo(39).ListFields = ""
+   txtCampo(39).OrderFields = ""
+   txtCampo(39).Relation = ""
+   txtCampo(39).Source = ""
+   grdBrowse.AddColumn vgDb.Tables(vgIdentTab).Columns(txtCampo(39).DataField), txtCampo(39)
+
+   Set chkCampo(0).CtPri = chkCp(0)
+   chkCampo(0).DataType = 5
+   grdBrowse.AddColumn vgDb.Tables(vgIdentTab).Columns(chkCampo(0).DataField), chkCampo(0)
+
+   Set txtCampo(14).CtPri = txtCp(14)
+   txtCampo(14).DataType = 0
+   txtCampo(14).Mask = "@x"
+   txtCampo(14).BoundColumn = ""
+   txtCampo(14).ListFields = ""
+   txtCampo(14).OrderFields = ""
+   txtCampo(14).Relation = ""
+   txtCampo(14).Source = ""
+   grdBrowse.AddColumn vgDb.Tables(vgIdentTab).Columns(txtCampo(14).DataField), txtCampo(14)
+
+   Set txtCampo(15).CtPri = txtCp(15)
+   Set txtCampo(15).CtFdo = labFdo15
+   Set txtCampo(15).CtBot(BOT_COMBO) = bottxtCampo15(BOT_COMBO)
+   Set bottxtCampo15(BOT_COMBO).Picture = LoadPicture(LoadGasPicture(3))
+   txtCampo(15).DataType = 0
+   txtCampo(15).ListFields = "TAC Agregado|TAC Independente|Outros"
+   grdBrowse.AddColumn vgDb.Tables(vgIdentTab).Columns(txtCampo(15).DataField), txtCampo(15)
+
+   Set txtCampo(16).CtPri = txtCp(16)
+   Set txtCampo(16).CtFdo = labFdo16
+   Set txtCampo(16).CtBot(BOT_COMBO) = bottxtCampo16(BOT_COMBO)
+   Set bottxtCampo16(BOT_COMBO).Picture = LoadPicture(LoadGasPicture(3))
+   txtCampo(16).DataType = 0
+   txtCampo(16).ListFields = "AC|AL|AP|AM|BA|CE|DF|ES|TO|GO|MA|MT|MS|MG|PA|PB|PR|PE|PI|RN|RS|RJ|RO|RR|SC|SP|SE"
+   grdBrowse.AddColumn vgDb.Tables(vgIdentTab).Columns(txtCampo(16).DataField), txtCampo(16)
+
+   Set opcPainel6(0).CtPri = opcPainel6Cp(0)
+   Set opcPainel6(0).CtFdo = labopcPainel6
+   opcPainel6(0).DataType = 6
+   opcPainel6(0).BookMark = 0
+   grdBrowse.AddColumn vgDb.Tables(vgIdentTab).Columns(opcPainel6(0).DataField), opcPainel6(0)
+
+   Set opcPainel6(1).CtPri = opcPainel6Cp(1)
+   Set opcPainel6(1).CtFdo = labopcPainel6
+   opcPainel6(1).DataType = 6
+   opcPainel6(1).BookMark = 1
+
+   Set txtCampo(17).CtPri = txtCp(17)
+   txtCampo(17).DataType = 0
+   txtCampo(17).Mask = "999.999.999-99"
+   txtCampo(17).BoundColumn = ""
+   txtCampo(17).ListFields = ""
+   txtCampo(17).OrderFields = ""
+   txtCampo(17).Relation = ""
+   txtCampo(17).Source = ""
+   grdBrowse.AddColumn vgDb.Tables(vgIdentTab).Columns(txtCampo(17).DataField), txtCampo(17)
+
+   Set txtCampo(18).CtPri = txtCp(18)
+   txtCampo(18).DataType = 0
+   txtCampo(18).Mask = "99.999.999/9999-99"
+   txtCampo(18).BoundColumn = ""
+   txtCampo(18).ListFields = ""
+   txtCampo(18).OrderFields = ""
+   txtCampo(18).Relation = ""
+   txtCampo(18).Source = ""
+   grdBrowse.AddColumn vgDb.Tables(vgIdentTab).Columns(txtCampo(18).DataField), txtCampo(18)
+
+   Set txtCampo(19).CtPri = txtCp(19)
+   txtCampo(19).DataType = 0
+   txtCampo(19).Mask = "@x"
+   txtCampo(19).BoundColumn = ""
+   txtCampo(19).ListFields = ""
+   txtCampo(19).OrderFields = ""
+   txtCampo(19).Relation = ""
+   txtCampo(19).Source = ""
+   grdBrowse.AddColumn vgDb.Tables(vgIdentTab).Columns(txtCampo(19).DataField), txtCampo(19)
+
+   Set txtCampo(20).CtPri = txtCp(20)
+   txtCampo(20).DataType = 0
+   txtCampo(20).Mask = "@x"
+   txtCampo(20).BoundColumn = ""
+   txtCampo(20).ListFields = ""
+   txtCampo(20).OrderFields = ""
+   txtCampo(20).Relation = ""
+   txtCampo(20).Source = ""
+   grdBrowse.AddColumn vgDb.Tables(vgIdentTab).Columns(txtCampo(20).DataField), txtCampo(20)
+
+   Set txtCampo(21).CtPri = txtCp(21)
+   txtCampo(21).DataType = 0
+   txtCampo(21).Mask = "@x"
+   txtCampo(21).Editable = False
+   txtCampo(21).BoundColumn = ""
+   txtCampo(21).ListFields = ""
+   txtCampo(21).OrderFields = ""
+   txtCampo(21).Relation = ""
+   txtCampo(21).Source = ""
+   grdBrowse.AddColumn vgDb.Tables(vgIdentTab).Columns(txtCampo(21).DataField), txtCampo(21)
+
+   Set txtCampo(22).CtPri = txtCp(22)
+   txtCampo(22).DataType = 0
+   txtCampo(22).Mask = "@x"
+   txtCampo(22).Editable = False
+   txtCampo(22).BoundColumn = ""
+   txtCampo(22).ListFields = ""
+   txtCampo(22).OrderFields = ""
+   txtCampo(22).Relation = ""
+   txtCampo(22).Source = ""
+   grdBrowse.AddColumn vgDb.Tables(vgIdentTab).Columns(txtCampo(22).DataField), txtCampo(22)
+
+   Set txtCampo(23).CtPri = txtCp(23)
+   txtCampo(23).DataType = 0
+   txtCampo(23).Mask = "@x"
+   txtCampo(23).Editable = False
+   txtCampo(23).BoundColumn = ""
+   txtCampo(23).ListFields = ""
+   txtCampo(23).OrderFields = ""
+   txtCampo(23).Relation = ""
+   txtCampo(23).Source = ""
+   grdBrowse.AddColumn vgDb.Tables(vgIdentTab).Columns(txtCampo(23).DataField), txtCampo(23)
+
+   Set txtCampo(24).CtPri = txtCp(24)
+   txtCampo(24).DataType = 4
+   txtCampo(24).Mask = ""
+   txtCampo(24).Editable = False
+   txtCampo(24).BoundColumn = ""
+   txtCampo(24).ListFields = ""
+   txtCampo(24).OrderFields = ""
+   txtCampo(24).Relation = ""
+   txtCampo(24).Source = ""
+   grdBrowse.AddColumn vgDb.Tables(vgIdentTab).Columns(txtCampo(24).DataField), txtCampo(24)
+
+   Set opcTabs0(0).CtPri = opcTabs0Cp(0)
+   Set opcTabs0(0).CtFdo = labopcTabs0
+   opcTabs0(0).DataType = 6
+   opcTabs0(0).BookMark = 0
+   grdBrowse.AddColumn vgDb.Tables(vgIdentTab).Columns(opcTabs0(0).DataField), opcTabs0(0)
+
+   Set opcTabs0(1).CtPri = opcTabs0Cp(1)
+   Set opcTabs0(1).CtFdo = labopcTabs0
+   opcTabs0(1).DataType = 6
+   opcTabs0(1).BookMark = 1
+
+   Set txtCampo(25).CtPri = txtCp(25)
+   Set txtCampo(25).CtFdo = labFdo25
+   Set txtCampo(25).CtBot(BOT_COMBO) = bottxtCampo25(BOT_COMBO)
+   Set bottxtCampo25(BOT_COMBO).Picture = LoadPicture(LoadGasPicture(3))
+   txtCampo(25).DataType = 0
+   txtCampo(25).ListFields = "Emitente do MDFe|Responsavel pela Contratação do Serviço de Transporte"
+   grdBrowse.AddColumn vgDb.Tables(vgIdentTab).Columns(txtCampo(25).DataField), txtCampo(25)
+
+   Set txtCampo(26).CtPri = txtCp(26)
+   txtCampo(26).DataType = 0
+   txtCampo(26).Mask = "@x"
+   txtCampo(26).BoundColumn = ""
+   txtCampo(26).ListFields = ""
+   txtCampo(26).OrderFields = ""
+   txtCampo(26).Relation = ""
+   txtCampo(26).Source = ""
+   grdBrowse.AddColumn vgDb.Tables(vgIdentTab).Columns(txtCampo(26).DataField), txtCampo(26)
+
+   Set txtCampo(27).CtPri = txtCp(27)
+   txtCampo(27).DataType = 0
+   txtCampo(27).Mask = "@x"
+   txtCampo(27).BoundColumn = ""
+   txtCampo(27).ListFields = ""
+   txtCampo(27).OrderFields = ""
+   txtCampo(27).Relation = ""
+   txtCampo(27).Source = ""
+   grdBrowse.AddColumn vgDb.Tables(vgIdentTab).Columns(txtCampo(27).DataField), txtCampo(27)
+
+   Set txtCampo(28).CtPri = txtCp(28)
+   txtCampo(28).DataType = 0
+   txtCampo(28).Mask = "99.999.999/9999-99"
+   txtCampo(28).BoundColumn = ""
+   txtCampo(28).ListFields = ""
+   txtCampo(28).OrderFields = ""
+   txtCampo(28).Relation = ""
+   txtCampo(28).Source = ""
+   grdBrowse.AddColumn vgDb.Tables(vgIdentTab).Columns(txtCampo(28).DataField), txtCampo(28)
+
+   Set txtCampo(29).CtPri = txtCp(29)
+   txtCampo(29).DataType = 0
+   txtCampo(29).Mask = "@x"
+   txtCampo(29).BoundColumn = ""
+   txtCampo(29).ListFields = ""
+   txtCampo(29).OrderFields = ""
+   txtCampo(29).Relation = ""
+   txtCampo(29).Source = ""
+   grdBrowse.AddColumn vgDb.Tables(vgIdentTab).Columns(txtCampo(29).DataField), txtCampo(29)
+
+   Set txtCampo(30).CtPri = txtCp(30)
+   txtCampo(30).DataType = 0
+   txtCampo(30).Mask = "@x"
+   txtCampo(30).BoundColumn = ""
+   txtCampo(30).ListFields = ""
+   txtCampo(30).OrderFields = ""
+   txtCampo(30).Relation = ""
+   txtCampo(30).Source = ""
+   grdBrowse.AddColumn vgDb.Tables(vgIdentTab).Columns(txtCampo(30).DataField), txtCampo(30)
+
+   Set txtCampo(31).CtPri = txtCp(31)
+   txtCampo(31).DataType = 0
+   txtCampo(31).Mask = "@x"
+   txtCampo(31).BoundColumn = ""
+   txtCampo(31).ListFields = ""
+   txtCampo(31).OrderFields = ""
+   txtCampo(31).Relation = ""
+   txtCampo(31).Source = ""
+   grdBrowse.AddColumn vgDb.Tables(vgIdentTab).Columns(txtCampo(31).DataField), txtCampo(31)
+
+   Set opcFrame0(0).CtPri = opcFrame0Cp(0)
+   Set opcFrame0(0).CtFdo = labopcFrame0
+   opcFrame0(0).DataType = 6
+   opcFrame0(0).BookMark = 0
+   grdBrowse.AddColumn vgDb.Tables(vgIdentTab).Columns(opcFrame0(0).DataField), opcFrame0(0)
+
+   Set opcFrame0(1).CtPri = opcFrame0Cp(1)
+   Set opcFrame0(1).CtFdo = labopcFrame0
+   opcFrame0(1).DataType = 6
+   opcFrame0(1).BookMark = 1
+
+ DefineControles1
+
+ Exit Sub
+
+ DeuErro:
+  CErr.NumErro = Err
+  CErr.FunctionName = "DefineControles0"
+  CErr.Origem = CStr(vgFormID) +" - "+ Me.Caption
+ CErr.Show
+End Sub
+Public Sub DefineControles1()
+ On Error GoTo DeuErro
+
+   Set txtCampo(40).CtPri = txtCp(40)
+   txtCampo(40).DataType = 0
+   txtCampo(40).Mask = "@x"
+   txtCampo(40).BoundColumn = ""
+   txtCampo(40).ListFields = ""
+   txtCampo(40).OrderFields = ""
+   txtCampo(40).Relation = ""
+   txtCampo(40).Source = ""
+   grdBrowse.AddColumn vgDb.Tables(vgIdentTab).Columns(txtCampo(40).DataField), txtCampo(40)
+
+   Set txtCampo(1).CtPri = txtCp(1)
+   Set txtCampo(1).CtFdo = labFdo1
+   Set txtCampo(1).CtBot(BOT_LISTA) = bottxtCampo1(BOT_LISTA)
+   Set txtCampo(1).CtBot(BOT_COMBO) = bottxtCampo1(BOT_COMBO)
+   bottxtCampo1(BOT_LISTA).Caption = "P"
+   Set bottxtCampo1(BOT_COMBO).Picture = LoadPicture(LoadGasPicture(3))
+   txtCampo(1).DataType = 1
+   txtCampo(1).Mask = "999,999999"
+   txtCampo(1).PesqModoAbertura =  2 
+   txtCampo(1).PesqFieldCapture = "Municipios.Latitude"
+   txtCampo(1).BoundColumn = "Latitude"
+   txtCampo(1).ListFields = "Latitude"
+   txtCampo(1).OrderFields = "Descrição do municipio"
+   txtCampo(1).Relation = ""
+   txtCampo(1).Source = "Municipios"
+   txtCampo(1).vgfrmGMCale.grdListaG.AutoRebind = True
+   grdBrowse.AddColumn vgDb.Tables(vgIdentTab).Columns(txtCampo(1).DataField), txtCampo(1)
+
+   Set txtCampo(2).CtPri = txtCp(2)
+   Set txtCampo(2).CtFdo = labFdo2
+   Set txtCampo(2).CtBot(BOT_LISTA) = bottxtCampo2(BOT_LISTA)
+   Set txtCampo(2).CtBot(BOT_COMBO) = bottxtCampo2(BOT_COMBO)
+   bottxtCampo2(BOT_LISTA).Caption = "P"
+   Set bottxtCampo2(BOT_COMBO).Picture = LoadPicture(LoadGasPicture(3))
+   txtCampo(2).DataType = 1
+   txtCampo(2).Mask = "999,999999"
+   txtCampo(2).PesqModoAbertura =  2 
+   txtCampo(2).PesqFieldCapture = "Municipios.Longitude"
+   txtCampo(2).BoundColumn = "Longitude"
+   txtCampo(2).ListFields = "Longitude"
+   txtCampo(2).OrderFields = "Descrição do municipio"
+   txtCampo(2).Relation = ""
+   txtCampo(2).Source = "Municipios"
+   txtCampo(2).vgfrmGMCale.grdListaG.AutoRebind = True
+   grdBrowse.AddColumn vgDb.Tables(vgIdentTab).Columns(txtCampo(2).DataField), txtCampo(2)
+
+   Set txtCampo(32).CtPri = txtCp(32)
+   Set txtCampo(32).CtFdo = labFdo32
+   Set txtCampo(32).CtBot(BOT_LISTA) = bottxtCampo32(BOT_LISTA)
+   Set txtCampo(32).CtBot(BOT_COMBO) = bottxtCampo32(BOT_COMBO)
+   bottxtCampo32(BOT_LISTA).Caption = "P"
+   Set bottxtCampo32(BOT_COMBO).Picture = LoadPicture(LoadGasPicture(3))
+   txtCampo(32).DataType = 1
+   txtCampo(32).Mask = "999,999999"
+   txtCampo(32).PesqModoAbertura =  2 
+   txtCampo(32).PesqFieldCapture = "Municipios.Latitude"
+   txtCampo(32).BoundColumn = "Latitude"
+   txtCampo(32).ListFields = "Latitude"
+   txtCampo(32).OrderFields = "Descrição do municipio"
+   txtCampo(32).Relation = ""
+   txtCampo(32).Source = "Municipios"
+   txtCampo(32).vgfrmGMCale.grdListaG.AutoRebind = True
+   grdBrowse.AddColumn vgDb.Tables(vgIdentTab).Columns(txtCampo(32).DataField), txtCampo(32)
+
+   Set txtCampo(33).CtPri = txtCp(33)
+   Set txtCampo(33).CtFdo = labFdo33
+   Set txtCampo(33).CtBot(BOT_LISTA) = bottxtCampo33(BOT_LISTA)
+   Set txtCampo(33).CtBot(BOT_COMBO) = bottxtCampo33(BOT_COMBO)
+   bottxtCampo33(BOT_LISTA).Caption = "P"
+   Set bottxtCampo33(BOT_COMBO).Picture = LoadPicture(LoadGasPicture(3))
+   txtCampo(33).DataType = 1
+   txtCampo(33).Mask = "999,999999"
+   txtCampo(33).PesqModoAbertura =  2 
+   txtCampo(33).PesqFieldCapture = "Municipios.Longitude"
+   txtCampo(33).BoundColumn = "Longitude"
+   txtCampo(33).ListFields = "Longitude"
+   txtCampo(33).OrderFields = "Descrição do municipio"
+   txtCampo(33).Relation = ""
+   txtCampo(33).Source = "Municipios"
+   txtCampo(33).vgfrmGMCale.grdListaG.AutoRebind = True
+   grdBrowse.AddColumn vgDb.Tables(vgIdentTab).Columns(txtCampo(33).DataField), txtCampo(33)
+
+   Set txtCampo(3).CtPri = txtCp(3)
+   txtCampo(3).DataType = 0
+   txtCampo(3).Mask = "99999-999"
+   txtCampo(3).BoundColumn = ""
+   txtCampo(3).ListFields = ""
+   txtCampo(3).OrderFields = ""
+   txtCampo(3).Relation = ""
+   txtCampo(3).Source = ""
+   grdBrowse.AddColumn vgDb.Tables(vgIdentTab).Columns(txtCampo(3).DataField), txtCampo(3)
+
+   Set txtCampo(34).CtPri = txtCp(34)
+   txtCampo(34).DataType = 0
+   txtCampo(34).Mask = "99999-999"
+   txtCampo(34).BoundColumn = ""
+   txtCampo(34).ListFields = ""
+   txtCampo(34).OrderFields = ""
+   txtCampo(34).Relation = ""
+   txtCampo(34).Source = ""
+   grdBrowse.AddColumn vgDb.Tables(vgIdentTab).Columns(txtCampo(34).DataField), txtCampo(34)
+
+   Set txtCampo(4).CtPri = txtCp(4)
+   Set txtCampo(4).CtFdo = labFdo4
+   Set txtCampo(4).CtBot(BOT_COMBO) = bottxtCampo4(BOT_COMBO)
+   Set bottxtCampo4(BOT_COMBO).Picture = LoadPicture(LoadGasPicture(3))
+   txtCampo(4).DataType = 0
+   txtCampo(4).ListFields = "AC|AL|AP|AM|BA|CE|DF|ES|TO|GO|MA|MT|MS|MG|PA|PB|PR|PE|PI|RN|RS|RJ|RO|RR|SC|SP|SE"
+   grdBrowse.AddColumn vgDb.Tables(vgIdentTab).Columns(txtCampo(4).DataField), txtCampo(4)
+
+ Exit Sub
+
+ DeuErro:
+  CErr.NumErro = Err
+  CErr.FunctionName = "DefineControles1"
+  CErr.Origem = CStr(vgFormID) +" - "+ Me.Caption
+ CErr.Show
+End Sub
+
+
+'poe relacionamento e filtro na lista externa (combobox)
+Private Sub PoeRelEFiltroCbo(Index As Integer)
+   On Error Resume Next
+   Select Case Index
+      Case 1
+         txtCampo(1).Filter = "[Sequencia do municipio] > " & 0 & ""
+                           txtCampo(1).PesqSQLExpression = "SELECT Municipios.[Sequencia do municipio], Municipios.[Descrição do municipio], Municipios.Uf, Municipios.Latitude, " + _
+                                                              "Municipios.Longitude FROM Municipios WHERE (Municipios.[Sequencia do municipio] > " + CStr(0) + ")"
+      Case 2
+         txtCampo(2).Filter = "[Sequencia do municipio] > " & 0 & ""
+                           txtCampo(2).PesqSQLExpression = "SELECT Municipios.[Descrição do municipio], Municipios.Uf, Municipios.Longitude, Municipios.Latitude FROM Municipios WHERE (Municipios.[Sequencia do municipio] > " + CStr(0) + ")"
+      Case 32
+         txtCampo(32).Filter = "[Sequencia do municipio] > " & 0 & ""
+                           txtCampo(32).PesqSQLExpression = "SELECT Municipios.[Descrição do municipio], Municipios.Uf, Municipios.Latitude, Municipios.Longitude FROM Municipios WHERE (Municipios.[Sequencia do municipio] > " + CStr(0) + ")"
+      Case 33
+         txtCampo(33).Filter = "[Sequencia do municipio] > " & 0 & ""
+                           txtCampo(33).PesqSQLExpression = "SELECT Municipios.[Descrição do municipio], Municipios.Uf, Municipios.Latitude, Municipios.Longitude FROM Municipios WHERE (Municipios.[Sequencia do municipio] > " + CStr(0) + ")"
+      Case 38
+         txtCampo(38).Filter = "([Sequencia do emitente] > " & 0 & ") AND Inativo = " & 0 & ""
+   End Select
+End Sub
+
+'evento - antes de descarregar o formulário
+Private Sub Form_QueryUnload(Cancel As Integer, UnloadMode As Integer)
+   If vgSituacao <> ACAO_NAVEGANDO And vgBotoesOK Then  'botoeira esta correta?
+      AtivaForm Me                                      'entao coloca
+   End If
+   Cancel = FormPendente(Me)                            've se tem atualizacao pendente
+End Sub
+
+'evento - redefinido o tamanho do formulário
+Private Sub Form_Resize()
+   AjustaPanFundo Me
+   lblProgresso.Caption = IIf(Parametros_da_NFe!Ambiente = 1, "AMBIENTE EM MODO TESTE", ""): MudaTamCampos Me
+End Sub
+
+'evento - descarregando o formulário da memória
+Private Sub Form_Unload(Cancel As Integer)
+   Dim i As Integer
+   On Error Resume Next
+   lblProgresso.Caption = ""
+   FinalizaForm Me
+   Set lblNota2 = Nothing
+   Set txtIE = Nothing
+   Set Lbldoc = Nothing
+   Set Txtdoc = Nothing
+   Set Txtnomeseguradora = Nothing
+   Set Txtcnpjseg = Nothing
+   Set Txtapolice = Nothing
+   Set Txtaverbacao = Nothing
+   Set lblAjuste = Nothing
+   Set cmdDanfe = Nothing
+   Set cmdCancelar = Nothing
+   Set lblNota = Nothing
+   Set lblNNota = Nothing
+   Set lblEncerrado = Nothing
+   Set lblEmitente = Nothing
+   Set Lblcnpjcon = Nothing
+   Set Txtcnpjcon = Nothing
+   For i = 0 To UBound(txtCampo)
+      txtCampo(i).Finalize
+      Set txtCampo(i) = Nothing
+   Next
+   Set chkCampo(0) = Nothing
+   If Not Manifesto Is Nothing Then
+      Set Manifesto = Nothing
+   End If
+   If Not Local_de_carregamento Is Nothing Then
+      Local_de_carregamento.CloseRecordSet
+      Set Local_de_carregamento = Nothing
+   End If
+   If Not Uf_de_percurso Is Nothing Then
+      Uf_de_percurso.CloseRecordSet
+      Set Uf_de_percurso = Nothing
+   End If
+   If Not Codutores Is Nothing Then
+      Codutores.CloseRecordSet
+      Set Codutores = Nothing
+   End If
+   If Not Descarregamento_nfe Is Nothing Then
+      Descarregamento_nfe.CloseRecordSet
+      Set Descarregamento_nfe = Nothing
+   End If
+   If Not Descarregamento_cte Is Nothing Then
+      Descarregamento_cte.CloseRecordSet
+      Set Descarregamento_cte = Nothing
+   End If
+   If Not Nfe_da_carga Is Nothing Then
+      Nfe_da_carga.CloseRecordSet
+      Set Nfe_da_carga = Nothing
+   End If
+   If Not Cte_da_carga Is Nothing Then
+      Cte_da_carga.CloseRecordSet
+      Set Cte_da_carga = Nothing
+   End If
+
+   'se tiver imprimindo registros em grade, fecha form de selecao/preview
+   UnLoad vgFrmImpCons
+   Set vgFrmImpCons = Nothing
+
+   'vamos descarregar todos os grids
+   For i = 0 To Grid.Count - 1
+      Grid(i).Finalize
+   Next
+
+   grdBrowse.Finalize                             'descarrega o grid
+   Set frmMDFe = Nothing                          'libera o segmento de código do form
+End Sub
+
+'evento - está mudando a linha selecionada do grid
+Private Sub Grid_SkipRecord(Index As Integer, vgColumns() As Variant, ByVal vgBookMark As Variant)
+   ExecutaGrid Index, vgColumns(), CONDICOES_ESPECIAIS
+End Sub
+
+'evento - após efetuar update do recordset do grid
+Private Sub Grid_AfterUpdateRecord(Index As Integer, ByVal vgItem As Long, vgColumns() As Variant, vgIsValid As Boolean, vgColumn As Integer, vgErrorMessage As String)
+   Select Case Index
+      Case 0
+   GeraLog Me, Grid(Index).Status, Index, False
+      Case 1
+   GeraLog Me, Grid(Index).Status, Index, False
+      Case 2
+   GeraLog Me, Grid(Index).Status, Index, False
+      Case 3
+   GeraLog Me, Grid(Index).Status, Index, False
+      Case 4
+   GeraLog Me, Grid(Index).Status, Index, False
+      Case 5
+   GeraLog Me, Grid(Index).Status, Index, False
+      Case 6
+   GeraLog Me, Grid(Index).Status, Index, False
+   End Select
+End Sub
+
+'evento - antes de efetuar o edit do recordset do grid
+Private Sub Grid_BeforeEditRecord(Index As Integer, ByVal vgItem As Long, vgColumns() As Variant, vgIsValid As Boolean, vgColumn As Integer, vgErrorMessage As String)
+   GeraLog Me, Grid(Index).Status, Index, True
+   Select Case Index
+      Case 0
+         ExecutaGrid Index, Grid(Index).GetColumnValues(vgItem), PROCESSOS_INVERSOS, vgItem, 0, vgIsValid, vgColumn, vgErrorMessage
+      Case 1
+         ExecutaGrid Index, Grid(Index).GetColumnValues(vgItem), PROCESSOS_INVERSOS, vgItem, 0, vgIsValid, vgColumn, vgErrorMessage
+      Case 2
+         ExecutaGrid Index, Grid(Index).GetColumnValues(vgItem), PROCESSOS_INVERSOS, vgItem, 0, vgIsValid, vgColumn, vgErrorMessage
+      Case 3
+         ExecutaGrid Index, Grid(Index).GetColumnValues(vgItem), PROCESSOS_INVERSOS, vgItem, 0, vgIsValid, vgColumn, vgErrorMessage
+      Case 4
+         ExecutaGrid Index, Grid(Index).GetColumnValues(vgItem), PROCESSOS_INVERSOS, vgItem, 0, vgIsValid, vgColumn, vgErrorMessage
+      Case 5
+         ExecutaGrid Index, Grid(Index).GetColumnValues(vgItem), PROCESSOS_INVERSOS, vgItem, 0, vgIsValid, vgColumn, vgErrorMessage
+      Case 6
+         ExecutaGrid Index, Grid(Index).GetColumnValues(vgItem), PROCESSOS_INVERSOS, vgItem, 0, vgIsValid, vgColumn, vgErrorMessage
+   End Select
+End Sub
+
+'evento - antes de efetuar o update do recordset do grid
+Private Sub Grid_BeforeUpdateRecord(Index As Integer, ByVal vgItem As Long, vgColumns() As Variant, vgIsValid As Boolean, vgColumn As Integer, vgErrorMessage As String)
+   Select Case Index
+      Case 0
+         Local_de_carregamento![Sequencia do manifesto] = Manifesto![Sequencia do manifesto]
+      Case 1
+         Uf_de_percurso![Sequencia do manifesto] = Manifesto![Sequencia do manifesto]
+      Case 2
+         Codutores![Sequencia do manifesto] = Manifesto![Sequencia do manifesto]
+      Case 3
+         Descarregamento_nfe![Sequencia do manifesto] = Manifesto![Sequencia do manifesto]
+      Case 4
+         Nfe_da_carga![Sequencia do manifesto] = Manifesto![Sequencia do manifesto]
+      Case 5
+         Descarregamento_cte![Sequencia do manifesto] = Manifesto![Sequencia do manifesto]
+      Case 6
+         Cte_da_carga![Sequencia do manifesto] = Manifesto![Sequencia do manifesto]
+   End Select
+End Sub
+
+'evento - antes de efetuar o delete no recordset do grid
+Private Sub Grid_BeforeDeleteRecord(Index As Integer, ByVal vgItem As Long, vgColumns() As Variant, vgIsValid As Boolean, vgColumn As Integer, vgErrorMessage As String)
+   GeraLog Me, ACAO_EXCLUINDO, Index, True
+   ExecutaGrid Index, vgColumns(), EXCLUSOES, vgItem, 0, vgIsValid, 0, vgErrorMessage
+   Select Case Index
+      Case 0
+      Case 1
+      Case 2
+      Case 3
+      Case 4
+      Case 5
+      Case 6
+   End Select
+End Sub
+
+'evento - quer pegar valores para cada célula
+Private Sub Grid_GetColumnValue(Index As Integer, ByVal vgItem As Long, ByVal vgCol As Integer, vgColumns() As Variant, vgNewText As Variant)
+   Dim RetVal As Variant, NCol As Integer
+   RetVal = ExecutaGrid(Index, vgColumns(), CONTEUDODACOLUNA, vgItem, vgCol, , NCol)
+   If NCol = -1 Then
+      vgNewText = RetVal
+   End If
+End Sub
+
+'evento - recordset do grid foi mudado
+Private Sub Grid_RecordSetChanged(Index As Integer, ByVal vgNewRecordSet As GRecordSet)
+   Select Case Index
+      Case 0
+         Set Local_de_carregamento = vgNewRecordSet
+      Case 1
+         Set Uf_de_percurso = vgNewRecordSet
+      Case 2
+         Set Codutores = vgNewRecordSet
+      Case 3
+         Set Descarregamento_nfe = vgNewRecordSet
+      Case 4
+         Set Nfe_da_carga = vgNewRecordSet
+      Case 5
+         Set Descarregamento_cte = vgNewRecordSet
+      Case 6
+         Set Cte_da_carga = vgNewRecordSet
+   End Select
+End Sub
+
+'evento - quer validar dados, está gravando
+Private Sub Grid_ValidateData(Index As Integer, ByVal vgItem As Long, vgColumns() As Variant, vgIsValid As Boolean, vgColumn As Integer, vgErrorMessage As String)
+   ExecutaGrid Index, vgColumns(), VALIDACOES, vgItem, vgColumn, vgIsValid, vgColumn, vgErrorMessage
+End Sub
+
+'evento - após a exclusao de um registro no grid filho
+Private Sub Grid_AfterDeleteRecord(Index As Integer, ByVal vgItem As Long, vgColumns() As Variant, vgIsValid As Boolean, vgColumn As Integer, vgErrorMessage As String)
+   GeraLog Me, ACAO_EXCLUINDO, Index, False
+   mdiNFE.RemontaForm                                   'vamos atualizar os forms de dados
+   Grid(Index).Repaint -1                               'atualiza dados do grid (registro posicionado) 
+End Sub
+
+Private Sub Grid_ControlButtonClick(Index As Integer)
+   Grid(Index).ShowFilterBar = Not Grid(Index).ShowFilterBar
+End Sub
+
+Private Sub Grid_GotFocus(Index As Integer)
+   If vgSituacao <> ACAO_NAVEGANDO And Grid(Index).Status = ACAO_NAVEGANDO Then                 'o formulário pai não está em navegação
+      mdiNFE.SalvaDados                           'salva o resitro em edição
+      If vgSituacao <> ACAO_NAVEGANDO And ActiveControl Is Grid(Index) Then 'se não gravou e ainda está com foco no grid
+         FocoNoPriControle Me                                               'vamos colocar foco no primeiro controle do pai
+      End If
+   End If
+End Sub
+
+Private Sub Grid_StatusChanged(Index As Integer, ByVal vgNewStatus As Integer)
+   Dim vgTemAltGrdOld As Boolean
+   If vgNewStatus <> ACAO_NAVEGANDO Then vgNewStatus = - vgNewStatus
+   PrepBotoes Me, vgNewStatus                                     'acerta icones dos botoes
+   vgTemAltGrdOld = vgTemAlteracaoGrids
+   mdiNFE.RemontaForm                                             'remonta dos os form da tela
+   If vgSituacao = ACAO_NAVEGANDO Then
+      Reposition , Not vgTemAltGrdOld
+   End If
+End Sub
+
+'evento - atualiza valores para os filtros das colunas do grid filho
+Private Sub Grid_GetColumnFilter(Index As Integer, ByVal vgColumn As Integer, vgColumns() As Variant, vgFilter As String)
+   vgFilter = ExecutaGrid(Index, vgColumns(), PEGAFILTRODASCOLUNAS, , vgColumn)
+End Sub
+
+'inicializações, validações e processos para o grid
+Private Function ExecutaGrid(Index As Integer, ColumnValue() As Variant, ByVal vgOq As Integer, Optional ByVal vgItem As Long, Optional ByVal vgCol As Integer, Optional vgIsValid As Boolean, Optional ByRef vgColumn As Integer, Optional vgErrorMessage As String, Optional KeyCodeAscii As Integer, Optional Shift As Integer) As Variant
+   Select Case Index
+      Case  0 
+         ExecutaGrid = ExecutaGrid0(ColumnValue(), vgOq, vgItem, vgCol, vgIsValid, vgColumn, vgErrorMessage, KeyCodeAscii, Shift)
+      Case  1 
+         ExecutaGrid = ExecutaGrid1(ColumnValue(), vgOq, vgItem, vgCol, vgIsValid, vgColumn, vgErrorMessage, KeyCodeAscii, Shift)
+      Case  2 
+         ExecutaGrid = ExecutaGrid2(ColumnValue(), vgOq, vgItem, vgCol, vgIsValid, vgColumn, vgErrorMessage, KeyCodeAscii, Shift)
+      Case  3 
+         ExecutaGrid = ExecutaGrid3(ColumnValue(), vgOq, vgItem, vgCol, vgIsValid, vgColumn, vgErrorMessage, KeyCodeAscii, Shift)
+      Case  4 
+         ExecutaGrid = ExecutaGrid4(ColumnValue(), vgOq, vgItem, vgCol, vgIsValid, vgColumn, vgErrorMessage, KeyCodeAscii, Shift)
+      Case  5 
+         ExecutaGrid = ExecutaGrid5(ColumnValue(), vgOq, vgItem, vgCol, vgIsValid, vgColumn, vgErrorMessage, KeyCodeAscii, Shift)
+      Case  6 
+         ExecutaGrid = ExecutaGrid6(ColumnValue(), vgOq, vgItem, vgCol, vgIsValid, vgColumn, vgErrorMessage, KeyCodeAscii, Shift)
+   End Select
+End Function
+
+'inicializações, validações e processos do grid filho
+Private Function ExecutaGrid0(ColumnValue() As Variant, ByVal vgOq As Integer, Optional ByVal vgItem As Long, Optional ByVal vgCol As Integer, Optional vgIsValid As Boolean, Optional ByRef vgColumn As Integer, Optional vgErrorMessage As String, Optional KeyCodeAscii As Integer, Optional Shift As Integer) As Variant
+   Dim vgRetVal As Variant, vgRsError As GRecordSet, x as String, vgNVez As Integer
+   Dim Sequencia As Long, Uf As String, Descricao_do_municipio As String
+   Dim Codigo_do_ibge As Long
+   vgPriVez = True
+   If vgOq = PREVALIDACOES Then
+      vgRetVal = False
+   Else
+      vgRetVal = ""
+   End If
+   vgNVez = 0
+   On Error GoTo DeuErro
+   If vgOq = CONTEUDODACOLUNA Then
+      If Grid(0).Status <> ACAO_NAVEGANDO And vgItem = Grid(0).SelectedItem Then
+         GoSub IniApDaCol
+      Else
+         GoSub IniApDaTb
+      End If
+      On Error Resume Next
+      If Err Then Err.Clear
+   ElseIf vgOq = CONDICOES_ESPECIAIS Then
+      If vgSituacao <> ACAO_INCLUINDO Then
+         GoSub IniApDaTb
+      On Error Resume Next
+         Grid(0).AllowInsert = ((Autorizada = 0) AND Nota_cancelada = 0)
+      On Error Resume Next
+         Grid(0).AllowEdit = ((Autorizada = 0) AND Nota_cancelada = 0)
+      On Error Resume Next
+         Grid(0).AllowDelete = ((Autorizada = 0) AND Nota_cancelada = 0)
+      End If
+      vgRetVal = ""
+   ElseIf vgOq = ABRE_TABELA_GRID Then
+      On Error Resume Next
+      vgRetVal = "SELECT * FROM [Local de carregamento]"
+
+      'definindo a expressão de ligação com o pai
+      x$ = "[Sequencia do manifesto] = " & Manifesto![Sequencia do manifesto]
+      vgRetVal = InsereSQL(vgRetVal, EXP_WHERE, x$)
+
+      'vamos definir a ordenação
+      x$ = "Sequencia"
+      vgRetVal = InsereSQL(vgRetVal, EXP_ORDERBY, x$)
+
+   ElseIf vgOq = PEGAFILTRODASCOLUNAS Then
+      On Error Resume Next
+      GoSub IniApDaCol
+      Select Case vgCol
+         Case 3
+            vgRetVal = "([Sequencia do municipio] > " & 0 & ") AND Uf = '" & Uf & "'"
+         Case 4
+            vgRetVal = "(([Sequencia do municipio] > " & 0 & ") AND Inativo = " & 0 & ") AND [Descrição do municipio] = '" & Descricao_do_municipio & "'"
+      End Select
+   Else
+      If vgOq = VALIDACOES Then
+         GoSub IniApDaCol
+         vgIsValid = (Sequencia > 0)
+         If Not vgIsValid Then vgColumn =  1 
+         vgErrorMessage$ = "Sequencia inválido!"
+         If vgIsValid And vgCol = -1 Then
+            vgIsValid = (VUF(Uf))
+            If Not vgIsValid Then vgColumn =  2 
+            vgErrorMessage$ = "Uf inválido!"
+         End If
+         If vgIsValid And vgCol = -1 Then
+            vgIsValid = (Not Vazio(Descricao_do_municipio))
+            If Not vgIsValid Then vgColumn =  3 
+            vgErrorMessage$ = "Descrição do municipio não pode ser vazio!"
+         End If
+         If Not vgIsValid And Len(vgErrorMessage$) = 0 Then vgErrorMessage$ = "Err"
+      End If
+   End If
+   GoTo FimDaSub
+   Exit Function
+
+IniApDaCol:
+   On Error Resume Next
+   Sequencia = ColumnValue(1)
+   Uf = ColumnValue(2) & ""
+   Descricao_do_municipio = Parse$(CStr(ColumnValue(3)), Chr$(1), 1)
+   Codigo_do_ibge = Val(Parse$(CStr(ColumnValue(4)), Chr$(1), 1))
+   If Err Then Err.Clear
+   On Error GoTo DeuErro
+   Return
+
+IniApDaTb:
+   On Error Resume Next
+   If Local_de_carregamento.Eof = False And Local_de_carregamento.BOF = False And Local_de_carregamento.RecordCount > 0 Then
+      Sequencia = Local_de_carregamento!Sequencia
+      Uf = Local_de_carregamento!Uf
+      Descricao_do_municipio = Local_de_carregamento![Descrição do municipio]
+      Codigo_do_ibge = Local_de_carregamento![Codigo do ibge]
+   End If
+   If Err Then Err.Clear
+   On Error GoTo DeuErro
+   Return
+
+DeuErro:
+   If vgOq = CONTEUDODACOLUNA Or vgOq = DEFAULTDASCOLUNAS Or vgOq < 0 Then
+      vgRetVal = Null
+   Else
+      vgErrorMessage$ = Err.Source + "|" + Trim$(Str$(Err)) + "-" + Error$
+      vgIsValid = False
+   End If
+   If Not vgRsError Is Nothing Then
+      vgRsError.CancelUpdate
+      vgErrorMessage$ = vgRsError.Table & "=>" & vgErrorMessage$
+      Set vgRsError = Nothing
+   End If
+   Resume ResumeErro
+
+ResumeErro:
+   On Error Resume Next
+
+FimDaSub:
+   ExecutaGrid0 = vgRetVal
+   vgPriVez = False
+End Function
+
+
+'inicializações, validações e processos do grid filho
+Private Function ExecutaGrid1(ColumnValue() As Variant, ByVal vgOq As Integer, Optional ByVal vgItem As Long, Optional ByVal vgCol As Integer, Optional vgIsValid As Boolean, Optional ByRef vgColumn As Integer, Optional vgErrorMessage As String, Optional KeyCodeAscii As Integer, Optional Shift As Integer) As Variant
+   Dim vgRetVal As Variant, vgRsError As GRecordSet, x as String, vgNVez As Integer
+   Dim Sequencia As Long, Uf As String
+   vgPriVez = True
+   If vgOq = PREVALIDACOES Then
+      vgRetVal = False
+   Else
+      vgRetVal = ""
+   End If
+   vgNVez = 0
+   On Error GoTo DeuErro
+   If vgOq = CONTEUDODACOLUNA Then
+      If Grid(1).Status <> ACAO_NAVEGANDO And vgItem = Grid(1).SelectedItem Then
+         GoSub IniApDaCol
+      Else
+         GoSub IniApDaTb
+      End If
+      On Error Resume Next
+      If Err Then Err.Clear
+   ElseIf vgOq = CONDICOES_ESPECIAIS Then
+      If vgSituacao <> ACAO_INCLUINDO Then
+         GoSub IniApDaTb
+      On Error Resume Next
+         Grid(1).AllowInsert = ((Autorizada = 0) AND Nota_cancelada = 0)
+      On Error Resume Next
+         Grid(1).AllowEdit = ((Autorizada = 0) AND Nota_cancelada = 0)
+      On Error Resume Next
+         Grid(1).AllowDelete = ((Autorizada = 0) AND Nota_cancelada = 0)
+      End If
+      vgRetVal = ""
+   ElseIf vgOq = ABRE_TABELA_GRID Then
+      On Error Resume Next
+      vgRetVal = "SELECT * FROM [Uf de percurso]"
+
+      'definindo a expressão de ligação com o pai
+      x$ = "[Sequencia do manifesto] = " & Manifesto![Sequencia do manifesto]
+      vgRetVal = InsereSQL(vgRetVal, EXP_WHERE, x$)
+
+      'vamos definir a ordenação
+      x$ = "Sequencia"
+      vgRetVal = InsereSQL(vgRetVal, EXP_ORDERBY, x$)
+
+   Else
+      If vgOq = VALIDACOES Then
+         GoSub IniApDaCol
+         vgIsValid = (Sequencia > 0)
+         If Not vgIsValid Then vgColumn =  1 
+         vgErrorMessage$ = "Sequencia inválido!"
+         If vgIsValid And vgCol = -1 Then
+            vgIsValid = (VUF(Uf))
+            If Not vgIsValid Then vgColumn =  2 
+            vgErrorMessage$ = "Uf inválido!"
+         End If
+         If Not vgIsValid And Len(vgErrorMessage$) = 0 Then vgErrorMessage$ = "Err"
+      End If
+   End If
+   GoTo FimDaSub
+   Exit Function
+
+IniApDaCol:
+   On Error Resume Next
+   Sequencia = ColumnValue(1)
+   Uf = ColumnValue(2) & ""
+   If Err Then Err.Clear
+   On Error GoTo DeuErro
+   Return
+
+IniApDaTb:
+   On Error Resume Next
+   If Uf_de_percurso.Eof = False And Uf_de_percurso.BOF = False And Uf_de_percurso.RecordCount > 0 Then
+      Sequencia = Uf_de_percurso!Sequencia
+      Uf = Uf_de_percurso!Uf
+   End If
+   If Err Then Err.Clear
+   On Error GoTo DeuErro
+   Return
+
+DeuErro:
+   If vgOq = CONTEUDODACOLUNA Or vgOq = DEFAULTDASCOLUNAS Or vgOq < 0 Then
+      vgRetVal = Null
+   Else
+      vgErrorMessage$ = Err.Source + "|" + Trim$(Str$(Err)) + "-" + Error$
+      vgIsValid = False
+   End If
+   If Not vgRsError Is Nothing Then
+      vgRsError.CancelUpdate
+      vgErrorMessage$ = vgRsError.Table & "=>" & vgErrorMessage$
+      Set vgRsError = Nothing
+   End If
+   Resume ResumeErro
+
+ResumeErro:
+   On Error Resume Next
+
+FimDaSub:
+   ExecutaGrid1 = vgRetVal
+   vgPriVez = False
+End Function
+
+
+'inicializações, validações e processos do grid filho
+Private Function ExecutaGrid2(ColumnValue() As Variant, ByVal vgOq As Integer, Optional ByVal vgItem As Long, Optional ByVal vgCol As Integer, Optional vgIsValid As Boolean, Optional ByRef vgColumn As Integer, Optional vgErrorMessage As String, Optional KeyCodeAscii As Integer, Optional Shift As Integer) As Variant
+   Dim vgRetVal As Variant, vgRsError As GRecordSet, x as String, vgNVez As Integer
+   Dim Nome_condutor As String, Cpf_condutor As String
+   vgPriVez = True
+   If vgOq = PREVALIDACOES Then
+      vgRetVal = False
+   Else
+      vgRetVal = ""
+   End If
+   vgNVez = 0
+   On Error GoTo DeuErro
+   If vgOq = CONTEUDODACOLUNA Then
+      If Grid(2).Status <> ACAO_NAVEGANDO And vgItem = Grid(2).SelectedItem Then
+         GoSub IniApDaCol
+      Else
+         GoSub IniApDaTb
+      End If
+      On Error Resume Next
+      If Err Then Err.Clear
+   ElseIf vgOq = CONDICOES_ESPECIAIS Then
+      If vgSituacao <> ACAO_INCLUINDO Then
+         GoSub IniApDaTb
+      On Error Resume Next
+         Grid(2).AllowInsert = ((Autorizada = 0) AND Nota_cancelada = 0)
+      On Error Resume Next
+         Grid(2).AllowEdit = ((Autorizada = 0) AND Nota_cancelada = 0)
+      On Error Resume Next
+         Grid(2).AllowDelete = ((Autorizada = 0) AND Nota_cancelada = 0)
+      End If
+      vgRetVal = ""
+   ElseIf vgOq = ABRE_TABELA_GRID Then
+      On Error Resume Next
+      vgRetVal = "SELECT * FROM Codutores"
+
+      'definindo a expressão de ligação com o pai
+      x$ = "[Sequencia do manifesto] = " & Manifesto![Sequencia do manifesto]
+      vgRetVal = InsereSQL(vgRetVal, EXP_WHERE, x$)
+
+   ElseIf vgOq = PEGAFILTRODASCOLUNAS Then
+      On Error Resume Next
+      GoSub IniApDaCol
+      Select Case vgCol
+         Case 1
+            vgRetVal = "[Codigo do Motorista] > " & 0 & ""
+         Case 2
+            vgRetVal = "[Nome do Motorista] = '" & Nome_condutor & "'"
+      End Select
+   Else
+      If vgOq = VALIDACOES Then
+         GoSub IniApDaCol
+         vgIsValid = (Not Vazio(Nome_condutor))
+         If Not vgIsValid Then vgColumn =  1 
+         vgErrorMessage$ = "Nome condutor não pode ser vazio!"
+         If vgIsValid And vgCol = -1 Then
+            vgIsValid = (VDV2(Cpf_condutor))
+            If Not vgIsValid Then vgColumn =  2 
+            vgErrorMessage$ = "Cpf condutor inválido!"
+         End If
+         If Not vgIsValid And Len(vgErrorMessage$) = 0 Then vgErrorMessage$ = "Err"
+      End If
+   End If
+   GoTo FimDaSub
+   Exit Function
+
+IniApDaCol:
+   On Error Resume Next
+   Nome_condutor = Parse$(CStr(ColumnValue(1)), Chr$(1), 1)
+   Cpf_condutor = Parse$(CStr(ColumnValue(2)), Chr$(1), 1)
+   If Err Then Err.Clear
+   On Error GoTo DeuErro
+   Return
+
+IniApDaTb:
+   On Error Resume Next
+   If Codutores.Eof = False And Codutores.BOF = False And Codutores.RecordCount > 0 Then
+      Nome_condutor = Codutores![Nome condutor]
+      Cpf_condutor = Codutores![Cpf condutor]
+   End If
+   If Err Then Err.Clear
+   On Error GoTo DeuErro
+   Return
+
+DeuErro:
+   If vgOq = CONTEUDODACOLUNA Or vgOq = DEFAULTDASCOLUNAS Or vgOq < 0 Then
+      vgRetVal = Null
+   Else
+      vgErrorMessage$ = Err.Source + "|" + Trim$(Str$(Err)) + "-" + Error$
+      vgIsValid = False
+   End If
+   If Not vgRsError Is Nothing Then
+      vgRsError.CancelUpdate
+      vgErrorMessage$ = vgRsError.Table & "=>" & vgErrorMessage$
+      Set vgRsError = Nothing
+   End If
+   Resume ResumeErro
+
+ResumeErro:
+   On Error Resume Next
+
+FimDaSub:
+   ExecutaGrid2 = vgRetVal
+   vgPriVez = False
+End Function
+
+
+'inicializações, validações e processos do grid filho
+Private Function ExecutaGrid3(ColumnValue() As Variant, ByVal vgOq As Integer, Optional ByVal vgItem As Long, Optional ByVal vgCol As Integer, Optional vgIsValid As Boolean, Optional ByRef vgColumn As Integer, Optional vgErrorMessage As String, Optional KeyCodeAscii As Integer, Optional Shift As Integer) As Variant
+   Dim vgRetVal As Variant, vgRsError As GRecordSet, x as String, vgNVez As Integer
+   Dim Sequencia_descarrega As Long, Codigo_do_ibge As Long, Descricao_do_municipio As String
+   vgPriVez = True
+   If vgOq = PREVALIDACOES Then
+      vgRetVal = False
+   Else
+      vgRetVal = ""
+   End If
+   vgNVez = 0
+   On Error GoTo DeuErro
+   If vgOq = CONTEUDODACOLUNA Then
+      If Grid(3).Status <> ACAO_NAVEGANDO And vgItem = Grid(3).SelectedItem Then
+         GoSub IniApDaCol
+      Else
+         GoSub IniApDaTb
+      End If
+      On Error Resume Next
+      If Err Then Err.Clear
+   ElseIf vgOq = PREVALIDACOES Then
+      GoSub IniApDaCol
+      Select Case vgCol
+         Case 2
+            vgRetVal = Not (Not Vazio(Manifesto![Uf de descarregamento]))
+         Case Else
+            vgRetVal = False
+      End Select
+   ElseIf vgOq = CONDICOES_ESPECIAIS Then
+      If vgSituacao <> ACAO_INCLUINDO Then
+         GoSub IniApDaTb
+      On Error Resume Next
+         Grid(3).AllowInsert = ((Autorizada = 0) AND Nota_cancelada = 0)
+      On Error Resume Next
+         Grid(3).AllowEdit = ((Autorizada = 0) AND Nota_cancelada = 0)
+      On Error Resume Next
+         Grid(3).AllowDelete = ((Autorizada = 0) AND Nota_cancelada = 0)
+      End If
+      vgRetVal = ""
+   ElseIf vgOq = ABRE_TABELA_GRID Then
+      On Error Resume Next
+      vgRetVal = "SELECT * FROM [Descarregamento nfe]"
+
+      'definindo a expressão de ligação com o pai
+      x$ = "[Sequencia do manifesto] = " & Manifesto![Sequencia do manifesto]
+      vgRetVal = InsereSQL(vgRetVal, EXP_WHERE, x$)
+
+   ElseIf vgOq = PEGAFILTRODASCOLUNAS Then
+      On Error Resume Next
+      GoSub IniApDaCol
+      Select Case vgCol
+         Case 2
+            vgRetVal = "(([Sequencia do municipio] > " & 0 & ") AND Inativo = " & 0 & ") AND Uf = '" & Manifesto![Uf de descarregamento] & "'"
+         Case 3
+            vgRetVal = "(([Sequencia do municipio] > " & 0 & ") AND Inativo = " & 0 & ") AND [Descrição do municipio] = '" & Descricao_do_municipio & "'"
+      End Select
+   Else
+      If vgOq = VALIDACOES Then
+         GoSub IniApDaCol
+         vgIsValid = (Sequencia_descarrega > 0)
+         If Not vgIsValid Then vgColumn =  1 
+         vgErrorMessage$ = "Sequencia descarrega inválido!"
+         If vgIsValid And vgCol = -1 Then
+            If Not Vazio(Manifesto![Uf de descarregamento]) Then
+               vgIsValid = (Not Vazio(Descricao_do_municipio))
+               If Not vgIsValid Then vgColumn =  2 
+               vgErrorMessage$ = "Descrição do municipio não pode ser vazio!"
+            End If
+         End If
+         If vgIsValid And vgCol = -1 Then
+            vgIsValid = (Codigo_do_ibge > 0)
+            If Not vgIsValid Then vgColumn =  3 
+            vgErrorMessage$ = "Codigo do ibge inválido!"
+         End If
+         If Not vgIsValid And Len(vgErrorMessage$) = 0 Then vgErrorMessage$ = "Err"
+      End If
+   End If
+   GoTo FimDaSub
+   Exit Function
+
+IniApDaCol:
+   On Error Resume Next
+   Sequencia_descarrega = ColumnValue(1)
+   Descricao_do_municipio = Parse$(CStr(ColumnValue(2)), Chr$(1), 1)
+   Codigo_do_ibge = Val(Parse$(CStr(ColumnValue(3)), Chr$(1), 1))
+   If Err Then Err.Clear
+   On Error GoTo DeuErro
+   Return
+
+IniApDaTb:
+   On Error Resume Next
+   If Descarregamento_nfe.Eof = False And Descarregamento_nfe.BOF = False And Descarregamento_nfe.RecordCount > 0 Then
+      Sequencia_descarrega = Descarregamento_nfe![Sequencia descarrega]
+      Codigo_do_ibge = Descarregamento_nfe![Codigo do ibge]
+      Descricao_do_municipio = Descarregamento_nfe![Descrição do municipio]
+   End If
+   If Err Then Err.Clear
+   On Error GoTo DeuErro
+   Return
+
+DeuErro:
+   If vgOq = CONTEUDODACOLUNA Or vgOq = DEFAULTDASCOLUNAS Or vgOq < 0 Then
+      vgRetVal = Null
+   Else
+      vgErrorMessage$ = Err.Source + "|" + Trim$(Str$(Err)) + "-" + Error$
+      vgIsValid = False
+   End If
+   If Not vgRsError Is Nothing Then
+      vgRsError.CancelUpdate
+      vgErrorMessage$ = vgRsError.Table & "=>" & vgErrorMessage$
+      Set vgRsError = Nothing
+   End If
+   Resume ResumeErro
+
+ResumeErro:
+   On Error Resume Next
+
+FimDaSub:
+   ExecutaGrid3 = vgRetVal
+   vgPriVez = False
+End Function
+
+
+'inicializações, validações e processos do grid filho
+Private Function ExecutaGrid4(ColumnValue() As Variant, ByVal vgOq As Integer, Optional ByVal vgItem As Long, Optional ByVal vgCol As Integer, Optional vgIsValid As Boolean, Optional ByRef vgColumn As Integer, Optional vgErrorMessage As String, Optional KeyCodeAscii As Integer, Optional Shift As Integer) As Variant
+   Dim vgRetVal As Variant, vgRsError As GRecordSet, x as String, vgNVez As Integer
+   Dim Sequencia_descarrega As Long, Chave_da_nfe As String, Descricao_do_municipio As String
+   Dim Valor_total As Double, Peso_bruto As Double
+   vgPriVez = True
+   If vgOq = PREVALIDACOES Then
+      vgRetVal = False
+   Else
+      vgRetVal = ""
+   End If
+   vgNVez = 0
+   On Error GoTo DeuErro
+   If vgOq = CONTEUDODACOLUNA Then
+      If Grid(4).Status <> ACAO_NAVEGANDO And vgItem = Grid(4).SelectedItem Then
+         GoSub IniApDaCol
+      Else
+         GoSub IniApDaTb
+      End If
+      On Error Resume Next
+      Select Case vgCol
+         Case 4
+            vgRetVal = (MostraNroNFe(Sequencia_descarrega, Sequencia_do_manifesto, Chave_da_nfe, Descricao_do_municipio, Valor_total, Peso_bruto))
+            vgColumn = -1                   'flag para permitir definição desse novo valor para coluna do grid
+      End Select
+      If Err Then Err.Clear
+   ElseIf vgOq = CONDICOES_ESPECIAIS Then
+      If vgSituacao <> ACAO_INCLUINDO Then
+         GoSub IniApDaTb
+      On Error Resume Next
+         Grid(4).AllowInsert = ((Autorizada = 0) AND Nota_cancelada = 0)
+      On Error Resume Next
+         Grid(4).AllowEdit = ((Autorizada = 0) AND Nota_cancelada = 0)
+      On Error Resume Next
+         Grid(4).AllowDelete = ((Autorizada = 0) AND Nota_cancelada = 0)
+      End If
+      vgRetVal = ""
+   ElseIf vgOq = ABRE_TABELA_GRID Then
+      On Error Resume Next
+      vgRetVal = "SELECT * FROM [Nfe da carga]"
+
+      'definindo a expressão de ligação com o pai
+      x$ = "[Sequencia do manifesto] = " & Manifesto![Sequencia do manifesto]
+      vgRetVal = InsereSQL(vgRetVal, EXP_WHERE, x$)
+
+   ElseIf vgOq = PEGAFILTRODASCOLUNAS Then
+      On Error Resume Next
+      GoSub IniApDaCol
+      Select Case vgCol
+         Case 2
+            vgRetVal = "" + FiltroNFeCarga() + ""
+      End Select
+   Else
+      If vgOq = VALIDACOES Then
+         GoSub IniApDaCol
+         vgIsValid = (Sequencia_descarrega > 0)
+         If Not vgIsValid Then vgColumn =  1 
+         vgErrorMessage$ = "Sequencia descarrega inválido!"
+         If vgIsValid And vgCol = -1 Then
+            vgIsValid = (Not Vazio(Descricao_do_municipio))
+            If Not vgIsValid Then vgColumn =  2 
+            vgErrorMessage$ = "Descrição do municipio não pode ser vazio!"
+         End If
+         If vgIsValid And vgCol = -1 Then
+            vgIsValid = (ValidaChave(Sequencia_descarrega, Sequencia_do_manifesto, Chave_da_nfe, Descricao_do_municipio, Valor_total, Peso_bruto))
+            If Not vgIsValid Then vgColumn =  3 
+            vgErrorMessage$ = "Chave da NFe deve ter 44 Digitos!"
+         End If
+         If vgIsValid And vgCol = -1 Then
+            vgIsValid = (Valor_total > 0)
+            If Not vgIsValid Then vgColumn =  5 
+            vgErrorMessage$ = "Valor total inválido!"
+         End If
+         If vgIsValid And vgCol = -1 Then
+            vgIsValid = (Peso_bruto > 0)
+            If Not vgIsValid Then vgColumn =  6 
+            vgErrorMessage$ = "Peso bruto inválido!"
+         End If
+         If Not vgIsValid And Len(vgErrorMessage$) = 0 Then vgErrorMessage$ = "Err"
+      End If
+   End If
+   GoTo FimDaSub
+   Exit Function
+
+IniApDaCol:
+   On Error Resume Next
+   Sequencia_descarrega = ColumnValue(1)
+   Descricao_do_municipio = Parse$(CStr(ColumnValue(2)), Chr$(1), 1)
+   Chave_da_nfe = ColumnValue(3) & ""
+   Valor_total = ColumnValue(5)
+   Peso_bruto = ColumnValue(6)
+   If Err Then Err.Clear
+   On Error GoTo DeuErro
+   Return
+
+IniApDaTb:
+   On Error Resume Next
+   If Nfe_da_carga.Eof = False And Nfe_da_carga.BOF = False And Nfe_da_carga.RecordCount > 0 Then
+      Sequencia_descarrega = Nfe_da_carga![Sequencia descarrega]
+      Chave_da_nfe = Nfe_da_carga![Chave da nfe]
+      Descricao_do_municipio = Nfe_da_carga![Descrição do municipio]
+      Valor_total = Nfe_da_carga![Valor total]
+      Peso_bruto = Nfe_da_carga![Peso bruto]
+   End If
+   If Err Then Err.Clear
+   On Error GoTo DeuErro
+   Return
+
+DeuErro:
+   If vgOq = CONTEUDODACOLUNA Or vgOq = DEFAULTDASCOLUNAS Or vgOq < 0 Then
+      vgRetVal = Null
+   Else
+      vgErrorMessage$ = Err.Source + "|" + Trim$(Str$(Err)) + "-" + Error$
+      vgIsValid = False
+   End If
+   If Not vgRsError Is Nothing Then
+      vgRsError.CancelUpdate
+      vgErrorMessage$ = vgRsError.Table & "=>" & vgErrorMessage$
+      Set vgRsError = Nothing
+   End If
+   Resume ResumeErro
+
+ResumeErro:
+   On Error Resume Next
+
+FimDaSub:
+   ExecutaGrid4 = vgRetVal
+   vgPriVez = False
+End Function
+
+
+'inicializações, validações e processos do grid filho
+Private Function ExecutaGrid5(ColumnValue() As Variant, ByVal vgOq As Integer, Optional ByVal vgItem As Long, Optional ByVal vgCol As Integer, Optional vgIsValid As Boolean, Optional ByRef vgColumn As Integer, Optional vgErrorMessage As String, Optional KeyCodeAscii As Integer, Optional Shift As Integer) As Variant
+   Dim vgRetVal As Variant, vgRsError As GRecordSet, x as String, vgNVez As Integer
+   Dim Sequencia_descarregamento_cte As Long, Codigo_do_ibge As Long, Descricao_do_municipio As String
+   vgPriVez = True
+   If vgOq = PREVALIDACOES Then
+      vgRetVal = False
+   Else
+      vgRetVal = ""
+   End If
+   vgNVez = 0
+   On Error GoTo DeuErro
+   If vgOq = CONTEUDODACOLUNA Then
+      If Grid(5).Status <> ACAO_NAVEGANDO And vgItem = Grid(5).SelectedItem Then
+         GoSub IniApDaCol
+      Else
+         GoSub IniApDaTb
+      End If
+      On Error Resume Next
+      If Err Then Err.Clear
+   ElseIf vgOq = PREVALIDACOES Then
+      GoSub IniApDaCol
+      Select Case vgCol
+         Case 2
+            vgRetVal = Not (Not Vazio(Manifesto![Uf de descarregamento]))
+         Case Else
+            vgRetVal = False
+      End Select
+   ElseIf vgOq = CONDICOES_ESPECIAIS Then
+      If vgSituacao <> ACAO_INCLUINDO Then
+         GoSub IniApDaTb
+      On Error Resume Next
+         Grid(5).AllowInsert = ((Autorizada = 0) AND Nota_cancelada = 0)
+      On Error Resume Next
+         Grid(5).AllowEdit = ((Autorizada = 0) AND Nota_cancelada = 0)
+      On Error Resume Next
+         Grid(5).AllowDelete = ((Autorizada = 0) AND Nota_cancelada = 0)
+      End If
+      vgRetVal = ""
+   ElseIf vgOq = ABRE_TABELA_GRID Then
+      On Error Resume Next
+      vgRetVal = "SELECT * FROM [Descarregamento cte]"
+
+      'definindo a expressão de ligação com o pai
+      x$ = "[Sequencia do manifesto] = " & Manifesto![Sequencia do manifesto]
+      vgRetVal = InsereSQL(vgRetVal, EXP_WHERE, x$)
+
+   ElseIf vgOq = PEGAFILTRODASCOLUNAS Then
+      On Error Resume Next
+      GoSub IniApDaCol
+      Select Case vgCol
+         Case 2
+            vgRetVal = "(([Sequencia do municipio] > " & 0 & ") AND Inativo = " & 0 & ") AND Uf = '" & Manifesto![Uf de descarregamento] & "'"
+         Case 3
+            vgRetVal = "(([Sequencia do municipio] > " & 0 & ") AND Inativo = " & 0 & ") AND [Descrição do municipio] = '" & Descricao_do_municipio & "'"
+      End Select
+   Else
+      If vgOq = VALIDACOES Then
+         GoSub IniApDaCol
+         vgIsValid = (Sequencia_descarregamento_cte > 0)
+         If Not vgIsValid Then vgColumn =  1 
+         vgErrorMessage$ = "Sequencia descarregamento cte inválido!"
+         If vgIsValid And vgCol = -1 Then
+            If Not Vazio(Manifesto![Uf de descarregamento]) Then
+               vgIsValid = (Not Vazio(Descricao_do_municipio))
+               If Not vgIsValid Then vgColumn =  2 
+               vgErrorMessage$ = "Descrição do municipio não pode ser vazio!"
+            End If
+         End If
+         If vgIsValid And vgCol = -1 Then
+            vgIsValid = (Codigo_do_ibge > 0)
+            If Not vgIsValid Then vgColumn =  3 
+            vgErrorMessage$ = "Codigo do ibge inválido!"
+         End If
+         If Not vgIsValid And Len(vgErrorMessage$) = 0 Then vgErrorMessage$ = "Err"
+      End If
+   End If
+   GoTo FimDaSub
+   Exit Function
+
+IniApDaCol:
+   On Error Resume Next
+   Sequencia_descarregamento_cte = ColumnValue(1)
+   Descricao_do_municipio = Parse$(CStr(ColumnValue(2)), Chr$(1), 1)
+   Codigo_do_ibge = Val(Parse$(CStr(ColumnValue(3)), Chr$(1), 1))
+   If Err Then Err.Clear
+   On Error GoTo DeuErro
+   Return
+
+IniApDaTb:
+   On Error Resume Next
+   If Descarregamento_cte.Eof = False And Descarregamento_cte.BOF = False And Descarregamento_cte.RecordCount > 0 Then
+      Sequencia_descarregamento_cte = Descarregamento_cte![Sequencia descarregamento cte]
+      Codigo_do_ibge = Descarregamento_cte![Codigo do ibge]
+      Descricao_do_municipio = Descarregamento_cte![Descrição do municipio]
+   End If
+   If Err Then Err.Clear
+   On Error GoTo DeuErro
+   Return
+
+DeuErro:
+   If vgOq = CONTEUDODACOLUNA Or vgOq = DEFAULTDASCOLUNAS Or vgOq < 0 Then
+      vgRetVal = Null
+   Else
+      vgErrorMessage$ = Err.Source + "|" + Trim$(Str$(Err)) + "-" + Error$
+      vgIsValid = False
+   End If
+   If Not vgRsError Is Nothing Then
+      vgRsError.CancelUpdate
+      vgErrorMessage$ = vgRsError.Table & "=>" & vgErrorMessage$
+      Set vgRsError = Nothing
+   End If
+   Resume ResumeErro
+
+ResumeErro:
+   On Error Resume Next
+
+FimDaSub:
+   ExecutaGrid5 = vgRetVal
+   vgPriVez = False
+End Function
+
+
+'inicializações, validações e processos do grid filho
+Private Function ExecutaGrid6(ColumnValue() As Variant, ByVal vgOq As Integer, Optional ByVal vgItem As Long, Optional ByVal vgCol As Integer, Optional vgIsValid As Boolean, Optional ByRef vgColumn As Integer, Optional vgErrorMessage As String, Optional KeyCodeAscii As Integer, Optional Shift As Integer) As Variant
+   Dim vgRetVal As Variant, vgRsError As GRecordSet, x as String, vgNVez As Integer
+   Dim Sequencia_descarrega_cte As Long, Chave_do_cte As String, Descricao_do_municipio As String
+   Dim Valor_total As Double, Peso_bruto As Double
+   vgPriVez = True
+   If vgOq = PREVALIDACOES Then
+      vgRetVal = False
+   Else
+      vgRetVal = ""
+   End If
+   vgNVez = 0
+   On Error GoTo DeuErro
+   If vgOq = CONTEUDODACOLUNA Then
+      If Grid(6).Status <> ACAO_NAVEGANDO And vgItem = Grid(6).SelectedItem Then
+         GoSub IniApDaCol
+      Else
+         GoSub IniApDaTb
+      End If
+      On Error Resume Next
+      Select Case vgCol
+         Case 4
+            vgRetVal = (MostraNroCTe(Sequencia_descarrega_cte, Sequencia_do_manifesto, Chave_do_cte, Descricao_do_municipio, Valor_total, Peso_bruto))
+            vgColumn = -1                   'flag para permitir definição desse novo valor para coluna do grid
+      End Select
+      If Err Then Err.Clear
+   ElseIf vgOq = CONDICOES_ESPECIAIS Then
+      If vgSituacao <> ACAO_INCLUINDO Then
+         GoSub IniApDaTb
+      On Error Resume Next
+         Grid(6).AllowInsert = ((Autorizada = 0) AND Nota_cancelada = 0)
+      On Error Resume Next
+         Grid(6).AllowEdit = ((Autorizada = 0) AND Nota_cancelada = 0)
+      On Error Resume Next
+         Grid(6).AllowDelete = ((Autorizada = 0) AND Nota_cancelada = 0)
+      End If
+      vgRetVal = ""
+   ElseIf vgOq = ABRE_TABELA_GRID Then
+      On Error Resume Next
+      vgRetVal = "SELECT * FROM [Cte da carga]"
+
+      'definindo a expressão de ligação com o pai
+      x$ = "[Sequencia do manifesto] = " & Manifesto![Sequencia do manifesto]
+      vgRetVal = InsereSQL(vgRetVal, EXP_WHERE, x$)
+
+   ElseIf vgOq = PEGAFILTRODASCOLUNAS Then
+      On Error Resume Next
+      GoSub IniApDaCol
+      Select Case vgCol
+         Case 2
+            vgRetVal = "" + FiltroCTeCarga() + ""
+      End Select
+   Else
+      If vgOq = VALIDACOES Then
+         GoSub IniApDaCol
+         vgIsValid = (Sequencia_descarrega_cte > 0)
+         If Not vgIsValid Then vgColumn =  1 
+         vgErrorMessage$ = "Sequencia descarrega cte inválido!"
+         If vgIsValid And vgCol = -1 Then
+            vgIsValid = (Not Vazio(Descricao_do_municipio))
+            If Not vgIsValid Then vgColumn =  2 
+            vgErrorMessage$ = "Descrição do municipio não pode ser vazio!"
+         End If
+         If vgIsValid And vgCol = -1 Then
+            vgIsValid = (ValidaChaveCTe(Sequencia_descarrega_cte, Sequencia_do_manifesto, Chave_do_cte, Descricao_do_municipio, Valor_total, Peso_bruto))
+            If Not vgIsValid Then vgColumn =  3 
+            vgErrorMessage$ = "Chave de Acesso deve ter 44 Digitos"
+         End If
+         If vgIsValid And vgCol = -1 Then
+            vgIsValid = (Valor_total > 0)
+            If Not vgIsValid Then vgColumn =  5 
+            vgErrorMessage$ = "Valor total inválido!"
+         End If
+         If vgIsValid And vgCol = -1 Then
+            vgIsValid = (Peso_bruto > 0)
+            If Not vgIsValid Then vgColumn =  6 
+            vgErrorMessage$ = "Peso bruto inválido!"
+         End If
+         If Not vgIsValid And Len(vgErrorMessage$) = 0 Then vgErrorMessage$ = "Err"
+      End If
+   End If
+   GoTo FimDaSub
+   Exit Function
+
+IniApDaCol:
+   On Error Resume Next
+   Sequencia_descarrega_cte = ColumnValue(1)
+   Descricao_do_municipio = Parse$(CStr(ColumnValue(2)), Chr$(1), 1)
+   Chave_do_cte = ColumnValue(3) & ""
+   Valor_total = ColumnValue(5)
+   Peso_bruto = ColumnValue(6)
+   If Err Then Err.Clear
+   On Error GoTo DeuErro
+   Return
+
+IniApDaTb:
+   On Error Resume Next
+   If Cte_da_carga.Eof = False And Cte_da_carga.BOF = False And Cte_da_carga.RecordCount > 0 Then
+      Sequencia_descarrega_cte = Cte_da_carga![Sequencia descarrega cte]
+      Chave_do_cte = Cte_da_carga![Chave do cte]
+      Descricao_do_municipio = Cte_da_carga![Descrição do municipio]
+      Valor_total = Cte_da_carga![Valor total]
+      Peso_bruto = Cte_da_carga![Peso bruto]
+   End If
+   If Err Then Err.Clear
+   On Error GoTo DeuErro
+   Return
+
+DeuErro:
+   If vgOq = CONTEUDODACOLUNA Or vgOq = DEFAULTDASCOLUNAS Or vgOq < 0 Then
+      vgRetVal = Null
+   Else
+      vgErrorMessage$ = Err.Source + "|" + Trim$(Str$(Err)) + "-" + Error$
+      vgIsValid = False
+   End If
+   If Not vgRsError Is Nothing Then
+      vgRsError.CancelUpdate
+      vgErrorMessage$ = vgRsError.Table & "=>" & vgErrorMessage$
+      Set vgRsError = Nothing
+   End If
+   Resume ResumeErro
+
+ResumeErro:
+   On Error Resume Next
+
+FimDaSub:
+   ExecutaGrid6 = vgRetVal
+   vgPriVez = False
+End Function
+
+'evento - pega o valor inicial das colunas do grid
+Private Sub Grid_GetColumnDefaultValue(Index As Integer, ByVal vgCol As Integer, vgColumns() As Variant, ByRef vgDefaultValue As Variant)
+   vgDefaultValue = ExecutaGrid(Index, vgColumns(), DEFAULTDASCOLUNAS, , vgCol)
+End Sub
+
+'evento - quer pegar valores para cada célula
+Private Sub Grid_GetColumnLocked(Index As Integer, ByVal vgRow As Long, ByVal vgCol As Long, vgColumns() As Variant, ByRef FormField As FormataCampos, ByRef vgLocked As Boolean)
+   Select Case Index
+      Case 0
+         vgLocked = ExecutaGrid(Index, vgColumns(), PREVALIDACOES, , vgCol)
+      Case 1
+         vgLocked = ExecutaGrid(Index, vgColumns(), PREVALIDACOES, , vgCol)
+      Case 2
+         vgLocked = ExecutaGrid(Index, vgColumns(), PREVALIDACOES, , vgCol)
+      Case 3
+         vgLocked = ExecutaGrid(Index, vgColumns(), PREVALIDACOES, , vgCol)
+      Case 4
+         vgLocked = ExecutaGrid(Index, vgColumns(), PREVALIDACOES, , vgCol)
+      Case 5
+         vgLocked = ExecutaGrid(Index, vgColumns(), PREVALIDACOES, , vgCol)
+      Case 6
+         vgLocked = ExecutaGrid(Index, vgColumns(), PREVALIDACOES, , vgCol)
+   End Select
+End Sub
+
+'evento - quando o botão for pressionado
+Private Sub Botao_Click(Index As Integer)
+   Dim Cancel As Boolean, hMenu As Long, pt As POINTAPI
+   If vgPriVez Then Exit Sub
+   Select Case Index
+      Case 0
+         SuperAcao  
+      Case 1
+         AbreCancelamento  
+      Case 2
+         AbreEncerramento  
+   End Select
+End Sub
+
+
+'evento - quando o botão for apertado
+Private Sub bottxtCampo35_Click(Index As Integer)
+   txtCampo(35).SetFocus
+   DoEvents
+   txtCampo(35).botClick Index
+End Sub
+
+'evento - quando o botão for apertado
+Private Sub bottxtCampo36_Click(Index As Integer)
+   txtCampo(36).SetFocus
+   DoEvents
+   txtCampo(36).botClick Index
+End Sub
+
+'evento - quando o botão for apertado
+Private Sub bottxtCampo38_Click(Index As Integer)
+   txtCampo(38).SetFocus
+   DoEvents
+   txtCampo(38).botClick Index
+End Sub
+
+'evento - quando o botão for apertado
+Private Sub bottxtCampo5_Click(Index As Integer)
+   txtCampo(5).SetFocus
+   DoEvents
+   txtCampo(5).botClick Index
+End Sub
+
+'evento - quando o botão for apertado
+Private Sub bottxtCampo8_Click(Index As Integer)
+   txtCampo(8).SetFocus
+   DoEvents
+   txtCampo(8).botClick Index
+End Sub
+
+'evento - quando o botão for apertado
+Private Sub bottxtCampo10_Click(Index As Integer)
+   txtCampo(10).SetFocus
+   DoEvents
+   txtCampo(10).botClick Index
+End Sub
+
+'evento - quando o botão for apertado
+Private Sub bottxtCampo11_Click(Index As Integer)
+   txtCampo(11).SetFocus
+   DoEvents
+   txtCampo(11).botClick Index
+End Sub
+
+'evento - quando o botão for apertado
+Private Sub bottxtCampo15_Click(Index As Integer)
+   txtCampo(15).SetFocus
+   DoEvents
+   txtCampo(15).botClick Index
+End Sub
+
+'evento - quando o botão for apertado
+Private Sub bottxtCampo16_Click(Index As Integer)
+   txtCampo(16).SetFocus
+   DoEvents
+   txtCampo(16).botClick Index
+End Sub
+
+'evento - quando o botão for apertado
+Private Sub bottxtCampo25_Click(Index As Integer)
+   txtCampo(25).SetFocus
+   DoEvents
+   txtCampo(25).botClick Index
+End Sub
+
+'evento - quando o botão for apertado
+Private Sub bottxtCampo1_Click(Index As Integer)
+   txtCampo(1).SetFocus
+   DoEvents
+   txtCampo(1).botClick Index
+End Sub
+
+'evento - quando o botão for apertado
+Private Sub bottxtCampo2_Click(Index As Integer)
+   txtCampo(2).SetFocus
+   DoEvents
+   txtCampo(2).botClick Index
+End Sub
+
+'evento - quando o botão for apertado
+Private Sub bottxtCampo32_Click(Index As Integer)
+   txtCampo(32).SetFocus
+   DoEvents
+   txtCampo(32).botClick Index
+End Sub
+
+'evento - quando o botão for apertado
+Private Sub bottxtCampo33_Click(Index As Integer)
+   txtCampo(33).SetFocus
+   DoEvents
+   txtCampo(33).botClick Index
+End Sub
+
+'evento - quando o botão for apertado
+Private Sub bottxtCampo4_Click(Index As Integer)
+   txtCampo(4).SetFocus
+   DoEvents
+   txtCampo(4).botClick Index
+End Sub
+
+'evento - quando o mouse for pressionado sobre o campo
+Private Sub txtCp_MouseDown(Index As Integer, Button As Integer, Shift As Integer, x as Single, y as Single)
+   txtCampo(Index).MouseDown
+End Sub
+
+

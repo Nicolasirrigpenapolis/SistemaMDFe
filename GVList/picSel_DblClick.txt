@@ -1,0 +1,24 @@
+'CUIDADO: ROTINA MANUAL
+'PROPOSITO: Quando o Grid pegar foco deixar em modo de digitação
+Private Sub picSel_DblClick()
+   Dim Validacao As String 'Variavel manual
+   If GetShiftKeys = 0 And Not vgFullRowSelect Then
+      'Inicio Manual
+      If mdiNFe.ActiveForm.vgTipo <> 5 Then
+         Validacao = mdiNFe.ActiveForm.Executar(VALIDACOES)
+      End If
+      'Fim Manual
+      If Not vgHasChanged And Not vgIsPreEditing And vgTabela.AsyncComplete And Not vgLocked Then
+         'Inicio Manual
+         If Vazio(Validacao) Then
+            vgForcePosSel = True
+            vgIsPreEditing = True
+            PosicionaSelect
+         Else
+            vgForcePosSel = False
+            vgIsPreEditing = False
+         End If
+         'Fim Manual
+      End If
+   End If
+End Sub

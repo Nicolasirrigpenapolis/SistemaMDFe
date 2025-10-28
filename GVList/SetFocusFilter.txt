@@ -1,0 +1,18 @@
+'CUIDADO: ROTINA MANUAL
+'PROPOSITO: Quando a consulta retornar apenas um registro nw dar foco a barra de filtro
+'caso contrario bora lah
+Public Sub SetFocusFilter()
+   If vgShowFilterBar And vgColAtual > 0 Then
+      If vgNumItemsTot > 1 Then      'Manual
+         ApplyFilterAndOrder
+         DoEvents                                    'para permitir que a barra de filtro receba o foco
+         If txtFilter(vgColAtual).Visible Then
+            txtFilter(vgColAtual).SetFocus
+         End If
+      End If
+   'INICIO MANUAL
+   Else
+      SelecionaItem 1
+   End If
+   'FIM MANUAL
+End Sub

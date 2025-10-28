@@ -1,0 +1,12 @@
+CertFlex
+--------------------------------------------------------------------------
+
+Aplicativo para testar a compatibilidade do certificado digital do tipo A3
+com o Framework .NET 4.5.
+
+
+TypeLibBrowser
+---------------------------------------------------------------------------
+
+Aplicativo para identificar os TypeLib das DLL da FlexDocs que estão
+registradas no equipamento.

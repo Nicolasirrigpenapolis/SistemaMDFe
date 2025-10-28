@@ -1,0 +1,295 @@
+Private Sub GSubClassInterface_WndProc(ByVal lHwnd As Long, ByVal message As GSCMessage, wParam As Long, lParam As Long, ByVal bBefore As Boolean, bCancel As Boolean, lReturn As Long)
+   Dim udtNMHDR As NMHDR, udtNM_LISTVIEW As NM_LISTVIEW
+   Dim udtLV_DISPINFO As LV_DISPINFO
+   Dim Rc As RECT, RcLst As RECT, RcItem As RECT
+   Dim hBrushBack As Long
+   Dim lpmis As MEASUREITEMSTRUCT
+   Dim i As Long
+   Dim pt As POINTAPI
+   Dim Ini As Long, Fim As Long, j As Long
+   Dim vgRow As Long, vgHTI As LVHITTESTINFO
+   Dim Cancel As Boolean, vgOk As Boolean
+   Dim vgUltCol As Long, vgUltItemSel As Long
+   Dim hDcTemp As Long, vgAdding As Boolean
+
+   Select Case lHwnd
+   
+      '==============================================
+      'tratamento para o listview
+      '==============================================
+      Case hWndLst
+
+         If picFundo.Visible Then
+            bCancel = True
+            Exit Sub
+         End If
+
+         If message = WM_SETFOCUS Then
+            bCancel = True
+            UserControl.SetFocus
+         ElseIf message = WM_VSCROLL Then
+            DrawLeftBar
+            DrawHeaderBar
+            PosicionaSelect
+         ElseIf message = WM_HSCROLL Then
+            DrawBars
+         ElseIf message = WM_PAINT Then                                        'está solicitando paint
+         
+            hDcTemp = GetDC(hWndLst)
+         
+            Ini = FirstItemVisible()                                           'primeiro item da lista (visível)
+            Fim = LastItemVisible()                                            'último item da lista (visível)
+            GetClientRect hWndLst, RcLst
+            hBrushBack = CreateSolidBrush(SysColor(vgBackColor))               'cria o brush
+            
+            'pinta o restante do listview a direita das colunas
+            Rc = RcLst
+            Rc.Top = Rc.Top + 2
+            Rc.Left = (ColumnRight(GetVisibleCol(COL_LAST))) / vgTpX + 1
+            If Not vgHideLeftBar Then Rc.Left = Rc.Left - vgLeftBarWidth / vgTpX
+            FillRect hDcTemp, Rc, hBrushBack                                   'faz o erase do lv
+
+            'limpa sujeira após última linha
+            Rc.Left = 0: Rc.Right = 0: Rc.Top = 0: Rc.Bottom = 0
+            SendMessage hWndLst, LVM_GETITEMRECT, Fim, Rc                      'pega posicionamento do item
+            RcItem = RcLst
+            RcItem.Top = Rc.Bottom
+            If Fim < vgNumItemsTot - 1 Then
+               RcItem.Left = (ColumnLeft(vgColumns.Count) + ColumnWidth(vgColumns.Count)) / vgTpX
+               If Not vgHideLeftBar Then
+                  RcItem.Left = RcItem.Left - vgLeftBarWidth / vgTpX
+               End If
+            End If
+
+            FillRect hDcTemp, RcItem, hBrushBack                               'faz o erase do lv na parte inferior
+            DeleteObject hBrushBack                                            'mata o brush
+
+            'se não quer esconder o select, vamos ver se há seleção válida, caso não haja vamos selecionar
+            If Not vgHasChanged And Not vgIsPreEditing And Not vgHideSelect Then
+               If Len(vgColsSelected) = 0 And vgColAtual = -1 Then
+                  vgColAtual = GetVisibleCol(COL_FIRST)
+               End If
+               If Len(vgRowsSelected) = 0 And Len(vgColsSelected) = 0 And SelectedItem = -1 And FirstItemVisible = 0 Then
+                  SelecionaItem 0
+               End If
+            End If
+            
+            ReleaseDC hWnd, hDcTemp
+            
+            'se não tiver nenhum item na lista, vamos repintar o header para corrigir desenha da parte inferior do mesmo
+            If vgNumItemsTot = 0 Then DrawHeaderBar
+
+
+         ElseIf message = WM_LBUTTONDBLCLK Then
+            If GetShiftKeys = 0 Then
+               GetCursorPos pt
+               ScreenToClient hWndLst, pt
+               vgHTI.pt = pt
+               i = SendMessage(hWndLst, LVM_SUBITEMHITTEST, 0, vgHTI)          'vamos pegar a posição do double click
+               If Not vgHasChanged And Not vgIsPreEditing And vgTabela.AsyncComplete And vgHTI.iItem <> -1 And vgHTI.iSubItem <> -1 Then
+                  vgIsPreEditing = True
+                  vgForcePosSel = True
+                  PosicionaSelect
+               End If
+            End If
+            bCancel = True
+         ElseIf message = WM_RBUTTONDOWN Or message = WM_RBUTTONDBLCLK Then
+            bCancel = True
+         ElseIf message = WM_LBUTTONDOWN Then
+            picSel.SetFocus                       'sempre deixa o foco na picSel
+            vgUltCol = vgColAtual
+            vgUltItemSel = SelectedItem
+            Call GetShiftKeys                     'as vezes a GetAsyncKeyState fica com ALT ou CTRL travados... ALT+TAB por exemplo... vamos chamar uma primeira vez para liberar :D
+            If GetShiftKeys = 0 Then
+               GetCursorPos pt
+               ScreenToClient hWndLst, pt
+               vgHTI.pt = pt
+               i = SendMessage(hWndLst, LVM_HITTEST, 0, vgHTI) 'pega o item clicado
+               SendMessage hWndLst, LVM_SUBITEMHITTEST, 0, vgHTI 'pega o subitem correspondente à essa posição
+               
+               'clique em posição inválida
+               If Not vgHideSelect And (i = -1 Or vgHTI.iSubItem = -1) Then
+                  If vgHasChanged Then                           'estava alterando
+                     vgAdding = (Status() = ACAO_INCLUINDO)
+                     Cancel = EndEditGrid(True, False)           'tenta salvar informações
+                     If Not vgHasChanged And vgAdding Then       'conseguiu gravar
+                        vgColAtual = GetVisibleCol(COL_FIRST)
+                        SelecionaItem vgNumItemsTot - 1
+                     End If
+                  End If
+                  bCancel = True
+                  Exit Sub
+               End If
+               
+               'vai mudar de item
+               If i <> SelectedItem Then                         'não é o atualmente selecionado
+                  If vgHasChanged Then                           'está clicando em outro item e estávamos em edição/inclusão
+                     Cancel = EndEditGrid(True, False)           'tenta salvar informações
+                     If Not Cancel Then                          'tudo certo...
+                        If i > LastItemVisible Then
+                           SendMessageLong hWndLst, LVM_ENSUREVISIBLE, i, 0 'certifica que ele ficará visível
+                        End If
+                     End If
+                  End If
+               End If
+               
+               If Not Cancel Then
+                  'verifica se quer mudar de coluna
+                  If i <> -1 Then
+                     If vgHTI.iSubItem <> -1 Or vgHideSelect Then
+                        If vgColAtual <> GetColumnByPosition(vgHTI.iSubItem + 1) And Not vgFullRowSelect Then 'mudou de coluna
+                           If vgHasChanged Then
+                              Cancel = ValidateColumnGrid()
+                           End If
+                           If Not Cancel Then
+                              vgColAtual = GetColumnByPosition(vgHTI.iSubItem + 1)
+                           End If
+                        End If
+                     End If
+                  ElseIf vgHideSelect Then
+                     vgColAtual = -1
+                  End If
+                  
+                  'vamos ver se é preciso gravar
+                  If i = -1 And (vgHasChanged Or vgIsPreEditing) And Not Cancel Then                          'está clicando no fundo da lista e estava em edição ou pré-edição
+                     Cancel = EndEditGrid(True, True)
+                  End If
+                  
+                  'controle click para iniciar edição em DblClick
+                  If Not vgHasChanged And Not vgIsPreEditing And Not Cancel Then
+                     vgTimerLastClick = Timer
+                  End If
+               End If
+            End If
+                        
+            If Not Cancel Then
+               'quer mudar de item, seleciona
+               If i <> SelectedItem And (i <> -1 Or vgHideSelect) Then
+                  ItemClick i
+                  vgOk = False
+               Else
+                  vgOk = True
+               End If
+                           
+               'quer mudar de coluna, seleciona
+               If vgColAtual <> vgUltCol Then
+                  AdjustScroll
+                  If vgOk And i = SelectedItem Then
+                     PosicionaSelect
+                  End If
+               End If
+               
+               'vamos ver se está em pré-edição e clicou diretamente em um check, muda o estado do check
+               If GetShiftKeys = 0 Then
+                  If vgColAtual <> -1 And vgColumns.Count > 0 Then
+                     If Not Cancel And (vgIsPreEditing Or vgHasChanged) And vgColumns(vgColAtual).ColumnType = TP_LOGICO Then 'está pré-editando ainda e foi clicado em campo lógico
+                        Rc.Left = 0: Rc.Right = 0: Rc.Top = 0: Rc.Bottom = 0
+                        SendMessage hWndLst, LVM_GETITEMRECT, i, Rc   'pega o posicionamento da coluna
+                        Rc.Left = ColumnLeft(vgColAtual) / vgTpX
+                        If Not vgHideLeftBar Then
+                           Rc.Left = Rc.Left - vgLeftBarWidth / vgTpX
+                        End If
+                        Rc.Right = Rc.Left + ColumnWidth(vgColAtual) / vgTpX
+                        Rc.Top = Rc.Top + 1
+                        Rc.Left = Rc.Left + Round((Rc.Right - Rc.Left) / 2 - 13 / 2)
+                        Rc.Bottom = Rc.Top + 13
+                        Rc.Right = Rc.Left + 13
+                        If PtInRect(Rc, pt.x, pt.y) Then
+                           DefineCampo
+                           Call EditCheckBox
+                        End If
+                     End If
+                  End If
+               End If
+            End If
+            bCancel = True                                            'vamos ignorar o evento click... ele foi tratado manualmente
+         ElseIf message = WM_MOUSEMOVE Or message = WM_NCMOUSEMOVE Then
+            If vgTrackSelect And vgComFoco <> 0 And Not vgHasChanged And Not vgIsPreEditing Then 'quer track select para o grid e pode fazer agora
+               GetCursorPos pt
+               ScreenToClient hWndLst, pt
+               
+               'não vamos considerar movimento sobre o scroll ou além do tamanho da lista
+               vgOk = True
+               GetClientRect hWndLst, RcLst
+               If pt.x >= RcLst.Right Then
+                  vgOk = False
+               End If
+               If vgOk Then                       'ok, mouse sobre uma coluna válida
+                  vgHTI.pt = pt
+                  i = SendMessage(hWndLst, LVM_SUBITEMHITTEST, 0, vgHTI)
+                  If i <> -1 And (i <> SelectedItem Or (vgFullRowSelect Or GetColumnByPosition(vgHTI.iSubItem + 1) <> vgColAtual)) Then 'se está sobre algum item válido e não é o mesmo item/subitem que já está com a seleção
+                     If Not vgFullRowSelect And GetColumnByPosition(vgHTI.iSubItem + 1) <> vgColAtual Then                              'mudou de coluna e não é fullrowselect
+                        vgColAtual = GetColumnByPosition(vgHTI.iSubItem + 1)
+                        AdjustColumn
+                     End If
+                     If i <> SelectedItem Then    'mudou de item no grid...
+                        ItemSelect i, False
+                     End If
+                     PosicionaSelect
+                  End If
+               End If
+            End If
+            RaiseEvent MouseMove
+         ElseIf message = WM_KEYDOWN Then
+            RaiseEvent KeyDown(wParam, GetShiftKeys, GetNewCols())
+            bCancel = TrataTeclaGrid(wParam, GetShiftKeys)
+         ElseIf message = WM_KEYUP Then
+            If vgIgnoreKey = wParam And Not vgIsPreEditing And Not vgHasChanged Then
+               vgIgnoreKey = 0
+            Else
+               RaiseEvent KeyUp(wParam, GetShiftKeys, GetNewCols())
+            End If
+            bCancel = True
+         ElseIf message = WM_CHAR Then
+            If vgIgnoreKey = wParam And Not vgIsPreEditing And Not vgHasChanged Then
+               vgIgnoreKey = 0
+            Else
+               RaiseEvent KeyPress(wParam, GetShiftKeys, GetNewCols())
+            End If
+            bCancel = True
+            wParam = 0                            'vamos ignorar o pressionamento dessa tecla!!!
+         End If
+      
+      '==============================================
+      'tratamento para o user control
+      '==============================================
+      Case UserControl.hWnd
+         
+         If message = WM_NOTIFY Then
+            CopyMemory udtNMHDR, ByVal lParam, LenB(udtNMHDR)
+            If udtNMHDR.hwndFrom = hWndLst Then
+               CopyMemory udtLV_DISPINFO, ByVal lParam, LenB(udtLV_DISPINFO)
+               Select Case udtLV_DISPINFO.hdr.code
+                  Case LVN_ITEMCHANGED
+                     CopyMemory udtNM_LISTVIEW, ByVal lParam, Len(udtNM_LISTVIEW)
+                     If (udtNM_LISTVIEW.uNewState And CDIS_SELECTED) = CDIS_SELECTED Then
+                        vgRow = udtNM_LISTVIEW.iItem
+                        If vgRow <> -1 Then
+                           ClearColumnDefinition
+                        End If
+                     ElseIf udtNM_LISTVIEW.iItem <> -1 Then 'está perdendo a seleção
+                        vgRowEditing = -1
+                     End If
+                  Case LVN_BEGINLABELEDIT
+                     bCancel = True
+               End Select
+            End If
+         ElseIf message = WM_MEASUREITEM Then
+            If vgRowHeight > 0 Then
+               CopyMemory lpmis, ByVal lParam, Len(lpmis)
+               lpmis.itemHeight = (vgRowHeight / vgTpX)
+               CopyMemory ByVal lParam, lpmis, Len(lpmis)
+            End If
+         ElseIf message = WM_MOUSEMOVE Then
+            RaiseEvent MouseMove
+         ElseIf message = WM_DRAWITEM Then
+            DrawItem lParam
+         ElseIf message = WM_MOUSEWHEEL Then
+            j = HiWord(wParam)
+            Scroll 0, -(j / WHEEL_DELTA) * vgTpY
+            PosicionaSelect
+         End If
+   End Select
+End Sub
+
+

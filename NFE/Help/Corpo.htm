@@ -1,0 +1,689 @@
+<html>
+<head>
+<title>Ajuda da aplicação gerada</title>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+</head>
+<body bgcolor="#FFFFFF">
+<p><a name="CriaBD"></a></p>
+<h2><font color="#993300">Criação do banco de dados</font></h2>
+<p> Na primeira vez que esta aplicação é executada, o banco de dados onde as informações 
+  serão armazenadas ainda não existe. Por esta razão, nesta ocasião, será solicitada 
+  a entrada de um diretório onde este banco de dados irá ficar . Uma vez informado 
+  este diretório, esta aplicação cria automaticamente um banco de dados vazio, 
+  pronto para receber os dados a serem manipulados. Quando &eacute; criado este 
+  banco de dados, a aplicação cria também o arquivo de inicialização (.INI), no 
+  qual ela passa a manter gravadas todas as configurações, posições de janelas 
+  e diversas outras informações importantes, no decorrer da opera&ccedil;&atilde;o 
+  do sistema. </p>
+<hr>
+<p><a name="EntraSenha"></a></p>
+<h2><font color="#993300">Entrada de senhas de acesso</font></h2>
+<p> Sempre que uma pessoa tentar executar a aplicação, será solicitada a entrada 
+  de duas informações: nome e senha do usuário. Essas duas informações, em conjunto, 
+  serão utilizadas para verificar se esta pessoa tem permissão para ativá-la e, 
+  em caso positivo, quais são as permissões a ele concedidas na aplicação, dentro 
+  do plano de senhas estabelecido. A tela a seguir mostra um exemplo de como são 
+  solicitadas estas informações: </p>
+<hr>
+<p><a name="ManutSenhas"></a></p>
+<h2><font color="#993300">Manutenção de senhas e permissões</font></h2>
+<p> Qualquer usuário que estiver cadastrado no grupo <b>ADMINISTRAÇÃO</b> poderá 
+  fazer o cadastramento de novos grupos de trabalho, novos usuários e ajustar 
+  permissões de usuários para cada uma das tabelas definidas no sistema.</p>
+<p>&nbsp;</p>
+<h3> Criando um novo grupo de trabalho</h3>
+<p>Para criar novos grupos, a tela a seguir deverá ser utilizada, bastando apertar 
+  o botão de incluir <img src="Bincl.jpg" width="27" height="27">, entrar com 
+  as informações solicitadas e clicar sobre o botão de gravação <img src="Bgrava.jpg" width="27" height="27">.</p>
+<p><img src="MSenha1.jpg" width="380" height="246"></p>
+<p> Uma vez criado um novo grupo de trabalho, deve-se selecionar cada uma das 
+  tabelas da aplicação e designar as permissões que serão concedidas para este 
+  grupo. Posteriormente, os usuários cadastrados dentro deste grupo irão "herdar" 
+  essas permissões. As permissões de acesso disponíveis para cada uma das tabelas 
+  da aplicação são:</p>
+<ul>
+  <li> Visualização</li>
+  <li> Inclusão</li>
+  <li> Modificação</li>
+  <li> Exclusão</li>
+</ul>
+<h3>&nbsp; </h3>
+<h3>Cadastrando um novo usuário em um grupo de trabalho</h3>
+<p>Sempre que um usuário é cadastrado dentro de um grupo de trabalho, ele "herda" 
+  as permissões concedidas ao grupo a que irá pertencer. O cadastramento de novos 
+  usuários dentro de cada um dos grupos é feito pela tela a seguir:</p>
+<p><img src="MSenha2.jpg" width="380" height="246"></p>
+<p> Selecionar primeiramente o grupo em que o novo usuário será cadastrado. Em 
+  seguida, clicar sobre o botão de inclusão <img src="Bincl.jpg" width="27" height="27">, 
+  entrar com as informações solicitadas e clicar sobre o botão de gravação <img src="Bgrava.jpg" width="27" height="27">, 
+  para salvar as informações.</p>
+<h3>&nbsp; </h3>
+<h3>Troca da senha de acesso</h3>
+<p>Qualquer categoria de usuário poderá trocar a sua senha de acesso, através 
+  da tela a seguir: </p>
+<p><img src="MSenha3.jpg" width="380" height="246"></p>
+<hr>
+<p><a name="JanelaInicial"></a></p>
+<h2><font color="#993300">Janela inicial da aplicação</font></h2>
+<p> Após informada a senha, a aplicação é carregada e irá apresentar uma janela 
+  semelhante à que aparece a seguir.</p>
+<p><img src="NFE.BMP" width="578" height="200"></p>
+<p> Toda a operação da aplicação é feita através da barra de ferramentas existente 
+  nesta janela.</p>
+<p> O sistema Emissor de Nota Fiscal Eletronica possui características MDI, ou interface de múltiplos 
+  documentos, significando que todas a demais janelas, com exceção das poucas 
+  janelas modais, ficam sempre contidas na mesma, podendo ser minimizadas, maximizadas 
+  e organizadas. </p>
+<hr>
+<p><a name="BarraMenu"></a></p>
+<h2><font color="#993300">Barra de menu da aplica&ccedil;&atilde;o</font></h2>
+<p>A barra de menu da aplica&ccedil;&atilde;o é a maneira que o usuário dispõe 
+  de acessar todas as suas opções. Sua utilização é padrão conforme os menus do 
+  Windows. Todas as tarefas que o usuário pretenda executar, ele terá acesso através 
+  da barra do menu suspenso, como por exemplo: Acessar o formulário de entrada 
+  de dados de uma determinada tabela, incluir registros nesta tabela, gravar os 
+  registros incluídos, etc.</p>
+<hr>
+<p><a name="BarraFerr"></a></p>
+<h2><font color="#993300">Barra de ferramentas</font></h2>
+<p> A Barra de Ferramentas é uma maneira de acesso rápido a algumas rotinas do 
+  Sistema, que são mais utilizadas pelo usuário. A configuração dispon&iacute;vel 
+  prevê funções consideradas mais utilizadas e que podem também ser acessadas 
+  através do <a href="Corpo.htm#BarraMenu">Menu</a> e que são colocadas apenas 
+  para acelerar o acesso a elas.</p>
+<p>Uma observação sobre a barra de ferramentas é que ela apresentará alguns botões 
+  habilitados e outros desabilitados ao clique do mouse, dependendo da situação 
+  e tipo do formulário que estiver em uso no momento.</p>
+<p> Os seguintes elementos descritos a seguir, compõem a barra de ferramentas:</p>
+<ul>
+  <li> <img src="BOT21.BMP" width="24" height="24"> - botão grava - clique sobre este botão para forçar a gravação 
+    do registro presente na janela ativa;.</li>
+</ul>
+<ul>
+  <li><img src="BOT22.BMP" width="24" height="24"> - botão cancela - este botão, quando clicado, força o cancelamento 
+    do registro presente na tela;</li>
+</ul>
+<ul>
+  <li><img src="BOT23.BMP" width="24" height="24"> - botão inclusão - clique sobre este botão para incluir um 
+    novo registro na tabela ativa;</li>
+</ul>
+<ul>
+  <li><img src="BOT24.BMP" width="24" height="24"> - botão exclusão - clique sobre este botão para apagar o registro 
+    presente na janela ativa;</li>
+</ul>
+<ul>
+  <li><img src="BOT40.BMP" width="24" height="24"> - botão grade - clique sobre este botão para alternar o modo 
+    de visualização da tabela para o formato grade ou tela a tela;</li>
+</ul>
+<ul>
+  <li><img src="BOT29.BMP" width="24" height="24"> - botão gráfico - marque duas ou mais colunas ou em um ou mais 
+    registros (com a tecla CTRL pressionada), e clique sobre este botão para a 
+    aplicação apresentar um gráfico comparativo das colunas ou registros marcados;</li>
+</ul>
+<ul>
+  <li><img src="BOT27.BMP" width="24" height="24"> - botão procura - clique sobre este botão para procurar um 
+    determinado registro na tabela ativa, maiores detalhes consultar no tópico 
+    Procurando um registro;</li>
+</ul>
+<ul>
+  <li><img src="BOT28.BMP" width="24" height="24"> - botão filtragem - clique sobre este botão para visualizar 
+    somente um grupo de registros da tabela corrente. Para maiores detalhe ver 
+    no tópico Filtrando os dados;</li>
+</ul>
+<ul>
+  <li><img src="BOT30.BMP" width="24" height="24"> - botão imprimir - clique sobre este botão para imprimir 
+    a tela do registro corrente no formato tela, ou a grade corrente ou ainda 
+    um gráfico que esteja sendo visualizado no momento;</li>
+</ul>
+<ul>
+  <li><img src="BOT13.BMP" width="24" height="24"> botão consulta - clique sobre este botão para Criar uma 
+    Consultas ou visualizar uma consulta ja existente;</li>
+</ul>
+<ul>
+  <li><img src="BOT15.BMP" width="24" height="24"> - botão informações do BD - clique sobre este botão para obter 
+    informações sobre a estrutura de banco de dados da aplicação;</li>
+</ul>
+<ul>
+  <li><img src="BOT20.BMP" width="24" height="24"> - botão finaliza - clique sobre este botão para finalizar 
+    a aplicação e retornar ao Windows;</li>
+</ul>
+<ul>
+  <li><img src="BOT31.BMP" width="24" height="24"> - botão configura - quando clicado, apresenta a janela de 
+    configuração de tipos de gráficos;</li>
+</ul>
+<ul>
+  <li><img src="BOT34.BMP" width="17" height="12"> - botão primeiro registro - quando clicado, apresenta o 
+    primeiro registro da tabela na janela ativa;</li>
+</ul>
+<ul>
+  <li><img src="BOT35.BMP" width="17" height="12"> - botão registro anterior - move para o registro anterior 
+    ao que esteja sendo apresentado;</li>
+</ul>
+<ul>
+  <li><img src="BOT36.BMP" width="17" height="12"> - botão registro seguinte - move para o registro seguinte 
+    ao que esteja sendo apresentado na janela;</li>
+</ul>
+<ul>
+  <li><img src="BOT37.BMP" width="17" height="12"> - botão último registro - apresenta o último registro da tabela;</li>
+</ul>
+<ul>
+  <li><img src="BOT14.BMP" width="24" height="24"> - botão repara BD - quando clicado, dispara as rotinas de 
+    compactação e reparação do banco de dados;</li>
+</ul>
+<ul>
+  <li><img src="CBOIND.BMP" width="99" height="21"> - combo de &iacute;ndices - serve para estabelecer a ordem 
+    de navegação dentro da tabela ativa;</li>
+</ul>
+<ul>
+  <li><img src="SCRNAV.BMP" width="68" height="11"> - barra de navega&ccedil;&atilde;o - serve para permitir a 
+    navegação na tabela, dentro de um filtro estabelecido;</li>
+</ul>
+<p>&nbsp;</p>
+<hr>
+<p></p>
+<h2><a name="CtrlEdicao"></a></h2>
+<h2><font color="#993300">Teclas de controle de edição</font></h2>
+<p> As teclas listadas na tabela a seguir podem ser utilizadas para acessar algumas 
+  funç&otilde;es disponíveis na janela, independente de onde o cursor esteja posicionado.</p>
+<table width="100%" border="1">
+  <tr bgcolor="#0066FF" bordercolor="#0033CC"> 
+    <td width="14%" bgcolor="#3333FF"><font color="#FFFFFF">Tecla F1</font></td>
+    <td width="86%" bgcolor="#66CCFF"><font color="#000000">Equivale a clicar 
+      duas vezes sobre o bot&atilde;o de ajuda, ou seja, executa a rotina de ajuda 
+      on line da aplicação.</font></td>
+  </tr>
+  <tr bgcolor="#0066FF" bordercolor="#0033CC"> 
+    <td width="14%" bgcolor="#3333FF"><font color="#FFFFFF">Tecla F10</font></td>
+    <td width="86%" bgcolor="#66CCFF"><font color="#000000">Esta tecla pode ser 
+      utilizada para ativar ou desativar o menu</font></td>
+  </tr>
+  <tr bgcolor="#0066FF" bordercolor="#0033CC"> 
+    <td width="14%" bgcolor="#3333FF"><font color="#FFFFFF">ALT+F4</font></td>
+    <td width="86%" bgcolor="#66CCFF"><font color="#000000">Como em qualquer aplicação 
+      Windows, as teclas ALT + F4 (em conjunto) podem ser utilizadas para sair 
+      da aplicação ou fechar o formulário ativo</font></td>
+  </tr>
+  <tr bgcolor="#0066FF" bordercolor="#0033CC"> 
+    <td width="14%" bgcolor="#3333FF"><font color="#FFFFFF">ALT</font></td>
+    <td width="86%" bgcolor="#66CCFF"><font color="#000000">Para acessar as opções 
+      do menu sem a utilização de mouse, pressione ALT (mantenha pressionado) 
+      e tecle a letra sublinhada da opção</font></td>
+  </tr>
+  <tr bgcolor="#0066FF" bordercolor="#0033CC"> 
+    <td width="14%" bgcolor="#3333FF"><font color="#FFFFFF">TAB</font></td>
+    <td width="86%" bgcolor="#66CCFF"><font color="#000000">Serve para navegar 
+      entre os ícones na barra de ferramentas ou campos da janela de entrada de 
+      dados</font></td>
+  </tr>
+  <tr bgcolor="#0066FF" bordercolor="#0033CC"> 
+    <td width="14%" bgcolor="#3333FF"><font color="#FFFFFF">SETAS</font></td>
+    <td width="86%" bgcolor="#66CCFF"><font color="#000000">As teclas de setas 
+      podem ser utilizadas para movimentar-se entre as opções do menu suspenso 
+      e/ou seus ítens</font></td>
+  </tr>
+  <tr bgcolor="#0066FF" bordercolor="#0033CC"> 
+    <td width="14%" bgcolor="#3333FF"><font color="#FFFFFF">ENTER</font></td>
+    <td width="86%" bgcolor="#66CCFF"><font color="#000000">Uma vez selecionada 
+      uma opção do menu ou um bot&atilde;o da janela ativa, a tecla ENTER pode 
+      ser utilizada para executá-la</font></td>
+  </tr>
+</table>
+<p>Durante o processo de digitação (inclusão ou modificação) de registros, existem 
+  teclas com funções especiais para a edição do campo que se está sendo digitado.</p>
+<p> A tabela a seguir mostra algumas delas:</p>
+<h3>&nbsp; </h3>
+<h3>Teclas de edição</h3>
+<table width="100%" border="1">
+  <tr bordercolor="#0000CC" bgcolor="#3333FF"> 
+    <td width="23%" bgcolor="#3333FF"> 
+      <h4><font color="#FFFFFF">TECLA</font></h4>
+    </td>
+    <td width="77%"> 
+      <h4><font color="#FFFFFF">FUN&Ccedil;&Atilde;O QUE DESEMPENHA</font></h4>
+    </td>
+  </tr>
+  <tr bordercolor="#0000CC"> 
+    <td width="23%" bgcolor="#3333FF"><font color="#FFFFFF">Seta Esquerda</font></td>
+    <td width="77%" bgcolor="#66CCFF">Move o cursor uma posição para a esquerda</td>
+  </tr>
+  <tr bordercolor="#0000CC"> 
+    <td width="23%" bgcolor="#3333FF"><font color="#FFFFFF">Seta Direita</font></td>
+    <td width="77%" bgcolor="#66CCFF">Move o cursor uma posição para a direita</td>
+  </tr>
+  <tr bordercolor="#0000CC"> 
+    <td width="23%" bgcolor="#3333FF"><font color="#FFFFFF">HOME</font></td>
+    <td width="77%" bgcolor="#66CCFF">Move o cursor para o início do campo em 
+      edição</td>
+  </tr>
+  <tr bordercolor="#0000CC"> 
+    <td width="23%" bgcolor="#3333FF"><font color="#FFFFFF">END</font></td>
+    <td width="77%" bgcolor="#66CCFF">Move o cursor para o último caracter digitado 
+      no campo em edição</td>
+  </tr>
+  <tr bordercolor="#0000CC"> 
+    <td width="23%" bgcolor="#3333FF"><font color="#FFFFFF">BACKSPACE</font></td>
+    <td width="77%" bgcolor="#66CCFF">Apaga o caracter à esquerda do cursor</td>
+  </tr>
+  <tr bordercolor="#0000CC"> 
+    <td width="23%" bgcolor="#3333FF"><font color="#FFFFFF">DEL</font></td>
+    <td width="77%" bgcolor="#66CCFF">Apaga o caracter à direita do cursor</td>
+  </tr>
+  <tr bordercolor="#0000CC"> 
+    <td width="23%" bgcolor="#3333FF"><font color="#FFFFFF">ENTER</font></td>
+    <td width="77%" bgcolor="#66CCFF">Aceita o conteúdo digitado no campo</td>
+  </tr>
+  <tr bordercolor="#0000CC"> 
+    <td width="23%" bgcolor="#3333FF"><font color="#FFFFFF">SHIFT + Seta Direita</font></td>
+    <td width="77%" bgcolor="#66CCFF">Seleciona uma parte do conteúdo digitado 
+      no campo para substitui-la por uma nova entrada de teclado</td>
+  </tr>
+  <tr bordercolor="#0000CC"> 
+    <td width="23%" bgcolor="#3333FF"><font color="#FFFFFF">TAB</font></td>
+    <td width="77%" bgcolor="#66CCFF">Passa para o campo seguinte</td>
+  </tr>
+</table>
+<p>&nbsp;</p>
+<hr>
+<h2><a name="Inclui"></a></h2>
+<h2><font color="#993300">Incluindo registros</font></h2>
+<p> Para incluir um novo registro em uma tabela qualquer, primeiramente é necessário 
+  que você abra o formulário específico da tabela. Isto pode ser feito através 
+  da barra do menu. Posicione o ponteiro do mouse sobre a opção "Arquivo", selecione 
+  o item correspondente ao formulário desejado e clique com o mouse.</p>
+<h4>Passo 1</h4>
+<p>A janela de dados correspondente será apresentada. Para inserir um novo registro 
+  siga um dos procedimentos abaixo: </p>
+<ul>
+  <li>clique sobre o ícone <img src="BOT23.BMP" width="24" height="24"> (incluir) ou;<br>
+  </li>
+  <li> pressione <b>CTRL + I</b> ;</li>
+  <li>ou, clique sobre a opção Editar do menu, acesse o item Incluir e clique 
+    sobre o mesmo. </li>
+</ul>
+<p>&nbsp;</p>
+<p><b>Passo 2</b></p>
+<p>Digite as informações solicitadas utilizando as teclas disponíveis para edição 
+  e inclusão de registros.</p>
+<p>&nbsp;</p>
+<p><b>Passo 3</b></p>
+<p> Após digitados os dados, é necessário gravar o registro no banco de dados 
+  para que o sistema possibilite a digitação de um próximo registro a ser incluído. 
+  Isto dever ser feito da seguinte forma:</p>
+<ul>
+  <li>clique sobre o ícone <img src="BOT21.BMP" width="24" height="24"> (gravar) ou;<br></li>
+  <li> pressione <b>CTRL + S</b></li>
+  <li> ou, clique sobre a opção <b>Editar</b></li>
+</ul>
+<p>&nbsp;</p>
+<hr>
+<p><a name="Altera"></a></p>
+<h2><font color="#993300">Alterando e excluindo registros</font></h2>
+<h3>&nbsp; </h3>
+<h3>Alterando Registros</h3>
+<p> Para alterar um registro em uma tabela qualquer, primeiramente é necessário 
+  que você abra a janela da tabela que deseja alterar. Isto pode ser feito através 
+  do menu, selecionando-se a op&ccedil;&atilde;o correspondente ao formulário.</p>
+<p> A janela de dados correspondente será apresentada. Para alterar qualquer campo 
+  do formulário basta posicionar o ponteiro do mouse sobre o campo e clicá-lo. 
+  Neste momento o campo fica disponível para qualquer alteração.</p>
+<p> A partir do campo que está sendo digitado, pode-se utilizar as teclas ENTER 
+  ou TAB para deslocar o foco para os campos seguintes do formulário.</p>
+<p> Após efetuadas as alterações, deve-se pressionar 
+  o botão <img src="BOT21.BMP" width="24" height="24">, 
+ as teclas <b>CTRL + S</b> ou, clicar sobre a opção Editar do menu, acessar o item Gravar e clicar sobre o 
+  mesmo para efetivar a alteração do registro.</p>
+<p> Quando da alteração de qualquer dado, provavelmente você terá a necessidade 
+  de procurar um determinado registro, ou até mesmo um grupo de registros para 
+  que possa promover as alterações desejadas, neste caso consulte os tópicos Filtrando 
+  informa&ccedil;&otilde;es e Procurando um registro respectivamente.</p>
+<p>&nbsp;</p>
+<h3> Excluindo Registros</h3>
+<p> Para excluir um registro na tela, localize o registro que deseja excluir e 
+  proceda da seguinte maneira:</p>
+<ul>
+  <li>clique sobre o botão <img src="BOT24.BMP" width="24" height="24"> ou<br>
+  <li>pressione CTRL+E para executar a mesma tarefa, ou ainda;</li>
+  <li> selecione Editar/Excluir a partir do menu.</li>
+</ul>
+<p>&nbsp;</p>
+<hr>
+<p><a name="Filtra"></a></p>
+<h2><font color="#993300">Filtrando informa&ccedil;&otilde;es</font></h2>
+<p> O recurso de filtragem é bastante útil quando você deseja visualizar somente 
+  um grupo de determinados registros, para ter acesso a caixa de diálogo que permite 
+  o filtro.</p>
+<p> Você deve clicar no ícone <img src="BOT28.BMP" width="24" height="24">.</p>
+<p>A seguinte janela será apresentada:</p>
+<p><img src="Filtra.jpg"></p>
+<p>Para selecionar os registros que se deseja visualizar, seguir os seguintes 
+  passos:</p>
+<ul>
+  <li>Selecionar o nome do campo que será filtrado na lista disponível em "Nome 
+    do Campo".</li>
+  <li>Selecionar o operador de comparação que será utilizado, sendo eles: 
+    <ul>
+      <li>&gt; maior que</li>
+      <li>&lt; menor que</li>
+      <li> = igual</li>
+      <li>&lt;&gt; diferente de</li>
+      <li>&gt;= maior ou igual a</li>
+      <li>&lt;= menor ou igual a</li>
+      <li> LIKE, com possibilidade do usuário informar uma caracteres coringa 
+        para seleção.</li>
+    </ul>
+  </li>
+  <li>Informar no campo valor que será comparado com o campo informado, no caso 
+    do operador utilizado ser o LIKE, informe o campo valor com caracteres curinga, 
+    caso seja necessário.</li>
+  <li>Se for necessário você pode usar o botão <b>Concatena</b> e clicar na seleção 
+    <b>E..</b> <b>OU...</b> para fazer comparaçoes do tipo: 
+    <p> <b>Funcionários do Departamento de Compras "E" que sejam do sexo masculino</b></p>
+    <p><b> Funcionarios solteiros "OU" que possuam menos de 21 anos... </b></p>
+  </li>
+  <li>Após informado os parâmetros do filtro, basta clicar no botão de confirmação.</li>
+</ul>
+<p>O campo com o nome "Expressão que define o critério de seleção" é simplesmente 
+  demonstrativa e mostra como está sendo montada a expressão SQL que irá possibilitar 
+  a seleção dos registros.</p>
+<p>&nbsp;</p>
+<hr>
+<p><a name="Ordem"></a></p>
+<h2><font color="#993300">Determinando a ordem de navegação nos registros</font></h2>
+<p> A ordem de apresentação de registros dentro de uma tabela é determinada pelo 
+  índice que a ela esteja associado no momento. O controle <img src="CBOIND.BMP" width="99" height="21">, existente 
+  na barra de ferramentas, contém a lista de índices possíveis para seleção e 
+  associação com a tabela que está sendo visualizada. É possível ainda, visualizar 
+  os registros na mesma ordem em que foram digitados na tabela, bastando para 
+  isto selecionar <b>Nenhum</b>, a partir da lista. </p>
+<hr>
+<p><a name="Navegando"></a></p>
+<h2><font color="#993300">Navegando nos registros de uma tabela</font></h2>
+<p> A navegação sequencial de registros dentro do banco de dados da aplicação 
+  Emissor de Nota Fiscal Eletronica pode ser feita através de um dos recursos abaixo, inerentes 
+  a cada uma das opções:</p>
+<h3>&nbsp; </h3>
+<h3>Registro seguinte</h3>
+<ul>
+  <li>pressione o botão <img src="BOT36.BMP" width="17" height="12">;<br>
+  <li>pressione F7;</li>
+  <li>acesse a opção Editar do menu e clique no item Seguinte;</li>
+  <li>acesse a opção Editar do menu (ALT+E) e pressione S;<br></li>
+  <li>se a visualização de registros estiver sendo feita em grade, clique sobre 
+    a linha seguinte da grade.</li>
+</ul>
+<h3>&nbsp;</h3>
+<h3>Registro anterior</h3>
+<ul>
+  <li>pressione o botão <img src="BOT35.BMP" width="17" height="12">;<br>
+  <li>pressione F6;</li>
+  <li>acesse a opção Editar do menu e clique no item Anterior;</li>
+  <li>acesse a opção Editar do menu (ALT+E) e pressione A;<br>
+  <li>se a visualização de registros estiver sendo feita em grade, clique sobre 
+    a linha anterior da grade.</li>
+</ul>
+<h3>&nbsp; </h3>
+<h3>Primeiro registro</h3>
+<ul>
+  <li>clique sobre o botão <img src="BOT34.BMP" width="17" height="12">;<br>
+  <li>pressione F5;</li>
+  <li>acesse a opção Editar do menu e clique no item Primeiro;</li>
+  <li>acesse a opção Editar do menu (ALT+E) e pressione O.</li>
+</ul>
+<p>&nbsp; </p>
+<h3>Último registro</h3>
+<ul>
+  <li>clique sobre o botão <img src="BOT37.BMP" width="17" height="12">;<br>
+  <li>pressione F8;</li>
+  <li>acesse a opção Editar do menu e clique no item Último;</li>
+  <li>acesse a opção Editar do menu (ALT+E) e pressione U.</li>
+</ul>
+<p> O deslocamento nos registros obdecerá a ordenação de acordo com o índice selecionado.</p>
+<h3>&nbsp; </h3>
+<h3>Navegação dentro do filtro</h3>
+<p> Além da navegação sequencial dentro de uma ordem específica, pode-se ainda 
+  estabelecer um filtro ou critério de seleção de registros e navegar somente 
+  nos registros que o atendam. Isto é possível através do controle <img src="SCRNAV.BMP" width="68" height="11"> 
+  existente na barra de ferramentas. Clicando-se nas setas, a navegação é feita 
+  registro a registro enquanto um clique nos intervalos abrange 1/10 do total 
+  de registros que estejam dentro do critério. Outra maneira de se posicionar 
+  no filtro é arrastando o marcador percentual para a posição desejada. Este tipo 
+  de navegação é totalmente independente da navegação sequencial, não estando 
+  necessariamente sincronizados. Esta possibilidade estará habilitada somente 
+  se um filtro for previamente definido.</p>
+<p>&nbsp; </p>
+<hr>
+<p></p>
+<p></p>
+<h2><a name="ModosVis"></a></h2>
+<h2><font color="#993300">Modos de visualiza&ccedil;&atilde;o</font></h2>
+<p> Podemos visualizar os registros de uma tabela na forma de tela (um registro 
+  por vez); ou no formato grade, ou seja, vários registros podem ser visualizados 
+  de uma só vez.</p>
+<p> Para alternar entre as duas formas clique sobre o botão <img src="BOT40.BMP" width="24" height="24">. Este 
+  botão pode ter o seu ícone alterado de acordo com o tipo de visualização que 
+  pode ser selecionado.</p>
+<p> Para alternar entre as duas formas selecione a opção de menu correspondente.</p>
+<hr>
+<p></p>
+<p><a name="Procura"></a></p>
+<h2><font color="#993300">Procurando um registro</font></h2>
+<p> Para localizar um registro qualquer dentro da tabela, basta:</p>
+<ul>
+  <li>clicar no bot&atilde;o <img src="BOT27.BMP" width="24" height="24">, ou<br>
+  <li>acessar atrav&eacute;s do menu a opção <b>Editar/Procurar</b>, ou ainda, 
+    teclar <b>CTRL+P</b>.</li>
+</ul>
+<p> A seguinte janela será será apresentada:</p>
+<p><img src="Procura.jpg" width="298" height="187"></p>
+<p>O usuário deve selecionar o indice dentre aqueles listados na janela acima. 
+  No exemplo, foi selecionado o campo <b>Código</b>. O usuário deverá então clicar 
+  sobre um dos operadores (<b>&gt;, &lt;, =, &gt;= </b>e<b> &lt;=</b>) e finalmente informar 
+  no campo <b>Conteúdo a pesquisar</b> o valor a ser localizado no campo.</p>
+<p> Clicar então sobre o botão de confirmação para iniciar a pesquisa.</p>
+<p>&nbsp;</p>
+<hr>
+<p></p>
+<h2><a name="MontaCons"></a></h2>
+<h2><font color="#993300">Montagem de consultas</font></h2>
+<p> Uma consulta é uma forma de visualizar registros de diversos arquivos de uma 
+  só vez, podendo ser estabelecido um filtro e/ou uma ordem especial. Após prepararmos 
+  uma determinada consulta podemos gravá-la para posterior visualização. Assim, 
+  vamos ver como operar com consultas:</p>
+<p> Para acessar consultas podemos fazer de uma das seguintes formas:</p>
+<ul>
+  <li>clicar sobre o botão <img src="BOT13.BMP" width="24" height="24"> caso esteja disponível; ou<br>
+  <li> acessar a opção <b>Arquivo</b> do menu e clicar sobre o item <b>Consultas</b> 
+    ou</li>
+  <li>através do teclado pressionar ALT+A e C</li>
+</ul>
+<p>A janela seguinte aparecerá:</p>
+<p><img src="MenuCo.jpg"></p>
+<p>&nbsp;</p>
+<h3>Eliminando uma consulta já gravada</h3>
+<p> Para eliminar uma consulta já gravada, retirando-a da lista, basta selecionar 
+  a consulta desejada e clicar sobre o botão <img src="Bapagaco.jpg" width="30" height="30">.</p>
+<p>&nbsp; </p>
+<h3>Visualizando uma consulta já existente</h3>
+<p> Podemos selecioná-la e clicar sobre o primeiro botão. Uma vez, visualizando 
+  consulta podemos:</p>
+<ul>
+  <li>estabelecer condição de seleção e pesquisa de registros (veja tópico filtrando 
+    os dados);<br>
+  <li>selecionar colunas e construir um gráfico a partir de dados das colunas 
+    selecionadas;</li>
+  <li>imprimir os dados da consulta.</li>
+</ul>
+<p> Durante a visualização da consulta você pode utilizar o botão direito do mouse 
+  para ter acesso a um menu &quot;popup" que possibilita as seguintes operaç&otilde;es:</p>
+<ul>
+  <li>apagar um coluna selecionada para que a mesma não seja visível na consulta;</li>
+  <li> filtrar os dados visualizados criando um novo conjunto de registros a serem 
+    visualizados;</li>
+  <li>grafar, ou seja , traçar um gráfico das colunas selecionadas;</li>
+  <li>imprimir a consulta em visualização;</li>
+  <li>procurar para se posicionar num determinado registro da consulta;</li>
+  <li>remontar Grade, ou seja, reconstruir a consulta com o seu formato original;</li>
+  <li> totalizar um coluna numérica.</li>
+</ul>
+<p>&nbsp; </p>
+<h3>Criando uma nova consulta</h3>
+<p> Clique sobre o botão <img src="BcriaCo.jpg" width="28" height="29"> 
+  e a seguinte tela aparecerá:</p>
+<p><img src="MontaCo.jpg"></p>
+<p> Os campos acima, devem ser preenchidos conforme os seguintes critérios.</p>
+<h4>&nbsp; </h4>
+<h4>Nome da Consulta</h4>
+<p> Informe o nome pelo qual esta consulta será identificada na relação de consultas 
+  gravadas;</p>
+<h4>&nbsp; </h4>
+<h4>Campos a serem apresentados</h4>
+<ul>
+  <li>clique sobre um dos nomes de tabelas apresentados na janela "Tabelas", e 
+    seus campos serão apresentados na janela "Campos a Mostrar";</li>
+  <li>escolha um ou mais campos que você deseja que sejam mostrados na consulta</li>
+  <li>repita os dois passos anteriores a este, para escolher campos de outras 
+    tabelas.</li>
+</ul>
+<h4>&nbsp; </h4>
+<h4>Agrupar por</h4>
+<p> Podemos utilizar o recurso "Agrupar por" para criar um registro de resumo 
+  para cada grupo definido. Por exemplo, se você agrupar os registros de um arquivo 
+  contendo as "saidas de produtos" por código do produto, será mostrado apenas 
+  um registro para cada produto, contendo a totalização de todas as suas saidas.</p>
+<h4>&nbsp; </h4>
+<h4>Ordenação</h4>
+<p> Para especificar a ordenação da consulta siga os passos abaixo:</p>
+<ul>
+  <li>clique na seta para baixo, da caixa de listagem apresentada no item "Ordenação", 
+    e os campos disponíveis para ordenação serão mostrados;</li>
+  <li>escolha um dos campos clicando sobre o mesmo com o ponteiro do mouse;</li>
+  <li>clique sobre o botão "Ascendente" para que a ordenação seja crescente, ou 
+    clique sobre o botão "Descendente" caso contrário.</li>
+</ul>
+<p> Repita os três passos acima para selecionar quantos campos achar necessário. 
+  Para retirar um campo da ordenação siga os dois primeiros passos e seu nome 
+  será retirado da ordenação.</p>
+<h4>&nbsp; </h4>
+<h4>Os Primeiros</h4>
+<p> Pode-se especificar que sejam mostrados somente os primeiros "N" registros 
+  retornados por uma consulta, para tanto, siga os passos abaixo:</p>
+<ul>
+  <li>clique na janela "Os primeiros";</li>
+  <li> digite o número desejado;</li>
+  <li> o número digitado poderá ser tratado como: 
+    <ol>
+      <li>quantidade absoluta de registros. Nesse caso, selecione "registros" 
+        ou </li>
+      <li>em percentual sobre a quantidade total de registros recuperados. Selecione 
+        então, a opção "Porcento".</li>
+    </ol>
+  </li>
+</ul>
+<p>&nbsp; </p>
+<h4>Seleção de registros/união de tabelas</h4>
+<p> Você pode selecionar uma das opções Criar Filtragem ou Unir Tabelas que serão 
+  habilitados para digitaçao de outras informações:</p>
+<ul>
+  <li>nome do campo</li>
+  <li>operadores</li>
+  <li>valor
+    <h5>Criar Filtragem</h5>
+  </li>
+</ul>
+<blockquote> 
+  <p>Serve para que você possa selecionar um grupo ou conjunto de registros que 
+    você deseja visualizar, neste caso verificar tópico filtrando os dados.</p>
+  <h5>Unir Tabelas</h5>
+  <p> Deve ser utilizada sempre que você deseja comparar campos de duas tabelas, 
+    neste caso o campo "valor" será transformado em um caixa de listagem onde 
+    você poderá escolher qual campo de qual tabela será comparado.</p>
+</blockquote>
+<p> Se desejar recomeçar integralmente o estabelecimento do critério de seleção, 
+  clicar no botão de cancelamento.</p>
+<p> As informações que vão sendo mostradas na janela de criação de consultas são 
+  instruções de uma linguagem denominada <b>SQL</b>, sobre a qual o usuário não 
+  necessita em absoluto de ter conhecimento prévio, contendo diversos termos que 
+  podem ser consultados no glossário, caso seja desejado. O sistema <b>EMISSOR DE NOTA FISCAL ELETRONICA</b> 
+  monta automaticamente esta expressão e a mostra apenas para servir de referência 
+  para o usuário saber quais tabelas e campos já selecionou para participar da 
+  consulta, bem como as ordenações e filtragens que tenha feito.</p>
+<p> O botão <b>Concatena</b> pode ser utilizado para efetuar comparações com os 
+  conectores "E" / "OU". Para salvar a consulta, após terminado de informar os 
+  dados necessários, clique sobre o botão <img src="Bgrava.jpg" width="27" height="27"> 
+  e, finalmente, o botão <img src="Blimpa.jpg" width="29" height="29"> 
+  limpa todas as informações já digitadas, permitindo que uma nova consulta seja 
+  elaborada.</p>
+<hr>
+<p><a name="Grafico"></a></p>
+<h2><font color="#993300">Trabalhando com gráficos</font></h2>
+<p> Durante a visualização de uma consulta ou trabalhando no formato grade, você 
+  pode selecionar colunas desta grade e traçar gráficos para serem visualizados, 
+  impressos ou gravados em disco, para posterior uso em outras aplicações.</p>
+<p>Vamos utilizar como exemplo a seguinte consulta, que será a visão que você 
+  terá em suas próprias telas de consulta:</p>
+<p><img src="GRAFICO1.JPG"></p>
+<p>Para traçar por exemplo, um gráfico do preço de custo versus o preço indexado, 
+  você deve fazer o seguinte:</p>
+<ol>
+  <li>selecione a coluna "Código", clicando com o mouse sobre área do título da 
+    coluna;</li>
+  <li>clique em seguida com o botão direito do mouse para ter acesso ao menu &quot;popup&quot; 
+    e escolha a opção "Apagar colunas". Note que a coluna foi apagada da sua consulta 
+    (na verdade ela existe mas deixou de ser visível para você).</li>
+  <li>selecione as colunas "Descrição", "Preço de custo" e "Preço indexado" segurando 
+    o mouse na região do título da coluna "Descrição" e arrastando-o para até 
+    a coluna "Preco indexado".</li>
+</ol>
+<p> Sua consulta deverá ficar parecida com a seguinte tela:</p>
+<p><img src="GRAFICO2.JPG"></p>
+<p> Após selecionadas as colunas clique sobre o botão <img src="BOT29.BMP" width="24" height="24">, 
+  ou clique o botão direito do mouse para acessar o menu &quot;popup" clique 
+  sobre a opção "Grafar". Um gráfico como o que segue deverá ser apresentado:</p>
+<p><img src="GRAFICO3.JPG"></p>
+<h3>&nbsp; </h3>
+<h3>Alterando a forma de visualização do Gráfico</h3>
+<p> Com o mouse posicionado em qualquer região do gráfico, clique com o botão 
+  direito, que será apresentada a tela a seguir, na qual você poderá alterar a 
+  forma de visualizar o seu gráfico.</p>
+<p><img src="GRAFICO4.JPG"></p>
+<p> Altere todos os dados que achar conveniente, como por exemplo o "tipo do gráfico" 
+  (no campo"Tipo do Gráfico"), altere o título do gráfico e o que mais se fizer 
+  necessário. Ao retornar, após confirmação, o gráfico mostrado assumirá as características 
+  aqui configuradas. </p>
+<hr>
+<p><a name="Repara"></a></p>
+<h2><font color="#993300">Reparação do banco de dados</font></h2>
+<p> Para chamar a rotina de reparação do banco de dados proceder conforme segue:</p>
+<ul>
+  <li>clique sobre o ícone <img src="BOT14.BMP" width="24" height="24"> ou<br>
+  <li>selecione Arquivo/Repara BD</li>
+</ul>
+<p> Esta operação deverá ser efetuada com todas as janelas de dados fechadas, 
+  ou seja, não deve está sendo acessado no momento nenhuma tabela da aplicação.</p>
+<p> No caso do sistema estar rodando em ambiente multi-usuário, nenhum usuário 
+  deverá estar acessando o banco de dados no momento da execução desta rotina.</p>
+<p> Esta rotina irá tentar reparar o banco de dados de qualquer possível corrupção 
+  causada por uma gravação incompleta. Isto pode ocorrer quando a aplicação é 
+  fechada inesperadamente por falta de energia ou problemas no seu computador.</p>
+<p> A rotina de reparação tenta também validar todas as tabelas e índices do sistema. 
+  Qualquer dado que não possa ser reparado será eliminado do banco de dados.</p>
+<p> Como você está percebendo, esta operação é muito delicada e algumas vezes 
+  pode ser problemático o seu uso, dependendo da gravidade do problema no banco 
+  de dados. O ideal, é você ter sempre atualizado um backup dos seus dados, para 
+  o caso da rotina de reparação não conseguir executar perfeitamente a reparação 
+  do banco de dados.</p>
+<hr>
+<h2><a name="InfoBD"></a></h2>
+<h2><font color="#993300">Obtendo informações sobre o banco de dados</font></h2>
+<p> A estrutura do banco de dados desta aplicação pode ser vista selecionando-se 
+  a opção Informações a partir do menu ou ainda, pressionando-se o botão <img src="BOT15.BMP" width="24" height="24"> 
+  . 
+Uma janela é apresentada com todas as informações sobre tabelas, campos, índices 
+  e consultas definidas. Selecione uma tabela para visualizar seus atributos, 
+  ou, selecione uma consulta para visualizar a expressão SQL que a define. Se 
+  desejar, clique no botão de imprimir existente na barra de ferramentas e passe 
+  todas as informações para o papel.</p>
+<hr>
+</body>
+</html>
+

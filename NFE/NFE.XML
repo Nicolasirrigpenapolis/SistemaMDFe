@@ -1,0 +1,483 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<PROJETO>
+   <BANCO NOME="DADOSNFE">
+      <TABELA NOME="Carta de correção nfe">
+         <CAMPO NOME="Sequencia da correção" TIPO="Numerico" TAMANHO="6" MASCARA="999999" DEFAULT="0"/>
+         <CAMPO NOME="Sequencia da nota fiscal" TIPO="Numerico" TAMANHO="6" MASCARA="999999" DEFAULT="0"/>
+         <CAMPO NOME="Numero da correção" TIPO="Numerico" TAMANHO="2" MASCARA="99" DEFAULT="0"/>
+         <CAMPO NOME="Justificativa cce" TIPO="Memo" TAMANHO="0" DEFAULT="''"/>
+         <CAMPO NOME="Data correção" TIPO="Data" TAMANHO="10" MASCARA="99/99/9999" NULO="1"/>
+   <INDICE NOME="Sequencia da correção" TIPO="1" CLUSTERIZADO="1" FILLFACTOR=" 90 ">
+            <CAMPO NOME="Sequencia da correção"/>
+            <CAMPO NOME="Sequencia da nota fiscal"/>
+   </INDICE>
+   <INDICE NOME="SeqCorrecao" TIPO="2" FILLFACTOR=" 90 ">
+            <CAMPO NOME="Sequencia da nota fiscal"/>
+            <CAMPO NOME="Numero da correção"/>
+   </INDICE>
+      </TABELA>
+      <TABELA NOME="Classificação fiscal">
+         <CAMPO NOME="Sequencia da classificação" TIPO="Numerico" TAMANHO="5" MASCARA="99999" DEFAULT="0"/>
+         <CAMPO NOME="Ncm" TIPO="Numerico" TAMANHO="8" MASCARA="99999999" DEFAULT="0"/>
+         <CAMPO NOME="Descrição do ncm" TIPO="Texto" TAMANHO="80" MASCARA="@x" DEFAULT="''"/>
+         <CAMPO NOME="Percentual de ipi" TIPO="Numerico" TAMANHO="8" DECIMAL="4" MASCARA="999,9999" DEFAULT="0"/>
+         <CAMPO NOME="Produto diferido" TIPO="Logico" TAMANHO="1" DEFAULT="0"/>
+         <CAMPO NOME="Iva" TIPO="Numerico" TAMANHO="7" DECIMAL="4" MASCARA="99,9999" DEFAULT="0"/>
+         <CAMPO NOME="Cest" TIPO="Texto" TAMANHO="7" MASCARA="@!" DEFAULT="''"/>
+         <CAMPO NOME="Inativo" TIPO="Logico" TAMANHO="1" DEFAULT="0"/>
+   <INDICE NOME="Sequencia da classificação" TIPO="1" CLUSTERIZADO="1" FILLFACTOR=" 90 ">
+            <CAMPO NOME="Sequencia da classificação"/>
+   </INDICE>
+      </TABELA>
+      <TABELA NOME="Codutores">
+         <CAMPO NOME="Sequencia do manifesto" TIPO="Numerico" TAMANHO="6" MASCARA="999999" DEFAULT="0"/>
+         <CAMPO NOME="Nome condutor" TIPO="Texto" TAMANHO="60" MASCARA="@x" DEFAULT="''"/>
+         <CAMPO NOME="Cpf condutor" TIPO="Texto" TAMANHO="14" MASCARA="999.999.999-99" DEFAULT="''"/>
+   <INDICE NOME="Seq_Condutor" TIPO="1" CLUSTERIZADO="1" FILLFACTOR=" 90 ">
+            <CAMPO NOME="Sequencia do manifesto"/>
+            <CAMPO NOME="Nome condutor"/>
+   </INDICE>
+      </TABELA>
+      <TABELA NOME="Cte da carga">
+         <CAMPO NOME="Sequencia descarrega cte" TIPO="Numerico" TAMANHO="6" MASCARA="999999" DEFAULT="0"/>
+         <CAMPO NOME="Sequencia do manifesto" TIPO="Numerico" TAMANHO="6" MASCARA="999999" DEFAULT="0"/>
+         <CAMPO NOME="Chave do cte" TIPO="Texto" TAMANHO="44" MASCARA="@x" DEFAULT="''"/>
+         <CAMPO NOME="Descrição do municipio" TIPO="Texto" TAMANHO="80" MASCARA="@x" DEFAULT="''"/>
+         <CAMPO NOME="Valor total" TIPO="Numerico" TAMANHO="12" DECIMAL="2" MASCARA="999.999.999,99" DEFAULT="0"/>
+         <CAMPO NOME="Peso bruto" TIPO="Numerico" TAMANHO="11" DECIMAL="4" MASCARA="999.999,9999" DEFAULT="0"/>
+   <INDICE NOME="SeqMan_CTe" TIPO="1" CLUSTERIZADO="1" FILLFACTOR=" 90 ">
+            <CAMPO NOME="Sequencia descarrega cte"/>
+            <CAMPO NOME="Sequencia do manifesto"/>
+   </INDICE>
+      </TABELA>
+      <TABELA NOME="Descarregamento cte">
+         <CAMPO NOME="Sequencia descarregamento cte" TIPO="Numerico" TAMANHO="6" MASCARA="999999" DEFAULT="0"/>
+         <CAMPO NOME="Sequencia do manifesto" TIPO="Numerico" TAMANHO="6" MASCARA="999999" DEFAULT="0"/>
+         <CAMPO NOME="Codigo do ibge" TIPO="Numerico" TAMANHO="7" MASCARA="9999999" DEFAULT="0"/>
+         <CAMPO NOME="Descrição do municipio" TIPO="Texto" TAMANHO="80" MASCARA="@x" DEFAULT="''"/>
+   <INDICE NOME="Sequencia descarregamento cte" TIPO="1" CLUSTERIZADO="1" FILLFACTOR=" 90 ">
+            <CAMPO NOME="Sequencia descarregamento cte"/>
+            <CAMPO NOME="Sequencia do manifesto"/>
+   </INDICE>
+      </TABELA>
+      <TABELA NOME="Descarregamento nfe">
+         <CAMPO NOME="Sequencia descarrega" TIPO="Numerico" TAMANHO="6" MASCARA="999999" DEFAULT="0"/>
+         <CAMPO NOME="Sequencia do manifesto" TIPO="Numerico" TAMANHO="6" MASCARA="999999" DEFAULT="0"/>
+         <CAMPO NOME="Codigo do ibge" TIPO="Numerico" TAMANHO="7" MASCARA="9999999" DEFAULT="0"/>
+         <CAMPO NOME="Descrição do municipio" TIPO="Texto" TAMANHO="80" MASCARA="@x" DEFAULT="''"/>
+   <INDICE NOME="Sequencia descarrega" TIPO="1" CLUSTERIZADO="1" FILLFACTOR=" 90 ">
+            <CAMPO NOME="Sequencia descarrega"/>
+            <CAMPO NOME="Sequencia do manifesto"/>
+   </INDICE>
+      </TABELA>
+      <TABELA NOME="Emitentes mdfe">
+         <CAMPO NOME="Sequencia do emitente" TIPO="Numerico" TAMANHO="5" MASCARA="99999" DEFAULT="0"/>
+         <CAMPO NOME="Cnpj" TIPO="Texto" TAMANHO="18" MASCARA="99.999.999/9999-99" DEFAULT="''"/>
+         <CAMPO NOME="Ie" TIPO="Texto" TAMANHO="20" MASCARA="@x" DEFAULT="''"/>
+         <CAMPO NOME="Razão social" TIPO="Texto" TAMANHO="60" MASCARA="@x" DEFAULT="''"/>
+         <CAMPO NOME="Nome fantasia" TIPO="Texto" TAMANHO="60" MASCARA="@x" DEFAULT="''"/>
+         <CAMPO NOME="Logradouro" TIPO="Texto" TAMANHO="80" MASCARA="@x" DEFAULT="''"/>
+         <CAMPO NOME="Nro" TIPO="Texto" TAMANHO="8" MASCARA="@x" DEFAULT="''"/>
+         <CAMPO NOME="Complemento" TIPO="Texto" TAMANHO="30" MASCARA="@x" DEFAULT="''"/>
+         <CAMPO NOME="Bairro" TIPO="Texto" TAMANHO="60" MASCARA="@x" DEFAULT="''"/>
+         <CAMPO NOME="Codigo do ibge" TIPO="Numerico" TAMANHO="7" MASCARA="9999999" DEFAULT="0"/>
+         <CAMPO NOME="Municipio" TIPO="Texto" TAMANHO="80" MASCARA="@x" DEFAULT="''"/>
+         <CAMPO NOME="Cep" TIPO="Texto" TAMANHO="9" MASCARA="99999-999" DEFAULT="''"/>
+         <CAMPO NOME="Uf" TIPO="Texto" TAMANHO="3" MASCARA="!!" DEFAULT="''"/>
+         <CAMPO NOME="Fone" TIPO="Texto" TAMANHO="13" MASCARA="(99)9999-9999" DEFAULT="''"/>
+         <CAMPO NOME="Email" TIPO="Texto" TAMANHO="255" MASCARA="@a" DEFAULT="''"/>
+         <CAMPO NOME="Inativo" TIPO="Logico" TAMANHO="1" DEFAULT="0"/>
+         <CAMPO NOME="Certificado digital" TIPO="Texto" TAMANHO="255" MASCARA="@x" DEFAULT="''"/>
+         <CAMPO NOME="Chave flexdocs" TIPO="Texto" TAMANHO="130" MASCARA="@a" DEFAULT="''"/>
+   <INDICE NOME="Sequencia do emitente" TIPO="1" CLUSTERIZADO="1" FILLFACTOR=" 90 ">
+            <CAMPO NOME="Sequencia do emitente"/>
+   </INDICE>
+      </TABELA>
+      <TABELA NOME="Empresa" PARAMETRO="1">
+         <CAMPO NOME="Razão social" TIPO="Texto" TAMANHO="60" MASCARA="@x" DEFAULT="''"/>
+         <CAMPO NOME="Nome fantasia" TIPO="Texto" TAMANHO="60" MASCARA="@x" DEFAULT="''"/>
+         <CAMPO NOME="Cpf do emitente" TITULO="Cpf" TIPO="Texto" TAMANHO="14" MASCARA="999.999.999-99" DEFAULT="''"/>
+         <CAMPO NOME="Inscrição estadual" TIPO="Texto" TAMANHO="20" MASCARA="@!" DEFAULT="''"/>
+         <CAMPO NOME="Cnpj" TIPO="Texto" TAMANHO="18" MASCARA="99.999.999/9999-99" DEFAULT="''"/>
+         <CAMPO NOME="Rua" TIPO="Texto" TAMANHO="60" MASCARA="@x" DEFAULT="''"/>
+         <CAMPO NOME="Nro" TIPO="Texto" TAMANHO="8" MASCARA="@x" DEFAULT="''"/>
+         <CAMPO NOME="Bairro" TIPO="Texto" TAMANHO="60" MASCARA="@x" DEFAULT="''"/>
+         <CAMPO NOME="Município" TIPO="Texto" TAMANHO="60" MASCARA="@x" DEFAULT="''"/>
+         <CAMPO NOME="Codigo do municipio" TIPO="Numerico" TAMANHO="7" MASCARA="9999999" DEFAULT="0"/>
+         <CAMPO NOME="Uf" TIPO="Texto" TAMANHO="3" MASCARA="!!" DEFAULT="''"/>
+         <CAMPO NOME="Cep" TIPO="Texto" TAMANHO="9" MASCARA="99999-999" DEFAULT="''"/>
+         <CAMPO NOME="Fone" TIPO="Texto" TAMANHO="13" MASCARA="(99)9999-9999" DEFAULT="''"/>
+         <CAMPO NOME="Aliquota do pis" TIPO="Numerico" TAMANHO="8" DECIMAL="4" MASCARA="999,9999" DEFAULT="0"/>
+         <CAMPO NOME="Aliquota do cofins" TIPO="Numerico" TAMANHO="8" DECIMAL="4" MASCARA="999,9999" DEFAULT="0"/>
+         <CAMPO NOME="Chave flexdocs" TIPO="Texto" TAMANHO="130" MASCARA="@a" DEFAULT="''"/>
+         <CAMPO NOME="Email" TIPO="Texto" TAMANHO="255" MASCARA="@a" DEFAULT="''"/>
+         <CAMPO NOME="Data Inicial da Ativação" TIPO="Data" TAMANHO="10" MASCARA="99/99/9999" NULO="1"/>
+      </TABELA>
+      <TABELA NOME="Finalidade da nfe">
+         <CAMPO NOME="Codigo" TIPO="Numerico" TAMANHO="1" MASCARA="9" DEFAULT="0"/>
+         <CAMPO NOME="Descrição" TIPO="Texto" TAMANHO="80" MASCARA="@x" DEFAULT="''"/>
+   <INDICE NOME="Codigo" TIPO="1" CLUSTERIZADO="1" FILLFACTOR=" 90 ">
+            <CAMPO NOME="Codigo"/>
+   </INDICE>
+      </TABELA>
+      <TABELA NOME="Geral">
+         <CAMPO NOME="Cliente" TIPO="Logico" TAMANHO="1" DEFAULT="0"/>
+         <CAMPO NOME="Transportadora" TIPO="Logico" TAMANHO="1" DEFAULT="0"/>
+         <CAMPO NOME="Consumidor final" TIPO="Logico" TAMANHO="1" DEFAULT="0"/>
+         <CAMPO NOME="Isento" TIPO="Logico" TAMANHO="1" DEFAULT="0"/>
+         <CAMPO NOME="Inativo" TIPO="Logico" TAMANHO="1" DEFAULT="0"/>
+         <CAMPO NOME="Sequencia do geral" TIPO="Numerico" TAMANHO="6" MASCARA="999999" DEFAULT="0"/>
+         <CAMPO NOME="Razão social" TIPO="Texto" TAMANHO="60" MASCARA="@x" DEFAULT="''"/>
+         <CAMPO NOME="Nome fantasia" TIPO="Texto" TAMANHO="60" MASCARA="@x" DEFAULT="''"/>
+         <CAMPO NOME="Tipo" TIPO="Numerico" TAMANHO="2" MASCARA="9" DEFAULT="0"/>
+         <CAMPO NOME="Endereço" TIPO="Texto" TAMANHO="100" MASCARA="@x" DEFAULT="''"/>
+         <CAMPO NOME="Complemento" TIPO="Texto" TAMANHO="30" MASCARA="@x" DEFAULT="''"/>
+         <CAMPO NOME="Nro" TIPO="Texto" TAMANHO="8" MASCARA="@x" DEFAULT="''"/>
+         <CAMPO NOME="Bairro" TIPO="Texto" TAMANHO="60" MASCARA="@x" DEFAULT="''"/>
+         <CAMPO NOME="Sequencia do municipio" TIPO="Numerico" TAMANHO="5" MASCARA="99999" DEFAULT="0"/>
+         <CAMPO NOME="Cep" TIPO="Texto" TAMANHO="9" MASCARA="99999-999" DEFAULT="''"/>
+         <CAMPO NOME="Fone" TIPO="Texto" TAMANHO="13" MASCARA="(99)9999-9999" DEFAULT="''"/>
+         <CAMPO NOME="Celular" TIPO="Texto" TAMANHO="14" MASCARA="(99)99999-9999" DEFAULT="''"/>
+         <CAMPO NOME="Codigo do suframa" TIPO="Texto" TAMANHO="9" MASCARA="@x" DEFAULT="''"/>
+         <CAMPO NOME="Cpf e cnpj" TIPO="Texto" TAMANHO="20" MASCARA="@x" DEFAULT="''"/>
+         <CAMPO NOME="Rg e ie" TIPO="Texto" TAMANHO="20" MASCARA="@x" DEFAULT="''"/>
+         <CAMPO NOME="Observação" TIPO="Memo" TAMANHO="0" DEFAULT="''"/>
+         <CAMPO NOME="Data do cadastro" TIPO="Data" TAMANHO="10" MASCARA="99/99/9999" NULO="1"/>
+         <CAMPO NOME="Fornecedor" TIPO="Logico" TAMANHO="1" DEFAULT="0"/>
+         <CAMPO NOME="Email" TIPO="Texto" TAMANHO="255" MASCARA="@a" DEFAULT="''"/>
+         <CAMPO NOME="Codigo da antt" TIPO="Texto" TAMANHO="20" MASCARA="@x" DEFAULT="''"/>
+         <CAMPO NOME="Data de Nascimento" TIPO="Data" TAMANHO="10" MASCARA="99/99/9999" NULO="1"/>
+   <INDICE NOME="Sequencia do geral" TIPO="1" CLUSTERIZADO="1" FILLFACTOR=" 90 ">
+            <CAMPO NOME="Sequencia do geral"/>
+   </INDICE>
+      </TABELA>
+      <TABELA NOME="Icms">
+         <CAMPO NOME="Sequencia do icms" TIPO="Numerico" TAMANHO="4" MASCARA="9999" DEFAULT="0"/>
+         <CAMPO NOME="Uf" TIPO="Texto" TAMANHO="3" MASCARA="!!" DEFAULT="''"/>
+         <CAMPO NOME="Região" TIPO="Texto" TAMANHO="20" MASCARA="@x" DEFAULT="''"/>
+         <CAMPO NOME="Aliquota do icms" TIPO="Numerico" TAMANHO="5" DECIMAL="2" MASCARA="99,99" DEFAULT="0"/>
+         <CAMPO NOME="Aliquota interna" TIPO="Numerico" TAMANHO="5" DECIMAL="2" MASCARA="99,99" DEFAULT="0"/>
+         <CAMPO NOME="Codigo da uf" TIPO="Numerico" TAMANHO="2" MASCARA="99" DEFAULT="0"/>
+         <CAMPO NOME="Inativo" TIPO="Logico" TAMANHO="1" DEFAULT="0"/>
+   <INDICE NOME="Sequencia do icms" TIPO="1" CLUSTERIZADO="1" FILLFACTOR=" 90 ">
+            <CAMPO NOME="Sequencia do icms"/>
+   </INDICE>
+      </TABELA>
+      <TABELA NOME="Local de carregamento">
+         <CAMPO NOME="Sequencia do manifesto" TIPO="Numerico" TAMANHO="6" MASCARA="999999" DEFAULT="0"/>
+         <CAMPO NOME="Sequencia" TIPO="Numerico" TAMANHO="5" MASCARA="99999" DEFAULT="0"/>
+         <CAMPO NOME="Uf" TIPO="Texto" TAMANHO="3" MASCARA="!!" DEFAULT="''"/>
+         <CAMPO NOME="Descrição do municipio" TIPO="Texto" TAMANHO="80" MASCARA="@x" DEFAULT="''"/>
+         <CAMPO NOME="Codigo do ibge" TIPO="Numerico" TAMANHO="7" MASCARA="9999999" DEFAULT="0"/>
+   <INDICE NOME="Seq_Carrega" TIPO="1" CLUSTERIZADO="1" FILLFACTOR=" 90 ">
+            <CAMPO NOME="Sequencia do manifesto"/>
+            <CAMPO NOME="Descrição do municipio"/>
+   </INDICE>
+      </TABELA>
+      <TABELA NOME="Manifesto">
+         <CAMPO NOME="Sequencia do manifesto" TIPO="Numerico" TAMANHO="6" MASCARA="999999" DEFAULT="0"/>
+         <CAMPO NOME="Numero do manifesto" TIPO="Numerico" TAMANHO="6" MASCARA="999999" DEFAULT="0"/>
+         <CAMPO NOME="Data de emissão" TIPO="Data" TAMANHO="10" MASCARA="99/99/9999" NULO="1"/>
+         <CAMPO NOME="Uf" TIPO="Texto" TAMANHO="3" MASCARA="!!" DEFAULT="''"/>
+         <CAMPO NOME="Tipo de emitente" TIPO="Texto" TAMANHO="34" DEFAULT="''"/>
+         <CAMPO NOME="Uf de descarregamento" TIPO="Texto" TAMANHO="3" MASCARA="!!" DEFAULT="''"/>
+         <CAMPO NOME="Observação" TIPO="Memo" TAMANHO="0" DEFAULT="''"/>
+         <CAMPO NOME="Rntrc" TIPO="Texto" TAMANHO="25" MASCARA="@x" DEFAULT="''"/>
+         <CAMPO NOME="Tipo de carroceria" TIPO="Texto" TAMANHO="15" DEFAULT="''"/>
+         <CAMPO NOME="Uf do veiculo" TIPO="Texto" TAMANHO="3" MASCARA="!!" DEFAULT="''"/>
+         <CAMPO NOME="Tipo de rodado" TIPO="Texto" TAMANHO="15" DEFAULT="''"/>
+         <CAMPO NOME="Placa" TIPO="Texto" TAMANHO="9" MASCARA="@!" DEFAULT="''"/>
+         <CAMPO NOME="Tara" TIPO="Texto" TAMANHO="20" MASCARA="@x" DEFAULT="''"/>
+         <CAMPO NOME="Renavam" TIPO="Texto" TAMANHO="20" MASCARA="@x" DEFAULT="''"/>
+         <CAMPO NOME="Capacidade kg" TIPO="Texto" TAMANHO="15" MASCARA="@x" DEFAULT="''"/>
+         <CAMPO NOME="Codigo do emitente" TIPO="Numerico" TAMANHO="2" MASCARA="99" DEFAULT="0"/>
+         <CAMPO NOME="Transmitido" TIPO="Logico" TAMANHO="1" DEFAULT="0"/>
+         <CAMPO NOME="Nota cancelada" TIPO="Logico" TAMANHO="1" DEFAULT="0"/>
+         <CAMPO NOME="Autorizada" TIPO="Logico" TAMANHO="1" DEFAULT="0"/>
+         <CAMPO NOME="Historico" TIPO="Memo" TAMANHO="0" DEFAULT="''"/>
+         <CAMPO NOME="Proprietario" TIPO="Logico" TAMANHO="1" DEFAULT="0"/>
+         <CAMPO NOME="Cpf Proprietario" TIPO="Texto" TAMANHO="14" MASCARA="999.999.999-99" DEFAULT="''"/>
+         <CAMPO NOME="Cnpj Proprietario" TIPO="Texto" TAMANHO="18" MASCARA="99.999.999/9999-99" DEFAULT="''"/>
+         <CAMPO NOME="Rntrc proprietario" TIPO="Texto" TAMANHO="25" MASCARA="@x" DEFAULT="''"/>
+         <CAMPO NOME="Nome Proprietario" TIPO="Texto" TAMANHO="60" MASCARA="@x" DEFAULT="''"/>
+         <CAMPO NOME="Ie Proprietario" TIPO="Texto" TAMANHO="20" MASCARA="@x" DEFAULT="''"/>
+         <CAMPO NOME="Uf proprietario" TIPO="Texto" TAMANHO="3" MASCARA="!!" DEFAULT="''"/>
+         <CAMPO NOME="Tipo de proprietario" TIPO="Texto" TAMANHO="16" DEFAULT="''"/>
+         <CAMPO NOME="Tipo documento" TIPO="Numerico" TAMANHO="2" MASCARA="9" DEFAULT="0"/>
+         <CAMPO NOME="Numero do recibo" TIPO="Texto" TAMANHO="20" MASCARA="@x" DEFAULT="''"/>
+         <CAMPO NOME="Chave de acesso" TIPO="Texto" TAMANHO="50" MASCARA="@x" DEFAULT="''"/>
+         <CAMPO NOME="XmlAssinado" TITULO="Xmlassinado" TIPO="Memo" TAMANHO="0" DEFAULT="''"/>
+         <CAMPO NOME="Protocolo de autorização" TIPO="Texto" TAMANHO="50" MASCARA="@x" DEFAULT="''"/>
+         <CAMPO NOME="Data e hora do mdfe" TIPO="Texto" TAMANHO="30" MASCARA="@x" DEFAULT="''"/>
+         <CAMPO NOME="XmlAutorizado" TITULO="Xmlautorizado" TIPO="Memo" TAMANHO="0" DEFAULT="''"/>
+         <CAMPO NOME="Encerrado" TIPO="Logico" TAMANHO="1" DEFAULT="0"/>
+         <CAMPO NOME="Responsavel do seguro" TIPO="Texto" TAMANHO="53" DEFAULT="''"/>
+         <CAMPO NOME="Tipo do responsavel" TIPO="Numerico" TAMANHO="2" MASCARA="9" DEFAULT="0"/>
+         <CAMPO NOME="Documento do responsavel" TIPO="Texto" TAMANHO="20" MASCARA="@x" DEFAULT="''"/>
+         <CAMPO NOME="Nome da seguradora" TIPO="Texto" TAMANHO="50" MASCARA="@x" DEFAULT="''"/>
+         <CAMPO NOME="Cnpj da seguradora" TIPO="Texto" TAMANHO="18" MASCARA="99.999.999/9999-99" DEFAULT="''"/>
+         <CAMPO NOME="N da apolice" TIPO="Texto" TAMANHO="20" MASCARA="@x" DEFAULT="''"/>
+         <CAMPO NOME="N averbação" TIPO="Texto" TAMANHO="60" MASCARA="@x" DEFAULT="''"/>
+         <CAMPO NOME="Tipo de contratante" TIPO="Numerico" TAMANHO="2" MASCARA="9" DEFAULT="0"/>
+         <CAMPO NOME="Documento do contratante" TIPO="Texto" TAMANHO="20" MASCARA="@x" DEFAULT="''"/>
+         <CAMPO NOME="Produto Predominante" TIPO="Texto" TAMANHO="120" MASCARA="@x" DEFAULT="''"/>
+         <CAMPO NOME="Latitude de Carregamento" TIPO="Numerico" TAMANHO="10" DECIMAL="6" MASCARA="999,999999" DEFAULT="0"/>
+         <CAMPO NOME="Longitude de Carregamento" TIPO="Numerico" TAMANHO="10" DECIMAL="6" MASCARA="999,999999" DEFAULT="0"/>
+         <CAMPO NOME="Latitude de Descrregamento" TIPO="Numerico" TAMANHO="10" DECIMAL="6" MASCARA="999,999999" DEFAULT="0"/>
+         <CAMPO NOME="Longitude de Descarregamento" TIPO="Numerico" TAMANHO="10" DECIMAL="6" MASCARA="999,999999" DEFAULT="0"/>
+         <CAMPO NOME="CEP Carregamento" TIPO="Texto" TAMANHO="9" MASCARA="99999-999" DEFAULT="''"/>
+         <CAMPO NOME="CEP Descarregamento" TIPO="Texto" TAMANHO="9" MASCARA="99999-999" DEFAULT="''"/>
+   <INDICE NOME="Sequencia do manifesto" TIPO="1" CLUSTERIZADO="1" FILLFACTOR=" 90 ">
+            <CAMPO NOME="Sequencia do manifesto"/>
+   </INDICE>
+      </TABELA>
+      <TABELA NOME="Motoristas">
+         <CAMPO NOME="Codigo do Motorista" TIPO="Numerico" TAMANHO="2" MASCARA="99" DEFAULT="0"/>
+         <CAMPO NOME="Nome do Motorista" TIPO="Texto" TAMANHO="40" MASCARA="@!" DEFAULT="''"/>
+         <CAMPO NOME="CPF" TIPO="Texto" TAMANHO="14" MASCARA="999.999.999-99" DEFAULT="''"/>
+   <INDICE NOME="Codigo do Motorista" TIPO="1" CLUSTERIZADO="1" FILLFACTOR=" 90 ">
+            <CAMPO NOME="Codigo do Motorista"/>
+   </INDICE>
+      </TABELA>
+      <TABELA NOME="Municipios">
+         <CAMPO NOME="Sequencia do municipio" TIPO="Numerico" TAMANHO="5" MASCARA="99999" DEFAULT="0"/>
+         <CAMPO NOME="Descrição do municipio" TIPO="Texto" TAMANHO="80" MASCARA="@x" DEFAULT="''"/>
+         <CAMPO NOME="Uf" TIPO="Texto" TAMANHO="3" MASCARA="!!" DEFAULT="''"/>
+         <CAMPO NOME="Codigo do ibge" TIPO="Numerico" TAMANHO="7" MASCARA="9999999" DEFAULT="0"/>
+         <CAMPO NOME="Cep" TIPO="Texto" TAMANHO="9" MASCARA="99999-999" DEFAULT="''"/>
+         <CAMPO NOME="Inativo" TIPO="Logico" TAMANHO="1" DEFAULT="0"/>
+         <CAMPO NOME="Latitude" TIPO="Numerico" TAMANHO="10" DECIMAL="6" MASCARA="999,999999" DEFAULT="0"/>
+         <CAMPO NOME="Longitude" TIPO="Numerico" TAMANHO="10" DECIMAL="6" MASCARA="999,999999" DEFAULT="0"/>
+   <INDICE NOME="Sequencia do municipio" TIPO="1" CLUSTERIZADO="1" FILLFACTOR=" 90 ">
+            <CAMPO NOME="Sequencia do municipio"/>
+   </INDICE>
+      </TABELA>
+      <TABELA NOME="Natureza de operação">
+         <CAMPO NOME="Sequencia da natureza" TIPO="Numerico" TAMANHO="4" MASCARA="9999" DEFAULT="0"/>
+         <CAMPO NOME="Cfop" TIPO="Numerico" TAMANHO="5" MASCARA="99999" DEFAULT="0"/>
+         <CAMPO NOME="Descrição do cfop" TIPO="Texto" TAMANHO="40" MASCARA="@x" DEFAULT="''"/>
+         <CAMPO NOME="Inativo" TIPO="Logico" TAMANHO="1" DEFAULT="0"/>
+   <INDICE NOME="Sequencia da natureza" TIPO="1" CLUSTERIZADO="1" FILLFACTOR=" 90 ">
+            <CAMPO NOME="Sequencia da natureza"/>
+   </INDICE>
+      </TABELA>
+      <TABELA NOME="Nfe da carga">
+         <CAMPO NOME="Sequencia descarrega" TIPO="Numerico" TAMANHO="6" MASCARA="999999" DEFAULT="0"/>
+         <CAMPO NOME="Sequencia do manifesto" TIPO="Numerico" TAMANHO="6" MASCARA="999999" DEFAULT="0"/>
+         <CAMPO NOME="Chave da nfe" TIPO="Texto" TAMANHO="44" MASCARA="@x" DEFAULT="''"/>
+         <CAMPO NOME="Descrição do municipio" TIPO="Texto" TAMANHO="80" MASCARA="@x" DEFAULT="''"/>
+         <CAMPO NOME="Valor total" TIPO="Numerico" TAMANHO="12" DECIMAL="2" MASCARA="999.999.999,99" DEFAULT="0"/>
+         <CAMPO NOME="Peso bruto" TIPO="Numerico" TAMANHO="11" DECIMAL="4" MASCARA="999.999,9999" DEFAULT="0"/>
+   <INDICE NOME="Seq_MDFe_NFe_Carga" TIPO="1" CLUSTERIZADO="1" FILLFACTOR=" 90 ">
+            <CAMPO NOME="Sequencia descarrega"/>
+            <CAMPO NOME="Sequencia do manifesto"/>
+   </INDICE>
+      </TABELA>
+      <TABELA NOME="NFe devolução">
+         <CAMPO NOME="Sequencia da nota fiscal" TIPO="Numerico" TAMANHO="6" MASCARA="999999" DEFAULT="0"/>
+         <CAMPO NOME="Chave da nfe" TIPO="Texto" TAMANHO="44" MASCARA="@x" DEFAULT="''"/>
+   <INDICE NOME="SeqNFe Devolucao" TIPO="1" CLUSTERIZADO="1" FILLFACTOR=" 90 ">
+            <CAMPO NOME="Sequencia da nota fiscal"/>
+            <CAMPO NOME="Chave da nfe"/>
+   </INDICE>
+      </TABELA>
+      <TABELA NOME="Nota fiscal">
+         <CAMPO NOME="Sequencia da nota fiscal" TIPO="Numerico" TAMANHO="6" MASCARA="999999" DEFAULT="0"/>
+         <CAMPO NOME="Numero da nfe" TIPO="Numerico" TAMANHO="6" MASCARA="999999" DEFAULT="0"/>
+         <CAMPO NOME="Data de emissão" TIPO="Data" TAMANHO="10" MASCARA="99/99/9999" NULO="1"/>
+         <CAMPO NOME="Sequencia do geral" TIPO="Numerico" TAMANHO="6" MASCARA="999999" DEFAULT="0"/>
+         <CAMPO NOME="Sequencia da natureza" TIPO="Numerico" TAMANHO="4" MASCARA="9999" DEFAULT="0"/>
+         <CAMPO NOME="Sequencia da transportadora" TIPO="Numerico" TAMANHO="6" MASCARA="999999" DEFAULT="0"/>
+         <CAMPO NOME="Placa do veiculo" TIPO="Texto" TAMANHO="8" MASCARA="@x" DEFAULT="''"/>
+         <CAMPO NOME="Uf do veiculo" TIPO="Texto" TAMANHO="3" MASCARA="!!" DEFAULT="''"/>
+         <CAMPO NOME="Frete" TIPO="Texto" TAMANHO="12" DEFAULT="''"/>
+         <CAMPO NOME="Valor do frete" TIPO="Numerico" TAMANHO="11" DECIMAL="2" MASCARA="99.999.999,99" DEFAULT="0"/>
+         <CAMPO NOME="Valor do desconto" TIPO="Numerico" TAMANHO="11" DECIMAL="2" MASCARA="99.999.999,99" DEFAULT="0"/>
+         <CAMPO NOME="Volumes" TIPO="Numerico" TAMANHO="6" MASCARA="999999" DEFAULT="0"/>
+         <CAMPO NOME="Especie" TIPO="Texto" TAMANHO="30" MASCARA="@x" DEFAULT="''"/>
+         <CAMPO NOME="Data de saida" TIPO="Data" TAMANHO="10" MASCARA="99/99/9999" NULO="1"/>
+         <CAMPO NOME="Hora da saida" TIPO="Data" TAMANHO="8" MASCARA="99:99:99" NULO="1"/>
+         <CAMPO NOME="Forma de pagamento" TIPO="Texto" TAMANHO="5" DEFAULT="''"/>
+         <CAMPO NOME="Historico" TIPO="Memo" TAMANHO="0" DEFAULT="''"/>
+         <CAMPO NOME="Valor total do ipi" TIPO="Numerico" TAMANHO="11" DECIMAL="2" MASCARA="99.999.999,99" DEFAULT="0"/>
+         <CAMPO NOME="Valor total do icms" TIPO="Numerico" TAMANHO="11" DECIMAL="2" MASCARA="99.999.999,99" DEFAULT="0"/>
+         <CAMPO NOME="Valor total dos produtos" TIPO="Numerico" TAMANHO="11" DECIMAL="2" MASCARA="99.999.999,99" DEFAULT="0"/>
+         <CAMPO NOME="Valor total da nfe" TIPO="Numerico" TAMANHO="12" DECIMAL="2" MASCARA="999.999.999,99" DEFAULT="0"/>
+         <CAMPO NOME="Tipo de nota" TIPO="Numerico" TAMANHO="2" MASCARA="9" DEFAULT="0"/>
+         <CAMPO NOME="Sequencia da classificação" TIPO="Numerico" TAMANHO="5" MASCARA="99999" DEFAULT="0"/>
+         <CAMPO NOME="Nota cancelada" TIPO="Logico" TAMANHO="1" DEFAULT="0"/>
+         <CAMPO NOME="Nota avulsa" TIPO="Logico" TAMANHO="1" DEFAULT="0"/>
+         <CAMPO NOME="Peso bruto" TIPO="Numerico" TAMANHO="11" DECIMAL="4" MASCARA="999.999,9999" DEFAULT="0"/>
+         <CAMPO NOME="Peso liquido" TIPO="Numerico" TAMANHO="11" DECIMAL="4" MASCARA="999.999,9999" DEFAULT="0"/>
+         <CAMPO NOME="Nfe complementar" TIPO="Logico" TAMANHO="1" DEFAULT="0"/>
+         <CAMPO NOME="Chave nfe referenciada" TIPO="Texto" TAMANHO="45" MASCARA="@x" DEFAULT="''"/>
+         <CAMPO NOME="Chave de acesso da nfe" TIPO="Texto" TAMANHO="50" MASCARA="@x" DEFAULT="''"/>
+         <CAMPO NOME="Protocolo de autorização" TIPO="Texto" TAMANHO="50" MASCARA="@x" DEFAULT="''"/>
+         <CAMPO NOME="Data e hora da nfe" TIPO="Texto" TAMANHO="25" MASCARA="@x" DEFAULT="''"/>
+         <CAMPO NOME="Transmitido" TIPO="Logico" TAMANHO="1" DEFAULT="0"/>
+         <CAMPO NOME="Autorizada" TIPO="Logico" TAMANHO="1" DEFAULT="0"/>
+         <CAMPO NOME="Numero do recibo" TIPO="Texto" TAMANHO="20" MASCARA="@x" DEFAULT="''"/>
+         <CAMPO NOME="Observação" TIPO="Memo" TAMANHO="0" DEFAULT="''"/>
+         <CAMPO NOME="Valor total da bc" TIPO="Numerico" TAMANHO="11" DECIMAL="2" MASCARA="99.999.999,99" DEFAULT="0"/>
+         <CAMPO NOME="Valor total do pis" TIPO="Numerico" TAMANHO="11" DECIMAL="2" MASCARA="99.999.999,99" DEFAULT="0"/>
+         <CAMPO NOME="Valor total do cofins" TIPO="Numerico" TAMANHO="11" DECIMAL="2" MASCARA="99.999.999,99" DEFAULT="0"/>
+         <CAMPO NOME="Valor total base st" TIPO="Numerico" TAMANHO="11" DECIMAL="2" MASCARA="99.999.999,99" DEFAULT="0"/>
+         <CAMPO NOME="Valor total icms st" TIPO="Numerico" TAMANHO="11" DECIMAL="2" MASCARA="99.999.999,99" DEFAULT="0"/>
+         <CAMPO NOME="Imprimiu" TIPO="Logico" TAMANHO="1" DEFAULT="0"/>
+         <CAMPO NOME="Valor total dos tributos" TIPO="Numerico" TAMANHO="11" DECIMAL="2" MASCARA="99.999.999,99" DEFAULT="0"/>
+         <CAMPO NOME="Finalidade nfe" TIPO="Numerico" TAMANHO="1" MASCARA="9" DEFAULT="0"/>
+         <CAMPO NOME="Devolução" TIPO="Logico" TAMANHO="1" DEFAULT="0"/>
+         <CAMPO NOME="Data da Alteração" TIPO="Data" TAMANHO="10" MASCARA="99/99/9999" NULO="1"/>
+         <CAMPO NOME="Hora da Alteração" TIPO="Data" TAMANHO="8" MASCARA="99:99:99" NULO="1"/>
+         <CAMPO NOME="Usuario da Alteração" TIPO="Texto" TAMANHO="30" MASCARA="@!" DEFAULT="''"/>
+         <CAMPO NOME="XmlAssinado" TITULO="Xmlassinado" TIPO="Memo" TAMANHO="0" DEFAULT="''"/>
+         <CAMPO NOME="XmlAutorizado" TITULO="Xmlautorizado" TIPO="Memo" TAMANHO="0" DEFAULT="''"/>
+   <INDICE NOME="Sequencia da nota fiscal" TIPO="1" CLUSTERIZADO="1" FILLFACTOR=" 90 ">
+            <CAMPO NOME="Sequencia da nota fiscal"/>
+   </INDICE>
+      </TABELA>
+      <TABELA NOME="Parametros da nfe" PARAMETRO="1">
+         <CAMPO NOME="Codigo da uf" TIPO="Numerico" TAMANHO="2" MASCARA="99" DEFAULT="0"/>
+         <CAMPO NOME="Serie da nfe" TIPO="Numerico" TAMANHO="1" MASCARA="9" DEFAULT="0"/>
+         <CAMPO NOME="Ambiente" TIPO="Numerico" TAMANHO="2" MASCARA="9" DEFAULT="0"/>
+         <CAMPO NOME="Horario de verao" TIPO="Logico" TAMANHO="1" DEFAULT="0"/>
+         <CAMPO NOME="Aliquota simples nacional" TIPO="Numerico" TAMANHO="8" DECIMAL="4" MASCARA="999,9999" DEFAULT="0"/>
+         <CAMPO NOME="Diretorio 1 nfe homologação" TIPO="Texto" TAMANHO="255" MASCARA="@x" DEFAULT="''"/>
+         <CAMPO NOME="Diretorio 2 nfe homologação" TIPO="Texto" TAMANHO="255" MASCARA="@x" DEFAULT="''"/>
+         <CAMPO NOME="Diretorio 1 nfe produção" TIPO="Texto" TAMANHO="255" MASCARA="@x" DEFAULT="''"/>
+         <CAMPO NOME="Diretorio 2 nfe produção" TIPO="Texto" TAMANHO="255" MASCARA="@x" DEFAULT="''"/>
+         <CAMPO NOME="Certificado digital" TIPO="Texto" TAMANHO="255" MASCARA="@x" DEFAULT="''"/>
+         <CAMPO NOME="Simples nacional" TIPO="Logico" TAMANHO="1" DEFAULT="0"/>
+         <CAMPO NOME="Percentual tributos" TIPO="Numerico" TAMANHO="8" DECIMAL="4" MASCARA="999,9999" DEFAULT="0"/>
+      </TABELA>
+      <TABELA NOME="Parcelas nota fiscal">
+         <CAMPO NOME="Sequencia da nota fiscal" TIPO="Numerico" TAMANHO="6" MASCARA="999999" DEFAULT="0"/>
+         <CAMPO NOME="Numero da parcela" TIPO="Numerico" TAMANHO="4" MASCARA="9999" DEFAULT="0"/>
+         <CAMPO NOME="Dias" TIPO="Numerico" TAMANHO="4" MASCARA="9999" DEFAULT="0"/>
+         <CAMPO NOME="Data de vencimento" TIPO="Data" TAMANHO="10" MASCARA="99/99/9999" NULO="1"/>
+         <CAMPO NOME="Valor da parcela" TIPO="Numerico" TAMANHO="10" DECIMAL="2" MASCARA="9.999.999,99" DEFAULT="0"/>
+   <INDICE NOME="SeqNF_Pc" TIPO="1" CLUSTERIZADO="1" FILLFACTOR=" 90 ">
+            <CAMPO NOME="Sequencia da nota fiscal"/>
+            <CAMPO NOME="Numero da parcela"/>
+   </INDICE>
+      </TABELA>
+      <TABELA NOME="Produtos">
+         <CAMPO NOME="Sequencia do produto" TIPO="Numerico" TAMANHO="6" MASCARA="999999" DEFAULT="0"/>
+         <CAMPO NOME="Descrição" TIPO="Texto" TAMANHO="80" MASCARA="@x" DEFAULT="''"/>
+         <CAMPO NOME="Estoque" TIPO="Numerico" TAMANHO="11" DECIMAL="4" MASCARA="999.999,9999" DEFAULT="0"/>
+         <CAMPO NOME="Sequencia da unidade" TIPO="Numerico" TAMANHO="4" MASCARA="9999" DEFAULT="0"/>
+         <CAMPO NOME="Valor total" TIPO="Numerico" TAMANHO="12" DECIMAL="2" MASCARA="999.999.999,99" DEFAULT="0"/>
+         <CAMPO NOME="Sequencia da classificação" TIPO="Numerico" TAMANHO="5" MASCARA="99999" DEFAULT="0"/>
+         <CAMPO NOME="Usado" TIPO="Logico" TAMANHO="1" DEFAULT="0"/>
+         <CAMPO NOME="Inativo" TIPO="Logico" TAMANHO="1" DEFAULT="0"/>
+         <CAMPO NOME="Material adquirido de terceiro" TIPO="Logico" TAMANHO="1" DEFAULT="0"/>
+         <CAMPO NOME="Importado" TIPO="Logico" TAMANHO="1" DEFAULT="0"/>
+         <CAMPO NOME="Ultima nfe" TIPO="Data" TAMANHO="10" MASCARA="99/99/9999" NULO="1"/>
+   <INDICE NOME="Sequencia do produto" TIPO="1" CLUSTERIZADO="1" FILLFACTOR=" 90 ">
+            <CAMPO NOME="Sequencia do produto"/>
+   </INDICE>
+      </TABELA>
+      <TABELA NOME="Produtos da nota fiscal">
+         <CAMPO NOME="Sequencia da nota fiscal" TIPO="Numerico" TAMANHO="6" MASCARA="999999" DEFAULT="0"/>
+         <CAMPO NOME="Sequencia produto nota fiscal" TIPO="Numerico" TAMANHO="6" MASCARA="999999" SEQINTERNO="1" SEQUENCIA="1"/>
+         <CAMPO NOME="Sequencia do produto" TIPO="Numerico" TAMANHO="6" MASCARA="999999" DEFAULT="0"/>
+         <CAMPO NOME="Quantidade" TIPO="Numerico" TAMANHO="11" DECIMAL="4" MASCARA="999.999,9999" DEFAULT="0"/>
+         <CAMPO NOME="Valor unitario" TIPO="Numerico" TAMANHO="11" DECIMAL="4" MASCARA="999.999,9999" DEFAULT="0"/>
+         <CAMPO NOME="Valor total" TIPO="Numerico" TAMANHO="12" DECIMAL="2" MASCARA="999.999.999,99" DEFAULT="0"/>
+         <CAMPO NOME="Valor do ipi" TIPO="Numerico" TAMANHO="11" DECIMAL="2" MASCARA="99.999.999,99" DEFAULT="0"/>
+         <CAMPO NOME="Valor do icms" TIPO="Numerico" TAMANHO="11" DECIMAL="2" MASCARA="99.999.999,99" DEFAULT="0"/>
+         <CAMPO NOME="Aliquota do ipi" TIPO="Numerico" TAMANHO="5" DECIMAL="2" MASCARA="99,99" DEFAULT="0"/>
+         <CAMPO NOME="Aliquota do icms" TIPO="Numerico" TAMANHO="5" DECIMAL="2" MASCARA="99,99" DEFAULT="0"/>
+         <CAMPO NOME="Percentual da redução" TIPO="Numerico" TAMANHO="5" DECIMAL="2" MASCARA="99,99" DEFAULT="0"/>
+         <CAMPO NOME="Valor da base de calculo" TIPO="Numerico" TAMANHO="11" DECIMAL="2" MASCARA="99.999.999,99" DEFAULT="0"/>
+         <CAMPO NOME="Valor do pis" TIPO="Numerico" TAMANHO="11" DECIMAL="2" MASCARA="99.999.999,99" DEFAULT="0"/>
+         <CAMPO NOME="Valor do cofins" TIPO="Numerico" TAMANHO="11" DECIMAL="2" MASCARA="99.999.999,99" DEFAULT="0"/>
+         <CAMPO NOME="Iva" TIPO="Numerico" TAMANHO="7" DECIMAL="4" MASCARA="99,9999" DEFAULT="0"/>
+         <CAMPO NOME="Base de calculo st" TIPO="Numerico" TAMANHO="11" DECIMAL="2" MASCARA="99.999.999,99" DEFAULT="0"/>
+         <CAMPO NOME="Valor icms st" TIPO="Numerico" TAMANHO="11" DECIMAL="2" MASCARA="99.999.999,99" DEFAULT="0"/>
+         <CAMPO NOME="Cfop" TIPO="Numerico" TAMANHO="5" MASCARA="99999" DEFAULT="0"/>
+         <CAMPO NOME="Cst" TIPO="Numerico" TAMANHO="3" MASCARA="999" DEFAULT="0"/>
+         <CAMPO NOME="Aliquota icms st" TIPO="Numerico" TAMANHO="5" DECIMAL="2" MASCARA="99,99" DEFAULT="0"/>
+         <CAMPO NOME="Valor dos tributos" TIPO="Numerico" TAMANHO="11" DECIMAL="2" MASCARA="99.999.999,99" DEFAULT="0"/>
+   <INDICE NOME="SeqNf_e_produto" TIPO="1" CLUSTERIZADO="1" FILLFACTOR=" 90 ">
+            <CAMPO NOME="Sequencia da nota fiscal"/>
+            <CAMPO NOME="Sequencia produto nota fiscal"/>
+   </INDICE>
+      </TABELA>
+      <TABELA NOME="Uf de percurso">
+         <CAMPO NOME="Sequencia do manifesto" TIPO="Numerico" TAMANHO="6" MASCARA="999999" DEFAULT="0"/>
+         <CAMPO NOME="Sequencia" TIPO="Numerico" TAMANHO="5" MASCARA="99999" DEFAULT="0"/>
+         <CAMPO NOME="Uf" TIPO="Texto" TAMANHO="3" MASCARA="!!" DEFAULT="''"/>
+   <INDICE NOME="Seq_UFPercurso" TIPO="1" CLUSTERIZADO="1" FILLFACTOR=" 90 ">
+            <CAMPO NOME="Sequencia do manifesto"/>
+            <CAMPO NOME="Uf"/>
+   </INDICE>
+      </TABELA>
+      <TABELA NOME="Unidades">
+         <CAMPO NOME="Sequencia da unidade" TIPO="Numerico" TAMANHO="4" MASCARA="9999" DEFAULT="0"/>
+         <CAMPO NOME="Descrição" TIPO="Texto" TAMANHO="80" MASCARA="@x" DEFAULT="''"/>
+         <CAMPO NOME="Sigla da unidade" TIPO="Texto" TAMANHO="3" MASCARA="@!" DEFAULT="''"/>
+         <CAMPO NOME="Inativo" TIPO="Logico" TAMANHO="1" DEFAULT="0"/>
+   <INDICE NOME="Sequencia da unidade" TIPO="1" CLUSTERIZADO="1" FILLFACTOR=" 90 ">
+            <CAMPO NOME="Sequencia da unidade"/>
+   </INDICE>
+      </TABELA>
+      <TABELA NOME="PW~Grupos" SISTEMA="1">
+         <CAMPO NOME="PW~Nome" TIPO="Texto" TAMANHO="100" SISTEMA="1"/>
+   <INDICE NOME="PW~Nome" TIPO="1" SISTEMA="1">
+            <CAMPO NOME="PW~Nome" SISTEMA="1"/>
+   </INDICE>
+      </TABELA>
+      <TABELA NOME="PW~Usuarios" SISTEMA="1">
+         <CAMPO NOME="PW~Grupo" TIPO="Texto" TAMANHO="100" SISTEMA="1"/>
+         <CAMPO NOME="PW~Nome" TIPO="Texto" TAMANHO="100" SISTEMA="1"/>
+         <CAMPO NOME="PW~Senha" TIPO="Texto" TAMANHO="100" SISTEMA="1"/>
+         <CAMPO NOME="PW~Obs" TIPO="Texto" TAMANHO="100" SISTEMA="1" NULO="1"/>
+   <INDICE NOME="Chave usuario" TIPO="1" SISTEMA="1">
+            <CAMPO NOME="PW~Nome" SISTEMA="1"/>
+            <CAMPO NOME="PW~Senha" SISTEMA="1"/>
+   </INDICE>
+   <INDICE NOME="PW~Grupo" SISTEMA="1">
+            <CAMPO NOME="PW~Grupo" SISTEMA="1"/>
+   </INDICE>
+      </TABELA>
+      <TABELA NOME="PW~Tabelas" SISTEMA="1">
+         <CAMPO NOME="PW~Projeto" TIPO="Texto" TAMANHO="10" SISTEMA="1"/>
+         <CAMPO NOME="PW~Grupo" TIPO="Texto" TAMANHO="100" SISTEMA="1"/>
+         <CAMPO NOME="PW~Nome" TIPO="Texto" TAMANHO="100" SISTEMA="1"/>
+         <CAMPO NOME="PW~Permissoes" TIPO="Texto" TAMANHO="100" SISTEMA="1"/>
+   <INDICE NOME="Chave tabelas" TIPO="1" SISTEMA="1">
+            <CAMPO NOME="PW~Projeto" SISTEMA="1"/>
+            <CAMPO NOME="PW~Grupo" SISTEMA="1"/>
+            <CAMPO NOME="PW~Nome" SISTEMA="1"/>
+   </INDICE>
+      </TABELA>
+      <INTEGRIDADE NOME="Geral-Municipios Geral" BASE="Municipios" ESTRANGEIRA="Geral" ATUALIZA="1">
+         <CAMPO NOME="Sequencia do municipio-Sequencia do municipio" BASE="Sequencia do municipio" ESTRANGEIRO="Sequencia do municipio"/>
+      </INTEGRIDADE>
+      <INTEGRIDADE NOME="Nota fiscal-Geral nf" BASE="Geral" ESTRANGEIRA="Nota fiscal" ATUALIZA="1">
+         <CAMPO NOME="Sequencia do geral-Sequencia do geral" BASE="Sequencia do geral" ESTRANGEIRO="Sequencia do geral"/>
+      </INTEGRIDADE>
+      <INTEGRIDADE NOME="Nota fiscal-NapOp nf" BASE="Natureza de operação" ESTRANGEIRA="Nota fiscal" ATUALIZA="1">
+         <CAMPO NOME="Sequencia da natureza-Sequencia da natureza" BASE="Sequencia da natureza" ESTRANGEIRO="Sequencia da natureza"/>
+      </INTEGRIDADE>
+      <INTEGRIDADE NOME="Nota fiscal-Ncm nf" BASE="Classificação fiscal" ESTRANGEIRA="Nota fiscal" ATUALIZA="1">
+         <CAMPO NOME="Sequencia da classificação-Sequencia da classificação" BASE="Sequencia da classificação" ESTRANGEIRO="Sequencia da classificação"/>
+      </INTEGRIDADE>
+      <INTEGRIDADE NOME="Produtos-Produto ncm" BASE="Classificação fiscal" ESTRANGEIRA="Produtos" ATUALIZA="1">
+         <CAMPO NOME="Sequencia da classificação-Sequencia da classificação" BASE="Sequencia da classificação" ESTRANGEIRO="Sequencia da classificação"/>
+      </INTEGRIDADE>
+      <INTEGRIDADE NOME="Produtos-Unidades Produtos" BASE="Unidades" ESTRANGEIRA="Produtos" ATUALIZA="1">
+         <CAMPO NOME="Sequencia da unidade-Sequencia da unidade" BASE="Sequencia da unidade" ESTRANGEIRO="Sequencia da unidade"/>
+      </INTEGRIDADE>
+      <INTEGRIDADE NOME="Produtos da nota fiscal-NF_Produtos" BASE="Produtos" ESTRANGEIRA="Produtos da nota fiscal" ATUALIZA="1">
+         <CAMPO NOME="Sequencia do produto-Sequencia do produto" BASE="Sequencia do produto" ESTRANGEIRO="Sequencia do produto"/>
+      </INTEGRIDADE>
+      <INTEGRIDADE NOME="PW~Usuarios em PW~Grupo" BASE="PW~Grupos" ESTRANGEIRA="PW~Usuarios" ATUALIZA="1" EXCLUI="1" SISTEMA="1">
+         <CAMPO NOME="PW~Nome-PW~Grupo" BASE="PW~Nome" ESTRANGEIRO="PW~Grupo" SISTEMA="1"/>
+      </INTEGRIDADE>
+      <INTEGRIDADE NOME="PW~Tabelas em PW~Grupo" BASE="PW~Grupos" ESTRANGEIRA="PW~Tabelas" ATUALIZA="1" EXCLUI="1" SISTEMA="1">
+         <CAMPO NOME="PW~Nome-PW~Grupo" BASE="PW~Nome" ESTRANGEIRO="PW~Grupo" SISTEMA="1"/>
+      </INTEGRIDADE>
+   </BANCO>
+</PROJETO>
